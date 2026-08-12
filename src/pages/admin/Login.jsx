@@ -1,0 +1,90 @@
+import React, { useState, useEffect } from 'react';
+import { supabase } from '../../lib/supabase';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
+
+function Login() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [message, setMessage] = useState(null);
+
+  const { session } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (session) {
+      navigate('/admin');
+    }
+  }, [session, navigate]);
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+    setMessage(null);
+
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    
+    if (error) {
+      if (error.message.includes('Invalid login credentials')) {
+        // If user doesn't exist, try signing them up (for easy dev setup)
+        const { data: signUpData, error: signUpError } = await supabase.auth.signUp({ email, password });
+        if (signUpError) {
+          setError(signUpError.message);
+        } else {
+          if (!signUpData.session) {
+            setMessage('Account created! Please check your email for the confirmation link.');
+          }
+        }
+      } else {
+        setError(error.message);
+      }
+    }
+    setLoading(false);
+  };
+
+  return (
+    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', backgroundColor: '#f5f5f5' }}>
+      <form onSubmit={handleLogin} style={{ background: 'white', padding: '40px', borderRadius: '8px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', width: '400px' }}>
+        <h2 style={{ textAlign: 'center', marginBottom: '24px' }}>KlarElle Admin</h2>
+        
+        {error && <div style={{ color: 'red', marginBottom: '16px', fontSize: '14px' }}>{error}</div>}
+        {message && <div style={{ color: 'green', marginBottom: '16px', fontSize: '14px' }}>{message}</div>}
+        
+        <div style={{ marginBottom: '16px' }}>
+          <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>Email</label>
+          <input 
+            type="email" 
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            style={{ width: '100%', padding: '10px', border: '1px solid #ccc', borderRadius: '4px' }}
+            required
+          />
+        </div>
+        
+        <div style={{ marginBottom: '24px' }}>
+          <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>Password</label>
+          <input 
+            type="password" 
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            style={{ width: '100%', padding: '10px', border: '1px solid #ccc', borderRadius: '4px' }}
+            required
+          />
+        </div>
+        
+        <button 
+          type="submit" 
+          disabled={loading}
+          style={{ width: '100%', padding: '12px', backgroundColor: 'black', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}
+        >
+          {loading ? 'Processing...' : 'Login / Create Account'}
+        </button>
+      </form>
+    </div>
+  );
+}
+
+export default Login;
