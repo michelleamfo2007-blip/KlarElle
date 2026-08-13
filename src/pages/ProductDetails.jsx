@@ -12,6 +12,8 @@ function ProductDetails() {
   
   const [product, setProduct] = useState(null);
   const [matchingStyles, setMatchingStyles] = useState([]);
+  const [reviews, setReviews] = useState([]);
+  const [reviewStats, setReviewStats] = useState({ avg: 0, count: 0, fitSmall: 0, fitTrue: 0, fitLarge: 0 });
   const [loading, setLoading] = useState(true);
   
   const [selectedColor, setSelectedColor] = useState('Black');
@@ -65,6 +67,31 @@ function ProductDetails() {
           .neq('id', data.id)
           .limit(5);
         if (matches) setMatchingStyles(matches);
+        
+        // Fetch reviews
+        const { data: revs } = await supabase
+          .from('product_reviews')
+          .select('*')
+          .eq('product_id', data.id)
+          .order('created_at', { ascending: false });
+          
+        if (revs) {
+          setReviews(revs);
+          if (revs.length > 0) {
+            const avg = (revs.reduce((sum, r) => sum + r.rating, 0) / revs.length).toFixed(2);
+            const fitSmall = revs.filter(r => r.fit === 'Small').length;
+            const fitTrue = revs.filter(r => r.fit === 'True to Size').length;
+            const fitLarge = revs.filter(r => r.fit === 'Large').length;
+            const totalFit = fitSmall + fitTrue + fitLarge;
+            setReviewStats({
+              avg,
+              count: revs.length,
+              fitSmall: totalFit ? Math.round((fitSmall/totalFit)*100) : 0,
+              fitTrue: totalFit ? Math.round((fitTrue/totalFit)*100) : 0,
+              fitLarge: totalFit ? Math.round((fitLarge/totalFit)*100) : 0
+            });
+          }
+        }
       }
       setLoading(false);
     };
@@ -227,7 +254,7 @@ function ProductDetails() {
             <div style={{ marginTop: '24px' }}>
               <div className="pd-options-title" style={{ marginBottom: '12px' }}>More Options</div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                {['Midi', 'Sleeveless', 'Double Button', 'Appliques', 'Regular', 'Medium Stretch'].map(tag => (
+                {(product.tags || []).map(tag => (
                   <span key={tag} style={{ padding: '8px 12px', background: '#f9f9f9', borderRadius: '4px', fontSize: '13px', color: '#000', fontWeight: '600' }}>
                     {tag} <ChevronRight size={12} color="#999"/>
                   </span>
@@ -267,77 +294,67 @@ function ProductDetails() {
             <div className="section-divider">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
-                  <span style={{ fontSize: '24px', fontWeight: '900' }}>4.31</span>
+                  <span style={{ fontSize: '24px', fontWeight: '900' }}>{reviewStats.count > 0 ? reviewStats.avg : '0.00'}</span>
                   <div style={{ display: 'flex', color: '#fcc419' }}>
-                    <Star size={14} fill="currentColor" />
-                    <Star size={14} fill="currentColor" />
-                    <Star size={14} fill="currentColor" />
-                    <Star size={14} fill="currentColor" />
-                    <Star size={14} fill="currentColor" stroke="currentColor" fillOpacity={0.3} />
+                    {[1, 2, 3, 4, 5].map(star => (
+                      <Star key={star} size={14} fill={star <= Math.round(reviewStats.avg) ? "currentColor" : "none"} stroke="currentColor" />
+                    ))}
                   </div>
-                  <span style={{ fontSize: '12px', color: '#666' }}>(75)</span>
+                  <span style={{ fontSize: '12px', color: '#666' }}>({reviewStats.count})</span>
                 </div>
                 <span style={{ fontSize: '12px', color: '#666', display: 'flex', alignItems: 'center' }}>View more <ChevronRight size={14} /></span>
               </div>
               
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', fontWeight: 'bold', marginBottom: '24px' }}>
-                <div style={{ flex: 1 }}>
-                  <div>Small</div>
-                  <div style={{ height: '4px', background: '#eee', margin: '8px 0', position: 'relative' }}>
-                    <div style={{ position: 'absolute', right: 0, top: 0, bottom: 0, width: '10%', background: '#000' }}></div>
+              {reviewStats.count > 0 && (
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', fontWeight: 'bold', marginBottom: '24px' }}>
+                  <div style={{ flex: 1 }}>
+                    <div>Small</div>
+                    <div style={{ height: '4px', background: '#eee', margin: '8px 0', position: 'relative' }}>
+                      <div style={{ position: 'absolute', right: 0, top: 0, bottom: 0, width: `${reviewStats.fitSmall}%`, background: '#000' }}></div>
+                    </div>
+                    <div style={{ fontWeight: 'normal', textAlign: 'right' }}>{reviewStats.fitSmall}%</div>
                   </div>
-                  <div style={{ fontWeight: 'normal', textAlign: 'right' }}>2%</div>
-                </div>
-                <div style={{ flex: 1, margin: '0 12px' }}>
-                  <div style={{ textAlign: 'center' }}>True to Size</div>
-                  <div style={{ height: '4px', background: '#eee', margin: '8px 0', position: 'relative' }}>
-                    <div style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, background: '#000' }}></div>
+                  <div style={{ flex: 1, margin: '0 12px' }}>
+                    <div style={{ textAlign: 'center' }}>True to Size</div>
+                    <div style={{ height: '4px', background: '#eee', margin: '8px 0', position: 'relative' }}>
+                      <div style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, width: `${reviewStats.fitTrue}%`, margin: '0 auto', background: '#000' }}></div>
+                    </div>
+                    <div style={{ fontWeight: 'normal', textAlign: 'center' }}>{reviewStats.fitTrue}%</div>
                   </div>
-                  <div style={{ fontWeight: 'normal', textAlign: 'center' }}>84%</div>
-                </div>
-                <div style={{ flex: 1 }}>
-                  <div style={{ textAlign: 'right' }}>Large</div>
-                  <div style={{ height: '4px', background: '#eee', margin: '8px 0', position: 'relative' }}>
-                    <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: '30%', background: '#000' }}></div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ textAlign: 'right' }}>Large</div>
+                    <div style={{ height: '4px', background: '#eee', margin: '8px 0', position: 'relative' }}>
+                      <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: `${reviewStats.fitLarge}%`, background: '#000' }}></div>
+                    </div>
+                    <div style={{ fontWeight: 'normal' }}>{reviewStats.fitLarge}%</div>
                   </div>
-                  <div style={{ fontWeight: 'normal' }}>14%</div>
                 </div>
-              </div>
+              )}
               
               <div style={{ display: 'flex', gap: '8px', marginBottom: '24px' }}>
-                <span style={{ padding: '6px 12px', background: '#f5f5f5', borderRadius: '4px', fontSize: '11px', fontWeight: 'bold' }}>Fast Logistics (2)</span>
-                <span style={{ padding: '6px 12px', background: '#f5f5f5', borderRadius: '4px', fontSize: '11px', fontWeight: 'bold' }}>Great Service (1)</span>
+                <span style={{ padding: '6px 12px', background: '#f5f5f5', borderRadius: '4px', fontSize: '11px', fontWeight: 'bold' }}>Fast Logistics</span>
+                <span style={{ padding: '6px 12px', background: '#f5f5f5', borderRadius: '4px', fontSize: '11px', fontWeight: 'bold' }}>Great Service</span>
               </div>
 
-              <div className="review-card">
-                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '8px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 'bold' }}>
-                      l***r
-                      <div style={{ display: 'flex', color: '#fcc419' }}><Star size={10} fill="currentColor" /><Star size={10} fill="currentColor" /><Star size={10} fill="currentColor" /><Star size={10} fill="currentColor" /><Star size={10} fill="currentColor" /></div>
-                    </div>
-                    <div style={{ color: '#999' }}>Color: White / Size: L</div>
-                 </div>
-                 <p style={{ fontSize: '13px', margin: '0 0 12px 0', fontWeight: '600' }}>super nice quality thank you</p>
-                 <div style={{ display: 'flex', justifyContent: 'flex-end', fontSize: '12px', color: '#000', fontWeight: 'bold', gap: '16px', alignItems: 'center' }}>
-                    <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><ThumbsUp size={14} /> Helpful (25)</span>
-                    <span>•••</span>
-                 </div>
-              </div>
-
-              <div className="review-card">
-                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '8px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 'bold' }}>
-                      x***1
-                      <div style={{ display: 'flex', color: '#fcc419' }}><Star size={10} fill="currentColor" /><Star size={10} fill="currentColor" /><Star size={10} fill="currentColor" /><Star size={10} fill="currentColor" /><Star size={10} fill="currentColor" /></div>
-                    </div>
-                    <div style={{ color: '#999' }}>Color: White / Size: M</div>
-                 </div>
-                 <p style={{ fontSize: '13px', margin: '0 0 12px 0', fontWeight: '600' }}>Good quality but the size was very big</p>
-                 <div style={{ display: 'flex', justifyContent: 'flex-end', fontSize: '12px', color: '#000', fontWeight: 'bold', gap: '16px', alignItems: 'center' }}>
-                    <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><ThumbsUp size={14} /> Helpful (10)</span>
-                    <span>•••</span>
-                 </div>
-              </div>
+              {reviews.map(review => (
+                <div key={review.id} className="review-card">
+                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '8px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 'bold' }}>
+                        {review.user_name}
+                        <div style={{ display: 'flex', color: '#fcc419' }}>
+                          {[1, 2, 3, 4, 5].map(s => <Star key={s} size={10} fill={s <= review.rating ? "currentColor" : "none"} stroke="currentColor" />)}
+                        </div>
+                      </div>
+                      <div style={{ color: '#999' }}>Color: {review.color_bought || 'N/A'} / Size: {review.size_bought || 'N/A'}</div>
+                   </div>
+                   <p style={{ fontSize: '13px', margin: '0 0 12px 0', fontWeight: '600' }}>{review.text}</p>
+                   <div style={{ display: 'flex', justifyContent: 'flex-end', fontSize: '12px', color: '#000', fontWeight: 'bold', gap: '16px', alignItems: 'center' }}>
+                      <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><ThumbsUp size={14} /> Helpful ({review.helpful_count})</span>
+                      <span>•••</span>
+                   </div>
+                </div>
+              ))}
+              {reviews.length === 0 && <p style={{ fontSize: '13px', color: '#666' }}>No reviews yet.</p>}
             </div>
 
             {/* Details Section */}
@@ -345,9 +362,9 @@ function ProductDetails() {
               <div className="pd-options-title" style={{ fontSize: '16px', marginBottom: '16px' }}>Details</div>
               <div style={{ display: 'grid', gridTemplateColumns: '120px 1fr', gap: '16px', fontSize: '13px', color: '#000', fontWeight: '600' }}>
                 <span style={{ color: '#666', fontWeight: 'normal' }}>Material:</span>
-                <span>Knitted Fabric</span>
+                <span>{product.material || 'N/A'}</span>
                 <span style={{ color: '#666', fontWeight: 'normal' }}>Composition:</span>
-                <span>95% Polyester, 5% Elastane</span>
+                <span>{product.composition || 'N/A'}</span>
               </div>
               <div style={{ textAlign: 'center', marginTop: '24px', fontSize: '13px', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 View more <ChevronRight size={14} />

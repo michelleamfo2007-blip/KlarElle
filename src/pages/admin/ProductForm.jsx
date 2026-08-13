@@ -23,10 +23,13 @@ function ProductForm() {
     low_stock_threshold: 5,
     status: 'active',
     visibility: true,
+    material: '',
+    composition: ''
   });
 
   const [sizesInput, setSizesInput] = useState('');
   const [colorsInput, setColorsInput] = useState('');
+  const [tagsInput, setTagsInput] = useState('');
   const [variantImages, setVariantImages] = useState({});
 
   const [images, setImages] = useState([]);
@@ -63,10 +66,13 @@ function ProductForm() {
         low_stock_threshold: data.low_stock_threshold || 5,
         status: data.status || 'active',
         visibility: data.visibility ?? true,
+        material: data.material || '',
+        composition: data.composition || '',
       });
 
       setSizesInput(Array.isArray(data.sizes) ? data.sizes.join(', ') : (data.sizes || ''));
       setColorsInput(Array.isArray(data.colors) ? data.colors.join(', ') : (data.colors || ''));
+      setTagsInput(Array.isArray(data.tags) ? data.tags.join(', ') : (data.tags || ''));
       setVariantImages(data.variant_images || {});
 
       const loadedImages = [];
@@ -198,8 +204,11 @@ function ProductForm() {
       visibility: formData.visibility,
       image_url: mainImg,
       hover_image_url: hoverImg,
+      material: formData.material,
+      composition: formData.composition,
       sizes: sizesInput.split(/[;,]+/).map(s => s.trim()).filter(Boolean),
       colors: colorsInput.split(/[;,]+/).map(c => c.trim()).filter(Boolean),
+      tags: tagsInput.split(/[;,]+/).map(t => t.trim()).filter(Boolean),
       variant_images: variantImages
     };
 
@@ -346,6 +355,38 @@ function ProductForm() {
                     value={formData.description} 
                     onChange={(e) => setFormData({...formData, description: e.target.value})} 
                     style={{ resize: 'vertical' }}
+                  />
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                  <div>
+                    <label className="input-label">Material (e.g. Knitted Fabric)</label>
+                    <input 
+                      type="text" 
+                      className="input-field" 
+                      value={formData.material} 
+                      onChange={(e) => setFormData({...formData, material: e.target.value})} 
+                    />
+                  </div>
+                  <div>
+                    <label className="input-label">Composition (e.g. 95% Polyester)</label>
+                    <input 
+                      type="text" 
+                      className="input-field" 
+                      value={formData.composition} 
+                      onChange={(e) => setFormData({...formData, composition: e.target.value})} 
+                    />
+                  </div>
+                </div>
+                
+                <div>
+                  <label className="input-label">Tags (comma separated e.g. Midi, Sleeveless)</label>
+                  <input 
+                    type="text" 
+                    className="input-field" 
+                    placeholder="Midi, Sleeveless, Regular"
+                    value={tagsInput} 
+                    onChange={(e) => setTagsInput(e.target.value)} 
                   />
                 </div>
               </div>
