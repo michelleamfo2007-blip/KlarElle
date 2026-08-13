@@ -140,10 +140,10 @@ function CustomerProfile() {
 
           {/* Utilities */}
           <div className="utilities-grid">
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+            <a href="mailto:Moteng.bantesi@gmail.com" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', cursor: 'pointer', textDecoration: 'none', color: 'inherit' }}>
               <HeadphonesIcon size={24} strokeWidth={1.5} />
               <span style={{ fontSize: '12px', textAlign: 'center', lineHeight: '1.2' }}>Customer<br/>Service</span>
-            </div>
+            </a>
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
               <CalendarCheck size={24} strokeWidth={1.5} />
               <span style={{ fontSize: '12px', textAlign: 'center', lineHeight: '1.2' }}>Check In</span>
