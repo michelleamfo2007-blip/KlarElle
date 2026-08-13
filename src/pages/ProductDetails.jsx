@@ -5,6 +5,24 @@ import { Heart, Truck, RotateCcw, Share2, Star, ChevronRight, X, Ruler, ThumbsUp
 import { useCart } from '../context/CartContext';
 import { useFavorites } from '../context/FavoritesContext';
 
+const CustomSlider = ({ value, min, max, onChange, marks }) => {
+  const percentage = ((value - min) / (max - min)) * 100;
+  return (
+    <div style={{ width: '100%', height: '40px', background: '#f8f9fa', border: '1px solid #e9ecef', borderRadius: '4px', position: 'relative' }}>
+      <div style={{ position: 'absolute', left: `${percentage}%`, top: 0, bottom: 0, width: '2px', background: '#1c7ed6', transform: 'translateX(-50%)', pointerEvents: 'none' }}></div>
+      <div style={{ position: 'absolute', left: `${percentage}%`, top: '-6px', transform: 'translateX(-50%)', width: 0, height: 0, borderLeft: '6px solid transparent', borderRight: '6px solid transparent', borderTop: '8px solid #1c7ed6', pointerEvents: 'none' }}></div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', padding: '24px 10px 0 10px', fontSize: '10px', color: '#999', pointerEvents: 'none' }}>
+        {marks.map(mark => <span key={mark}>{mark}</span>)}
+      </div>
+      <input 
+        type="range" min={min} max={max} value={value} 
+        onChange={e => onChange(Number(e.target.value))}
+        style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', opacity: 0, cursor: 'pointer', margin: 0 }} 
+      />
+    </div>
+  );
+};
+
 function ProductDetails() {
   const { id } = useParams();
   const { addToCart } = useCart();
@@ -30,6 +48,11 @@ function ProductDetails() {
   const [sizeModalStep, setSizeModalStep] = useState(1);
   const [measurementUnit, setMeasurementUnit] = useState('cm, kg');
   const [bodyShape, setBodyShape] = useState(null);
+  const [userHeight, setUserHeight] = useState(165);
+  const [userWeight, setUserWeight] = useState(60);
+  const [userBust, setUserBust] = useState(90);
+  const [userWaist, setUserWaist] = useState(70);
+  const [userHips, setUserHips] = useState(100);
 
   const colorMap = {
     'black': '#000000', 'white': '#ffffff', 'red': '#ff0000', 'blue': '#0000ff', 'green': '#008000', 
@@ -666,28 +689,16 @@ function ProductDetails() {
                   <div style={{ marginBottom: '40px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '12px' }}>
                       <span style={{ fontWeight: 'bold', fontSize: '14px' }}>Height<span style={{ color: '#d90429' }}>*</span></span>
-                      <span style={{ fontWeight: '900', fontSize: '20px' }}>165 <span style={{ fontSize: '13px', fontWeight: 'bold' }}>{measurementUnit === 'cm, kg' ? 'cm' : 'in'}</span></span>
+                      <span style={{ fontWeight: '900', fontSize: '20px' }}>{measurementUnit === 'cm, kg' ? userHeight : Math.round(userHeight * 0.393701)} <span style={{ fontSize: '13px', fontWeight: 'bold' }}>{measurementUnit === 'cm, kg' ? 'cm' : 'in'}</span></span>
                     </div>
-                    <div style={{ width: '100%', height: '40px', background: '#f8f9fa', border: '1px solid #e9ecef', borderRadius: '4px', position: 'relative' }}>
-                      <div style={{ position: 'absolute', left: '50%', top: 0, bottom: 0, width: '2px', background: '#1c7ed6' }}></div>
-                      <div style={{ position: 'absolute', left: '50%', top: '-6px', transform: 'translateX(-50%)', width: 0, height: 0, borderLeft: '6px solid transparent', borderRight: '6px solid transparent', borderTop: '8px solid #1c7ed6' }}></div>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', padding: '24px 10px 0 10px', fontSize: '10px', color: '#999' }}>
-                        <span>155</span><span>165</span><span>175</span>
-                      </div>
-                    </div>
+                    <CustomSlider value={userHeight} min={140} max={200} marks={['155', '165', '175']} onChange={setUserHeight} />
                   </div>
                   <div style={{ marginBottom: '32px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '12px' }}>
                       <span style={{ fontWeight: 'bold', fontSize: '14px' }}>Weight<span style={{ color: '#d90429' }}>*</span></span>
-                      <span style={{ fontWeight: '900', fontSize: '20px' }}>60 <span style={{ fontSize: '13px', fontWeight: 'bold' }}>{measurementUnit === 'cm, kg' ? 'kg' : 'lb'}</span></span>
+                      <span style={{ fontWeight: '900', fontSize: '20px' }}>{measurementUnit === 'cm, kg' ? userWeight : Math.round(userWeight * 2.20462)} <span style={{ fontSize: '13px', fontWeight: 'bold' }}>{measurementUnit === 'cm, kg' ? 'kg' : 'lb'}</span></span>
                     </div>
-                    <div style={{ width: '100%', height: '40px', background: '#f8f9fa', border: '1px solid #e9ecef', borderRadius: '4px', position: 'relative' }}>
-                      <div style={{ position: 'absolute', left: '50%', top: 0, bottom: 0, width: '2px', background: '#1c7ed6' }}></div>
-                      <div style={{ position: 'absolute', left: '50%', top: '-6px', transform: 'translateX(-50%)', width: 0, height: 0, borderLeft: '6px solid transparent', borderRight: '6px solid transparent', borderTop: '8px solid #1c7ed6' }}></div>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', padding: '24px 10px 0 10px', fontSize: '10px', color: '#999' }}>
-                        <span>45</span><span>55</span><span>65</span><span>75</span>
-                      </div>
-                    </div>
+                    <CustomSlider value={userWeight} min={30} max={120} marks={['45', '55', '65', '75']} onChange={setUserWeight} />
                   </div>
                 </>
               )}
@@ -697,41 +708,23 @@ function ProductDetails() {
                   <div style={{ marginBottom: '40px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '12px' }}>
                       <span style={{ fontWeight: 'bold', fontSize: '14px' }}>Bust<span style={{ color: '#d90429' }}>*</span></span>
-                      <span style={{ fontWeight: '900', fontSize: '20px' }}>90 <span style={{ fontSize: '13px', fontWeight: 'bold' }}>{measurementUnit === 'cm, kg' ? 'cm' : 'in'}</span></span>
+                      <span style={{ fontWeight: '900', fontSize: '20px' }}>{measurementUnit === 'cm, kg' ? userBust : Math.round(userBust * 0.393701)} <span style={{ fontSize: '13px', fontWeight: 'bold' }}>{measurementUnit === 'cm, kg' ? 'cm' : 'in'}</span></span>
                     </div>
-                    <div style={{ width: '100%', height: '40px', background: '#f8f9fa', border: '1px solid #e9ecef', borderRadius: '4px', position: 'relative' }}>
-                      <div style={{ position: 'absolute', left: '50%', top: 0, bottom: 0, width: '2px', background: '#1c7ed6' }}></div>
-                      <div style={{ position: 'absolute', left: '50%', top: '-6px', transform: 'translateX(-50%)', width: 0, height: 0, borderLeft: '6px solid transparent', borderRight: '6px solid transparent', borderTop: '8px solid #1c7ed6' }}></div>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', padding: '24px 10px 0 10px', fontSize: '10px', color: '#999' }}>
-                        <span>80</span><span>90</span><span>100</span>
-                      </div>
-                    </div>
+                    <CustomSlider value={userBust} min={60} max={130} marks={['80', '90', '100']} onChange={setUserBust} />
                   </div>
                   <div style={{ marginBottom: '40px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '12px' }}>
                       <span style={{ fontWeight: 'bold', fontSize: '14px' }}>Waist<span style={{ color: '#d90429' }}>*</span></span>
-                      <span style={{ fontWeight: '900', fontSize: '20px' }}>70 <span style={{ fontSize: '13px', fontWeight: 'bold' }}>{measurementUnit === 'cm, kg' ? 'cm' : 'in'}</span></span>
+                      <span style={{ fontWeight: '900', fontSize: '20px' }}>{measurementUnit === 'cm, kg' ? userWaist : Math.round(userWaist * 0.393701)} <span style={{ fontSize: '13px', fontWeight: 'bold' }}>{measurementUnit === 'cm, kg' ? 'cm' : 'in'}</span></span>
                     </div>
-                    <div style={{ width: '100%', height: '40px', background: '#f8f9fa', border: '1px solid #e9ecef', borderRadius: '4px', position: 'relative' }}>
-                      <div style={{ position: 'absolute', left: '50%', top: 0, bottom: 0, width: '2px', background: '#1c7ed6' }}></div>
-                      <div style={{ position: 'absolute', left: '50%', top: '-6px', transform: 'translateX(-50%)', width: 0, height: 0, borderLeft: '6px solid transparent', borderRight: '6px solid transparent', borderTop: '8px solid #1c7ed6' }}></div>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', padding: '24px 10px 0 10px', fontSize: '10px', color: '#999' }}>
-                        <span>65</span><span>75</span><span>85</span>
-                      </div>
-                    </div>
+                    <CustomSlider value={userWaist} min={50} max={120} marks={['65', '75', '85']} onChange={setUserWaist} />
                   </div>
                   <div style={{ marginBottom: '32px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '12px' }}>
                       <span style={{ fontWeight: 'bold', fontSize: '14px' }}>Hips<span style={{ color: '#d90429' }}>*</span></span>
-                      <span style={{ fontWeight: '900', fontSize: '20px' }}>100 <span style={{ fontSize: '13px', fontWeight: 'bold' }}>{measurementUnit === 'cm, kg' ? 'cm' : 'in'}</span></span>
+                      <span style={{ fontWeight: '900', fontSize: '20px' }}>{measurementUnit === 'cm, kg' ? userHips : Math.round(userHips * 0.393701)} <span style={{ fontSize: '13px', fontWeight: 'bold' }}>{measurementUnit === 'cm, kg' ? 'cm' : 'in'}</span></span>
                     </div>
-                    <div style={{ width: '100%', height: '40px', background: '#f8f9fa', border: '1px solid #e9ecef', borderRadius: '4px', position: 'relative' }}>
-                      <div style={{ position: 'absolute', left: '50%', top: 0, bottom: 0, width: '2px', background: '#1c7ed6' }}></div>
-                      <div style={{ position: 'absolute', left: '50%', top: '-6px', transform: 'translateX(-50%)', width: 0, height: 0, borderLeft: '6px solid transparent', borderRight: '6px solid transparent', borderTop: '8px solid #1c7ed6' }}></div>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', padding: '24px 10px 0 10px', fontSize: '10px', color: '#999' }}>
-                        <span>90</span><span>100</span><span>110</span>
-                      </div>
-                    </div>
+                    <CustomSlider value={userHips} min={70} max={140} marks={['90', '100', '110']} onChange={setUserHips} />
                   </div>
                 </>
               )}
@@ -776,23 +769,23 @@ function ProductDetails() {
 
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '24px 16px', textAlign: 'center' }}>
                       <div>
-                        <div style={{ fontWeight: '900', fontSize: '16px' }}>165 cm</div>
+                        <div style={{ fontWeight: '900', fontSize: '16px' }}>{measurementUnit === 'cm, kg' ? userHeight : Math.round(userHeight * 0.393701)} {measurementUnit === 'cm, kg' ? 'cm' : 'in'}</div>
                         <div style={{ color: '#666', fontSize: '12px', fontWeight: 'bold', marginTop: '4px' }}>Height</div>
                       </div>
                       <div>
-                        <div style={{ fontWeight: '900', fontSize: '16px' }}>60 kg</div>
+                        <div style={{ fontWeight: '900', fontSize: '16px' }}>{measurementUnit === 'cm, kg' ? userWeight : Math.round(userWeight * 2.20462)} {measurementUnit === 'cm, kg' ? 'kg' : 'lb'}</div>
                         <div style={{ color: '#666', fontSize: '12px', fontWeight: 'bold', marginTop: '4px' }}>Weight</div>
                       </div>
                       <div>
-                        <div style={{ fontWeight: '900', fontSize: '16px' }}>90 cm</div>
+                        <div style={{ fontWeight: '900', fontSize: '16px' }}>{measurementUnit === 'cm, kg' ? userBust : Math.round(userBust * 0.393701)} {measurementUnit === 'cm, kg' ? 'cm' : 'in'}</div>
                         <div style={{ color: '#666', fontSize: '12px', fontWeight: 'bold', marginTop: '4px' }}>Bust</div>
                       </div>
                       <div>
-                        <div style={{ fontWeight: '900', fontSize: '16px' }}>70 cm</div>
+                        <div style={{ fontWeight: '900', fontSize: '16px' }}>{measurementUnit === 'cm, kg' ? userWaist : Math.round(userWaist * 0.393701)} {measurementUnit === 'cm, kg' ? 'cm' : 'in'}</div>
                         <div style={{ color: '#666', fontSize: '12px', fontWeight: 'bold', marginTop: '4px' }}>Waist</div>
                       </div>
                       <div>
-                        <div style={{ fontWeight: '900', fontSize: '16px' }}>100 cm</div>
+                        <div style={{ fontWeight: '900', fontSize: '16px' }}>{measurementUnit === 'cm, kg' ? userHips : Math.round(userHips * 0.393701)} {measurementUnit === 'cm, kg' ? 'cm' : 'in'}</div>
                         <div style={{ color: '#666', fontSize: '12px', fontWeight: 'bold', marginTop: '4px' }}>Hips</div>
                       </div>
                       <div>
