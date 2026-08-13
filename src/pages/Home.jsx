@@ -79,20 +79,6 @@ function Home() {
         </div>
       </section>
 
-      {/* Circular Categories Section */}
-      <section className="container">
-        <div className="circular-categories">
-          {['Maxi Dresses', 'Midi Dresses', 'Mini Dresses', 'Bodycon', 'Floral', 'Party Wear', 'Casual', 'Workwear'].map((cat, i) => (
-            <Link to={`/category/${cat.toLowerCase().replace(' ', '-')}`} className="circle-category" key={cat}>
-              <div className="circle-img-wrap">
-                <img src="/circle_dress.png" alt={cat} />
-              </div>
-              <span className="circle-title">{cat}</span>
-            </Link>
-          ))}
-        </div>
-      </section>
-
       {/* Luxury Product Section */}
       <section className="luxury-section">
         <div className="container">
