@@ -23,6 +23,7 @@ function ProductDetails() {
 
   // Modal State
   const [showSizeModal, setShowSizeModal] = useState(false);
+  const [showGuideModal, setShowGuideModal] = useState(false);
   const [sizeModalStep, setSizeModalStep] = useState(1);
   const [measurementUnit, setMeasurementUnit] = useState('cm, kg');
   const [bodyShape, setBodyShape] = useState(null);
@@ -243,7 +244,7 @@ function ProductDetails() {
                 </div>
                 
                 <div style={{ display: 'flex', gap: '16px', fontSize: '12px', fontWeight: 'bold', marginTop: '12px' }}>
-                  <span style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}><Ruler size={14} style={{marginRight:'4px'}}/> Size Guide <ChevronRight size={14} /></span>
+                  <span style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }} onClick={() => setShowGuideModal(true)}><Ruler size={14} style={{marginRight:'4px'}}/> Size Guide <ChevronRight size={14} /></span>
                   <span style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }} onClick={() => {setShowSizeModal(true); setSizeModalStep(1);}}>📏 Check My Size <ChevronRight size={14} /></span>
                 </div>
                 <div style={{ fontSize: '12px', color: '#666', marginTop: '8px' }}>Not your size? Tell us <ChevronRight size={12}/></div>
@@ -262,33 +263,6 @@ function ProductDetails() {
               </div>
             </div>
 
-            {/* Shipping Info */}
-            <div className="section-divider">
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', fontWeight: 'bold', fontSize: '15px' }}>
-                <span>Shipping to <span style={{ fontSize: '13px', marginLeft: '4px' }}>📍 Abeka free pipe</span></span>
-                <ChevronRight size={16} />
-              </div>
-              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', paddingBottom: '16px', borderBottom: '1px solid #eee' }}>
-                <Truck size={18} style={{ color: '#2b8a3e', marginTop: '2px' }} />
-                <div style={{ flex: 1 }}>
-                  <strong style={{ color: '#2b8a3e', fontSize: '14px' }}>Free Shipping(Orders ≥ GH₵706.20)</strong>
-                  <div style={{ fontSize: '12px', color: '#666', marginTop: '4px' }}>Est. Delivery: Aug 28 - Sep 14</div>
-                </div>
-                <ChevronRight size={16} color="#999" style={{ marginTop: '2px' }} />
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 0', borderBottom: '1px solid #eee', fontSize: '13px', fontWeight: '600' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  <RotateCcw size={18} /> Returns Accepted
-                </div>
-                <ChevronRight size={16} color="#999" />
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 0', fontSize: '13px', fontWeight: '600' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  <span style={{ fontSize: '18px' }}>🛡️</span> Safe Payments · Privacy Protection
-                </div>
-                <ChevronRight size={16} color="#999" />
-              </div>
-            </div>
 
             {/* Reviews Section */}
             <div className="section-divider">
@@ -415,6 +389,60 @@ function ProductDetails() {
          </button>
       </div>
       
+      {/* Size Guide Modal */}
+      {showGuideModal && (
+        <div className="modal-overlay" onClick={() => setShowGuideModal(false)}>
+          <div className="modal-content" style={{ minHeight: 'auto', paddingBottom: '24px' }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px', borderBottom: '1px solid #eee' }}>
+              <div style={{ width: '24px' }}></div>
+              <h3 style={{ margin: 0, fontSize: '16px' }}>Size Guide</h3>
+              <X size={24} onClick={() => setShowGuideModal(false)} style={{ cursor: 'pointer' }} />
+            </div>
+            <div style={{ padding: '24px 20px', overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px', textAlign: 'center' }}>
+                <thead>
+                  <tr style={{ background: '#f5f5f5' }}>
+                    <th style={{ padding: '12px', border: '1px solid #eee' }}>Size</th>
+                    <th style={{ padding: '12px', border: '1px solid #eee' }}>Bust (cm)</th>
+                    <th style={{ padding: '12px', border: '1px solid #eee' }}>Waist (cm)</th>
+                    <th style={{ padding: '12px', border: '1px solid #eee' }}>Hips (cm)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td style={{ padding: '12px', border: '1px solid #eee', fontWeight: 'bold' }}>S</td>
+                    <td style={{ padding: '12px', border: '1px solid #eee' }}>82-86</td>
+                    <td style={{ padding: '12px', border: '1px solid #eee' }}>62-66</td>
+                    <td style={{ padding: '12px', border: '1px solid #eee' }}>88-92</td>
+                  </tr>
+                  <tr>
+                    <td style={{ padding: '12px', border: '1px solid #eee', fontWeight: 'bold' }}>M</td>
+                    <td style={{ padding: '12px', border: '1px solid #eee' }}>86-90</td>
+                    <td style={{ padding: '12px', border: '1px solid #eee' }}>66-70</td>
+                    <td style={{ padding: '12px', border: '1px solid #eee' }}>92-96</td>
+                  </tr>
+                  <tr>
+                    <td style={{ padding: '12px', border: '1px solid #eee', fontWeight: 'bold' }}>L</td>
+                    <td style={{ padding: '12px', border: '1px solid #eee' }}>90-94</td>
+                    <td style={{ padding: '12px', border: '1px solid #eee' }}>70-74</td>
+                    <td style={{ padding: '12px', border: '1px solid #eee' }}>96-100</td>
+                  </tr>
+                  <tr>
+                    <td style={{ padding: '12px', border: '1px solid #eee', fontWeight: 'bold' }}>XL</td>
+                    <td style={{ padding: '12px', border: '1px solid #eee' }}>94-100</td>
+                    <td style={{ padding: '12px', border: '1px solid #eee' }}>74-80</td>
+                    <td style={{ padding: '12px', border: '1px solid #eee' }}>100-106</td>
+                  </tr>
+                </tbody>
+              </table>
+              <div style={{ marginTop: '16px', fontSize: '12px', color: '#666', textAlign: 'center' }}>
+                Measurements are for reference only. Please allow 1-3cm differences due to manual measurement.
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Check My Size Modal */}
       {showSizeModal && (
         <div className="modal-overlay">
