@@ -55,12 +55,71 @@ function StaticPage({ title }) {
         );
       case 'Returns':
         return (
-          <>
-            <p style={{ marginBottom: '16px' }}>We want you to love your KLARELLE purchase. If you are not completely satisfied, we gladly accept returns within 30 days of delivery.</p>
-            <p style={{ marginBottom: '16px' }}><strong>Return Conditions:</strong> Items must be unworn, unwashed, and have original tags attached. Intimates, swimwear, and final sale items cannot be returned for hygiene reasons.</p>
-            <p style={{ marginBottom: '16px' }}><strong>How to Return:</strong> Simply visit our Returns Portal, enter your order number, and print your prepaid return label. A small restocking fee will be deducted from your refund.</p>
-            <p style={{ marginBottom: '16px' }}>Refunds are processed back to the original payment method within 5-7 business days after we receive your package.</p>
-          </>
+          <div style={{ lineHeight: '1.6' }}>
+            <h2 style={{ marginBottom: '16px', fontSize: '20px' }}>Klarelle Return & Exchange Policy</h2>
+            <p style={{ marginBottom: '16px', fontWeight: 'bold' }}>Effective Date: September 01 2026</p>
+            <p style={{ marginBottom: '16px' }}>At Klarelle, we want you to love every piece you purchase. Because our items are produced in limited quantities, we currently offer exchanges or store credit only. We do not offer refunds to the original form of payment.</p>
+            
+            <h3 style={{ marginTop: '24px', marginBottom: '12px', fontSize: '16px' }}>1. Eligibility for Exchanges or Store Credit</h3>
+            <p style={{ marginBottom: '8px' }}>To be eligible, items must:</p>
+            <ul style={{ listStyleType: 'disc', paddingLeft: '20px', marginBottom: '16px' }}>
+              <li>Be returned within 14 days of delivery.</li>
+              <li>Be unworn, unwashed, and unused.</li>
+              <li>Have all original tags attached.</li>
+              <li>Be free from makeup, deodorant, perfume, stains, odors, pet hair, or any other signs of wear.</li>
+              <li>Be returned in the original packaging when applicable.</li>
+              <li>Not be altered, damaged, or modified in any way.</li>
+            </ul>
+            <p style={{ marginBottom: '16px' }}>Items that do not meet these requirements may be refused and returned to the customer.</p>
+            
+            <h3 style={{ marginTop: '24px', marginBottom: '12px', fontSize: '16px' }}>2. Exchanges</h3>
+            <p style={{ marginBottom: '16px' }}>Customers may request an exchange for a different size or an available item of equal value.</p>
+            <p style={{ marginBottom: '16px' }}>Exchanges are subject to inventory availability. If the requested size or item is unavailable, the customer may choose store credit instead.</p>
+            <p style={{ marginBottom: '16px' }}>If the replacement item costs more than the original item, the customer is responsible for paying the price difference.</p>
+
+            <h3 style={{ marginTop: '24px', marginBottom: '12px', fontSize: '16px' }}>3. Store Credit</h3>
+            <p style={{ marginBottom: '16px' }}>If a customer chooses store credit, the approved return value will be issued as store credit after the returned item has been received and inspected.</p>
+            <p style={{ marginBottom: '8px' }}>Store credit:</p>
+            <ul style={{ listStyleType: 'disc', paddingLeft: '20px', marginBottom: '16px' }}>
+              <li>Is non-refundable and cannot be redeemed for cash.</li>
+              <li>May be used toward future Klarelle purchases.</li>
+              <li>May be subject to any applicable promotional or product-specific restrictions.</li>
+              <li>Does not include original shipping charges.</li>
+            </ul>
+
+            <h3 style={{ marginTop: '24px', marginBottom: '12px', fontSize: '16px' }}>4. Final Sale Items</h3>
+            <p style={{ marginBottom: '8px' }}>The following items are final sale and are not eligible for exchange or store credit:</p>
+            <ul style={{ listStyleType: 'disc', paddingLeft: '20px', marginBottom: '16px' }}>
+              <li>Sale or clearance items</li>
+              <li>Items purchased using a final-sale promotion</li>
+              <li>Customized or personalized items</li>
+              <li>Items specifically identified as final sale on the product page</li>
+            </ul>
+
+            <h3 style={{ marginTop: '24px', marginBottom: '12px', fontSize: '16px' }}>5. Damaged or Incorrect Items</h3>
+            <p style={{ marginBottom: '16px' }}>If you receive an incorrect, defective, or damaged item, please contact us within 7 days of delivery with your order number and clear photos of the issue.</p>
+            <p style={{ marginBottom: '16px' }}>If the issue is verified as a fulfillment or manufacturing error, Klarelle will provide an appropriate replacement or store credit at no additional cost to the customer.</p>
+
+            <h3 style={{ marginTop: '24px', marginBottom: '12px', fontSize: '16px' }}>6. Return Shipping</h3>
+            <p style={{ marginBottom: '16px' }}>Customers are responsible for return shipping costs unless the item received was incorrect, defective, or damaged due to an error on our part.</p>
+            <p style={{ marginBottom: '16px' }}>We recommend using a trackable shipping service. Klarelle is not responsible for packages lost or damaged while being returned.</p>
+
+            <h3 style={{ marginTop: '24px', marginBottom: '12px', fontSize: '16px' }}>7. How to Request an Exchange or Store Credit</h3>
+            <p style={{ marginBottom: '8px' }}>To initiate a return, contact us at <strong>supportklarelle@gmail.com</strong> within the applicable return period. Please include:</p>
+            <ul style={{ listStyleType: 'disc', paddingLeft: '20px', marginBottom: '16px' }}>
+              <li>Order number</li>
+              <li>Name used for the order</li>
+              <li>Item(s) you wish to return</li>
+              <li>Reason for the return</li>
+              <li>Requested size/item for an exchange, if applicable</li>
+            </ul>
+            <p style={{ marginBottom: '16px' }}>Do not ship an item back before receiving return instructions from Klarelle.</p>
+
+            <h3 style={{ marginTop: '24px', marginBottom: '12px', fontSize: '16px' }}>8. Processing Time</h3>
+            <p style={{ marginBottom: '16px' }}>Once your return is received, please allow 3–7 business days for inspection and processing. Store credit will be issued after the return has been approved.</p>
+            <p style={{ marginBottom: '16px' }}>By placing an order with Klarelle, the customer acknowledges and agrees to this Return & Exchange Policy.</p>
+            <p style={{ marginBottom: '16px' }}>Klarelle reserves the right to refuse returns that do not meet the requirements outlined above.</p>
+          </div>
         );
       case 'How to Order':
         return (
