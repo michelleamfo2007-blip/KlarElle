@@ -401,21 +401,21 @@ function ProductDetails() {
       {/* Check My Size Modal */}
       {showSizeModal && (
         <div className="modal-overlay">
-          <div className="modal-content">
+          <div className="modal-content" style={{ minHeight: sizeModalStep === 4 ? '70vh' : 'auto' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px', borderBottom: '1px solid #eee' }}>
-              {sizeModalStep > 1 ? (
+              {sizeModalStep > 1 && sizeModalStep < 4 ? (
                 <ChevronLeft size={24} onClick={() => setSizeModalStep(sizeModalStep - 1)} style={{ cursor: 'pointer' }} />
               ) : (
                 <div style={{ width: '24px' }}></div>
               )}
               <h3 style={{ margin: 0, fontSize: '16px' }}>
-                {sizeModalStep === 1 || sizeModalStep === 2 ? 'Your Measurements' : 'Your Body Shape'}
-                <span style={{ color: '#d90429' }}>*</span>
+                {sizeModalStep === 1 || sizeModalStep === 2 ? 'Your Measurements' : sizeModalStep === 3 ? 'Your Body Shape' : 'Recommendation'}
+                {sizeModalStep < 4 && <span style={{ color: '#d90429' }}>*</span>}
               </h3>
               <X size={24} onClick={() => setShowSizeModal(false)} style={{ cursor: 'pointer' }} />
             </div>
             
-            <div style={{ padding: '24px 20px' }}>
+            <div style={{ padding: sizeModalStep === 4 ? '0' : '24px 20px' }}>
               {(sizeModalStep === 1 || sizeModalStep === 2) && (
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
                   <span style={{ fontWeight: 'bold', fontSize: '14px' }}>Switch to</span>
@@ -515,12 +515,75 @@ function ProductDetails() {
                       style={{ padding: '20px 8px', background: bodyShape === shape ? '#f0f0f0' : '#f9f9f9', border: bodyShape === shape ? '2px solid #000' : '2px solid transparent', borderRadius: '8px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', cursor: 'pointer' }}
                       onClick={() => setBodyShape(shape)}
                     >
-                      <div style={{ width: '40px', height: '60px', background: 'transparent', border: '1.5px solid #000', borderRadius: shape==='Rounded'?'50%':shape==='Triangle'?'0 0 50% 50%':'4px', position: 'relative' }}>
-                        <div style={{position:'absolute', border:'1px dashed #1c7ed6', top:'-4px', bottom:'-4px', left:'-4px', right:'-4px'}}></div>
-                      </div>
+                      <svg width="48" height="64" viewBox="0 0 48 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M24 6C21.8 6 20 7.8 20 10C20 12.2 21.8 14 24 14C26.2 14 28 12.2 28 10C28 7.8 26.2 6 24 6Z" stroke="#000" strokeWidth="1.5"/>
+                        <path d="M18 16C16 16 14 18 13 22L12 36H16L15 60H21V44H27V60H33L32 36H36L35 22C34 18 32 16 30 16H18Z" stroke="#000" strokeWidth="1.5"/>
+                        {shape === 'Hourglass' && <><path d="M14 20 L34 20 L24 35 L14 20 Z" stroke="#339af0" strokeWidth="2"/><path d="M14 50 L34 50 L24 35 L14 50 Z" stroke="#339af0" strokeWidth="2"/></>}
+                        {shape === 'Triangle' && <path d="M24 20 L36 50 L12 50 Z" stroke="#339af0" strokeWidth="2"/>}
+                        {shape === 'Inverted Triangle' && <path d="M12 20 L36 20 L24 50 Z" stroke="#339af0" strokeWidth="2"/>}
+                        {shape === 'Rounded' && <ellipse cx="24" cy="35" rx="14" ry="18" stroke="#339af0" strokeWidth="2"/>}
+                        {shape === 'Straight' && <rect x="14" y="20" width="20" height="30" stroke="#339af0" strokeWidth="2"/>}
+                      </svg>
                       <span style={{ fontSize: '12px', fontWeight: 'bold', textAlign: 'center' }}>{shape}</span>
                     </div>
                   ))}
+                </div>
+              )}
+
+              {sizeModalStep === 4 && (
+                <div style={{ padding: '0', background: '#f5f5f5', height: '100%' }}>
+                  <div style={{ background: '#fff9e6', padding: '20px', textAlign: 'center' }}>
+                    <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#b07b1a', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                      <span>👍</span> <span style={{ fontSize: '24px' }}>S</span>
+                    </div>
+                    <div style={{ fontWeight: 'bold', fontSize: '16px', marginTop: '8px' }}>Best fit for "Me"</div>
+                  </div>
+                  
+                  <div style={{ padding: '16px', background: '#fff', marginTop: '8px' }}>
+                    <div style={{ display: 'flex', gap: '8px', marginBottom: '24px' }}>
+                      <button style={{ padding: '8px 24px', background: '#000', color: '#fff', border: 'none', fontWeight: 'bold', fontSize: '14px' }}>Me</button>
+                      <button style={{ padding: '8px 24px', background: '#f5f5f5', color: '#000', border: 'none', fontWeight: 'bold', fontSize: '14px' }}>+ Add Profile</button>
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '24px 16px', textAlign: 'center' }}>
+                      <div>
+                        <div style={{ fontWeight: '900', fontSize: '16px' }}>165 cm</div>
+                        <div style={{ color: '#666', fontSize: '12px', fontWeight: 'bold', marginTop: '4px' }}>Height</div>
+                      </div>
+                      <div>
+                        <div style={{ fontWeight: '900', fontSize: '16px' }}>60 kg</div>
+                        <div style={{ color: '#666', fontSize: '12px', fontWeight: 'bold', marginTop: '4px' }}>Weight</div>
+                      </div>
+                      <div>
+                        <div style={{ fontWeight: '900', fontSize: '16px' }}>90 cm</div>
+                        <div style={{ color: '#666', fontSize: '12px', fontWeight: 'bold', marginTop: '4px' }}>Bust</div>
+                      </div>
+                      <div>
+                        <div style={{ fontWeight: '900', fontSize: '16px' }}>70 cm</div>
+                        <div style={{ color: '#666', fontSize: '12px', fontWeight: 'bold', marginTop: '4px' }}>Waist</div>
+                      </div>
+                      <div>
+                        <div style={{ fontWeight: '900', fontSize: '16px' }}>100 cm</div>
+                        <div style={{ color: '#666', fontSize: '12px', fontWeight: 'bold', marginTop: '4px' }}>Hips</div>
+                      </div>
+                      <div>
+                        <div style={{ fontWeight: '900', fontSize: '16px' }}>{bodyShape || 'Rounded'}</div>
+                        <div style={{ color: '#666', fontSize: '12px', fontWeight: 'bold', marginTop: '4px' }}>Body Shape</div>
+                      </div>
+                      <div>
+                        <div style={{ fontWeight: '900', fontSize: '16px' }}>--</div>
+                        <div style={{ color: '#666', fontSize: '12px', fontWeight: 'bold', marginTop: '4px' }}>Consumer Preference</div>
+                      </div>
+                      <div>
+                        <div style={{ fontWeight: '900', fontSize: '16px' }}>--</div>
+                        <div style={{ color: '#666', fontSize: '12px', fontWeight: 'bold', marginTop: '4px' }}>Age Range</div>
+                      </div>
+                      <div>
+                        <div style={{ fontWeight: '900', fontSize: '16px' }}>75 cm</div>
+                        <div style={{ color: '#666', fontSize: '12px', fontWeight: 'bold', marginTop: '4px' }}>Underbust</div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
@@ -529,7 +592,7 @@ function ProductDetails() {
               <div style={{ padding: '0 20px 24px 20px', display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
                 <input type="checkbox" id="privacy" style={{ marginTop: '4px' }} />
                 <label htmlFor="privacy" style={{ fontSize: '11px', color: '#666', lineHeight: '1.4', fontWeight: 'bold' }}>
-                  By clicking "Submit", you consent to SHEIN processing your personal data to provide personalized product sizing recommendations for your profile... <span style={{ color: '#1c7ed6' }}>Privacy Policy</span>
+                  By clicking "Submit", you consent to KlarElle processing your personal data to provide personalized product sizing recommendations for your profile... <span style={{ color: '#1c7ed6' }}>Privacy Policy</span>
                 </label>
               </div>
             )}
@@ -537,15 +600,15 @@ function ProductDetails() {
             <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '16px 20px calc(16px + env(safe-area-inset-bottom))', background: '#fff', borderTop: '1px solid #eee' }}>
               <button 
                 onClick={() => {
-                  if (sizeModalStep < 3) setSizeModalStep(sizeModalStep + 1);
+                  if (sizeModalStep < 4) setSizeModalStep(sizeModalStep + 1);
                   else {
                     setShowSizeModal(false);
-                    alert("Size recommendation based on your profile: Medium");
+                    addToCart(product, 'S', selectedColor); // Dummy add 'S' to cart since recommendation is 'S'
                   }
                 }}
                 style={{ width: '100%', padding: '16px', background: '#000', color: '#fff', border: 'none', borderRadius: '4px', fontWeight: 'bold', fontSize: '16px', cursor: 'pointer' }}
               >
-                {sizeModalStep === 3 ? 'Submit' : `Continue (${sizeModalStep}/3)`}
+                {sizeModalStep === 3 ? 'Submit' : sizeModalStep === 4 ? 'Add Best Fit to Cart' : `Continue (${sizeModalStep}/3)`}
               </button>
             </div>
           </div>
