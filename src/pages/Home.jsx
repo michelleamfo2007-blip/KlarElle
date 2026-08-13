@@ -69,22 +69,8 @@ function Home() {
 
       {/* Hero Section */}
       <section className="hero container" style={{marginTop: '24px'}}>
-        <div className="hero-grid">
-          <div className="hero-side-banners" style={{ display: 'flex', flexDirection: 'column' }}>
-            <div className="side-banner" style={{ backgroundColor: '#111', flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
-              <div className="curly-text" style={{ fontSize: '50px', letterSpacing: '2px', textAlign: 'center', lineHeight: '1.2' }}>Coming<br/>Soon</div>
-            </div>
-          </div>
-          <div className="hero-center" style={{ display: 'flex', flexDirection: 'column' }}>
-            <div style={{ backgroundColor: '#111', flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%', minHeight: '400px' }}>
-              <div className="curly-text" style={{ fontSize: '100px', letterSpacing: '4px', textAlign: 'center', lineHeight: '1' }}>Coming Soon</div>
-            </div>
-          </div>
-          <div className="hero-side-banners" style={{ display: 'flex', flexDirection: 'column' }}>
-            <div className="side-banner" style={{ backgroundColor: '#111', flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
-              <div className="curly-text" style={{ fontSize: '50px', letterSpacing: '2px', textAlign: 'center', lineHeight: '1.2' }}>Coming<br/>Soon</div>
-            </div>
-          </div>
+        <div style={{ backgroundColor: '#111', width: '100%', height: '400px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '8px' }}>
+          <div className="curly-text" style={{ fontSize: '100px', letterSpacing: '4px', textAlign: 'center', lineHeight: '1' }}>Coming Soon</div>
         </div>
       </section>
 

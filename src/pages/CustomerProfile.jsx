@@ -5,7 +5,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { 
   Settings, ScanLine, Ticket, Coins, Wallet, Gift, 
   CreditCard, Package, Truck, MessageSquare, Undo2, 
-  HeadphonesIcon, CalendarCheck, ShieldCheck, ChevronRight 
+  HeadphonesIcon, CalendarCheck, ShieldCheck, ChevronRight, Heart
 } from 'lucide-react';
 import MobileTabBar from '../components/MobileTabBar';
 import './Profile.css';
