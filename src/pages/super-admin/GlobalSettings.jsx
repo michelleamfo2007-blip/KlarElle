@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Save, Mail, Phone, Truck, Shield, AlertCircle, DollarSign, MapPin, Instagram, Facebook, Share2 } from 'lucide-react';
+import { Save, Mail, Phone, Truck, Shield, AlertCircle, DollarSign, MapPin, Share2 } from 'lucide-react';
 
 function GlobalSettings() {
   const [settings, setSettings] = useState({
