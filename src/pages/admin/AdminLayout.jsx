@@ -3,6 +3,7 @@ import { Outlet, Navigate, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { supabase } from '../../lib/supabase';
 import { LayoutDashboard, Package, LogOut, Ticket } from 'lucide-react';
+import './Admin.css';
 
 function AdminLayout() {
   const { session } = useAuth();
