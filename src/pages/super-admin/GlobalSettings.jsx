@@ -1,12 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { Save, Mail, Phone, Truck, Shield, AlertCircle } from 'lucide-react';
+import { Save, Mail, Phone, Truck, Shield, AlertCircle, DollarSign, MapPin, Instagram, Facebook, Share2 } from 'lucide-react';
 
 function GlobalSettings() {
   const [settings, setSettings] = useState({
     shippingThreshold: 100,
     supportEmail: 'support@klarelle.store',
     supportPhone: '+1 (555) 123-4567',
-    maintenanceMode: false
+    maintenanceMode: false,
+    taxRate: 7.5,
+    defaultCurrency: 'USD',
+    storeAddress: '123 Fashion Ave, Suite 400, New York, NY 10001',
+    instagramUrl: 'https://instagram.com/klarelle_',
+    tiktokUrl: 'https://tiktok.com/@klarelle.store'
   });
   const [isSaving, setIsSaving] = useState(false);
   const [toast, setToast] = useState('');
@@ -53,13 +58,13 @@ function GlobalSettings() {
         <p style={{ color: '#6b7280', margin: 0, fontSize: '15px' }}>Configure platform-wide rules, contact information, and store status.</p>
       </div>
 
-      <div style={{ background: '#fff', borderRadius: '12px', border: '1px solid #eaeaea', overflow: 'hidden' }}>
+      <div style={{ background: '#fff', borderRadius: '16px', border: '1px solid #eaeaea', overflow: 'hidden', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
         
         {/* Shipping Settings */}
-        <div style={{ padding: '24px', borderBottom: '1px solid #eaeaea' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
-            <div style={{ padding: '8px', background: '#f3f4f6', borderRadius: '8px' }}><Truck size={20} color="#374151" /></div>
-            <h2 style={{ fontSize: '18px', fontWeight: '600', margin: 0 }}>Shipping & Delivery</h2>
+        <div style={{ padding: '32px', borderBottom: '1px solid #eaeaea' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px' }}>
+            <div style={{ padding: '10px', background: '#f8f9fa', borderRadius: '12px', border: '1px solid #eee' }}><Truck size={22} color="#111" /></div>
+            <h2 style={{ fontSize: '20px', fontWeight: '500', margin: 0, fontFamily: 'Playfair Display, serif', letterSpacing: '0.5px' }}>SHIPPING & DELIVERY</h2>
           </div>
           
           <div style={{ marginBottom: '16px' }}>
@@ -75,42 +80,120 @@ function GlobalSettings() {
           </div>
         </div>
 
-        {/* Contact Information */}
-        <div style={{ padding: '24px', borderBottom: '1px solid #eaeaea' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
-            <div style={{ padding: '8px', background: '#f3f4f6', borderRadius: '8px' }}><Mail size={20} color="#374151" /></div>
-            <h2 style={{ fontSize: '18px', fontWeight: '600', margin: 0 }}>Store Contact Info</h2>
+        {/* Financial Settings */}
+        <div style={{ padding: '32px', borderBottom: '1px solid #eaeaea' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px' }}>
+            <div style={{ padding: '10px', background: '#f8f9fa', borderRadius: '12px', border: '1px solid #eee' }}><DollarSign size={22} color="#111" /></div>
+            <h2 style={{ fontSize: '20px', fontWeight: '500', margin: 0, fontFamily: 'Playfair Display, serif', letterSpacing: '0.5px' }}>FINANCIAL RULES</h2>
           </div>
           
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
             <div>
-              <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '8px' }}>Support Email</label>
+              <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#444', marginBottom: '10px' }}>Default Currency</label>
+              <select 
+                name="defaultCurrency"
+                value={settings.defaultCurrency}
+                onChange={handleChange}
+                style={{ width: '100%', padding: '12px 16px', border: '1px solid #e5e7eb', borderRadius: '8px', fontSize: '15px', outline: 'none', background: '#fff', cursor: 'pointer' }}
+              >
+                <option value="USD">USD ($) - US Dollar</option>
+                <option value="GHS">GHS (₵) - Ghanaian Cedi</option>
+                <option value="EUR">EUR (€) - Euro</option>
+                <option value="GBP">GBP (£) - British Pound</option>
+              </select>
+            </div>
+            <div>
+              <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#444', marginBottom: '10px' }}>Store Tax Rate (%)</label>
+              <input 
+                type="number" 
+                step="0.1"
+                name="taxRate"
+                value={settings.taxRate}
+                onChange={handleChange}
+                style={{ width: '100%', padding: '12px 16px', border: '1px solid #e5e7eb', borderRadius: '8px', fontSize: '15px', outline: 'none', transition: 'border-color 0.2s' }}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Contact Information */}
+        <div style={{ padding: '32px', borderBottom: '1px solid #eaeaea' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px' }}>
+            <div style={{ padding: '10px', background: '#f8f9fa', borderRadius: '12px', border: '1px solid #eee' }}><Mail size={22} color="#111" /></div>
+            <h2 style={{ fontSize: '20px', fontWeight: '500', margin: 0, fontFamily: 'Playfair Display, serif', letterSpacing: '0.5px' }}>STORE CONTACT INFO</h2>
+          </div>
+          
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', marginBottom: '24px' }}>
+            <div>
+              <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#444', marginBottom: '10px' }}>Support Email</label>
               <input 
                 type="email" 
                 name="supportEmail"
                 value={settings.supportEmail}
                 onChange={handleChange}
-                style={{ width: '100%', padding: '10px 14px', border: '1px solid #d1d5db', borderRadius: '6px', fontSize: '14px', outline: 'none' }}
+                style={{ width: '100%', padding: '12px 16px', border: '1px solid #e5e7eb', borderRadius: '8px', fontSize: '15px', outline: 'none', transition: 'border-color 0.2s' }}
               />
             </div>
             <div>
-              <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '8px' }}>Support Phone</label>
+              <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#444', marginBottom: '10px' }}>Support Phone</label>
               <input 
                 type="text" 
                 name="supportPhone"
                 value={settings.supportPhone}
                 onChange={handleChange}
-                style={{ width: '100%', padding: '10px 14px', border: '1px solid #d1d5db', borderRadius: '6px', fontSize: '14px', outline: 'none' }}
+                style={{ width: '100%', padding: '12px 16px', border: '1px solid #e5e7eb', borderRadius: '8px', fontSize: '15px', outline: 'none', transition: 'border-color 0.2s' }}
+              />
+            </div>
+          </div>
+          
+          <div>
+            <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#444', marginBottom: '10px' }}>Official Store Address (Used on invoices and returns)</label>
+            <input 
+              type="text" 
+              name="storeAddress"
+              value={settings.storeAddress}
+              onChange={handleChange}
+              style={{ width: '100%', padding: '12px 16px', border: '1px solid #e5e7eb', borderRadius: '8px', fontSize: '15px', outline: 'none', transition: 'border-color 0.2s' }}
+            />
+          </div>
+        </div>
+        
+        {/* Social Media Links */}
+        <div style={{ padding: '32px', borderBottom: '1px solid #eaeaea' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px' }}>
+            <div style={{ padding: '10px', background: '#f8f9fa', borderRadius: '12px', border: '1px solid #eee' }}><Share2 size={22} color="#111" /></div>
+            <h2 style={{ fontSize: '20px', fontWeight: '500', margin: 0, fontFamily: 'Playfair Display, serif', letterSpacing: '0.5px' }}>SOCIAL MEDIA LINKS</h2>
+          </div>
+          
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+            <div>
+              <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#444', marginBottom: '10px' }}>Instagram URL</label>
+              <input 
+                type="url" 
+                name="instagramUrl"
+                value={settings.instagramUrl}
+                onChange={handleChange}
+                style={{ width: '100%', padding: '12px 16px', border: '1px solid #e5e7eb', borderRadius: '8px', fontSize: '15px', outline: 'none', transition: 'border-color 0.2s' }}
+              />
+            </div>
+            <div>
+              <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#444', marginBottom: '10px' }}>TikTok URL</label>
+              <input 
+                type="url" 
+                name="tiktokUrl"
+                value={settings.tiktokUrl}
+                onChange={handleChange}
+                style={{ width: '100%', padding: '12px 16px', border: '1px solid #e5e7eb', borderRadius: '8px', fontSize: '15px', outline: 'none', transition: 'border-color 0.2s' }}
               />
             </div>
           </div>
         </div>
 
         {/* Danger Zone */}
-        <div style={{ padding: '24px', background: '#fafafa' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
-            <div style={{ padding: '8px', background: '#fee2e2', borderRadius: '8px' }}><Shield size={20} color="#dc2626" /></div>
-            <h2 style={{ fontSize: '18px', fontWeight: '600', margin: 0, color: '#991b1b' }}>System Status</h2>
+        <div style={{ padding: '32px', background: '#fef2f2' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px' }}>
+            <div style={{ padding: '10px', background: '#fee2e2', borderRadius: '12px', border: '1px solid #fca5a5' }}><Shield size={22} color="#dc2626" /></div>
+            <h2 style={{ fontSize: '20px', fontWeight: '500', margin: 0, color: '#991b1b', fontFamily: 'Playfair Display, serif', letterSpacing: '0.5px' }}>SYSTEM STATUS</h2>
           </div>
           
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px', background: '#fff', border: '1px solid #fecaca', borderRadius: '8px' }}>
