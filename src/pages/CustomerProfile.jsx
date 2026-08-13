@@ -146,9 +146,9 @@ function CustomerProfile() {
               <div style={{ color: '#ff4444', fontWeight: 'bold' }}>
                 🎟️ {bestCoupon.discount_percent}% OFF coupon ({bestCoupon.code})
               </div>
-              <button style={{ background: '#f5f5f5', border: 'none', padding: '4px 12px', borderRadius: '16px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}>
+              <Link to="/" style={{ background: '#f5f5f5', border: 'none', padding: '4px 12px', borderRadius: '16px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', textDecoration: 'none', color: '#000' }}>
                 Use
-              </button>
+              </Link>
             </div>
           )}
 

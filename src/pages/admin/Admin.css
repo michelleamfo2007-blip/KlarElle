@@ -1,7 +1,7 @@
 /* Admin Dashboard Styles */
 .admin-page {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  color: #333;
+  color: #111827;
   max-width: 1000px;
   margin: 0 auto;
 }
@@ -34,12 +34,12 @@
 }
 
 .admin-btn.primary {
-  background-color: #000;
-  color: #fff;
+  background-color: #111827;
+  color: #FAF9F6;
 }
 
 .admin-btn.primary:hover {
-  background-color: #333;
+  background-color: #BCA38F;
 }
 
 .admin-card {
@@ -180,5 +180,42 @@
   align-items: center;
   height: 200px;
   font-size: 16px;
-  color: #666;
+  color: #BCA38F;
+}
+
+/* Nav Items */
+.admin-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 24px;
+  color: #FAF9F6;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  border-left: 4px solid transparent;
+}
+
+.admin-nav-item:hover {
+  background: rgba(250, 249, 246, 0.05);
+}
+
+.admin-nav-item.active {
+  background: rgba(188, 163, 143, 0.15);
+  color: #BCA38F;
+  border-left-color: #BCA38F;
+}
+
+.admin-nav-item.logout-btn {
+  width: 100%;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 12px 0;
+  color: #FAF9F6;
+}
+
+.admin-nav-item.logout-btn:hover {
+  color: #ff4444;
+  background: none;
 }

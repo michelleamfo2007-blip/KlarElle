@@ -45,7 +45,7 @@ function StaticPage({ title }) {
             <h3 style={{ marginTop: '32px', marginBottom: '12px', fontSize: '18px', textTransform: 'uppercase' }}>Creator Features</h3>
             <p style={{ marginBottom: '24px' }}>Selected creators may be featured on Klarelle’s social platforms and website.</p>
 
-            <a href="mailto:supportklarelle@gmail.com?subject=Fashion Blogger Collaboration Application" style={{
+            <a href="mailto:support@klarelle.store?subject=Fashion Blogger Collaboration Application" style={{
               display: 'inline-block',
               padding: '12px 24px', 
               backgroundColor: '#000', 
@@ -98,7 +98,7 @@ function StaticPage({ title }) {
             <h3 style={{ marginTop: '32px', marginBottom: '12px', fontSize: '18px', textTransform: 'uppercase' }}>U.S. Shipping Rates</h3>
             <p style={{ marginBottom: '16px' }}><strong>Standard Shipping — $8.95</strong><br/>Estimated delivery: 3–7 business days after your order has been processed.</p>
             <p style={{ marginBottom: '16px' }}><strong>Express Shipping — $18.95</strong><br/>Estimated delivery: 1–3 business days after your order has been processed.</p>
-            <p style={{ marginBottom: '16px', fontWeight: 'bold' }}>FREE Standard Shipping on U.S. orders of $150 or more.</p>
+            <p style={{ marginBottom: '16px', fontWeight: 'bold' }}>FREE Standard Shipping on U.S. orders of $100 or more.</p>
             <p style={{ marginBottom: '24px' }}>Shipping times are estimates and are not guaranteed. Carrier delays, weather, holidays, and other circumstances outside of Klarelle’s control may affect delivery times.</p>
 
             <h3 style={{ marginTop: '32px', marginBottom: '12px', fontSize: '18px', textTransform: 'uppercase' }}>International Shipping</h3>
@@ -119,19 +119,19 @@ function StaticPage({ title }) {
             <h3 style={{ marginTop: '32px', marginBottom: '12px', fontSize: '18px', textTransform: 'uppercase' }}>Incorrect Shipping Address</h3>
             <p style={{ marginBottom: '16px' }}>Please carefully review your shipping information before completing your purchase.</p>
             <p style={{ marginBottom: '16px' }}>If an incorrect or incomplete address is provided and the package is returned to Klarelle, the customer may be responsible for the additional shipping cost required to reship the order.</p>
-            <p style={{ marginBottom: '24px' }}>If your order has not yet shipped, contact us as soon as possible at <strong>supportklarelle@gmail.com</strong>. We will do our best to assist you, but address changes cannot be guaranteed after an order has been placed.</p>
+            <p style={{ marginBottom: '24px' }}>If your order has not yet shipped, contact us as soon as possible at <strong>support@klarelle.store</strong>. We will do our best to assist you, but address changes cannot be guaranteed after an order has been placed.</p>
 
             <h3 style={{ marginTop: '32px', marginBottom: '12px', fontSize: '18px', textTransform: 'uppercase' }}>Lost, Stolen, or Delayed Packages</h3>
             <p style={{ marginBottom: '16px' }}>Once an order has been shipped and handed over to the carrier, Klarelle is not responsible for carrier delays, lost packages, or packages marked as delivered but not received.</p>
             <p style={{ marginBottom: '16px' }}>If your tracking information shows that your package was delivered but you cannot locate it, please check with household members, neighbors, and around your delivery location. We also recommend contacting the carrier directly to report the issue.</p>
-            <p style={{ marginBottom: '24px' }}>For packages confirmed as lost in transit, please contact <strong>supportklarelle@gmail.com</strong> so we can assist you with the next steps.</p>
+            <p style={{ marginBottom: '24px' }}>For packages confirmed as lost in transit, please contact <strong>support@klarelle.store</strong> so we can assist you with the next steps.</p>
 
             <h3 style={{ marginTop: '32px', marginBottom: '12px', fontSize: '18px', textTransform: 'uppercase' }}>Order Changes & Cancellations</h3>
             <p style={{ marginBottom: '16px' }}>Because orders may enter processing shortly after purchase, we cannot guarantee that changes or cancellations can be made once an order has been placed.</p>
-            <p style={{ marginBottom: '24px' }}>If you need to make a change or request a cancellation, please contact us as soon as possible at <strong>supportklarelle@gmail.com</strong>.</p>
+            <p style={{ marginBottom: '24px' }}>If you need to make a change or request a cancellation, please contact us as soon as possible at <strong>support@klarelle.store</strong>.</p>
 
             <h3 style={{ marginTop: '32px', marginBottom: '12px', fontSize: '18px', textTransform: 'uppercase' }}>Questions About Your Order?</h3>
-            <p style={{ marginBottom: '16px' }}>For questions regarding your order or shipping, please contact:<br/><strong>supportklarelle@gmail.com</strong></p>
+            <p style={{ marginBottom: '16px' }}>For questions regarding your order or shipping, please contact:<br/><strong>support@klarelle.store</strong></p>
             <p style={{ marginBottom: '16px' }}>We appreciate your support and patience as we work to make every Klarelle order a special experience.</p>
             <p style={{ marginBottom: '16px', fontWeight: 'bold' }}>Thank you for shopping Klarelle.</p>
           </div>
@@ -188,7 +188,7 @@ function StaticPage({ title }) {
             <p style={{ marginBottom: '16px' }}>We recommend using a trackable shipping service. Klarelle is not responsible for packages lost or damaged while being returned.</p>
 
             <h3 style={{ marginTop: '24px', marginBottom: '12px', fontSize: '16px' }}>7. How to Request an Exchange or Store Credit</h3>
-            <p style={{ marginBottom: '8px' }}>To initiate a return, contact us at <strong>supportklarelle@gmail.com</strong> within the applicable return period. Please include:</p>
+            <p style={{ marginBottom: '8px' }}>To initiate a return, contact us at <strong>support@klarelle.store</strong> within the applicable return period. Please include:</p>
             <ul style={{ listStyleType: 'disc', paddingLeft: '20px', marginBottom: '16px' }}>
               <li>Order number</li>
               <li>Name used for the order</li>

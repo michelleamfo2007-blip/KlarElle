@@ -9,7 +9,7 @@ function Cart() {
   const { cartItems, removeFromCart, updateQuantity, cartTotal } = useCart();
   const { session } = useAuth();
   
-  const shipping = cartTotal > 49 ? 0 : 25.00;
+  const shipping = cartTotal >= 1515.15 ? 0 : 176.43;
   const finalTotal = cartTotal + shipping;
 
   if (cartItems.length === 0) {

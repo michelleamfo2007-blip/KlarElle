@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { CartProvider } from './context/CartContext';
 import { FavoritesProvider } from './context/FavoritesContext';
 import Layout from './components/Layout';
+import WhatsAppButton from './components/WhatsAppButton';
 import Home from './pages/Home';
 import ProductDetails from './pages/ProductDetails';
 import Cart from './pages/Cart';
@@ -14,9 +15,10 @@ import Dashboard from './pages/admin/Dashboard';
 import ProductList from './pages/admin/ProductList';
 import ProductForm from './pages/admin/ProductForm';
 import Coupons from './pages/admin/Coupons';
+import Orders from './pages/admin/Orders';
 import SuperAdminLayout from './pages/super-admin/SuperAdminLayout';
 import SuperDashboard from './pages/super-admin/SuperDashboard';
-import ManageTenants from './pages/super-admin/ManageTenants';
+import ManageStaff from './pages/super-admin/ManageStaff';
 import GlobalSettings from './pages/super-admin/GlobalSettings';
 import CustomerLogin from './pages/CustomerLogin';
 import CustomerRegister from './pages/CustomerRegister';
@@ -76,15 +78,17 @@ function App() {
               <Route path="products/new" element={<ProductForm />} />
               <Route path="products/edit/:id" element={<ProductForm />} />
               <Route path="coupons" element={<Coupons />} />
+              <Route path="orders" element={<Orders />} />
             </Route>
 
             {/* Super Admin Routes */}
             <Route path="/super-admin" element={<SuperAdminLayout />}>
               <Route index element={<SuperDashboard />} />
-              <Route path="tenants" element={<ManageTenants />} />
+              <Route path="staff" element={<ManageStaff />} />
               <Route path="settings" element={<GlobalSettings />} />
             </Route>
           </Routes>
+          <WhatsAppButton />
         </Router>
         </CartProvider>
       </FavoritesProvider>

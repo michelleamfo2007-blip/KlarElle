@@ -13,6 +13,8 @@ function Dashboard() {
   const [totalOrders, setTotalOrders] = useState(0);
   const [orderSummary, setOrderSummary] = useState({ Pending: 0, Processing: 0, Shipped: 0, Delivered: 0 });
   const [recentOrders, setRecentOrders] = useState([]);
+  const [allFetchedOrders, setAllFetchedOrders] = useState([]);
+  const [showAllOrders, setShowAllOrders] = useState(false);
   const [salesData, setSalesData] = useState([]);
   const [bestSellers, setBestSellers] = useState([]);
   
@@ -56,7 +58,8 @@ function Dashboard() {
       setTotalRevenue(revenue);
       setOrderSummary(summary);
       
-      // Recent 5 orders
+      // Store all orders in a new state variable, and recent 5 in the old one
+      setAllFetchedOrders(orders);
       setRecentOrders(orders.slice(0, 5));
       
       // Group sales by day (Last 7 days)
@@ -108,6 +111,24 @@ function Dashboard() {
     setLoading(false);
   };
 
+  const updateOrderStatus = async (orderId, newStatus) => {
+    // Optimistic UI update for recentOrders
+    setRecentOrders(prev => prev.map(o => o.id === orderId ? { ...o, status: newStatus } : o));
+    // Optimistic UI update for allFetchedOrders
+    setAllFetchedOrders(prev => prev.map(o => o.id === orderId ? { ...o, status: newStatus } : o));
+    
+    // Update in database
+    const { error } = await supabase
+      .from('orders')
+      .update({ status: newStatus })
+      .eq('id', orderId);
+      
+    if (error) {
+      alert('Failed to update order status');
+      fetchDashboardData(); // Revert on failure
+    }
+  };
+
   const formatGHS = (amount) => `₵${amount.toFixed(2)}`;
 
   const getStatusBadge = (status) => {
@@ -138,24 +159,24 @@ function Dashboard() {
       </div>
 
       <style>{`
-        .dash-card { background: #fff; border-radius: 8px; border: 1px solid #e5e7eb; box-shadow: 0 1px 3px rgba(0,0,0,0.05); overflow: hidden; }
-        .dash-card-header { padding: 16px 20px; border-bottom: 1px solid #e5e7eb; font-weight: 600; display: flex; justify-content: space-between; align-items: center; }
+        .dash-card { background: #fff; border-radius: 8px; border: 1px solid #D2C4B3; box-shadow: 0 4px 15px rgba(188, 163, 143, 0.1); overflow: hidden; }
+        .dash-card-header { padding: 16px 20px; border-bottom: 1px solid #FAF9F6; font-weight: 600; display: flex; justify-content: space-between; align-items: center; color: #111827; }
         .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 24px; }
-        .kpi-card { background: #fff; padding: 20px; border-radius: 8px; border: 1px solid #e5e7eb; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .kpi-card { background: #fff; padding: 20px; border-radius: 8px; border: 1px solid #D2C4B3; box-shadow: 0 4px 15px rgba(188, 163, 143, 0.1); }
         .kpi-icon { width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 16px; }
         .kpi-value { font-size: 28px; font-weight: bold; margin: 4px 0; color: #111827; }
-        .kpi-label { font-size: 14px; color: #6b7280; font-weight: 500; }
+        .kpi-label { font-size: 14px; color: #BCA38F; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
         .kpi-change { font-size: 12px; display: flex; align-items: center; gap: 4px; font-weight: 500; }
         
         .section-2col-65-35 { display: grid; grid-template-columns: 2fr 1fr; gap: 24px; margin-bottom: 24px; }
         .section-2col-50-50 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px; }
         
         .table-standard { width: 100%; border-collapse: collapse; text-align: left; }
-        .table-standard th { padding: 12px 20px; font-size: 12px; text-transform: uppercase; color: #6b7280; border-bottom: 1px solid #e5e7eb; background: #fafafa; font-weight: 600; }
-        .table-standard td { padding: 16px 20px; font-size: 14px; border-bottom: 1px solid #e5e7eb; color: #374151; }
+        .table-standard th { padding: 12px 20px; font-size: 12px; text-transform: uppercase; color: #BCA38F; border-bottom: 1px solid #D2C4B3; background: #FAF9F6; font-weight: 600; letter-spacing: 0.5px; }
+        .table-standard td { padding: 16px 20px; font-size: 14px; border-bottom: 1px solid #FAF9F6; color: #111827; }
         .table-standard tr:last-child td { border-bottom: none; }
         
-        .order-summary-item { display: flex; align-items: center; gap: 16px; padding: 16px 20px; border-bottom: 1px solid #e5e7eb; }
+        .order-summary-item { display: flex; align-items: center; gap: 16px; padding: 16px 20px; border-bottom: 1px solid #FAF9F6; }
         .order-summary-item:last-child { border-bottom: none; }
         .order-icon-wrap { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
         
@@ -176,32 +197,32 @@ function Dashboard() {
               <div className="kpi-label">Total Revenue</div>
               <div className="kpi-value">{loading ? '...' : formatGHS(totalRevenue)}</div>
             </div>
-            <div className="kpi-icon" style={{ background: '#f0fdf4', color: '#16a34a' }}><DollarSign size={20} /></div>
+            <div className="kpi-icon" style={{ background: 'rgba(188, 163, 143, 0.1)', color: '#BCA38F' }}><DollarSign size={20} /></div>
           </div>
-          <div className="kpi-change" style={{ color: '#16a34a' }}><TrendingUp size={14} /> +0.0% from last week</div>
+          <div className="kpi-change" style={{ color: '#BCA38F' }}><TrendingUp size={14} /> +0.0% from last week</div>
         </div>
         
-        <div className="kpi-card">
+        <Link to="/admin/orders" style={{ textDecoration: 'none', color: 'inherit' }} className="kpi-card">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
               <div className="kpi-label">Total Orders</div>
               <div className="kpi-value">{loading ? '...' : totalOrders}</div>
             </div>
-            <div className="kpi-icon" style={{ background: '#eff6ff', color: '#2563eb' }}><ShoppingBag size={20} /></div>
+            <div className="kpi-icon" style={{ background: 'rgba(17, 24, 39, 0.05)', color: '#111827' }}><ShoppingBag size={20} /></div>
           </div>
-          <div className="kpi-change" style={{ color: '#16a34a' }}><TrendingUp size={14} /> +0.0% from last week</div>
-        </div>
+          <div className="kpi-change" style={{ color: '#BCA38F' }}><TrendingUp size={14} /> +0.0% from last week</div>
+        </Link>
 
-        <div className="kpi-card">
+        <Link to="/admin/products" style={{ textDecoration: 'none', color: 'inherit' }} className="kpi-card">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
               <div className="kpi-label">Total Products</div>
               <div className="kpi-value">{loading ? '...' : totalProducts}</div>
             </div>
-            <div className="kpi-icon" style={{ background: '#f3f4f6', color: '#4b5563' }}><Package size={20} /></div>
+            <div className="kpi-icon" style={{ background: 'rgba(188, 163, 143, 0.1)', color: '#BCA38F' }}><Package size={20} /></div>
           </div>
-          <div className="kpi-change" style={{ color: '#6b7280' }}>Active listings in store</div>
-        </div>
+          <div className="kpi-change" style={{ color: '#BCA38F' }}>Active listings in store</div>
+        </Link>
 
         <div className="kpi-card">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
@@ -209,9 +230,9 @@ function Dashboard() {
               <div className="kpi-label">Low Stock Items</div>
               <div className="kpi-value">{loading ? '...' : lowStockItems.length}</div>
             </div>
-            <div className="kpi-icon" style={{ background: '#fef2f2', color: '#dc2626' }}><AlertTriangle size={20} /></div>
+            <div className="kpi-icon" style={{ background: 'rgba(17, 24, 39, 0.05)', color: '#111827' }}><AlertTriangle size={20} /></div>
           </div>
-          <div className="kpi-change" style={{ color: lowStockItems.length > 0 ? '#dc2626' : '#16a34a' }}>
+          <div className="kpi-change" style={{ color: lowStockItems.length > 0 ? '#111827' : '#BCA38F' }}>
             {lowStockItems.length > 0 ? 'Needs attention immediately' : 'Inventory levels healthy'}
           </div>
         </div>
@@ -288,9 +309,9 @@ function Dashboard() {
             </div>
           </div>
           <div style={{ padding: '16px 20px', borderTop: '1px solid #e5e7eb', background: '#fafafa' }}>
-            <button style={{ width: '100%', padding: '8px', background: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', fontSize: '14px', fontWeight: '500', cursor: 'pointer', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px' }}>
+            <Link to="/admin/orders" style={{ width: '100%', padding: '8px', background: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', fontSize: '14px', fontWeight: '500', cursor: 'pointer', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', textDecoration: 'none', color: '#111827' }}>
               View All Orders <ArrowRight size={16} />
-            </button>
+            </Link>
           </div>
         </div>
 
@@ -303,7 +324,9 @@ function Dashboard() {
         <div className="dash-card">
           <div className="dash-card-header">
             <span>Recent Orders</span>
-            <button style={{ fontSize: '13px', color: '#2563eb', background: 'none', border: 'none', cursor: 'pointer', fontWeight: '500' }}>View All</button>
+            <Link to="/admin/orders" style={{ fontSize: '13px', color: '#111827', background: 'none', border: 'none', cursor: 'pointer', fontWeight: '500', textDecoration: 'none' }}>
+              View All
+            </Link>
           </div>
           <div style={{ overflowX: 'auto' }}>
             <table className="table-standard">
@@ -329,7 +352,32 @@ function Dashboard() {
                       </td>
                       <td>{order.customer_name}</td>
                       <td style={{ fontWeight: '500' }}>{formatGHS(order.total_amount)}</td>
-                      <td>{getStatusBadge(order.status)}</td>
+                      <td>
+                        <select 
+                          value={order.status}
+                          onChange={(e) => updateOrderStatus(order.id, e.target.value)}
+                          style={{
+                            padding: '4px 8px',
+                            borderRadius: '100px',
+                            fontSize: '12px',
+                            fontWeight: '600',
+                            border: '1px solid #d1d5db',
+                            background: order.status === 'Delivered' ? '#dcfce7' : 
+                                        order.status === 'Processing' ? '#dbeafe' : 
+                                        order.status === 'Shipped' ? '#fef9c3' : '#fee2e2',
+                            color: order.status === 'Delivered' ? '#166534' : 
+                                   order.status === 'Processing' ? '#1e40af' : 
+                                   order.status === 'Shipped' ? '#854d0e' : '#991b1b',
+                            outline: 'none',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          <option value="Pending">Pending</option>
+                          <option value="Processing">Processing</option>
+                          <option value="Shipped">Shipped</option>
+                          <option value="Delivered">Delivered</option>
+                        </select>
+                      </td>
                     </tr>
                   ))
                 )}

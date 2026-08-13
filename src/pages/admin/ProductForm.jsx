@@ -251,7 +251,7 @@ function ProductForm() {
           <button 
             type="button" 
             onClick={() => navigate('/admin/products')} 
-            style={{ padding: '10px 16px', backgroundColor: '#fff', color: '#374151', border: '1px solid #d1d5db', borderRadius: '6px', cursor: 'pointer', fontWeight: '500', fontSize: '14px', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}
+            style={{ padding: '10px 16px', backgroundColor: '#FAF9F6', color: '#111827', border: '1px solid #D2C4B3', borderRadius: '6px', cursor: 'pointer', fontWeight: '500', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}
           >
             Cancel
           </button>
@@ -289,8 +289,8 @@ function ProductForm() {
           .input-field:focus { border-color: #000; box-shadow: 0 0 0 1px #000; }
           .error-text { color: #dc2626; font-size: 12px; margin-top: 4px; display: flex; align-items: center; gap: 4px; }
           
-          .drag-zone { border: 2px dashed #d1d5db; border-radius: 8px; padding: 40px 20px; text-align: center; cursor: pointer; transition: all 0.2s; background: #fafafa; }
-          .drag-zone:hover { border-color: #9ca3af; background: #f3f4f6; }
+          .drag-zone { border: 2px dashed #D2C4B3; border-radius: 8px; padding: 40px 20px; text-align: center; background: #fff; cursor: pointer; transition: all 0.2s; }
+          .drag-zone:hover { border-color: #BCA38F; background: #FAF9F6; }
           
           .image-card { position: relative; border: 1px solid #e5e7eb; border-radius: 6px; overflow: hidden; background: #fff; }
           .image-card img { width: 100%; height: 120px; object-fit: cover; display: block; }
@@ -333,7 +333,7 @@ function ProductForm() {
                         value={formData.sku} 
                         onChange={(e) => setFormData({...formData, sku: e.target.value})} 
                       />
-                      <button type="button" onClick={generateSKU} style={{ padding: '0 16px', background: '#f3f4f6', border: '1px solid #d1d5db', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: '500', whiteSpace: 'nowrap' }}>
+                      <button type="button" onClick={generateSKU} style={{ padding: '0 16px', background: '#FAF9F6', border: '1px solid #D2C4B3', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: '500', whiteSpace: 'nowrap', color: '#111827' }}>
                         Generate
                       </button>
                     </div>
@@ -630,9 +630,11 @@ function ProductForm() {
           <div style={{ display: 'flex', flexDirection: 'column' }}>
             
             {/* Live Preview */}
-            <div className="card" style={{ position: 'sticky', top: '24px' }}>
-              <div className="card-header"><Eye size={18} /> Live Preview</div>
-              <div className="card-body" style={{ background: '#f3f4f6', padding: '32px 20px' }}>
+            <div className="admin-card p-0" style={{ marginBottom: '24px', border: '1px solid #D2C4B3' }}>
+              <div className="card-header" style={{ padding: '16px 20px', borderBottom: '1px solid #D2C4B3', fontWeight: '600', color: '#111827' }}>
+                Search Engine Optimization
+              </div>
+              <div className="card-body" style={{ background: '#FAF9F6', padding: '32px 20px' }}>
                 
                 {/* Storefront Card Replica */}
                 <div style={{ background: '#fff', borderRadius: '4px', overflow: 'hidden', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)' }}>

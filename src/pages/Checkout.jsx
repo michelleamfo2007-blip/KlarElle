@@ -37,7 +37,7 @@ function Checkout() {
     apartment: ''
   });
 
-  const shippingFee = 176.43;
+  const shippingFee = cartTotal >= 1515.15 ? 0 : 176.43;
   const shippingGuarantee = 11.65;
   
   const discountAmount = appliedCoupon ? (cartTotal * (appliedCoupon.discount_percent / 100)) : 0;

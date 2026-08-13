@@ -10,6 +10,8 @@ function Home() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [toastMessage, setToastMessage] = useState('');
+  const [waitlistEmail, setWaitlistEmail] = useState('');
+  const [waitlistStatus, setWaitlistStatus] = useState(''); // 'idle', 'loading', 'success', 'error'
   const { addToCart } = useCart();
   const { toggleFavorite, isFavorite } = useFavorites();
   const { formatPrice } = useCurrency();
@@ -38,6 +40,40 @@ function Home() {
     setTimeout(() => {
       setToastMessage('');
     }, 3000);
+  };
+
+  const handleJoinWaitlist = async (e) => {
+    e.preventDefault();
+    if (!waitlistEmail) return;
+    
+    setWaitlistStatus('loading');
+    
+    const { error } = await supabase.from('waitlist').insert([
+      { email: waitlistEmail }
+    ]);
+    
+    if (error) {
+      if (error.code === '23505') { // Unique violation
+        setWaitlistStatus('success'); // Already on the list
+      } else {
+        setWaitlistStatus('error');
+        console.error(error);
+      }
+    } else {
+      setWaitlistStatus('success');
+      // Send the automated welcome email via backend
+      try {
+        await fetch('http://localhost:4242/join-waitlist', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: waitlistEmail })
+        });
+      } catch (err) {
+        console.error("Failed to send welcome email:", err);
+      }
+    }
+    
+    setWaitlistEmail('');
   };
 
   return (
@@ -96,8 +132,51 @@ function Home() {
           font-size: 64px;
           color: #fff;
           line-height: 1.1;
-          margin: 0;
+          margin: 0 0 32px 0;
           font-weight: 400;
+        }
+
+        .waitlist-form {
+          max-width: 500px;
+          margin: 0 auto;
+          display: flex;
+          gap: 12px;
+          align-items: center;
+        }
+
+        .waitlist-input {
+          flex: 1;
+          background: transparent;
+          border: 1px solid rgba(255,255,255,0.3);
+          color: #fff;
+          padding: 16px 24px;
+          font-size: 16px;
+          border-radius: 100px;
+          outline: none;
+          transition: all 0.3s;
+        }
+
+        .waitlist-input:focus {
+          border-color: #FAF9F6;
+        }
+
+        .waitlist-btn {
+          background: #FAF9F6;
+          color: #111827;
+          border: none;
+          padding: 16px 32px;
+          font-size: 14px;
+          text-transform: uppercase;
+          letter-spacing: 1px;
+          font-weight: 600;
+          border-radius: 100px;
+          cursor: pointer;
+          transition: all 0.3s;
+        }
+
+        .waitlist-btn:hover {
+          background: #D2C4B3;
+          color: #fff;
         }
         
         .hero-date {
@@ -206,6 +285,26 @@ function Home() {
         <div className="hero-text-container">
           <div className="hero-presents">KlarElle Presents</div>
           <h1 className="hero-title">Coming Soon</h1>
+          
+          {waitlistStatus === 'success' ? (
+            <div style={{ color: '#D2C4B3', fontSize: '18px', fontStyle: 'italic', fontFamily: 'Playfair Display', padding: '16px' }}>
+              Thank you. You are on the exclusive list.
+            </div>
+          ) : (
+            <form className="waitlist-form" onSubmit={handleJoinWaitlist}>
+              <input 
+                type="email" 
+                className="waitlist-input" 
+                placeholder="Enter your email to join the waitlist" 
+                value={waitlistEmail}
+                onChange={(e) => setWaitlistEmail(e.target.value)}
+                required
+              />
+              <button type="submit" className="waitlist-btn" disabled={waitlistStatus === 'loading'}>
+                {waitlistStatus === 'loading' ? 'Joining...' : 'Join'}
+              </button>
+            </form>
+          )}
         </div>
         
         <div className="hero-images-container">

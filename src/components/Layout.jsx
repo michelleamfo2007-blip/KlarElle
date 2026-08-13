@@ -127,7 +127,7 @@ function Layout() {
             </div>
           </div>
           <div style={{ color: '#666' }}>
-            {t('Free shipping on orders over')} {formatPrice(500)}
+            {t('Free shipping on orders over')} {formatPrice(1515.15)}
           </div>
         </div>
       </div>
@@ -209,10 +209,10 @@ function Layout() {
             <div className="footer-col">
               <h4>Customer Care</h4>
               <div className="footer-links">
-                <a href="mailto:supportklarelle@gmail.com">Contact Us</a>
+                <a href="mailto:support@klarelle.store">Contact Us</a>
                 <Link to="/page/payment-method">Payment Method</Link>
                 <Link to="/page/bonus-point">Bonus Point</Link>
-                <a href="mailto:supportklarelle@gmail.com">Support</a>
+                <a href="mailto:support@klarelle.store">Support</a>
               </div>
             </div>
             <div className="footer-col">
@@ -240,7 +240,7 @@ function Layout() {
                 </button>
               </form>
               <div style={{ marginTop: '16px', fontSize: '13px', color: '#666' }}>
-                Questions? Email us at <a href="mailto:supportklarelle@gmail.com" style={{color: '#000', textDecoration: 'underline'}}>supportklarelle@gmail.com</a>
+                Questions? Email us at <a href="mailto:support@klarelle.store" style={{color: '#000', textDecoration: 'underline'}}>support@klarelle.store</a>
               </div>
             </div>
           </div>
