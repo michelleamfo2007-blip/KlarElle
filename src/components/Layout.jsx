@@ -199,7 +199,7 @@ function Layout() {
             </div>
           </div>
           <div className="footer-bottom">
-            &copy; {new Date().getFullYear()} KLARELLE. All rights reserved. (Demo Application)
+            &copy; {new Date().getFullYear()} KLARELLE. All rights reserved.
           </div>
         </div>
       </footer>
