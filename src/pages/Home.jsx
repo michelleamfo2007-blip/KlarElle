@@ -58,22 +58,31 @@ function Home() {
         </div>
       )}
 
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap');
+        .curly-text {
+          font-family: 'Great Vibes', cursive;
+          color: #fff;
+          text-transform: none !important;
+        }
+      `}</style>
+
       {/* Hero Section */}
       <section className="hero container" style={{marginTop: '24px'}}>
         <div className="hero-grid">
           <div className="hero-side-banners" style={{ display: 'flex', flexDirection: 'column' }}>
             <div className="side-banner" style={{ backgroundColor: '#111', flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
-              <div style={{ color: '#fff', fontSize: '20px', letterSpacing: '4px', textTransform: 'uppercase', textAlign: 'center' }}>Coming<br/>Soon</div>
+              <div className="curly-text" style={{ fontSize: '50px', letterSpacing: '2px', textAlign: 'center', lineHeight: '1.2' }}>Coming<br/>Soon</div>
             </div>
           </div>
           <div className="hero-center" style={{ display: 'flex', flexDirection: 'column' }}>
             <div style={{ backgroundColor: '#111', flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%', minHeight: '400px' }}>
-              <div style={{ color: '#fff', fontSize: '36px', letterSpacing: '8px', textTransform: 'uppercase', textAlign: 'center', fontWeight: 'bold' }}>Coming Soon</div>
+              <div className="curly-text" style={{ fontSize: '100px', letterSpacing: '4px', textAlign: 'center', lineHeight: '1' }}>Coming Soon</div>
             </div>
           </div>
           <div className="hero-side-banners" style={{ display: 'flex', flexDirection: 'column' }}>
             <div className="side-banner" style={{ backgroundColor: '#111', flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
-              <div style={{ color: '#fff', fontSize: '20px', letterSpacing: '4px', textTransform: 'uppercase', textAlign: 'center' }}>Coming<br/>Soon</div>
+              <div className="curly-text" style={{ fontSize: '50px', letterSpacing: '2px', textAlign: 'center', lineHeight: '1.2' }}>Coming<br/>Soon</div>
             </div>
           </div>
         </div>
