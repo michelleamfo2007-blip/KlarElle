@@ -103,6 +103,15 @@ function ProductDetails() {
     fetchProductAndMatches();
   }, [id]);
 
+  useEffect(() => {
+    if (showSizeModal || showGuideModal || showGuideTypeSelector) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => { document.body.style.overflow = 'unset'; };
+  }, [showSizeModal, showGuideModal, showGuideTypeSelector]);
+
   if (loading) return <div style={{ padding: '100px 20px', textAlign: 'center', fontSize: '18px', color: '#666' }}>Loading product details...</div>;
   if (!product) return <div style={{ padding: '100px 20px', textAlign: 'center', fontSize: '18px', color: '#666' }}>Product not found.</div>;
 
@@ -593,7 +602,7 @@ function ProductDetails() {
           <div className="modal-content" style={{ minHeight: '60vh', paddingBottom: '0', display: 'flex', flexDirection: 'column' }} onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px', borderBottom: '1px solid #eee' }}>
               <div style={{ width: '24px' }}></div>
-              <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 'bold' }}>Please Select</h3>
+              <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 'bold', fontFamily: 'system-ui, -apple-system, sans-serif' }}>Please Select</h3>
               <X size={24} onClick={() => setShowGuideTypeSelector(false)} style={{ cursor: 'pointer' }} />
             </div>
             <div style={{ overflowY: 'auto', flex: 1, padding: '0 20px' }}>
