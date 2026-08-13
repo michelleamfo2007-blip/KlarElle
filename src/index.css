@@ -796,6 +796,45 @@ main {
   .footer-top { grid-template-columns: 1fr 1fr; }
   .header-actions { display: none; }
   .nav-menu { display: none; }
+  
+  /* Mobile Header Fixes */
+  .header-main {
+    flex-direction: column;
+    padding: 12px 16px;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  .logo {
+    font-size: 24px;
+  }
+  .search-bar {
+    margin: 0;
+    width: 100%;
+    max-width: 100%;
+  }
+  
+  /* Mobile Hero Grid Fixes */
+  .hero-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  .hero-side-banners {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .side-banner {
+    height: 120px;
+    border-radius: 8px;
+  }
+  .side-banner-text {
+    font-size: 14px;
+    text-align: center;
+    padding: 0 8px;
+  }
+  .hero-center {
+    display: none; /* Simplify mobile view by hiding the massive center banner */
+  }
 }
 
 @media (max-width: 480px) {
