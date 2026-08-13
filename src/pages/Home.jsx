@@ -66,8 +66,10 @@ function Home() {
               <div style={{ color: '#fff', fontSize: '20px', letterSpacing: '4px', textTransform: 'uppercase', textAlign: 'center' }}>Coming<br/>Soon</div>
             </div>
           </div>
-          <div className="hero-center">
-            <img src="/hero.png" alt="Summer Collection" className="hero-banner-main" />
+          <div className="hero-center" style={{ display: 'flex', flexDirection: 'column' }}>
+            <div style={{ backgroundColor: '#111', flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%', minHeight: '400px' }}>
+              <div style={{ color: '#fff', fontSize: '36px', letterSpacing: '8px', textTransform: 'uppercase', textAlign: 'center', fontWeight: 'bold' }}>Coming Soon</div>
+            </div>
           </div>
           <div className="hero-side-banners" style={{ display: 'flex', flexDirection: 'column' }}>
             <div className="side-banner" style={{ backgroundColor: '#111', flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
