@@ -90,12 +90,19 @@
   .products-grid { grid-template-columns: repeat(3, 1fr); }
 }
 
+.mobile-filter-btn {
+  display: none !important;
+}
+
 @media (max-width: 768px) {
   .category-page-container {
     flex-direction: column;
   }
-  .category-sidebar {
-    width: 100%;
+  .category-sidebar, .desktop-filter-sidebar {
+    display: none;
+  }
+  .mobile-filter-btn {
+    display: flex !important;
   }
   .products-grid { grid-template-columns: repeat(2, 1fr); }
 }
