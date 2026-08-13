@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
-import { Heart, Truck, RotateCcw, Share2, Star } from 'lucide-react';
+import { Heart, Truck, RotateCcw, Share2, Star, ChevronRight, X, Ruler, ThumbsUp, ChevronLeft } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useFavorites } from '../context/FavoritesContext';
 
@@ -11,40 +11,31 @@ function ProductDetails() {
   const { toggleFavorite, isFavorite } = useFavorites();
   
   const [product, setProduct] = useState(null);
+  const [matchingStyles, setMatchingStyles] = useState([]);
   const [loading, setLoading] = useState(true);
+  
   const [selectedColor, setSelectedColor] = useState('Black');
   const [selectedSize, setSelectedSize] = useState('M');
   const [activeImage, setActiveImage] = useState(0);
   const [previewImage, setPreviewImage] = useState(null);
 
+  // Modal State
+  const [showSizeModal, setShowSizeModal] = useState(false);
+  const [sizeModalStep, setSizeModalStep] = useState(1);
+  const [measurementUnit, setMeasurementUnit] = useState('cm, kg');
+  const [bodyShape, setBodyShape] = useState(null);
+
   const colorMap = {
-    'black': '#000000',
-    'white': '#ffffff',
-    'red': '#ff0000',
-    'blue': '#0000ff',
-    'green': '#008000',
-    'yellow': '#ffff00',
-    'pink': '#ffc0cb',
-    'purple': '#800080',
-    'orange': '#ffa500',
-    'grey': '#808080',
-    'gray': '#808080',
-    'brown': '#a52a2a',
-    'beige': '#f5f5dc',
-    'navy': '#000080',
-    'maroon': '#800000',
-    'olive': '#808000',
-    'cream': '#fffdd0',
-    'khaki': '#c3b091',
-    'nude': '#e3bc9a',
-    'mustard': '#ffdb58',
-    'burgundy': '#800020',
-    'teal': '#008080'
+    'black': '#000000', 'white': '#ffffff', 'red': '#ff0000', 'blue': '#0000ff', 'green': '#008000', 
+    'yellow': '#ffff00', 'pink': '#ffc0cb', 'purple': '#800080', 'orange': '#ffa500', 'grey': '#808080', 
+    'gray': '#808080', 'brown': '#a52a2a', 'beige': '#f5f5dc', 'navy': '#000080', 'maroon': '#800000', 
+    'olive': '#808000', 'cream': '#fffdd0', 'khaki': '#c3b091', 'nude': '#e3bc9a', 'mustard': '#ffdb58', 
+    'burgundy': '#800020', 'teal': '#008080'
   };
   const getColorHex = (c) => colorMap[c.toLowerCase().trim()] || c;
 
   useEffect(() => {
-    const fetchProduct = async () => {
+    const fetchProductAndMatches = async () => {
       setLoading(true);
       const { data, error } = await supabase
         .from('products')
@@ -53,7 +44,6 @@ function ProductDetails() {
         .single();
       
       if (!error && data) {
-        // Bulletproof parsing: handle arrays that might contain comma/semicolon separated strings
         const rawSizes = Array.isArray(data.sizes) ? data.sizes : (typeof data.sizes === 'string' ? [data.sizes] : []);
         const pSizes = rawSizes.flatMap(s => typeof s === 'string' ? s.split(/[;,]+/) : s).map(s => String(s).trim()).filter(Boolean);
         
@@ -66,39 +56,47 @@ function ProductDetails() {
         setProduct(data);
         if (pSizes.length > 0) setSelectedSize(pSizes[0]);
         if (pColors.length > 0) setSelectedColor(pColors[0]);
+
+        // Fetch matching styles (random products from same category)
+        const { data: matches } = await supabase
+          .from('products')
+          .select('*')
+          .eq('category', data.category)
+          .neq('id', data.id)
+          .limit(5);
+        if (matches) setMatchingStyles(matches);
       }
       setLoading(false);
     };
 
-    fetchProduct();
+    fetchProductAndMatches();
   }, [id]);
 
   if (loading) return <div style={{ padding: '100px 20px', textAlign: 'center', fontSize: '18px', color: '#666' }}>Loading product details...</div>;
   if (!product) return <div style={{ padding: '100px 20px', textAlign: 'center', fontSize: '18px', color: '#666' }}>Product not found.</div>;
 
-  // Collect images safely
   const images = [];
   if (product.image_url) images.push(product.image_url);
   if (product.hover_image_url) images.push(product.hover_image_url);
-  if (images.length === 0) images.push('/placeholder.png'); // fallback
+  if (images.length === 0) images.push('/placeholder.png');
 
   const isOutOfStock = product.stock <= 0;
 
   return (
-    <div className="product-details-page">
+    <div className="product-details-page" style={{ paddingBottom: '90px' }}>
       <div className="container" style={{ padding: '40px 20px' }}>
         
-        {/* Breadcrumb */}
         <div style={{ marginBottom: '24px', fontSize: '12px', color: '#666', textTransform: 'uppercase' }}>
           <Link to="/" style={{ color: '#666', textDecoration: 'none' }}>Home</Link> / 
           <Link to={`/category/${product.category}`} style={{ color: '#666', textDecoration: 'none', marginLeft: '8px' }}>{product.category.replace('-', ' ')}</Link> / 
           <span style={{ color: '#000', marginLeft: '8px', fontWeight: 'bold' }}>{product.name}</span>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '40px', minHeight: '600px' }}>
+        <div className="product-layout">
           <style>{`
             @media (min-width: 900px) {
               .product-layout { grid-template-columns: 1.2fr 1fr; }
+              .sticky-bottom-bar { display: none !important; }
             }
             .product-layout { display: grid; gap: 40px; }
             
@@ -109,31 +107,33 @@ function ProductDetails() {
             .main-image-wrap { background: #f4f4f4; position: relative; max-height: 600px; display: flex; align-items: center; justify-content: center; border-radius: 12px; overflow: hidden; }
             .main-image { width: 100%; height: 100%; max-height: 600px; object-fit: contain; padding: 24px; }
             
-            .info-section { display: flex; flex-direction: column; gap: 20px; }
-            .pd-title { font-size: 24px; font-weight: 400; margin: 0; line-height: 1.3; }
-            .pd-price-wrap { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
-            .pd-price { font-size: 22px; font-weight: bold; }
+            .info-section { display: flex; flex-direction: column; gap: 0; }
+            .pd-title { font-size: 24px; font-weight: 400; margin: 0 0 12px 0; line-height: 1.3; }
+            .pd-price-wrap { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; }
+            .pd-price { font-size: 28px; font-weight: 800; }
             .pd-old { text-decoration: line-through; color: #999; font-size: 16px; }
-            .pd-sku { font-size: 12px; color: #666; }
             
-            .pd-options-title { font-size: 14px; font-weight: bold; margin-bottom: 12px; text-transform: uppercase; }
+            .pd-options-title { font-size: 14px; font-weight: bold; text-transform: capitalize; }
             
-            .size-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 24px; }
-            .size-btn { padding: 12px; border: 1px solid #ddd; background: white; cursor: pointer; text-align: center; transition: all 0.2s; }
+            .size-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin: 12px 0; }
+            .size-btn { padding: 10px 4px; border: 1px solid #f0f0f0; background: #f9f9f9; cursor: pointer; text-align: center; transition: all 0.2s; font-size: 13px; font-weight: 600; }
             .size-btn:hover { border-color: #999; }
             .size-btn.active { border-color: #000; background: #000; color: white; }
             
-            .color-grid { display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; }
-            .color-swatch { width: 36px; height: 36px; border-radius: 50%; border: 1px solid #d1d5db; cursor: pointer; padding: 0; position: relative; transition: transform 0.2s; }
-            .color-swatch:hover { transform: scale(1.1); }
+            .color-grid { display: flex; gap: 12px; margin: 12px 0 24px 0; flex-wrap: wrap; }
+            .color-swatch { width: 32px; height: 32px; border-radius: 50%; border: 1px solid #d1d5db; cursor: pointer; padding: 0; position: relative; transition: transform 0.2s; }
             .color-swatch.active { border: 2px solid #000; box-shadow: 0 0 0 3px #fff inset; }
             
-            .add-to-bag { padding: 16px; background: #000; color: white; width: 100%; border: none; font-size: 16px; font-weight: bold; cursor: pointer; transition: background 0.3s; margin-bottom: 12px; }
-            .add-to-bag:hover { background: #333; }
-            .add-to-bag:disabled { background: #ccc; cursor: not-allowed; }
+            .section-divider { border-top: 8px solid #f5f5f5; margin: 24px -20px; padding: 24px 20px 0 20px; }
             
-            .service-features { display: flex; flex-direction: column; gap: 12px; padding: 20px 0; border-top: 1px solid #eee; border-bottom: 1px solid #eee; margin-top: 20px; }
-            .feature-row { display: flex; align-items: center; gap: 12px; font-size: 14px; color: #333; }
+            .review-card { border-bottom: 1px solid #eee; padding-bottom: 16px; margin-bottom: 16px; }
+            .review-card:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+
+            .sticky-bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; padding: 12px 20px calc(12px + env(safe-area-inset-bottom)); border-top: 1px solid #eee; display: flex; gap: 16px; align-items: center; z-index: 50; }
+            .add-to-bag { flex: 1; padding: 16px; background: #000; color: white; border: none; font-size: 16px; font-weight: bold; cursor: pointer; transition: background 0.3s; border-radius: 4px; }
+            
+            .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; display: flex; align-items: flex-end; justify-content: center; }
+            .modal-content { background: #fff; width: 100%; max-width: 500px; border-radius: 16px 16px 0 0; min-height: 60vh; position: relative; padding-bottom: 80px; }
             
             @media (max-width: 900px) {
               .gallery-grid { grid-template-columns: 1fr; }
@@ -141,159 +141,416 @@ function ProductDetails() {
               .thumbnail { height: 80px; }
               .main-image-wrap { order: 1; height: 320px; max-height: 320px; }
               .main-image { height: 100%; max-height: 320px; padding: 12px; }
+              .desktop-add-cart { display: none !important; }
             }
           `}</style>
           
-          <div className="product-layout">
-            
-            {/* LEFT: Image Gallery */}
-            <div className="gallery-grid">
-              <div className="thumbnails">
-                {images.map((img, i) => (
-                  <img 
-                    key={i}
-                    src={img} 
-                    alt={`View ${i+1}`}
-                    className={`thumbnail ${activeImage === i ? 'active' : ''}`}
-                    onClick={() => setActiveImage(i)}
-                  />
-                ))}
+          <div className="gallery-grid">
+            <div className="thumbnails">
+              {images.map((img, i) => (
+                <img 
+                  key={i} src={img} alt={`View ${i+1}`}
+                  className={`thumbnail ${activeImage === i ? 'active' : ''}`}
+                  onClick={() => setActiveImage(i)}
+                />
+              ))}
+            </div>
+            <div className="main-image-wrap">
+              <img src={previewImage || images[activeImage]} alt={product.name} className="main-image" />
+              {product.old_price && parseFloat(product.old_price) > parseFloat(product.price) && (
+                <div style={{ position: 'absolute', top: 16, right: 16, background: '#000', color: 'white', padding: '4px 8px', fontSize: '14px', fontWeight: 'bold' }}>
+                  -{Math.round(((product.old_price - product.price) / product.old_price) * 100)}%
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="info-section">
+            <div>
+              <div style={{ display: 'flex', gap: '24px', borderBottom: '1px solid #eee', marginBottom: '16px', paddingBottom: '12px', fontSize: '14px', fontWeight: 'bold' }}>
+                <span style={{ borderBottom: '2px solid #000', paddingBottom: '12px', marginBottom: '-13px' }}>Goods</span>
+                <span style={{ color: '#666' }}>Reviews</span>
+                <span style={{ color: '#666' }}>Recommend</span>
               </div>
-              <div className="main-image-wrap">
-                <img src={previewImage || images[activeImage]} alt={product.name} className="main-image" />
-                {product.old_price && parseFloat(product.old_price) > parseFloat(product.price) && (
-                  <div style={{ position: 'absolute', top: 16, right: 16, background: '#000', color: 'white', padding: '4px 8px', fontSize: '14px', fontWeight: 'bold' }}>
-                    -{Math.round(((product.old_price - product.price) / product.old_price) * 100)}%
-                  </div>
-                )}
+              
+              <div className="pd-price-wrap">
+                <span style={{ fontSize: '12px', color: '#666', marginTop: '6px' }}>From</span>
+                <span className="pd-price" style={{ color: '#000' }}>GH₵{parseFloat(product.price).toFixed(2)}</span>
+              </div>
+              <h1 className="pd-title" style={{ fontSize: '16px' }}>{product.name}</h1>
+            </div>
+
+            {/* Colors */}
+            {product.parsedColors && product.parsedColors.length > 0 && (
+              <div style={{ marginTop: '8px' }}>
+                <div className="pd-options-title">Color: <span style={{fontWeight:'normal'}}>{selectedColor}</span></div>
+                <div className="color-grid">
+                  {product.parsedColors.map((color, index) => (
+                    <button 
+                      key={color} className={`color-swatch ${selectedColor === color ? 'active' : ''}`}
+                      onClick={() => {
+                        setSelectedColor(color);
+                        if (product.variant_images && product.variant_images[color]) setPreviewImage(product.variant_images[color]);
+                        else setPreviewImage(null);
+                      }}
+                      style={{ backgroundColor: getColorHex(color) }}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Sizes */}
+            {product.parsedSizes && product.parsedSizes.length > 0 && (
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div className="pd-options-title">Size <span style={{fontWeight:'normal', color:'#666', fontSize:'12px'}}>Default <ChevronRight size={12}/></span></div>
+                </div>
+                
+                <div className="size-grid">
+                  {product.parsedSizes.map(size => (
+                    <button key={size} className={`size-btn ${selectedSize === size ? 'active' : ''}`} onClick={() => setSelectedSize(size)}>
+                      {size}
+                    </button>
+                  ))}
+                </div>
+                
+                <div style={{ display: 'flex', gap: '16px', fontSize: '12px', fontWeight: 'bold', marginTop: '12px' }}>
+                  <span style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}><Ruler size={14} style={{marginRight:'4px'}}/> Size Guide <ChevronRight size={14} /></span>
+                  <span style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }} onClick={() => {setShowSizeModal(true); setSizeModalStep(1);}}>📏 Check My Size <ChevronRight size={14} /></span>
+                </div>
+                <div style={{ fontSize: '12px', color: '#666', marginTop: '8px' }}>Not your size? Tell us <ChevronRight size={12}/></div>
+              </div>
+            )}
+
+            {/* More Options */}
+            <div style={{ marginTop: '24px' }}>
+              <div className="pd-options-title" style={{ marginBottom: '12px' }}>More Options</div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                {['Midi', 'Sleeveless', 'Double Button', 'Appliques', 'Regular', 'Medium Stretch'].map(tag => (
+                  <span key={tag} style={{ padding: '8px 12px', background: '#f9f9f9', borderRadius: '4px', fontSize: '13px', color: '#000', fontWeight: '600' }}>
+                    {tag} <ChevronRight size={12} color="#999"/>
+                  </span>
+                ))}
               </div>
             </div>
 
-            {/* RIGHT: Product Info */}
-            <div className="info-section">
-              <div>
-                <h1 className="pd-title">{product.name}</h1>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', margin: '12px 0' }}>
-                  <div style={{ display: 'flex', color: '#000' }}>
+            {/* Shipping Info */}
+            <div className="section-divider">
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', fontWeight: 'bold', fontSize: '15px' }}>
+                <span>Shipping to <span style={{ fontSize: '13px', marginLeft: '4px' }}>📍 Abeka free pipe</span></span>
+                <ChevronRight size={16} />
+              </div>
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', paddingBottom: '16px', borderBottom: '1px solid #eee' }}>
+                <Truck size={18} style={{ color: '#2b8a3e', marginTop: '2px' }} />
+                <div style={{ flex: 1 }}>
+                  <strong style={{ color: '#2b8a3e', fontSize: '14px' }}>Free Shipping(Orders ≥ GH₵706.20)</strong>
+                  <div style={{ fontSize: '12px', color: '#666', marginTop: '4px' }}>Est. Delivery: Aug 28 - Sep 14</div>
+                </div>
+                <ChevronRight size={16} color="#999" style={{ marginTop: '2px' }} />
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 0', borderBottom: '1px solid #eee', fontSize: '13px', fontWeight: '600' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <RotateCcw size={18} /> Returns Accepted
+                </div>
+                <ChevronRight size={16} color="#999" />
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 0', fontSize: '13px', fontWeight: '600' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <span style={{ fontSize: '18px' }}>🛡️</span> Safe Payments · Privacy Protection
+                </div>
+                <ChevronRight size={16} color="#999" />
+              </div>
+            </div>
+
+            {/* Reviews Section */}
+            <div className="section-divider">
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
+                  <span style={{ fontSize: '24px', fontWeight: '900' }}>4.31</span>
+                  <div style={{ display: 'flex', color: '#fcc419' }}>
                     <Star size={14} fill="currentColor" />
                     <Star size={14} fill="currentColor" />
                     <Star size={14} fill="currentColor" />
                     <Star size={14} fill="currentColor" />
-                    <Star size={14} fill="currentColor" />
+                    <Star size={14} fill="currentColor" stroke="currentColor" fillOpacity={0.3} />
                   </div>
-                  <span style={{ fontSize: '12px', color: '#666' }}>(42 Reviews)</span>
+                  <span style={{ fontSize: '12px', color: '#666' }}>(75)</span>
+                </div>
+                <span style={{ fontSize: '12px', color: '#666', display: 'flex', alignItems: 'center' }}>View more <ChevronRight size={14} /></span>
+              </div>
+              
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', fontWeight: 'bold', marginBottom: '24px' }}>
+                <div style={{ flex: 1 }}>
+                  <div>Small</div>
+                  <div style={{ height: '4px', background: '#eee', margin: '8px 0', position: 'relative' }}>
+                    <div style={{ position: 'absolute', right: 0, top: 0, bottom: 0, width: '10%', background: '#000' }}></div>
+                  </div>
+                  <div style={{ fontWeight: 'normal', textAlign: 'right' }}>2%</div>
+                </div>
+                <div style={{ flex: 1, margin: '0 12px' }}>
+                  <div style={{ textAlign: 'center' }}>True to Size</div>
+                  <div style={{ height: '4px', background: '#eee', margin: '8px 0', position: 'relative' }}>
+                    <div style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, background: '#000' }}></div>
+                  </div>
+                  <div style={{ fontWeight: 'normal', textAlign: 'center' }}>84%</div>
+                </div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ textAlign: 'right' }}>Large</div>
+                  <div style={{ height: '4px', background: '#eee', margin: '8px 0', position: 'relative' }}>
+                    <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: '30%', background: '#000' }}></div>
+                  </div>
+                  <div style={{ fontWeight: 'normal' }}>14%</div>
                 </div>
               </div>
-
-              <div>
-                <div className="pd-price-wrap">
-                  <span className="pd-price" style={{ color: isOutOfStock ? '#666' : '#d90429' }}>₵{parseFloat(product.price).toFixed(2)}</span>
-                  {product.old_price && parseFloat(product.old_price) > parseFloat(product.price) && (
-                    <span className="pd-old">₵{parseFloat(product.old_price).toFixed(2)}</span>
-                  )}
-                </div>
-                {product.sku && <div className="pd-sku">SKU: {product.sku}</div>}
+              
+              <div style={{ display: 'flex', gap: '8px', marginBottom: '24px' }}>
+                <span style={{ padding: '6px 12px', background: '#f5f5f5', borderRadius: '4px', fontSize: '11px', fontWeight: 'bold' }}>Fast Logistics (2)</span>
+                <span style={{ padding: '6px 12px', background: '#f5f5f5', borderRadius: '4px', fontSize: '11px', fontWeight: 'bold' }}>Great Service (1)</span>
               </div>
 
-              {product.parsedColors && product.parsedColors.length > 0 && (
-                <div>
-                  <div className="pd-options-title">Color: {selectedColor}</div>
-                  <div className="color-grid">
-                    {product.parsedColors.map((color, index) => (
-                      <button 
-                        key={color}
-                        title={color}
-                        className={`color-swatch ${selectedColor === color ? 'active' : ''}`}
-                        onClick={() => {
-                          setSelectedColor(color);
-                          
-                          // Check if there is a specific image uploaded for this color!
-                          if (product.variant_images && product.variant_images[color]) {
-                            setPreviewImage(product.variant_images[color]);
-                          } else {
-                            setPreviewImage(null);
-                            // Fallback to original magic index trick if no specific image was provided
-                            if (index < images.length) {
-                              setActiveImage(index);
-                            }
-                          }
-                        }}
-                        style={{ backgroundColor: getColorHex(color) }}
-                      />
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {product.parsedSizes && product.parsedSizes.length > 0 && (
-                <div>
-                  <div className="pd-options-title">Size: {selectedSize}</div>
-                  <div className="size-grid">
-                    {product.parsedSizes.map(size => (
-                      <button 
-                        key={size}
-                        className={`size-btn ${selectedSize === size ? 'active' : ''}`}
-                        onClick={() => setSelectedSize(size)}
-                      >
-                        {size}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              <div>
-                <button 
-                  className="add-to-bag"
-                  onClick={() => addToCart(product, selectedSize, selectedColor)}
-                  disabled={isOutOfStock}
-                >
-                  {isOutOfStock ? 'OUT OF STOCK' : 'ADD TO BAG'}
-                </button>
-                <button 
-                  style={{ width: '100%', padding: '16px', background: isFavorite(product.id) ? '#f0f0f0' : 'transparent', border: '1px solid #000', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '14px', fontWeight: 'bold' }}
-                  onClick={() => toggleFavorite(product.id)}
-                >
-                  <Heart size={18} fill={isFavorite(product.id) ? "currentColor" : "none"} /> 
-                  {isFavorite(product.id) ? "SAVED IN WISHLIST" : "SAVE FOR LATER"}
-                </button>
+              <div className="review-card">
+                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '8px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 'bold' }}>
+                      l***r
+                      <div style={{ display: 'flex', color: '#fcc419' }}><Star size={10} fill="currentColor" /><Star size={10} fill="currentColor" /><Star size={10} fill="currentColor" /><Star size={10} fill="currentColor" /><Star size={10} fill="currentColor" /></div>
+                    </div>
+                    <div style={{ color: '#999' }}>Color: White / Size: L</div>
+                 </div>
+                 <p style={{ fontSize: '13px', margin: '0 0 12px 0', fontWeight: '600' }}>super nice quality thank you</p>
+                 <div style={{ display: 'flex', justifyContent: 'flex-end', fontSize: '12px', color: '#000', fontWeight: 'bold', gap: '16px', alignItems: 'center' }}>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><ThumbsUp size={14} /> Helpful (25)</span>
+                    <span>•••</span>
+                 </div>
               </div>
 
-              {/* Product Description */}
-              {product.description && (
-                <div style={{ marginTop: '20px' }}>
-                  <div className="pd-options-title">Description</div>
-                  <p style={{ fontSize: '14px', lineHeight: '1.6', color: '#444', whiteSpace: 'pre-wrap' }}>
-                    {product.description}
-                  </p>
-                </div>
-              )}
-
-              <div className="service-features">
-                <div className="feature-row">
-                  <Truck size={20} />
-                  <div>
-                    <strong>Free standard shipping</strong>
-                    <div style={{ fontSize: '12px', color: '#666' }}>On orders over ₵500</div>
-                  </div>
-                </div>
-                <div className="feature-row">
-                  <RotateCcw size={20} />
-                  <div>
-                    <strong>Free returns</strong>
-                    <div style={{ fontSize: '12px', color: '#666' }}>Within 30 days of purchase</div>
-                  </div>
-                </div>
+              <div className="review-card">
+                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '8px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 'bold' }}>
+                      x***1
+                      <div style={{ display: 'flex', color: '#fcc419' }}><Star size={10} fill="currentColor" /><Star size={10} fill="currentColor" /><Star size={10} fill="currentColor" /><Star size={10} fill="currentColor" /><Star size={10} fill="currentColor" /></div>
+                    </div>
+                    <div style={{ color: '#999' }}>Color: White / Size: M</div>
+                 </div>
+                 <p style={{ fontSize: '13px', margin: '0 0 12px 0', fontWeight: '600' }}>Good quality but the size was very big</p>
+                 <div style={{ display: 'flex', justifyContent: 'flex-end', fontSize: '12px', color: '#000', fontWeight: 'bold', gap: '16px', alignItems: 'center' }}>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><ThumbsUp size={14} /> Helpful (10)</span>
+                    <span>•••</span>
+                 </div>
               </div>
+            </div>
 
-              <button style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'none', border: 'none', cursor: 'pointer', fontSize: '13px', color: '#666' }}>
-                <Share2 size={16} /> Share this product
+            {/* Details Section */}
+            <div className="section-divider">
+              <div className="pd-options-title" style={{ fontSize: '16px', marginBottom: '16px' }}>Details</div>
+              <div style={{ display: 'grid', gridTemplateColumns: '120px 1fr', gap: '16px', fontSize: '13px', color: '#000', fontWeight: '600' }}>
+                <span style={{ color: '#666', fontWeight: 'normal' }}>Material:</span>
+                <span>Knitted Fabric</span>
+                <span style={{ color: '#666', fontWeight: 'normal' }}>Composition:</span>
+                <span>95% Polyester, 5% Elastane</span>
+              </div>
+              <div style={{ textAlign: 'center', marginTop: '24px', fontSize: '13px', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                View more <ChevronRight size={14} />
+              </div>
+            </div>
+            
+            {/* Matching Styles */}
+            <div className="section-divider">
+               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                 <div className="pd-options-title" style={{ fontSize: '16px', margin: 0 }}>Matching Styles</div>
+                 <div style={{ fontSize: '11px', color: '#c92a2a', background: '#fff5f5', padding: '4px 10px', borderRadius: '12px', fontWeight: 'bold' }}>You May Love, More Style</div>
+               </div>
+               
+               <div style={{ display: 'flex', gap: '12px', overflowX: 'auto', paddingBottom: '16px' }}>
+                 {matchingStyles.map(p => (
+                   <Link to={`/product/${p.id}`} key={p.id} style={{ minWidth: '120px', textDecoration: 'none', color: '#000' }}>
+                     <img src={p.image_url} alt={p.name} style={{ width: '120px', height: '160px', objectFit: 'cover', borderRadius: '4px' }} />
+                     <div style={{ fontWeight: 'bold', fontSize: '14px', marginTop: '8px' }}>GH₵{p.price}</div>
+                   </Link>
+                 ))}
+               </div>
+            </div>
+
+            {/* Desktop Add to Cart */}
+            <div className="desktop-add-cart" style={{ display: 'flex', gap: '16px', marginTop: '24px' }}>
+              <button style={{ width: '50px', height: '50px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #000', background: 'transparent', cursor: 'pointer', borderRadius: '4px' }} onClick={() => toggleFavorite(product.id)}>
+                <Heart size={24} fill={isFavorite(product.id) ? '#000' : 'none'} />
               </button>
-
+              <button className="add-to-bag" onClick={() => addToCart(product, selectedSize, selectedColor)} disabled={isOutOfStock}>
+                {isOutOfStock ? 'OUT OF STOCK' : 'Add to Cart'}
+              </button>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Sticky Bottom Bar (Mobile Only via CSS) */}
+      <div className="sticky-bottom-bar">
+         <button onClick={() => toggleFavorite(product.id)} style={{ background: 'none', border: 'none', padding: '0 16px', cursor: 'pointer' }}>
+           <Heart size={28} fill={isFavorite(product.id) ? '#000' : 'none'} />
+         </button>
+         <button 
+           className="add-to-bag"
+           onClick={() => addToCart(product, selectedSize, selectedColor)}
+           disabled={isOutOfStock}
+         >
+           {isOutOfStock ? 'OUT OF STOCK' : 'Add to Cart'}
+         </button>
+      </div>
+      
+      {/* Check My Size Modal */}
+      {showSizeModal && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px', borderBottom: '1px solid #eee' }}>
+              {sizeModalStep > 1 ? (
+                <ChevronLeft size={24} onClick={() => setSizeModalStep(sizeModalStep - 1)} style={{ cursor: 'pointer' }} />
+              ) : (
+                <div style={{ width: '24px' }}></div>
+              )}
+              <h3 style={{ margin: 0, fontSize: '16px' }}>
+                {sizeModalStep === 1 || sizeModalStep === 2 ? 'Your Measurements' : 'Your Body Shape'}
+                <span style={{ color: '#d90429' }}>*</span>
+              </h3>
+              <X size={24} onClick={() => setShowSizeModal(false)} style={{ cursor: 'pointer' }} />
+            </div>
+            
+            <div style={{ padding: '24px 20px' }}>
+              {(sizeModalStep === 1 || sizeModalStep === 2) && (
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
+                  <span style={{ fontWeight: 'bold', fontSize: '14px' }}>Switch to</span>
+                  <div style={{ display: 'flex', background: '#f5f5f5', borderRadius: '4px', overflow: 'hidden' }}>
+                    <button 
+                      style={{ padding: '6px 12px', fontSize: '12px', fontWeight: 'bold', border: 'none', cursor: 'pointer', background: measurementUnit === 'cm, kg' ? '#222' : 'transparent', color: measurementUnit === 'cm, kg' ? '#fff' : '#666' }}
+                      onClick={() => setMeasurementUnit('cm, kg')}
+                    >cm, kg</button>
+                    <button 
+                      style={{ padding: '6px 12px', fontSize: '12px', fontWeight: 'bold', border: 'none', cursor: 'pointer', background: measurementUnit === 'in, lb' ? '#222' : 'transparent', color: measurementUnit === 'in, lb' ? '#fff' : '#666' }}
+                      onClick={() => setMeasurementUnit('in, lb')}
+                    >in, lb</button>
+                  </div>
+                </div>
+              )}
+              
+              {sizeModalStep === 1 && (
+                <>
+                  <div style={{ marginBottom: '40px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '12px' }}>
+                      <span style={{ fontWeight: 'bold', fontSize: '14px' }}>Height<span style={{ color: '#d90429' }}>*</span></span>
+                      <span style={{ fontWeight: '900', fontSize: '20px' }}>165 <span style={{ fontSize: '13px', fontWeight: 'bold' }}>{measurementUnit === 'cm, kg' ? 'cm' : 'in'}</span></span>
+                    </div>
+                    <div style={{ width: '100%', height: '40px', background: '#f8f9fa', border: '1px solid #e9ecef', borderRadius: '4px', position: 'relative' }}>
+                      <div style={{ position: 'absolute', left: '50%', top: 0, bottom: 0, width: '2px', background: '#1c7ed6' }}></div>
+                      <div style={{ position: 'absolute', left: '50%', top: '-6px', transform: 'translateX(-50%)', width: 0, height: 0, borderLeft: '6px solid transparent', borderRight: '6px solid transparent', borderTop: '8px solid #1c7ed6' }}></div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', padding: '24px 10px 0 10px', fontSize: '10px', color: '#999' }}>
+                        <span>155</span><span>165</span><span>175</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div style={{ marginBottom: '32px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '12px' }}>
+                      <span style={{ fontWeight: 'bold', fontSize: '14px' }}>Weight<span style={{ color: '#d90429' }}>*</span></span>
+                      <span style={{ fontWeight: '900', fontSize: '20px' }}>60 <span style={{ fontSize: '13px', fontWeight: 'bold' }}>{measurementUnit === 'cm, kg' ? 'kg' : 'lb'}</span></span>
+                    </div>
+                    <div style={{ width: '100%', height: '40px', background: '#f8f9fa', border: '1px solid #e9ecef', borderRadius: '4px', position: 'relative' }}>
+                      <div style={{ position: 'absolute', left: '50%', top: 0, bottom: 0, width: '2px', background: '#1c7ed6' }}></div>
+                      <div style={{ position: 'absolute', left: '50%', top: '-6px', transform: 'translateX(-50%)', width: 0, height: 0, borderLeft: '6px solid transparent', borderRight: '6px solid transparent', borderTop: '8px solid #1c7ed6' }}></div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', padding: '24px 10px 0 10px', fontSize: '10px', color: '#999' }}>
+                        <span>45</span><span>55</span><span>65</span><span>75</span>
+                      </div>
+                    </div>
+                  </div>
+                </>
+              )}
+              
+              {sizeModalStep === 2 && (
+                <>
+                  <div style={{ marginBottom: '40px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '12px' }}>
+                      <span style={{ fontWeight: 'bold', fontSize: '14px' }}>Bust<span style={{ color: '#d90429' }}>*</span></span>
+                      <span style={{ fontWeight: '900', fontSize: '20px' }}>90 <span style={{ fontSize: '13px', fontWeight: 'bold' }}>{measurementUnit === 'cm, kg' ? 'cm' : 'in'}</span></span>
+                    </div>
+                    <div style={{ width: '100%', height: '40px', background: '#f8f9fa', border: '1px solid #e9ecef', borderRadius: '4px', position: 'relative' }}>
+                      <div style={{ position: 'absolute', left: '50%', top: 0, bottom: 0, width: '2px', background: '#1c7ed6' }}></div>
+                      <div style={{ position: 'absolute', left: '50%', top: '-6px', transform: 'translateX(-50%)', width: 0, height: 0, borderLeft: '6px solid transparent', borderRight: '6px solid transparent', borderTop: '8px solid #1c7ed6' }}></div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', padding: '24px 10px 0 10px', fontSize: '10px', color: '#999' }}>
+                        <span>80</span><span>90</span><span>100</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div style={{ marginBottom: '40px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '12px' }}>
+                      <span style={{ fontWeight: 'bold', fontSize: '14px' }}>Waist<span style={{ color: '#d90429' }}>*</span></span>
+                      <span style={{ fontWeight: '900', fontSize: '20px' }}>70 <span style={{ fontSize: '13px', fontWeight: 'bold' }}>{measurementUnit === 'cm, kg' ? 'cm' : 'in'}</span></span>
+                    </div>
+                    <div style={{ width: '100%', height: '40px', background: '#f8f9fa', border: '1px solid #e9ecef', borderRadius: '4px', position: 'relative' }}>
+                      <div style={{ position: 'absolute', left: '50%', top: 0, bottom: 0, width: '2px', background: '#1c7ed6' }}></div>
+                      <div style={{ position: 'absolute', left: '50%', top: '-6px', transform: 'translateX(-50%)', width: 0, height: 0, borderLeft: '6px solid transparent', borderRight: '6px solid transparent', borderTop: '8px solid #1c7ed6' }}></div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', padding: '24px 10px 0 10px', fontSize: '10px', color: '#999' }}>
+                        <span>65</span><span>75</span><span>85</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div style={{ marginBottom: '32px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '12px' }}>
+                      <span style={{ fontWeight: 'bold', fontSize: '14px' }}>Hips<span style={{ color: '#d90429' }}>*</span></span>
+                      <span style={{ fontWeight: '900', fontSize: '20px' }}>100 <span style={{ fontSize: '13px', fontWeight: 'bold' }}>{measurementUnit === 'cm, kg' ? 'cm' : 'in'}</span></span>
+                    </div>
+                    <div style={{ width: '100%', height: '40px', background: '#f8f9fa', border: '1px solid #e9ecef', borderRadius: '4px', position: 'relative' }}>
+                      <div style={{ position: 'absolute', left: '50%', top: 0, bottom: 0, width: '2px', background: '#1c7ed6' }}></div>
+                      <div style={{ position: 'absolute', left: '50%', top: '-6px', transform: 'translateX(-50%)', width: 0, height: 0, borderLeft: '6px solid transparent', borderRight: '6px solid transparent', borderTop: '8px solid #1c7ed6' }}></div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', padding: '24px 10px 0 10px', fontSize: '10px', color: '#999' }}>
+                        <span>90</span><span>100</span><span>110</span>
+                      </div>
+                    </div>
+                  </div>
+                </>
+              )}
+              
+              {sizeModalStep === 3 && (
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px', marginTop: '16px' }}>
+                  {['Hourglass', 'Triangle', 'Rounded', 'Straight', 'Inverted Triangle'].map(shape => (
+                    <div 
+                      key={shape} 
+                      style={{ padding: '20px 8px', background: bodyShape === shape ? '#f0f0f0' : '#f9f9f9', border: bodyShape === shape ? '2px solid #000' : '2px solid transparent', borderRadius: '8px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', cursor: 'pointer' }}
+                      onClick={() => setBodyShape(shape)}
+                    >
+                      <div style={{ width: '40px', height: '60px', background: 'transparent', border: '1.5px solid #000', borderRadius: shape==='Rounded'?'50%':shape==='Triangle'?'0 0 50% 50%':'4px', position: 'relative' }}>
+                        <div style={{position:'absolute', border:'1px dashed #1c7ed6', top:'-4px', bottom:'-4px', left:'-4px', right:'-4px'}}></div>
+                      </div>
+                      <span style={{ fontSize: '12px', fontWeight: 'bold', textAlign: 'center' }}>{shape}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+            
+            {sizeModalStep === 1 && (
+              <div style={{ padding: '0 20px 24px 20px', display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
+                <input type="checkbox" id="privacy" style={{ marginTop: '4px' }} />
+                <label htmlFor="privacy" style={{ fontSize: '11px', color: '#666', lineHeight: '1.4', fontWeight: 'bold' }}>
+                  By clicking "Submit", you consent to SHEIN processing your personal data to provide personalized product sizing recommendations for your profile... <span style={{ color: '#1c7ed6' }}>Privacy Policy</span>
+                </label>
+              </div>
+            )}
+
+            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '16px 20px calc(16px + env(safe-area-inset-bottom))', background: '#fff', borderTop: '1px solid #eee' }}>
+              <button 
+                onClick={() => {
+                  if (sizeModalStep < 3) setSizeModalStep(sizeModalStep + 1);
+                  else {
+                    setShowSizeModal(false);
+                    alert("Size recommendation based on your profile: Medium");
+                  }
+                }}
+                style={{ width: '100%', padding: '16px', background: '#000', color: '#fff', border: 'none', borderRadius: '4px', fontWeight: 'bold', fontSize: '16px', cursor: 'pointer' }}
+              >
+                {sizeModalStep === 3 ? 'Submit' : `Continue (${sizeModalStep}/3)`}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
