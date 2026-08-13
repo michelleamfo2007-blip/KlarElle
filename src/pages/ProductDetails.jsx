@@ -857,11 +857,11 @@ function ProductDetails() {
                 <span style={{ color: '#666', fontWeight: 'normal' }}>Composition:</span>
                 <span>{product.composition || 'N/A'}</span>
                 <span style={{ color: '#666', fontWeight: 'normal' }}>Pattern Type:</span>
-                <span>Plain</span>
+                <span>{product.pattern_type || 'N/A'}</span>
                 <span style={{ color: '#666', fontWeight: 'normal' }}>Care Instructions:</span>
-                <span>Machine wash or professional dry clean</span>
+                <span>{product.care_instructions || 'N/A'}</span>
                 <span style={{ color: '#666', fontWeight: 'normal' }}>Style:</span>
-                <span>Elegant, Casual</span>
+                <span>{product.style || 'N/A'}</span>
               </div>
               <div style={{ marginTop: '24px', fontSize: '13px', lineHeight: '1.6' }}>
                 <p>{product.description || "Enhance your wardrobe with this stunning piece, crafted with premium materials for maximum comfort and style. Perfect for both casual outings and elegant evening events. Designed to fit beautifully and make you feel confident."}</p>

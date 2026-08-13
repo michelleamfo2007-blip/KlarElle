@@ -24,7 +24,10 @@ function ProductForm() {
     status: 'active',
     visibility: true,
     material: '',
-    composition: ''
+    composition: '',
+    pattern_type: '',
+    care_instructions: '',
+    style: ''
   });
 
   const [sizesInput, setSizesInput] = useState('');
@@ -68,6 +71,9 @@ function ProductForm() {
         visibility: data.visibility ?? true,
         material: data.material || '',
         composition: data.composition || '',
+        pattern_type: data.pattern_type || '',
+        care_instructions: data.care_instructions || '',
+        style: data.style || '',
       });
 
       setSizesInput(Array.isArray(data.sizes) ? data.sizes.join(', ') : (data.sizes || ''));
@@ -206,6 +212,9 @@ function ProductForm() {
       hover_image_url: hoverImg,
       material: formData.material,
       composition: formData.composition,
+      pattern_type: formData.pattern_type,
+      care_instructions: formData.care_instructions,
+      style: formData.style,
       sizes: sizesInput.split(/[;,]+/).map(s => s.trim()).filter(Boolean),
       colors: colorsInput.split(/[;,]+/).map(c => c.trim()).filter(Boolean),
       tags: tagsInput.split(/[;,]+/).map(t => t.trim()).filter(Boolean),
@@ -377,6 +386,36 @@ function ProductForm() {
                       onChange={(e) => setFormData({...formData, composition: e.target.value})} 
                     />
                   </div>
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                  <div>
+                    <label className="input-label">Pattern Type (e.g. Plain)</label>
+                    <input 
+                      type="text" 
+                      className="input-field" 
+                      value={formData.pattern_type} 
+                      onChange={(e) => setFormData({...formData, pattern_type: e.target.value})} 
+                    />
+                  </div>
+                  <div>
+                    <label className="input-label">Style (e.g. Elegant, Casual)</label>
+                    <input 
+                      type="text" 
+                      className="input-field" 
+                      value={formData.style} 
+                      onChange={(e) => setFormData({...formData, style: e.target.value})} 
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="input-label">Care Instructions</label>
+                  <input 
+                    type="text" 
+                    className="input-field" 
+                    placeholder="e.g. Machine wash or professional dry clean"
+                    value={formData.care_instructions} 
+                    onChange={(e) => setFormData({...formData, care_instructions: e.target.value})} 
+                  />
                 </div>
                 
                 <div>
