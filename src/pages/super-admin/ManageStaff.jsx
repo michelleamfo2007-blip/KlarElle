@@ -31,11 +31,10 @@ function ManageStaff() {
     setSuccessMsg('');
 
     try {
-      // 1. Send invite email via backend
       const response = await fetch('/api/invite-staff', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: newStaffEmail })
+        body: JSON.stringify({ email: newStaffEmail, role: newStaffRole })
       });
       
       const data = await response.json();
