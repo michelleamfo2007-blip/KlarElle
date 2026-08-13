@@ -3,22 +3,53 @@ import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { Search, User, Heart, ShoppingBag, Globe, Smartphone, ChevronDown } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
+import { useCurrency } from '../context/CurrencyContext';
 import { supabase } from '../lib/supabase';
 
 function Layout() {
   const { cartCount } = useCart();
   const { session } = useAuth();
+  const { currency, setCurrency, EXCHANGE_RATES } = useCurrency();
   const location = useLocation();
   const navigate = useNavigate();
   const [toastMessage, setToastMessage] = useState('');
   const [showLangMenu, setShowLangMenu] = useState(false);
   const [showCurrMenu, setShowCurrMenu] = useState(false);
   const [selectedLang, setSelectedLang] = useState('EN');
-  const [selectedCurr, setSelectedCurr] = useState('USD');
+  const [newsletterEmail, setNewsletterEmail] = useState('');
+  const [subscribing, setSubscribing] = useState(false);
 
   const showToast = (message) => {
     setToastMessage(message);
     setTimeout(() => setToastMessage(''), 3000);
+  };
+
+  const handleSubscribe = async (e) => {
+    e.preventDefault();
+    if (!newsletterEmail) return;
+    
+    setSubscribing(true);
+    try {
+      const { error } = await supabase
+        .from('subscribers')
+        .insert([{ email: newsletterEmail }]);
+        
+      if (error) {
+        if (error.code === '23505') { // Unique violation
+          showToast("You're already subscribed!");
+        } else {
+          showToast("Failed to subscribe. Please try again.");
+          console.error(error);
+        }
+      } else {
+        showToast("Thanks for subscribing to KLARELLE style news!");
+        setNewsletterEmail('');
+      }
+    } catch (err) {
+      showToast("An error occurred.");
+    } finally {
+      setSubscribing(false);
+    }
   };
 
   const handleLogout = async () => {
@@ -49,26 +80,22 @@ function Layout() {
         </div>
       )}
       
-      {/* Top Bar */}
-      <div className="top-bar">
-        <div className="container">
-          <div className="top-bar-left" style={{ display: 'flex', gap: '20px' }}>
-            <div 
-              className="top-bar-item" 
-              style={{ position: 'relative', cursor: 'pointer' }}
-            >
-              <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }} onClick={() => { setShowLangMenu(!showLangMenu); setShowCurrMenu(false); }}>
-                <Globe size={14} /> {selectedLang} <ChevronDown size={12} />
+      <div className="top-bar" style={{ background: '#f5f5f5', padding: '8px 0', fontSize: '12px', borderBottom: '1px solid #eee' }}>
+        <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ display: 'flex', gap: '24px', alignItems: 'center' }}>
+            <div style={{ position: 'relative', cursor: 'pointer' }}>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#666', fontSize: '12px' }} onClick={() => { setShowLangMenu(!showLangMenu); setShowCurrMenu(false); }}>
+                <Globe size={12} /> {selectedLang} <ChevronDown size={10} />
               </span>
               {showLangMenu && <div style={{position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 40}} onClick={() => setShowLangMenu(false)} />}
               {showLangMenu && (
-                <div style={{ position: 'absolute', top: '100%', left: 0, background: '#fff', border: '1px solid #eee', padding: '8px 0', zIndex: 50, minWidth: '120px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', borderRadius: '4px', maxHeight: '200px', overflowY: 'auto' }}>
-                  {['EN - English', 'FR - Français', 'ES - Español', 'DE - Deutsch', 'IT - Italiano', 'PT - Português', 'RU - Русский', 'ZH - 中文', 'JA - 日本語', 'AR - العربية', 'HI - हिन्दी'].map(lang => (
+                <div style={{ position: 'absolute', top: '100%', left: 0, marginTop: '8px', background: '#fff', border: '1px solid #eee', padding: '8px 0', zIndex: 50, minWidth: '120px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', borderRadius: '4px', maxHeight: '200px', overflowY: 'auto' }}>
+                  {['EN - English', 'FR - Français', 'ES - Español', 'DE - Deutsch', 'IT - Italiano', 'PT - Português', 'RU - Русский', 'ZH - 中文', 'JA - 日本語', 'AR - العربية', 'HI - हिन्दी', 'KO - 한국어', 'TR - Türkçe', 'NL - Nederlands'].map(lang => (
                     <div 
                       key={lang} 
                       className="dropdown-item" 
                       onClick={() => { setSelectedLang(lang.split(' ')[0]); setShowLangMenu(false); }}
-                      style={{ padding: '8px 16px', color: selectedLang === lang.split(' ')[0] ? '#000' : '#666', fontSize: '12px', fontWeight: selectedLang === lang.split(' ')[0] ? 'bold' : 'normal' }}
+                      style={{ padding: '8px 16px', color: selectedLang === lang.split(' ')[0] ? '#000' : '#666', fontSize: '12px', fontWeight: selectedLang === lang.split(' ')[0] ? 'bold' : 'normal', textAlign: 'left', whiteSpace: 'nowrap' }}
                     >
                       {lang}
                     </div>
@@ -77,32 +104,29 @@ function Layout() {
               )}
             </div>
 
-            <div 
-              className="top-bar-item" 
-              style={{ position: 'relative', cursor: 'pointer' }}
-            >
-              <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }} onClick={() => { setShowCurrMenu(!showCurrMenu); setShowLangMenu(false); }}>
-                {selectedCurr} <ChevronDown size={12} />
+            <div style={{ position: 'relative', cursor: 'pointer' }}>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#666', fontSize: '12px' }} onClick={() => { setShowCurrMenu(!showCurrMenu); setShowLangMenu(false); }}>
+                {currency} <ChevronDown size={10} />
               </span>
               {showCurrMenu && <div style={{position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 40}} onClick={() => setShowCurrMenu(false)} />}
               {showCurrMenu && (
-                <div style={{ position: 'absolute', top: '100%', left: 0, background: '#fff', border: '1px solid #eee', padding: '8px 0', zIndex: 50, minWidth: '120px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', borderRadius: '4px', maxHeight: '200px', overflowY: 'auto' }}>
-                  {['USD - $', 'EUR - €', 'GBP - £', 'GHS - ₵', 'CAD - $', 'AUD - $', 'JPY - ¥', 'CNY - ¥', 'CHF - CHF', 'ZAR - R'].map(curr => (
+                <div style={{ position: 'absolute', top: '100%', left: 0, marginTop: '8px', background: '#fff', border: '1px solid #eee', padding: '8px 0', zIndex: 50, minWidth: '150px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', borderRadius: '4px', maxHeight: '200px', overflowY: 'auto' }}>
+                  {Object.entries(EXCHANGE_RATES).map(([code, data]) => (
                     <div 
-                      key={curr} 
+                      key={code} 
                       className="dropdown-item" 
-                      onClick={() => { setSelectedCurr(curr.split(' ')[0]); setShowCurrMenu(false); }}
-                      style={{ padding: '8px 16px', color: selectedCurr === curr.split(' ')[0] ? '#000' : '#666', fontSize: '12px', fontWeight: selectedCurr === curr.split(' ')[0] ? 'bold' : 'normal' }}
+                      onClick={() => { setCurrency(code); setShowCurrMenu(false); }}
+                      style={{ padding: '8px 16px', color: currency === code ? '#000' : '#666', fontSize: '12px', fontWeight: currency === code ? 'bold' : 'normal', textAlign: 'left' }}
                     >
-                      {curr}
+                      {code} - {data.symbol}
                     </div>
                   ))}
                 </div>
               )}
             </div>
           </div>
-          <div className="top-bar-right">
-            <span className="top-bar-item">Support</span>
+          <div style={{ color: '#666' }}>
+            Free shipping on orders over GHS500
           </div>
         </div>
       </div>
@@ -170,7 +194,6 @@ function Layout() {
                 <Link to="/page/about-us">About Us</Link>
                 <Link to="/page/fashion-blogger">Fashion Blogger</Link>
                 <Link to="/page/social-responsibility">Social Responsibility</Link>
-                <Link to="/page/careers">Careers</Link>
               </div>
             </div>
             <div className="footer-col">
@@ -185,21 +208,45 @@ function Layout() {
             <div className="footer-col">
               <h4>Customer Care</h4>
               <div className="footer-links">
-                <Link to="/page/contact-us">Contact Us</Link>
+                <a href="mailto:supportklarelle@gmail.com">Contact Us</a>
                 <Link to="/page/payment-method">Payment Method</Link>
                 <Link to="/page/bonus-point">Bonus Point</Link>
+                <a href="mailto:supportklarelle@gmail.com">Support</a>
               </div>
             </div>
             <div className="footer-col">
-              <h4>Sign up for KLARELLE style news</h4>
-              <form className="newsletter-form" onSubmit={(e) => e.preventDefault()}>
-                <input type="email" placeholder="Your Email Address" className="newsletter-input" />
-                <button type="submit" className="newsletter-btn">SUBSCRIBE</button>
+              <div>
+                <h4 style={{ marginBottom: '12px' }}>Follow Us</h4>
+                <div style={{ display: 'flex', gap: '16px', color: '#666', fontSize: '13px' }}>
+                  <a href="https://www.instagram.com/klarelle_?igsh=d2xiYmloaHhzbThr" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>Instagram</a>
+                  <a href="https://www.tiktok.com/@klarelle.store?_r=1&_t=ZS-98qn2e8LpYe" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>TikTok</a>
+                  <a href="https://www.facebook.com/share/1ETeTXkNfh/?mibextid=wwXIfr" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>Facebook</a>
+                </div>
+              </div>
+              <h4 style={{ marginTop: '24px' }}>Sign up for KLARELLE style news</h4>
+              <form className="newsletter-form" onSubmit={handleSubscribe}>
+                <input 
+                  type="email" 
+                  placeholder="Your Email Address" 
+                  className="newsletter-input" 
+                  value={newsletterEmail}
+                  onChange={(e) => setNewsletterEmail(e.target.value)}
+                  required
+                  disabled={subscribing}
+                />
+                <button type="submit" className="newsletter-btn" disabled={subscribing}>
+                  {subscribing ? 'WAIT...' : 'SUBSCRIBE'}
+                </button>
               </form>
+              <div style={{ marginTop: '16px', fontSize: '13px', color: '#666' }}>
+                Questions? Email us at <a href="mailto:supportklarelle@gmail.com" style={{color: '#000', textDecoration: 'underline'}}>supportklarelle@gmail.com</a>
+              </div>
             </div>
           </div>
-          <div className="footer-bottom">
-            &copy; {new Date().getFullYear()} KLARELLE. All rights reserved.
+          <div className="footer-bottom" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', paddingTop: '24px', borderTop: '1px solid #eaeaea' }}>
+            <div style={{ color: '#999', fontSize: '12px' }}>
+              &copy; {new Date().getFullYear()} KLARELLE. All rights reserved.
+            </div>
           </div>
         </div>
       </footer>

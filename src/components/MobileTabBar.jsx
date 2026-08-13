@@ -7,6 +7,7 @@ function MobileTabBar({ activeTab }) {
   const { cartItems } = useCart();
   const cartCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
 
+  return null;
   return (
     <div style={{
       position: 'fixed',

@@ -1,11 +1,13 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext';
 import { Trash2, Minus, Plus, ShieldCheck } from 'lucide-react';
 import './Cart.css';
 
 function Cart() {
   const { cartItems, removeFromCart, updateQuantity, cartTotal } = useCart();
+  const { session } = useAuth();
   
   const shipping = cartTotal > 49 ? 0 : 25.00;
   const finalTotal = cartTotal + shipping;
@@ -14,7 +16,7 @@ function Cart() {
     return (
       <div className="container empty-cart">
         <h2>Your Shopping Bag is Empty</h2>
-        <p>Sign in to save or access already saved items in your shopping bag.</p>
+        {!session && <p>Sign in to save or access already saved items in your shopping bag.</p>}
         <Link to="/" className="btn btn-primary" style={{marginTop: '20px'}}>CONTINUE SHOPPING</Link>
       </div>
     );

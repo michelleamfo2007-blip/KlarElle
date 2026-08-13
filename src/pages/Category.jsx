@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { Heart, Star, Plus, Minus } from 'lucide-react';
 import { useCart } from '../context/CartContext';
+import { useCurrency } from '../context/CurrencyContext';
 import FilterSidebar from '../components/FilterSidebar';
 import FilterModal from '../components/FilterModal';
 import { Filter } from 'lucide-react';
@@ -11,6 +12,7 @@ import './Category.css';
 function Category() {
   const { id } = useParams(); // gets 'dresses', 'tops', etc. from URL
   const { addToCart } = useCart();
+  const { formatPrice } = useCurrency();
   const [allProducts, setAllProducts] = useState([]);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -164,8 +166,8 @@ function Category() {
                 <div className="product-info">
                   <Link to={`/product/${product.id}`}><h3 className="product-title">{product.name}</h3></Link>
                   <div className="product-price-wrap">
-                    <span className="product-price sale">₵{parseFloat(product.price).toFixed(2)}</span>
-                    {product.old_price && parseFloat(product.old_price) > parseFloat(product.price) && <span className="product-old-price">₵{parseFloat(product.old_price).toFixed(2)}</span>}
+                    <span className="product-price sale">{formatPrice(product.price)}</span>
+                    {product.old_price && parseFloat(product.old_price) > parseFloat(product.price) && <span className="product-old-price">{formatPrice(product.old_price)}</span>}
                   </div>
                   <div className="product-rating">
                     <Star className="star-icon" fill="currentColor" />

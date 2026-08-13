@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
+import { useCurrency } from '../context/CurrencyContext';
 import { supabase } from '../lib/supabase';
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
@@ -14,6 +15,7 @@ function Checkout() {
   const navigate = useNavigate();
   const { cartItems, cartTotal, clearCart } = useCart();
   const { session } = useAuth();
+  const { formatPrice } = useCurrency();
   
   const [clientSecret, setClientSecret] = useState("");
   const [couponInput, setCouponInput] = useState("");
@@ -253,7 +255,7 @@ function Checkout() {
               <div style={{ fontSize: '13px', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', marginBottom: '4px' }}>{item.name}</div>
               <div style={{ fontSize: '12px', color: '#666', marginBottom: '8px' }}>{item.selectedColor} / {item.selectedSize}</div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div style={{ fontWeight: 'bold', color: '#ff4444' }}>GH₵{item.price}</div>
+                <div style={{ fontWeight: 'bold', color: '#ff4444' }}>{formatPrice(item.price)}</div>
                 <div style={{ fontSize: '12px', color: '#666' }}>x {item.quantity}</div>
               </div>
             </div>
@@ -266,7 +268,7 @@ function Checkout() {
         <h3 style={{ fontSize: '16px', margin: '0 0 16px 0' }}>Shipping Method</h3>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
           <span style={{ fontWeight: 'bold', fontSize: '14px' }}>Express Shipping</span>
-          <span style={{ fontWeight: 'bold', fontSize: '14px' }}>GH₵{shippingFee.toFixed(2)}</span>
+          <span style={{ fontWeight: 'bold', fontSize: '14px' }}>{formatPrice(shippingFee)}</span>
         </div>
         <div style={{ fontSize: '12px', color: '#666', marginBottom: '16px' }}>Delivery: 11-22 business days</div>
         
@@ -275,7 +277,7 @@ function Checkout() {
             <div style={{ fontWeight: 'bold', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '4px' }}>Shipping Guarantee <CheckCircle2 size={16} fill="#000" color="#fff" /></div>
             <div style={{ fontSize: '12px', color: '#666' }}>Refund if your package is lost or damaged.</div>
           </div>
-          <span style={{ fontWeight: 'bold', fontSize: '14px' }}>GH₵{shippingGuarantee.toFixed(2)}</span>
+          <span style={{ fontWeight: 'bold', fontSize: '14px' }}>{formatPrice(shippingGuarantee)}</span>
         </div>
       </div>
 
@@ -299,7 +301,7 @@ function Checkout() {
           <span style={{ fontWeight: 'bold', fontSize: '14px' }}>Apply Voucher</span>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             {appliedCoupon ? (
-              <span style={{ color: '#ff4444', fontWeight: 'bold' }}>-GH₵{discountAmount.toFixed(2)}</span>
+              <span style={{ color: '#ff4444', fontWeight: 'bold' }}>-{formatPrice(discountAmount)}</span>
             ) : (
               <input type="text" placeholder="Enter code" value={couponInput} onChange={(e) => setCouponInput(e.target.value)} style={{ border: 'none', textAlign: 'right', outline: 'none', fontSize: '14px' }} />
             )}
@@ -322,27 +324,27 @@ function Checkout() {
 
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px', fontSize: '13px' }}>
           <span style={{ color: '#666' }}>Retail Price: {cartItems.length} Items</span>
-          <span style={{ fontWeight: 'bold' }}>GH₵{cartTotal.toFixed(2)}</span>
+          <span style={{ fontWeight: 'bold' }}>{formatPrice(cartTotal)}</span>
         </div>
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px', fontSize: '13px' }}>
           <span style={{ color: '#666' }}>Shipping Fee:</span>
-          <span style={{ fontWeight: 'bold' }}>GH₵{shippingFee.toFixed(2)}</span>
+          <span style={{ fontWeight: 'bold' }}>{formatPrice(shippingFee)}</span>
         </div>
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px', fontSize: '13px' }}>
           <span style={{ color: '#666' }}>Shipping Guarantee:</span>
-          <span style={{ fontWeight: 'bold' }}>GH₵{shippingGuarantee.toFixed(2)}</span>
+          <span style={{ fontWeight: 'bold' }}>{formatPrice(shippingGuarantee)}</span>
         </div>
         {appliedCoupon && (
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px', fontSize: '13px', color: '#ff4444' }}>
             <span>Coupon(s) ({appliedCoupon.code})</span>
-            <span style={{ fontWeight: 'bold' }}>-GH₵{discountAmount.toFixed(2)}</span>
+            <span style={{ fontWeight: 'bold' }}>-{formatPrice(discountAmount)}</span>
           </div>
         )}
         <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '16px', paddingTop: '16px', borderTop: '1px solid #eee', alignItems: 'center' }}>
           <span style={{ fontWeight: 'bold', fontSize: '14px' }}>Order Total:</span>
           <div style={{ textAlign: 'right' }}>
-            <div style={{ fontWeight: 'bold', color: '#ff4444', fontSize: '18px' }}>GH₵{finalTotal.toFixed(2)}</div>
-            {appliedCoupon && <div style={{ fontSize: '12px', color: '#ff4444' }}>Saved GH₵{discountAmount.toFixed(2)}</div>}
+            <div style={{ fontWeight: 'bold', color: '#ff4444', fontSize: '18px' }}>{formatPrice(finalTotal)}</div>
+            {appliedCoupon && <div style={{ fontSize: '12px', color: '#ff4444' }}>Saved {formatPrice(discountAmount)}</div>}
           </div>
         </div>
       </div>
@@ -351,8 +353,8 @@ function Checkout() {
       <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, display: 'flex', justifyContent: 'center', zIndex: 50, pointerEvents: 'none' }}>
         <div style={{ width: '100%', maxWidth: '600px', background: '#fff', padding: '12px 16px', borderTop: '1px solid #eee', display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: 'calc(12px + env(safe-area-inset-bottom))', pointerEvents: 'auto' }}>
           <div>
-            <div style={{ fontWeight: 'bold', color: '#ff4444', fontSize: '18px' }}>GH₵{finalTotal.toFixed(2)}</div>
-            {appliedCoupon && <div style={{ fontSize: '12px', color: '#ff4444' }}>Saved GH₵{discountAmount.toFixed(2)}</div>}
+            <div style={{ fontWeight: 'bold', color: '#ff4444', fontSize: '18px' }}>{formatPrice(finalTotal)}</div>
+            {appliedCoupon && <div style={{ fontSize: '12px', color: '#ff4444' }}>Saved {formatPrice(discountAmount)}</div>}
           </div>
           <button 
             onClick={() => document.getElementById('submit').click()} 

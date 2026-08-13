@@ -24,17 +24,23 @@ import Checkout from './pages/Checkout';
 import OrderSuccess from './pages/OrderSuccess';
 import TrackOrder from './pages/TrackOrder';
 import CustomerProfile from './pages/CustomerProfile';
+import MyOrders from './pages/MyOrders';
+import Vouchers from './pages/Vouchers';
+import Wallet from './pages/Wallet';
+import CheckIn from './pages/CheckIn';
 import StaticPage from './pages/StaticPage';
 import { AuthProvider } from './context/AuthContext';
+import { CurrencyProvider } from './context/CurrencyContext';
 import './index.css';
 
 function App() {
   return (
-    <AuthProvider>
-      <FavoritesProvider>
-        <CartProvider>
-          <Router>
-          <Routes>
+    <CurrencyProvider>
+      <AuthProvider>
+        <FavoritesProvider>
+          <CartProvider>
+            <Router>
+            <Routes>
             <Route path="/" element={<Layout />}>
               <Route index element={<Home />} />
               <Route path="product/:id" element={<ProductDetails />} />
@@ -47,10 +53,13 @@ function App() {
               <Route path="order-success" element={<OrderSuccess />} />
               <Route path="track-order" element={<TrackOrder />} />
               <Route path="profile" element={<CustomerProfile />} />
+              <Route path="profile/orders" element={<MyOrders />} />
+              <Route path="profile/vouchers" element={<Vouchers />} />
+              <Route path="profile/wallet" element={<Wallet />} />
+              <Route path="check-in" element={<CheckIn />} />
               <Route path="page/about-us" element={<StaticPage title="About Us" />} />
               <Route path="page/fashion-blogger" element={<StaticPage title="Fashion Blogger" />} />
               <Route path="page/social-responsibility" element={<StaticPage title="Social Responsibility" />} />
-              <Route path="page/careers" element={<StaticPage title="Careers" />} />
               <Route path="page/shipping-info" element={<StaticPage title="Shipping Info" />} />
               <Route path="page/returns" element={<StaticPage title="Returns" />} />
               <Route path="page/how-to-order" element={<StaticPage title="How to Order" />} />
@@ -80,6 +89,7 @@ function App() {
         </CartProvider>
       </FavoritesProvider>
     </AuthProvider>
+    </CurrencyProvider>
   );
 }
 

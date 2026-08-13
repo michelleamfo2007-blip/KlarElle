@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { Search, Package, CheckCircle, Truck, Info } from 'lucide-react';
+import { useCurrency } from '../context/CurrencyContext';
 
 export default function TrackOrder() {
+  const { formatPrice } = useCurrency();
   const [orderId, setOrderId] = useState('');
   const [loading, setLoading] = useState(false);
   const [order, setOrder] = useState(null);
@@ -106,7 +108,7 @@ export default function TrackOrder() {
                 <Package size={18} color="#666" /> Order Summary
               </h3>
               <p style={{ fontSize: '15px', color: '#333', marginBottom: '8px' }}>
-                Total Amount: <span style={{ fontWeight: 'bold' }}>₵{parseFloat(order.total_amount).toFixed(2)}</span>
+                Total Amount: <span style={{ fontWeight: 'bold' }}>{formatPrice(order.total_amount)}</span>
               </p>
               <p style={{ fontSize: '15px', color: '#333' }}>
                 Payment Method: Stripe Card

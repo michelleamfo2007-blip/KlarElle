@@ -4,10 +4,12 @@ import { supabase } from '../lib/supabase';
 import { Heart, ShoppingBag, Star, Eye } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useFavorites } from '../context/FavoritesContext';
+import { useCurrency } from '../context/CurrencyContext';
 
 function Favorites() {
   const { favorites, toggleFavorite, isFavorite } = useFavorites();
   const { addToCart } = useCart();
+  const { formatPrice } = useCurrency();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -46,7 +48,7 @@ function Favorites() {
     <div className="container" style={{ padding: '40px 20px', minHeight: '60vh' }}>
       <div className="luxury-header">
         <h2 className="luxury-title">Your Wishlist</h2>
-        <div className="luxury-subtitle">Curated Elegance By Merova</div>
+        <div className="luxury-subtitle">Curated Elegance By KlarElle</div>
       </div>
 
       {products.length === 0 ? (
@@ -92,10 +94,10 @@ function Favorites() {
                 </Link>
                 
                 <div className="luxury-price-row">
-                  <span className="luxury-price">₵{parseFloat(product.price).toFixed(2)}</span>
+                  <span className="luxury-price">{formatPrice(product.price)}</span>
                   {product.old_price && parseFloat(product.old_price) > parseFloat(product.price) && (
                     <>
-                      <span className="luxury-old-price">₵{parseFloat(product.old_price).toFixed(2)}</span>
+                      <span className="luxury-old-price">{formatPrice(product.old_price)}</span>
                       <span className="luxury-saved">Save {Math.round(((product.old_price - product.price) / product.old_price) * 100)}%</span>
                     </>
                   )}

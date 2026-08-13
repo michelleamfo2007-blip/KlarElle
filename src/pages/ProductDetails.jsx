@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase';
 import { Heart, Truck, RotateCcw, Share2, Star, ChevronRight, X, Ruler, ThumbsUp, ChevronLeft } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useFavorites } from '../context/FavoritesContext';
+import { useCurrency } from '../context/CurrencyContext';
 
 const CustomSlider = ({ value, min, max, onChange, marks }) => {
   const percentage = ((value - min) / (max - min)) * 100;
@@ -27,6 +28,7 @@ function ProductDetails() {
   const { id } = useParams();
   const { addToCart } = useCart();
   const { toggleFavorite, isFavorite } = useFavorites();
+  const { formatPrice } = useCurrency();
   
   const [product, setProduct] = useState(null);
   const [matchingStyles, setMatchingStyles] = useState([]);
@@ -241,9 +243,8 @@ function ProductDetails() {
                 <span style={{ color: '#666', cursor: 'pointer' }} onClick={() => scrollToSection(recommendRef)}>Recommend</span>
               </div>
               
-              <div className="pd-price-wrap">
-                <span style={{ fontSize: '12px', color: '#666', marginTop: '6px' }}>From</span>
-                <span className="pd-price" style={{ color: '#000' }}>GH₵{parseFloat(product.price).toFixed(2)}</span>
+              <div className="pd-price-row">
+                <span className="pd-price" style={{ color: '#000' }}>{formatPrice(product.price)}</span>
               </div>
               <h1 className="pd-title" style={{ fontSize: '16px' }}>{product.name}</h1>
             </div>
@@ -396,7 +397,7 @@ function ProductDetails() {
                  {matchingStyles.map(p => (
                    <Link to={`/product/${p.id}`} key={p.id} style={{ minWidth: '120px', textDecoration: 'none', color: '#000' }}>
                      <img src={p.image_url} alt={p.name} style={{ width: '120px', height: '160px', objectFit: 'cover', borderRadius: '4px' }} />
-                     <div style={{ fontWeight: 'bold', fontSize: '14px', marginTop: '8px' }}>GH₵{p.price}</div>
+                     <div style={{ fontWeight: 'bold', fontSize: '14px', marginTop: '8px' }}>{formatPrice(p.price)}</div>
                    </Link>
                  ))}
                </div>

@@ -1,57 +1,140 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useCurrency } from '../context/CurrencyContext';
 
 function StaticPage({ title }) {
+  const { formatPrice } = useCurrency();
   const getContent = () => {
     switch (title) {
       case 'About Us':
         return (
-          <>
-            <p style={{ marginBottom: '16px' }}>Welcome to KLARELLE, your ultimate destination for premium, fashion-forward apparel. Born from a desire to make high-end aesthetics accessible to everyone, we believe that style is a powerful form of self-expression.</p>
-            <p style={{ marginBottom: '16px' }}>Our collections are carefully curated to bring you the latest trends mixed with timeless classics. From elegant maxi dresses that turn heads to comfortable everyday essentials, our mission is to empower you to feel confident and beautiful in everything you wear.</p>
-            <p style={{ marginBottom: '16px' }}>At KLARELLE, we pride ourselves on quality craftsmanship, sustainable sourcing where possible, and an unwavering commitment to our customers. Thank you for being a part of our journey.</p>
-          </>
+          <div style={{ lineHeight: '1.6' }}>
+            <h2 style={{ marginBottom: '16px', fontSize: '20px', textTransform: 'uppercase' }}>About Klarelle</h2>
+            <p style={{ marginBottom: '24px', fontStyle: 'italic', color: '#555' }}>Designed by women, for women.</p>
+            
+            <p style={{ marginBottom: '16px' }}>Klarelle was created with one simple belief: women deserve clothing designed with them, for them, and with the beauty of the feminine silhouette at the center.</p>
+            <p style={{ marginBottom: '16px' }}>We create thoughtfully designed pieces that celebrate femininity, confidence, and individuality. Every silhouette is considered with the modern woman in mind—from the way a garment fits and moves to the way it makes her feel when she puts it on.</p>
+            <p style={{ marginBottom: '24px' }}>At Klarelle, we believe clothing should feel as beautiful as it looks. Our designs blend timeless elegance with modern femininity, creating pieces that allow women to feel confident, sophisticated, and effortlessly beautiful.</p>
+            
+            <h3 style={{ marginTop: '32px', marginBottom: '16px', fontSize: '18px', textTransform: 'uppercase' }}>Our Approach</h3>
+            <p style={{ marginBottom: '24px', fontStyle: 'italic', color: '#555' }}>Designed by women. For women.</p>
+            
+            <p style={{ marginBottom: '16px' }}>We pay attention to the details that matter: flattering silhouettes, intentional design, quality, comfort, and versatility. We want every Klarelle piece to make you feel like the most elevated version of yourself.</p>
+            <p style={{ marginBottom: '16px' }}>Because luxury isn’t about being loud.</p>
+            <p style={{ marginBottom: '24px' }}>It’s about how you feel when you wear it.</p>
+            
+            <h3 style={{ marginTop: '32px', marginBottom: '16px', fontSize: '18px', textTransform: 'uppercase' }}>Our Vision</h3>
+            <p style={{ marginBottom: '16px' }}>Klarelle is more than a clothing brand. It is a celebration of the woman who knows her worth, embraces her femininity, and moves through life with confidence.</p>
+            <p style={{ marginBottom: '16px' }}>We are building a brand where every woman can find pieces that make her feel seen, confident, and unforgettable.</p>
+            <p style={{ marginBottom: '16px' }}>Welcome to Klarelle.</p>
+            <p style={{ marginBottom: '16px', fontStyle: 'italic', color: '#555', fontWeight: 'bold' }}>Designed by women. For women.</p>
+          </div>
         );
       case 'Fashion Blogger':
         return (
-          <>
-            <p style={{ marginBottom: '16px' }}>Are you passionate about fashion, styling, and creating beautiful content? The KLARELLE Fashion Blogger Program is looking for creative minds to collaborate with!</p>
-            <p style={{ marginBottom: '16px' }}>As a KLARELLE ambassador, you will receive exclusive early access to our newest collections, special discount codes for your followers, and the opportunity to be featured on our official social media channels.</p>
-            <p style={{ marginBottom: '16px' }}>If you have an engaged following and an eye for style, send an email to <strong>collaborations@klarelle.store</strong> with your media kit and social links. Let's create something beautiful together.</p>
-          </>
+          <div style={{ lineHeight: '1.6' }}>
+            <h2 style={{ marginBottom: '16px', fontSize: '20px', textTransform: 'uppercase' }}>Creator & Influencer Collaborations</h2>
+            <p style={{ marginBottom: '24px' }}>Klarelle collaborates with creators who share our vision of modern femininity, thoughtful design, and elevated style.</p>
+
+            <h3 style={{ marginTop: '32px', marginBottom: '12px', fontSize: '18px', textTransform: 'uppercase' }}>Gifted Collaborations</h3>
+            <p style={{ marginBottom: '24px' }}>For select creators, we offer gifted pieces in exchange for authentic fashion content.</p>
+
+            <h3 style={{ marginTop: '32px', marginBottom: '12px', fontSize: '18px', textTransform: 'uppercase' }}>Paid Collaborations</h3>
+            <p style={{ marginBottom: '24px' }}>As our brand grows, we will offer paid opportunities for selected creators and campaigns.</p>
+
+            <h3 style={{ marginTop: '32px', marginBottom: '12px', fontSize: '18px', textTransform: 'uppercase' }}>Creator Features</h3>
+            <p style={{ marginBottom: '24px' }}>Selected creators may be featured on Klarelle’s social platforms and website.</p>
+
+            <a href="mailto:supportklarelle@gmail.com?subject=Fashion Blogger Collaboration Application" style={{
+              display: 'inline-block',
+              padding: '12px 24px', 
+              backgroundColor: '#000', 
+              color: '#fff', 
+              border: 'none', 
+              borderRadius: '4px',
+              cursor: 'pointer',
+              fontWeight: 'bold',
+              letterSpacing: '1px',
+              textDecoration: 'none'
+            }}>
+              APPLY TO COLLABORATE &rarr;
+            </a>
+          </div>
         );
       case 'Social Responsibility':
         return (
-          <>
-            <p style={{ marginBottom: '16px' }}>At KLARELLE, we recognize our responsibility to the planet and the people who make our clothes. We are on a continuous journey toward becoming a more sustainable and ethical fashion brand.</p>
-            <p style={{ marginBottom: '16px' }}><strong>Ethical Manufacturing:</strong> We partner exclusively with factories that guarantee fair wages, safe working conditions, and reasonable hours for their workers.</p>
-            <p style={{ marginBottom: '16px' }}><strong>Sustainable Materials:</strong> We are steadily increasing our use of recycled fabrics, organic cotton, and eco-friendly packaging materials to reduce our carbon footprint.</p>
-            <p style={{ marginBottom: '16px' }}>Fashion shouldn't cost the earth. We are committed to transparency and will continue to update our community on our sustainability milestones.</p>
-          </>
-        );
-      case 'Careers':
-        return (
-          <>
-            <p style={{ marginBottom: '16px' }}>Join the KLARELLE team! We are always on the lookout for innovative, passionate, and driven individuals who want to make an impact in the fashion industry.</p>
-            <p style={{ marginBottom: '16px' }}>Current Openings:</p>
-            <ul style={{ listStyleType: 'disc', paddingLeft: '20px', marginBottom: '16px' }}>
-              <li style={{ marginBottom: '8px' }}>Senior Fashion Designer (New York, NY)</li>
-              <li style={{ marginBottom: '8px' }}>E-Commerce Merchandiser (Remote)</li>
-              <li style={{ marginBottom: '8px' }}>Social Media Coordinator (Los Angeles, CA)</li>
-              <li style={{ marginBottom: '8px' }}>Customer Experience Specialist (Remote)</li>
-            </ul>
-            <p style={{ marginBottom: '16px' }}>To apply, please send your resume and a brief cover letter to <strong>careers@klarelle.store</strong> with the position title in the subject line.</p>
-          </>
+          <div style={{ lineHeight: '1.6' }}>
+            <h2 style={{ marginBottom: '16px', fontSize: '20px', textTransform: 'uppercase' }}>Social Responsibility</h2>
+            <p style={{ marginBottom: '24px', fontStyle: 'italic', color: '#555' }}>Designed by women. For women.</p>
+            
+            <p style={{ marginBottom: '24px' }}>At Klarelle, we believe our responsibility extends beyond the clothes we create.</p>
+            
+            <h3 style={{ marginTop: '32px', marginBottom: '12px', fontSize: '18px', textTransform: 'uppercase' }}>Our Planet</h3>
+            <p style={{ marginBottom: '24px' }}>We are committed to thoughtful design, reducing unnecessary waste, and making more responsible choices in our materials, packaging, and production as we grow.</p>
+            
+            <h3 style={{ marginTop: '32px', marginBottom: '12px', fontSize: '18px', textTransform: 'uppercase' }}>Our People</h3>
+            <p style={{ marginBottom: '24px' }}>We aim to build strong, respectful relationships with the people and partners behind our collections and continuously improve the transparency of our production.</p>
+            
+            <h3 style={{ marginTop: '32px', marginBottom: '12px', fontSize: '18px', textTransform: 'uppercase' }}>Our Community</h3>
+            <p style={{ marginBottom: '24px' }}>We believe in using our growth to create opportunities for others. As Klarelle grows, we are committed to supporting organizations and initiatives that empower women and communities in need.</p>
+            
+            <h3 style={{ marginTop: '32px', marginBottom: '12px', fontSize: '18px', textTransform: 'uppercase' }}>Our Promise</h3>
+            <p style={{ marginBottom: '24px' }}>We don’t believe in claiming perfection. We believe in progress, accountability, and doing better with every collection.</p>
+            
+            <p style={{ marginBottom: '16px', fontStyle: 'italic', color: '#555', fontWeight: 'bold' }}>Thoughtfully designed. Responsibly growing. Purposefully given.</p>
+          </div>
         );
       case 'Shipping Info':
         return (
-          <>
-            <p style={{ marginBottom: '16px' }}>We are thrilled to offer worldwide shipping! Here is everything you need to know about getting your KLARELLE pieces.</p>
-            <p style={{ marginBottom: '16px' }}><strong>Processing Time:</strong> All orders are processed within 1-2 business days. Orders are not shipped or delivered on weekends or holidays.</p>
-            <p style={{ marginBottom: '16px' }}><strong>Standard Shipping:</strong> 5-8 business days. Free on orders over ₵500.</p>
-            <p style={{ marginBottom: '16px' }}><strong>Express Shipping:</strong> 2-3 business days. Flat rate of ₵50.</p>
-            <p style={{ marginBottom: '16px' }}>Once your order ships, you will receive a confirmation email containing your tracking number. Please allow 24 hours for the tracking portal to update.</p>
-          </>
+          <div style={{ lineHeight: '1.6' }}>
+            <h2 style={{ marginBottom: '16px', fontSize: '20px', textTransform: 'uppercase' }}>Shipping Policy</h2>
+            <p style={{ marginBottom: '24px' }}>At Klarelle, we carefully prepare every order to ensure your pieces arrive safely and beautifully packaged. Please review our shipping policy before placing your order.</p>
+
+            <h3 style={{ marginTop: '32px', marginBottom: '12px', fontSize: '18px', textTransform: 'uppercase' }}>Processing Time</h3>
+            <p style={{ marginBottom: '16px' }}>All orders are processed within 3–5 business days after your order is placed.</p>
+            <p style={{ marginBottom: '16px' }}>Orders placed on weekends or holidays will begin processing on the next business day.</p>
+            <p style={{ marginBottom: '24px' }}>Please note that processing time is separate from shipping/transit time.</p>
+
+            <h3 style={{ marginTop: '32px', marginBottom: '12px', fontSize: '18px', textTransform: 'uppercase' }}>U.S. Shipping Rates</h3>
+            <p style={{ marginBottom: '16px' }}><strong>Standard Shipping — $8.95</strong><br/>Estimated delivery: 3–7 business days after your order has been processed.</p>
+            <p style={{ marginBottom: '16px' }}><strong>Express Shipping — $18.95</strong><br/>Estimated delivery: 1–3 business days after your order has been processed.</p>
+            <p style={{ marginBottom: '16px', fontWeight: 'bold' }}>FREE Standard Shipping on U.S. orders of $150 or more.</p>
+            <p style={{ marginBottom: '24px' }}>Shipping times are estimates and are not guaranteed. Carrier delays, weather, holidays, and other circumstances outside of Klarelle’s control may affect delivery times.</p>
+
+            <h3 style={{ marginTop: '32px', marginBottom: '12px', fontSize: '18px', textTransform: 'uppercase' }}>International Shipping</h3>
+            <p style={{ marginBottom: '16px' }}>We ship internationally!</p>
+            <p style={{ marginBottom: '16px' }}>International shipping rates are calculated at checkout based on your destination, package weight, and selected shipping method.</p>
+            <ul style={{ listStyleType: 'disc', paddingLeft: '20px', marginBottom: '16px' }}>
+              <li><strong>International Standard Shipping:</strong> Calculated at checkout.</li>
+              <li><strong>International Express Shipping:</strong> Calculated at checkout.</li>
+            </ul>
+            <p style={{ marginBottom: '16px' }}>International delivery times vary by destination and carrier.</p>
+            <p style={{ marginBottom: '16px' }}>Customers are responsible for any applicable customs fees, duties, taxes, tariffs, brokerage fees, or other import charges associated with international orders.</p>
+            <p style={{ marginBottom: '24px' }}>Klarelle is not responsible for customs delays or fees imposed by the destination country.</p>
+
+            <h3 style={{ marginTop: '32px', marginBottom: '12px', fontSize: '18px', textTransform: 'uppercase' }}>Tracking Information</h3>
+            <p style={{ marginBottom: '16px' }}>Once your order has shipped, you will receive a shipping confirmation email containing your tracking information.</p>
+            <p style={{ marginBottom: '24px' }}>Please allow 24–48 hours for tracking information to update after your package has been shipped.</p>
+
+            <h3 style={{ marginTop: '32px', marginBottom: '12px', fontSize: '18px', textTransform: 'uppercase' }}>Incorrect Shipping Address</h3>
+            <p style={{ marginBottom: '16px' }}>Please carefully review your shipping information before completing your purchase.</p>
+            <p style={{ marginBottom: '16px' }}>If an incorrect or incomplete address is provided and the package is returned to Klarelle, the customer may be responsible for the additional shipping cost required to reship the order.</p>
+            <p style={{ marginBottom: '24px' }}>If your order has not yet shipped, contact us as soon as possible at <strong>supportklarelle@gmail.com</strong>. We will do our best to assist you, but address changes cannot be guaranteed after an order has been placed.</p>
+
+            <h3 style={{ marginTop: '32px', marginBottom: '12px', fontSize: '18px', textTransform: 'uppercase' }}>Lost, Stolen, or Delayed Packages</h3>
+            <p style={{ marginBottom: '16px' }}>Once an order has been shipped and handed over to the carrier, Klarelle is not responsible for carrier delays, lost packages, or packages marked as delivered but not received.</p>
+            <p style={{ marginBottom: '16px' }}>If your tracking information shows that your package was delivered but you cannot locate it, please check with household members, neighbors, and around your delivery location. We also recommend contacting the carrier directly to report the issue.</p>
+            <p style={{ marginBottom: '24px' }}>For packages confirmed as lost in transit, please contact <strong>supportklarelle@gmail.com</strong> so we can assist you with the next steps.</p>
+
+            <h3 style={{ marginTop: '32px', marginBottom: '12px', fontSize: '18px', textTransform: 'uppercase' }}>Order Changes & Cancellations</h3>
+            <p style={{ marginBottom: '16px' }}>Because orders may enter processing shortly after purchase, we cannot guarantee that changes or cancellations can be made once an order has been placed.</p>
+            <p style={{ marginBottom: '24px' }}>If you need to make a change or request a cancellation, please contact us as soon as possible at <strong>supportklarelle@gmail.com</strong>.</p>
+
+            <h3 style={{ marginTop: '32px', marginBottom: '12px', fontSize: '18px', textTransform: 'uppercase' }}>Questions About Your Order?</h3>
+            <p style={{ marginBottom: '16px' }}>For questions regarding your order or shipping, please contact:<br/><strong>supportklarelle@gmail.com</strong></p>
+            <p style={{ marginBottom: '16px' }}>We appreciate your support and patience as we work to make every Klarelle order a special experience.</p>
+            <p style={{ marginBottom: '16px', fontWeight: 'bold' }}>Thank you for shopping Klarelle.</p>
+          </div>
         );
       case 'Returns':
         return (
@@ -161,11 +244,11 @@ function StaticPage({ title }) {
             <p style={{ marginBottom: '16px' }}><strong>How to Earn:</strong></p>
             <ul style={{ listStyleType: 'disc', paddingLeft: '20px', marginBottom: '16px' }}>
               <li style={{ marginBottom: '8px' }}>Create an account: 100 Points</li>
-              <li style={{ marginBottom: '8px' }}>Make a purchase: 1 Point for every ₵1 spent</li>
+              <li style={{ marginBottom: '8px' }}>Make a purchase: 1 Point for every {formatPrice(1)} spent</li>
               <li style={{ marginBottom: '8px' }}>Leave a photo review: 50 Points</li>
               <li style={{ marginBottom: '8px' }}>Celebrate your birthday: 200 Points</li>
             </ul>
-            <p style={{ marginBottom: '16px' }}><strong>How to Redeem:</strong> 100 Points = ₵10 off. You can apply your points directly at checkout to save on your next favorite outfit!</p>
+            <p style={{ marginBottom: '16px' }}><strong>How to Redeem:</strong> 100 Points = {formatPrice(10)} off. You can apply your points directly at checkout to save on your next favorite outfit!</p>
           </>
         );
       default:
