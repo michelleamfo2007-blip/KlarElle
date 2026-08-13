@@ -842,7 +842,23 @@ main {
 }
 
 @media (max-width: 480px) {
-  .categories-grid { grid-template-columns: repeat(2, 1fr); }
-  .luxury-grid { grid-template-columns: 1fr; }
+  .categories-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .luxury-grid { 
+    grid-template-columns: repeat(2, 1fr); 
+    gap: 8px; 
+    padding: 0 8px; 
+  }
+  .luxury-card { border-radius: 8px; }
+  .luxury-info { padding: 8px; }
+  .luxury-title { font-size: 13px; margin-bottom: 4px; }
+  .luxury-price { font-size: 14px; }
+  .luxury-old-price { font-size: 12px; }
+  .luxury-saved { display: none; /* Hide 'Save x%' on mobile to save space */ }
+  .luxury-rating { margin-bottom: 12px; }
+  .luxury-add-btn { padding: 8px 0; font-size: 12px; border-radius: 4px; }
+  .luxury-badge { padding: 2px 6px; font-size: 10px; top: 8px; left: 8px; }
+  .luxury-actions { top: 8px; right: 8px; gap: 4px; }
+  .luxury-action-icon { width: 28px; height: 28px; }
+  .luxury-action-icon svg { width: 14px; height: 14px; }
   .footer-top { grid-template-columns: 1fr; }
 }
