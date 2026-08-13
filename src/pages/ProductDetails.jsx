@@ -163,8 +163,8 @@ function ProductDetails() {
             .sticky-bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; padding: 12px 20px calc(12px + env(safe-area-inset-bottom)); border-top: 1px solid #eee; display: flex; gap: 16px; align-items: center; z-index: 50; }
             .add-to-bag { flex: 1; padding: 16px; background: #000; color: white; border: none; font-size: 16px; font-weight: bold; cursor: pointer; transition: background 0.3s; border-radius: 4px; }
             
-            .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; display: flex; align-items: flex-end; justify-content: center; }
-            .modal-content { background: #fff; width: 100%; max-width: 500px; border-radius: 16px 16px 0 0; min-height: 60vh; position: relative; padding-bottom: 80px; }
+            .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; display: flex; align-items: flex-end; justify-content: center; overflow: hidden; }
+            .modal-content { background: #fff; width: 100%; max-width: 500px; border-radius: 16px 16px 0 0; min-height: 60vh; max-height: 90vh; position: relative; padding-bottom: 80px; display: flex; flex-direction: column; }
             
             @media (max-width: 900px) {
               .gallery-grid { grid-template-columns: 1fr; }
@@ -395,10 +395,10 @@ function ProductDetails() {
       {/* Size Guide Modal */}
       {showGuideModal && (
         <div className="modal-overlay" onClick={() => setShowGuideModal(false)}>
-          <div className="modal-content" style={{ minHeight: '80vh', paddingBottom: '0', display: 'flex', flexDirection: 'column' }} onClick={e => e.stopPropagation()}>
+          <div className="modal-content" style={{ paddingBottom: '0' }} onClick={e => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px', borderBottom: '1px solid #eee', position: 'sticky', top: 0, background: '#fff', zIndex: 10 }}>
               <div style={{ width: '24px' }}></div>
-              <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 'bold' }}>Size Guide</h3>
+              <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 'bold', fontFamily: 'system-ui, -apple-system, sans-serif' }}>Size Guide</h3>
               <X size={24} onClick={() => setShowGuideModal(false)} style={{ cursor: 'pointer' }} />
             </div>
             
@@ -621,8 +621,8 @@ function ProductDetails() {
       {/* Check My Size Modal */}
       {showSizeModal && (
         <div className="modal-overlay">
-          <div className="modal-content" style={{ minHeight: sizeModalStep === 4 ? '70vh' : 'auto' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px', borderBottom: '1px solid #eee' }}>
+          <div className="modal-content" style={{ minHeight: sizeModalStep === 4 ? '70vh' : 'auto', overflowY: 'auto' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px', borderBottom: '1px solid #eee', position: 'sticky', top: 0, background: '#fff', zIndex: 10 }}>
               {sizeModalStep > 1 && sizeModalStep < 4 ? (
                 <ChevronLeft size={24} onClick={() => setSizeModalStep(sizeModalStep - 1)} style={{ cursor: 'pointer' }} />
               ) : (
