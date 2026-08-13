@@ -601,13 +601,7 @@ main {
 }
 
 .luxury-category {
-  font-family: 'Inter', sans-serif;
-  font-size: 11px;
-  font-weight: 600;
-  color: #888;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  margin-bottom: 8px;
+  display: none; /* User requested to hide category on grid */
 }
 
 .luxury-title {
@@ -648,12 +642,7 @@ main {
 }
 
 .luxury-rating {
-  display: flex;
-  align-items: center;
-  gap: 2px;
-  font-size: 13px;
-  color: #666;
-  margin-bottom: 20px;
+  display: none; /* User requested to hide ratings on grid, only show on product details */
 }
 
 .luxury-star {
@@ -663,24 +652,11 @@ main {
 }
 
 .luxury-add-btn {
-  width: 100%;
-  background-color: #000;
-  color: #fff;
-  font-family: 'Inter', sans-serif;
-  font-size: 14px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  padding: 14px 0;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background-color 0.2s;
-  margin-top: auto;
+  display: none; /* User requested to hide large add button on grid */
 }
 
 .luxury-add-btn:hover {
-  background-color: #333;
+  display: none;
 }
 
 /* Footer */
