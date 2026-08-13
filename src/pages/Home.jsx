@@ -63,7 +63,7 @@ function Home() {
       setWaitlistStatus('success');
       // Send the automated welcome email via backend
       try {
-        await fetch('http://localhost:4242/join-waitlist', {
+        await fetch('/api/join-waitlist', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email: waitlistEmail })

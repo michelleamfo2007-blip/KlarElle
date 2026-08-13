@@ -32,7 +32,7 @@ function ManageStaff() {
 
     try {
       // 1. Send invite email via backend
-      const response = await fetch('http://localhost:4242/invite-staff', {
+      const response = await fetch('/api/invite-staff', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: newStaffEmail })
