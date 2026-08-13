@@ -53,6 +53,10 @@ function ProductDetails() {
   const [userBust, setUserBust] = useState(90);
   const [userWaist, setUserWaist] = useState(70);
   const [userHips, setUserHips] = useState(100);
+  
+  const [showReviewsModal, setShowReviewsModal] = useState(false);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [showSizeRequestModal, setShowSizeRequestModal] = useState(false);
 
   const colorMap = {
     'black': '#000000', 'white': '#ffffff', 'red': '#ff0000', 'blue': '#0000ff', 'green': '#008000', 
@@ -127,13 +131,13 @@ function ProductDetails() {
   }, [id]);
 
   useEffect(() => {
-    if (showSizeModal || showGuideModal || showGuideTypeSelector) {
+    if (showSizeModal || showGuideModal || showGuideTypeSelector || showReviewsModal || showDetailsModal || showSizeRequestModal) {
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = 'unset';
     }
     return () => { document.body.style.overflow = 'unset'; };
-  }, [showSizeModal, showGuideModal, showGuideTypeSelector]);
+  }, [showSizeModal, showGuideModal, showGuideTypeSelector, showReviewsModal, showDetailsModal, showSizeRequestModal]);
 
   if (loading) return <div style={{ padding: '100px 20px', textAlign: 'center', fontSize: '18px', color: '#666' }}>Loading product details...</div>;
   if (!product) return <div style={{ padding: '100px 20px', textAlign: 'center', fontSize: '18px', color: '#666' }}>Product not found.</div>;
@@ -282,7 +286,7 @@ function ProductDetails() {
                   <span style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }} onClick={() => setShowGuideModal(true)}><Ruler size={14} style={{marginRight:'4px'}}/> Size Guide <ChevronRight size={14} /></span>
                   <span style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }} onClick={() => {setShowSizeModal(true); setSizeModalStep(1);}}>📏 Check My Size <ChevronRight size={14} /></span>
                 </div>
-                <div style={{ fontSize: '12px', color: '#666', marginTop: '8px' }}>Not your size? Tell us <ChevronRight size={12}/></div>
+                <div style={{ fontSize: '12px', color: '#666', marginTop: '8px', cursor: 'pointer' }} onClick={() => setShowSizeRequestModal(true)}>Not your size? Tell us <ChevronRight size={12}/></div>
               </div>
             )}
 
@@ -311,7 +315,7 @@ function ProductDetails() {
                   </div>
                   <span style={{ fontSize: '12px', color: '#666' }}>({reviewStats.count})</span>
                 </div>
-                <span style={{ fontSize: '12px', color: '#666', display: 'flex', alignItems: 'center' }}>View more <ChevronRight size={14} /></span>
+                <span style={{ fontSize: '12px', color: '#666', display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => setShowReviewsModal(true)}>View more <ChevronRight size={14} /></span>
               </div>
               
               {reviewStats.count > 0 && (
@@ -375,7 +379,7 @@ function ProductDetails() {
                 <span style={{ color: '#666', fontWeight: 'normal' }}>Composition:</span>
                 <span>{product.composition || 'N/A'}</span>
               </div>
-              <div style={{ textAlign: 'center', marginTop: '24px', fontSize: '13px', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <div style={{ textAlign: 'center', marginTop: '24px', fontSize: '13px', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }} onClick={() => setShowDetailsModal(true)}>
                 View more <ChevronRight size={14} />
               </div>
             </div>
@@ -836,6 +840,95 @@ function ProductDetails() {
           </div>
         </div>
       )}
+
+      {/* Details Modal */}
+      {showDetailsModal && (
+        <div className="modal-overlay" onClick={() => setShowDetailsModal(false)}>
+          <div className="modal-content" style={{ minHeight: '60vh', paddingBottom: '0', display: 'flex', flexDirection: 'column' }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px', borderBottom: '1px solid #eee' }}>
+              <div style={{ width: '24px' }}></div>
+              <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 'bold' }}>Product Details</h3>
+              <X size={24} onClick={() => setShowDetailsModal(false)} style={{ cursor: 'pointer' }} />
+            </div>
+            <div style={{ overflowY: 'auto', flex: 1, padding: '20px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '120px 1fr', gap: '16px', fontSize: '13px', color: '#000', fontWeight: '600' }}>
+                <span style={{ color: '#666', fontWeight: 'normal' }}>Material:</span>
+                <span>{product.material || 'N/A'}</span>
+                <span style={{ color: '#666', fontWeight: 'normal' }}>Composition:</span>
+                <span>{product.composition || 'N/A'}</span>
+                <span style={{ color: '#666', fontWeight: 'normal' }}>Pattern Type:</span>
+                <span>Plain</span>
+                <span style={{ color: '#666', fontWeight: 'normal' }}>Care Instructions:</span>
+                <span>Machine wash or professional dry clean</span>
+                <span style={{ color: '#666', fontWeight: 'normal' }}>Style:</span>
+                <span>Elegant, Casual</span>
+              </div>
+              <div style={{ marginTop: '24px', fontSize: '13px', lineHeight: '1.6' }}>
+                <p>{product.description || "Enhance your wardrobe with this stunning piece, crafted with premium materials for maximum comfort and style. Perfect for both casual outings and elegant evening events. Designed to fit beautifully and make you feel confident."}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Reviews Modal */}
+      {showReviewsModal && (
+        <div className="modal-overlay" onClick={() => setShowReviewsModal(false)}>
+          <div className="modal-content" style={{ minHeight: '80vh', paddingBottom: '0', display: 'flex', flexDirection: 'column' }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px', borderBottom: '1px solid #eee' }}>
+              <div style={{ width: '24px' }}></div>
+              <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 'bold' }}>All Reviews ({reviewStats.count})</h3>
+              <X size={24} onClick={() => setShowReviewsModal(false)} style={{ cursor: 'pointer' }} />
+            </div>
+            <div style={{ overflowY: 'auto', flex: 1, padding: '20px' }}>
+              {reviews.map(review => (
+                <div key={review.id} className="review-card">
+                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '8px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 'bold' }}>
+                        {review.user_name}
+                        <div style={{ display: 'flex', color: '#fcc419' }}>
+                          {[1, 2, 3, 4, 5].map(s => <Star key={s} size={10} fill={s <= review.rating ? "currentColor" : "none"} stroke="currentColor" />)}
+                        </div>
+                      </div>
+                      <div style={{ color: '#999' }}>Color: {review.color_bought || 'N/A'} / Size: {review.size_bought || 'N/A'}</div>
+                   </div>
+                   <p style={{ fontSize: '13px', margin: '0 0 12px 0', fontWeight: '600' }}>{review.text}</p>
+                   <div style={{ display: 'flex', justifyContent: 'flex-end', fontSize: '12px', color: '#000', fontWeight: 'bold', gap: '16px', alignItems: 'center' }}>
+                      <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><ThumbsUp size={14} /> Helpful ({review.helpful_count})</span>
+                   </div>
+                </div>
+              ))}
+              {reviews.length === 0 && <p style={{ fontSize: '13px', color: '#666' }}>No reviews yet.</p>}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Size Request Modal */}
+      {showSizeRequestModal && (
+        <div className="modal-overlay" onClick={() => setShowSizeRequestModal(false)}>
+          <div className="modal-content" style={{ minHeight: '30vh', paddingBottom: '0', display: 'flex', flexDirection: 'column' }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px', borderBottom: '1px solid #eee' }}>
+              <div style={{ width: '24px' }}></div>
+              <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 'bold' }}>Request a Size</h3>
+              <X size={24} onClick={() => setShowSizeRequestModal(false)} style={{ cursor: 'pointer' }} />
+            </div>
+            <div style={{ overflowY: 'auto', flex: 1, padding: '20px' }}>
+              <p style={{ fontSize: '14px', marginBottom: '16px' }}>Let us know which size you are looking for, and we'll try our best to stock it!</p>
+              <input type="text" placeholder="e.g. XXL, 3XL" style={{ width: '100%', padding: '12px', border: '1px solid #ddd', borderRadius: '4px', marginBottom: '16px' }} />
+              <button 
+                onClick={() => {
+                  alert("Thank you! We have recorded your size request.");
+                  setShowSizeRequestModal(false);
+                }}
+                style={{ width: '100%', padding: '12px', background: '#000', color: '#fff', border: 'none', borderRadius: '4px', fontWeight: 'bold', cursor: 'pointer' }}>
+                Submit Request
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
