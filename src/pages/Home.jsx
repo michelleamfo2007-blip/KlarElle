@@ -61,33 +61,17 @@ function Home() {
       {/* Hero Section */}
       <section className="hero container" style={{marginTop: '24px'}}>
         <div className="hero-grid">
-          <div className="hero-side-banners">
-            <div className="side-banner">
-              <img src="/side_banner_1.png" alt="Hot Sellers" />
-              <div className="side-banner-text">Hot Sellers</div>
-            </div>
-            <div className="side-banner">
-              <img src="/side_banner_2.png" alt="New Arrivals" />
-              <div className="side-banner-text">New Arrivals</div>
-            </div>
-            <div className="side-banner" style={{ backgroundColor: '#222' }}>
-              <div className="side-banner-text">School Essentials</div>
+          <div className="hero-side-banners" style={{ display: 'flex', flexDirection: 'column' }}>
+            <div className="side-banner" style={{ backgroundColor: '#111', flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
+              <div style={{ color: '#fff', fontSize: '20px', letterSpacing: '4px', textTransform: 'uppercase', textAlign: 'center' }}>Coming<br/>Soon</div>
             </div>
           </div>
           <div className="hero-center">
             <img src="/hero.png" alt="Summer Collection" className="hero-banner-main" />
           </div>
-          <div className="hero-side-banners">
-            <div className="side-banner">
-              <img src="/side_banner_2.png" alt="ROMWE" />
-              <div className="side-banner-text">KlarElle Premium</div>
-            </div>
-            <div className="side-banner">
-              <img src="/side_banner_1.png" alt="EMERY ROSE" />
-              <div className="side-banner-text">Summer Collection</div>
-            </div>
-            <div className="side-banner" style={{ backgroundColor: '#222' }}>
-              <div className="side-banner-text">Clearance</div>
+          <div className="hero-side-banners" style={{ display: 'flex', flexDirection: 'column' }}>
+            <div className="side-banner" style={{ backgroundColor: '#111', flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
+              <div style={{ color: '#fff', fontSize: '20px', letterSpacing: '4px', textTransform: 'uppercase', textAlign: 'center' }}>Coming<br/>Soon</div>
             </div>
           </div>
         </div>
