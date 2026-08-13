@@ -24,6 +24,9 @@ function ProductDetails() {
   // Modal State
   const [showSizeModal, setShowSizeModal] = useState(false);
   const [showGuideModal, setShowGuideModal] = useState(false);
+  const [guideUnit, setGuideUnit] = useState('cm');
+  const [guideType, setGuideType] = useState('Default');
+  const [showGuideTypeSelector, setShowGuideTypeSelector] = useState(false);
   const [sizeModalStep, setSizeModalStep] = useState(1);
   const [measurementUnit, setMeasurementUnit] = useState('cm, kg');
   const [bodyShape, setBodyShape] = useState(null);
@@ -392,52 +395,224 @@ function ProductDetails() {
       {/* Size Guide Modal */}
       {showGuideModal && (
         <div className="modal-overlay" onClick={() => setShowGuideModal(false)}>
-          <div className="modal-content" style={{ minHeight: 'auto', paddingBottom: '24px' }} onClick={e => e.stopPropagation()}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px', borderBottom: '1px solid #eee' }}>
+          <div className="modal-content" style={{ minHeight: '80vh', paddingBottom: '0', display: 'flex', flexDirection: 'column' }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px', borderBottom: '1px solid #eee', position: 'sticky', top: 0, background: '#fff', zIndex: 10 }}>
               <div style={{ width: '24px' }}></div>
-              <h3 style={{ margin: 0, fontSize: '16px' }}>Size Guide</h3>
+              <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 'bold' }}>Size Guide</h3>
               <X size={24} onClick={() => setShowGuideModal(false)} style={{ cursor: 'pointer' }} />
             </div>
-            <div style={{ padding: '24px 20px', overflowX: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px', textAlign: 'center' }}>
-                <thead>
-                  <tr style={{ background: '#f5f5f5' }}>
-                    <th style={{ padding: '12px', border: '1px solid #eee' }}>Size</th>
-                    <th style={{ padding: '12px', border: '1px solid #eee' }}>Bust (cm)</th>
-                    <th style={{ padding: '12px', border: '1px solid #eee' }}>Waist (cm)</th>
-                    <th style={{ padding: '12px', border: '1px solid #eee' }}>Hips (cm)</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td style={{ padding: '12px', border: '1px solid #eee', fontWeight: 'bold' }}>S</td>
-                    <td style={{ padding: '12px', border: '1px solid #eee' }}>82-86</td>
-                    <td style={{ padding: '12px', border: '1px solid #eee' }}>62-66</td>
-                    <td style={{ padding: '12px', border: '1px solid #eee' }}>88-92</td>
-                  </tr>
-                  <tr>
-                    <td style={{ padding: '12px', border: '1px solid #eee', fontWeight: 'bold' }}>M</td>
-                    <td style={{ padding: '12px', border: '1px solid #eee' }}>86-90</td>
-                    <td style={{ padding: '12px', border: '1px solid #eee' }}>66-70</td>
-                    <td style={{ padding: '12px', border: '1px solid #eee' }}>92-96</td>
-                  </tr>
-                  <tr>
-                    <td style={{ padding: '12px', border: '1px solid #eee', fontWeight: 'bold' }}>L</td>
-                    <td style={{ padding: '12px', border: '1px solid #eee' }}>90-94</td>
-                    <td style={{ padding: '12px', border: '1px solid #eee' }}>70-74</td>
-                    <td style={{ padding: '12px', border: '1px solid #eee' }}>96-100</td>
-                  </tr>
-                  <tr>
-                    <td style={{ padding: '12px', border: '1px solid #eee', fontWeight: 'bold' }}>XL</td>
-                    <td style={{ padding: '12px', border: '1px solid #eee' }}>94-100</td>
-                    <td style={{ padding: '12px', border: '1px solid #eee' }}>74-80</td>
-                    <td style={{ padding: '12px', border: '1px solid #eee' }}>100-106</td>
-                  </tr>
-                </tbody>
-              </table>
-              <div style={{ marginTop: '16px', fontSize: '12px', color: '#666', textAlign: 'center' }}>
-                Measurements are for reference only. Please allow 1-3cm differences due to manual measurement.
+            
+            <div style={{ overflowY: 'auto', flex: 1, paddingBottom: '40px' }}>
+              <div style={{ padding: '16px 20px', borderBottom: '8px solid #f5f5f5' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                  <span style={{ fontWeight: 'bold', fontSize: '15px' }}>Switch to</span>
+                  <div style={{ display: 'flex', gap: '12px' }}>
+                    <button 
+                      onClick={() => setShowGuideTypeSelector(true)}
+                      style={{ padding: '6px 12px', borderRadius: '16px', border: '1px solid #ddd', background: '#fff', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer' }}
+                    >
+                      Type <ChevronRight size={12} style={{ transform: 'rotate(90deg)' }} />
+                    </button>
+                    <div style={{ display: 'flex', background: '#f5f5f5', borderRadius: '16px', overflow: 'hidden' }}>
+                      <button 
+                        onClick={() => setGuideUnit('cm')}
+                        style={{ padding: '6px 16px', border: 'none', background: guideUnit === 'cm' ? '#222' : 'transparent', color: guideUnit === 'cm' ? '#fff' : '#222', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer', borderRadius: '16px' }}
+                      >cm</button>
+                      <button 
+                        onClick={() => setGuideUnit('in')}
+                        style={{ padding: '6px 16px', border: 'none', background: guideUnit === 'in' ? '#222' : 'transparent', color: guideUnit === 'in' ? '#fff' : '#222', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer', borderRadius: '16px' }}
+                      >in</button>
+                    </div>
+                  </div>
+                </div>
+
+                <h4 style={{ margin: '0 0 16px 0', fontSize: '16px', fontWeight: 'bold' }}>Product Chart</h4>
+                <div style={{ overflowX: 'auto', margin: '0 -20px', padding: '0 20px' }}>
+                  <table style={{ width: '100%', minWidth: '400px', borderCollapse: 'collapse', fontSize: '13px', textAlign: 'center' }}>
+                    <thead>
+                      <tr>
+                        <th style={{ padding: '12px 8px', borderBottom: '1px solid #eee', color: '#000', fontWeight: 'bold' }}>Size</th>
+                        <th style={{ padding: '12px 8px', borderBottom: '1px solid #eee', color: '#000', fontWeight: 'bold' }}>Bust</th>
+                        <th style={{ padding: '12px 8px', borderBottom: '1px solid #eee', color: '#000', fontWeight: 'bold' }}>Waist Size</th>
+                        <th style={{ padding: '12px 8px', borderBottom: '1px solid #eee', color: '#000', fontWeight: 'bold' }}>Hip Size</th>
+                        <th style={{ padding: '12px 8px', borderBottom: '1px solid #eee', color: '#000', fontWeight: 'bold' }}>Length</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td style={{ padding: '16px 8px', borderBottom: '1px solid #eee', fontWeight: 'bold' }}>XXS</td>
+                        <td style={{ padding: '16px 8px', borderBottom: '1px solid #eee' }}>{guideUnit === 'cm' ? '72.5' : '28.5'}</td>
+                        <td style={{ padding: '16px 8px', borderBottom: '1px solid #eee' }}>{guideUnit === 'cm' ? '59.0' : '23.2'}</td>
+                        <td style={{ padding: '16px 8px', borderBottom: '1px solid #eee' }}>{guideUnit === 'cm' ? '90.0' : '35.4'}</td>
+                        <td style={{ padding: '16px 8px', borderBottom: '1px solid #eee' }}>{guideUnit === 'cm' ? '99.7/123.0' : '39.3/48.4'}</td>
+                      </tr>
+                      <tr>
+                        <td style={{ padding: '16px 8px', borderBottom: '1px solid #eee', fontWeight: 'bold' }}>XS</td>
+                        <td style={{ padding: '16px 8px', borderBottom: '1px solid #eee' }}>{guideUnit === 'cm' ? '76.5' : '30.1'}</td>
+                        <td style={{ padding: '16px 8px', borderBottom: '1px solid #eee' }}>{guideUnit === 'cm' ? '63.0' : '24.8'}</td>
+                        <td style={{ padding: '16px 8px', borderBottom: '1px solid #eee' }}>{guideUnit === 'cm' ? '94.0' : '37.0'}</td>
+                        <td style={{ padding: '16px 8px', borderBottom: '1px solid #eee' }}>{guideUnit === 'cm' ? '101.1/125.0' : '39.8/49.2'}</td>
+                      </tr>
+                      <tr>
+                        <td style={{ padding: '16px 8px', borderBottom: '1px solid #eee', fontWeight: 'bold', color: '#b07b1a' }}>👍 S</td>
+                        <td style={{ padding: '16px 8px', borderBottom: '1px solid #eee', color: '#b07b1a', fontWeight: 'bold' }}>{guideUnit === 'cm' ? '80.5' : '31.7'}</td>
+                        <td style={{ padding: '16px 8px', borderBottom: '1px solid #eee', color: '#b07b1a', fontWeight: 'bold' }}>{guideUnit === 'cm' ? '67.0' : '26.4'}</td>
+                        <td style={{ padding: '16px 8px', borderBottom: '1px solid #eee', color: '#b07b1a', fontWeight: 'bold' }}>{guideUnit === 'cm' ? '98.0' : '38.6'}</td>
+                        <td style={{ padding: '16px 8px', borderBottom: '1px solid #eee', color: '#b07b1a', fontWeight: 'bold' }}>{guideUnit === 'cm' ? '102.5/127.0' : '40.4/50.0'}</td>
+                      </tr>
+                      <tr>
+                        <td style={{ padding: '16px 8px', borderBottom: '1px solid #eee', fontWeight: 'bold' }}>M</td>
+                        <td style={{ padding: '16px 8px', borderBottom: '1px solid #eee' }}>{guideUnit === 'cm' ? '84.5' : '33.3'}</td>
+                        <td style={{ padding: '16px 8px', borderBottom: '1px solid #eee' }}>{guideUnit === 'cm' ? '71.0' : '28.0'}</td>
+                        <td style={{ padding: '16px 8px', borderBottom: '1px solid #eee' }}>{guideUnit === 'cm' ? '102.0' : '40.2'}</td>
+                        <td style={{ padding: '16px 8px', borderBottom: '1px solid #eee' }}>{guideUnit === 'cm' ? '103.9/129.0' : '40.9/50.8'}</td>
+                      </tr>
+                      <tr>
+                        <td style={{ padding: '16px 8px', borderBottom: '1px solid #eee', fontWeight: 'bold' }}>L</td>
+                        <td style={{ padding: '16px 8px', borderBottom: '1px solid #eee' }}>{guideUnit === 'cm' ? '90.5' : '35.6'}</td>
+                        <td style={{ padding: '16px 8px', borderBottom: '1px solid #eee' }}>{guideUnit === 'cm' ? '77.0' : '30.3'}</td>
+                        <td style={{ padding: '16px 8px', borderBottom: '1px solid #eee' }}>{guideUnit === 'cm' ? '108.0' : '42.5'}</td>
+                        <td style={{ padding: '16px 8px', borderBottom: '1px solid #eee' }}>{guideUnit === 'cm' ? '105.2/131.0' : '41.4/51.6'}</td>
+                      </tr>
+                      <tr>
+                        <td style={{ padding: '16px 8px', borderBottom: '1px solid #eee', fontWeight: 'bold' }}>XL</td>
+                        <td style={{ padding: '16px 8px', borderBottom: '1px solid #eee' }}>{guideUnit === 'cm' ? '96.5' : '38.0'}</td>
+                        <td style={{ padding: '16px 8px', borderBottom: '1px solid #eee' }}>{guideUnit === 'cm' ? '83.0' : '32.7'}</td>
+                        <td style={{ padding: '16px 8px', borderBottom: '1px solid #eee' }}>{guideUnit === 'cm' ? '114.0' : '44.9'}</td>
+                        <td style={{ padding: '16px 8px', borderBottom: '1px solid #eee' }}>{guideUnit === 'cm' ? '106.5/133.0' : '41.9/52.4'}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div style={{ marginTop: '16px', fontSize: '13px', color: '#999' }}>
+                  *This data was obtained from manually measuring the product, it may be off by 1-2 {guideUnit.toUpperCase()}.
+                </div>
               </div>
+
+              <div style={{ padding: '24px 20px', borderBottom: '8px solid #f5f5f5' }}>
+                <div style={{ marginBottom: '24px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' }}>
+                    <span style={{ fontWeight: 'bold', fontSize: '15px', width: '80px' }}>Fit Type</span>
+                    <div style={{ flex: 1, display: 'flex', justifyContent: 'space-between', fontSize: '12px', fontWeight: 'bold' }}>
+                      <span>Skinny</span><span>Regular</span><span>Oversized</span>
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <div style={{ width: '80px' }}></div>
+                    <div style={{ flex: 1, position: 'relative', height: '4px', background: '#eee', borderRadius: '2px' }}>
+                      <div style={{ position: 'absolute', left: '25%', top: '-2px', width: '20px', height: '8px', background: '#000', borderRadius: '4px' }}></div>
+                      <div style={{ position: 'absolute', left: '0', top: '-4px', width: '2px', height: '12px', background: '#eee' }}></div>
+                      <div style={{ position: 'absolute', left: '50%', top: '-4px', width: '2px', height: '12px', background: '#eee' }}></div>
+                      <div style={{ position: 'absolute', right: '0', top: '-4px', width: '2px', height: '12px', background: '#eee' }}></div>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' }}>
+                    <span style={{ fontWeight: 'bold', fontSize: '15px', width: '80px' }}>Stretch</span>
+                    <div style={{ flex: 1, display: 'flex', justifyContent: 'space-between', fontSize: '12px', fontWeight: 'bold' }}>
+                      <span>Non</span><span>Slight</span><span>Medium</span><span>High</span>
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <div style={{ width: '80px' }}></div>
+                    <div style={{ flex: 1, position: 'relative', height: '4px', background: '#eee', borderRadius: '2px' }}>
+                      <div style={{ position: 'absolute', right: '0', top: '-2px', width: '20px', height: '8px', background: '#000', borderRadius: '4px' }}></div>
+                      <div style={{ position: 'absolute', left: '0', top: '-4px', width: '2px', height: '12px', background: '#eee' }}></div>
+                      <div style={{ position: 'absolute', left: '33.3%', top: '-4px', width: '2px', height: '12px', background: '#eee' }}></div>
+                      <div style={{ position: 'absolute', left: '66.6%', top: '-4px', width: '2px', height: '12px', background: '#eee' }}></div>
+                      <div style={{ position: 'absolute', right: '0', top: '-4px', width: '2px', height: '12px', background: '#eee' }}></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div style={{ padding: '24px 20px' }}>
+                <h4 style={{ margin: '0 0 16px 0', fontSize: '16px', fontWeight: 'bold' }}>How Buyer's Reviewed The Fit</h4>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '16px', fontSize: '14px', marginBottom: '8px' }}>
+                  <span style={{ color: '#666', fontWeight: 'bold' }}>Small : <span style={{ fontWeight: 'normal' }}>3%</span></span>
+                  <span style={{ fontWeight: 'bold', borderBottom: '2px solid #000', paddingBottom: '4px' }}>True to Size : 94%</span>
+                  <span style={{ color: '#666', fontWeight: 'bold' }}>Large : <span style={{ fontWeight: 'normal' }}>3%</span></span>
+                </div>
+                <div style={{ fontSize: '13px', color: '#666', marginBottom: '20px' }}>
+                  Selected fit data from real user reviews for reference.
+                </div>
+
+                <div style={{ overflowX: 'auto', margin: '0 -20px', padding: '0 20px' }}>
+                  <table style={{ width: '100%', minWidth: '400px', borderCollapse: 'collapse', fontSize: '13px', textAlign: 'center' }}>
+                    <thead>
+                      <tr style={{ background: '#f9f9f9' }}>
+                        <th style={{ padding: '12px 8px', borderBottom: '1px solid #eee', color: '#000', fontWeight: 'bold', textAlign: 'left' }}>
+                          Buyer<br/><span style={{ fontSize: '11px', fontWeight: 'normal' }}>(cm/kg)</span>
+                        </th>
+                        <th style={{ padding: '12px 8px', borderBottom: '1px solid #eee', color: '#000', fontWeight: 'bold' }}>Size</th>
+                        <th style={{ padding: '12px 8px', borderBottom: '1px solid #eee', color: '#000', fontWeight: 'bold' }}>Bust</th>
+                        <th style={{ padding: '12px 8px', borderBottom: '1px solid #eee', color: '#000', fontWeight: 'bold' }}>Waist</th>
+                        <th style={{ padding: '12px 8px', borderBottom: '1px solid #eee', color: '#000', fontWeight: 'bold' }}>Hips</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {[
+                        { buyer: '167/56', size: 'XS', bust: '88', waist: '70', hips: '91' },
+                        { buyer: '160/41', size: 'XS', bust: '73', waist: '64', hips: '80' },
+                        { buyer: '165/53', size: 'XS', bust: '78', waist: '65', hips: '96' },
+                        { buyer: '174/80', size: 'S', bust: '70', waist: '55', hips: '99' },
+                        { buyer: '155/90', size: 'S', bust: '112', waist: '109', hips: '127' },
+                        { buyer: '155/72', size: 'S', bust: '80', waist: '65', hips: '110' },
+                        { buyer: '165/62', size: 'M', bust: '86', waist: '71', hips: '94' },
+                        { buyer: '163/56', size: 'M', bust: '101', waist: '77', hips: '96' },
+                        { buyer: '140/50', size: 'M', bust: '94', waist: '61', hips: '85' },
+                        { buyer: '145/60', size: 'L', bust: '74', waist: '80', hips: '99' },
+                      ].map((row, i) => (
+                        <tr key={i}>
+                          <td style={{ padding: '16px 8px', borderBottom: '1px solid #eee', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <div style={{ width: '16px', height: '16px', background: '#eee', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#999" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                            </div>
+                            {row.buyer}
+                          </td>
+                          <td style={{ padding: '16px 8px', borderBottom: '1px solid #eee', fontWeight: 'bold' }}>{row.size}</td>
+                          <td style={{ padding: '16px 8px', borderBottom: '1px solid #eee' }}>{row.bust}</td>
+                          <td style={{ padding: '16px 8px', borderBottom: '1px solid #eee' }}>{row.waist}</td>
+                          <td style={{ padding: '16px 8px', borderBottom: '1px solid #eee' }}>{row.hips}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Type Selector Modal */}
+      {showGuideTypeSelector && (
+        <div className="modal-overlay" onClick={() => setShowGuideTypeSelector(false)} style={{ zIndex: 1100 }}>
+          <div className="modal-content" style={{ minHeight: '60vh', paddingBottom: '0', display: 'flex', flexDirection: 'column' }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px', borderBottom: '1px solid #eee' }}>
+              <div style={{ width: '24px' }}></div>
+              <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 'bold' }}>Please Select</h3>
+              <X size={24} onClick={() => setShowGuideTypeSelector(false)} style={{ cursor: 'pointer' }} />
+            </div>
+            <div style={{ overflowY: 'auto', flex: 1, padding: '0 20px' }}>
+              {['Default (SHEIN Default Sizing)', 'DE', 'JP', 'MX', 'IT', 'FR', 'ES', 'EU', 'BR', 'AU', 'SG', 'UK', 'US', 'CA'].map(type => (
+                <div 
+                  key={type}
+                  onClick={() => {
+                    setGuideType(type.split(' ')[0]);
+                    setShowGuideTypeSelector(false);
+                  }}
+                  style={{ padding: '16px 0', borderBottom: '1px solid #eee', display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', fontWeight: guideType === type.split(' ')[0] ? 'bold' : 'normal' }}
+                >
+                  {type}
+                  {guideType === type.split(' ')[0] && <span style={{ color: '#000', fontWeight: 'bold' }}>✓</span>}
+                </div>
+              ))}
+            </div>
+            <div style={{ padding: '16px 20px', borderTop: '1px solid #eee', textAlign: 'center', fontWeight: 'bold', cursor: 'pointer' }} onClick={() => setShowGuideTypeSelector(false)}>
+              Cancel
             </div>
           </div>
         </div>
