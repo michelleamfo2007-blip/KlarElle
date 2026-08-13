@@ -114,7 +114,7 @@ function Layout() {
             <Link to="/" className="logo">KLARELLE</Link>
             
             <div className="search-bar">
-              <input type="text" className="search-input" placeholder="Search dresses, tops, shoes..." />
+              <input type="text" className="search-input" placeholder="Search dresses..." />
               <Search className="search-icon" size={18} />
               <button className="search-btn">SEARCH</button>
             </div>
