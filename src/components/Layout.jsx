@@ -5,17 +5,18 @@ import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { useCurrency } from '../context/CurrencyContext';
 import { supabase } from '../lib/supabase';
+import { useTranslation } from 'react-i18next';
 
 function Layout() {
+  const { t, i18n } = useTranslation();
   const { cartCount } = useCart();
   const { session } = useAuth();
-  const { currency, setCurrency, EXCHANGE_RATES } = useCurrency();
+  const { currency, setCurrency, EXCHANGE_RATES, formatPrice } = useCurrency();
   const location = useLocation();
   const navigate = useNavigate();
   const [toastMessage, setToastMessage] = useState('');
   const [showLangMenu, setShowLangMenu] = useState(false);
   const [showCurrMenu, setShowCurrMenu] = useState(false);
-  const [selectedLang, setSelectedLang] = useState('EN');
   const [newsletterEmail, setNewsletterEmail] = useState('');
   const [subscribing, setSubscribing] = useState(false);
 
@@ -85,7 +86,7 @@ function Layout() {
           <div style={{ display: 'flex', gap: '24px', alignItems: 'center' }}>
             <div style={{ position: 'relative', cursor: 'pointer' }}>
               <span style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#666', fontSize: '12px' }} onClick={() => { setShowLangMenu(!showLangMenu); setShowCurrMenu(false); }}>
-                <Globe size={12} /> {selectedLang} <ChevronDown size={10} />
+                <Globe size={12} /> {i18n.language?.toUpperCase() || 'EN'} <ChevronDown size={10} />
               </span>
               {showLangMenu && <div style={{position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 40}} onClick={() => setShowLangMenu(false)} />}
               {showLangMenu && (
@@ -94,8 +95,8 @@ function Layout() {
                     <div 
                       key={lang} 
                       className="dropdown-item" 
-                      onClick={() => { setSelectedLang(lang.split(' ')[0]); setShowLangMenu(false); }}
-                      style={{ padding: '8px 16px', color: selectedLang === lang.split(' ')[0] ? '#000' : '#666', fontSize: '12px', fontWeight: selectedLang === lang.split(' ')[0] ? 'bold' : 'normal', textAlign: 'left', whiteSpace: 'nowrap' }}
+                      onClick={() => { i18n.changeLanguage(lang.split(' ')[0]); setShowLangMenu(false); }}
+                      style={{ padding: '8px 16px', color: i18n.language === lang.split(' ')[0] ? '#000' : '#666', fontSize: '12px', fontWeight: i18n.language === lang.split(' ')[0] ? 'bold' : 'normal', textAlign: 'left', whiteSpace: 'nowrap' }}
                     >
                       {lang}
                     </div>
@@ -126,7 +127,7 @@ function Layout() {
             </div>
           </div>
           <div style={{ color: '#666' }}>
-            Free shipping on orders over GHS500
+            {t('Free shipping on orders over')} {formatPrice(500)}
           </div>
         </div>
       </div>
