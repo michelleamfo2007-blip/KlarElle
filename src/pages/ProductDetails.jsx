@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { Heart, Truck, RotateCcw, Share2, Star, ChevronRight, X, Ruler, ThumbsUp, ChevronLeft } from 'lucide-react';
