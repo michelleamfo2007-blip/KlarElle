@@ -139,8 +139,8 @@ function ProductDetails() {
               .gallery-grid { grid-template-columns: 1fr; }
               .thumbnails { flex-direction: row; order: 2; overflow-x: auto; }
               .thumbnail { height: 80px; }
-              .main-image-wrap { order: 1; max-height: 400px; }
-              .main-image { max-height: 400px; padding: 12px; }
+              .main-image-wrap { order: 1; height: 320px; max-height: 320px; }
+              .main-image { height: 100%; max-height: 320px; padding: 12px; }
             }
           `}</style>
           
