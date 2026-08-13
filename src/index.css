@@ -3,12 +3,12 @@
 :root {
   /* Colors */
   --primary-color: #000000;
-  --secondary-color: #000000; /* Replaced red with black */
-  --bg-color: #ffffff;
-  --bg-secondary: #f9f9f9;
+  --secondary-color: #C2B2A3; /* Soft taupe/champagne accent */
+  --bg-color: #FAF9F6; /* Warm ivory main background */
+  --bg-secondary: #F0EAE1; /* Slightly darker ivory for contrast */
   --bg-header: #000000;
   --text-header: #ffffff;
-  --text-main: #000000;
+  --text-main: #000000; /* Deep black typography */
   --text-muted: #555555;
   --text-light: #999999;
   --border-color: #e5e5e5;
