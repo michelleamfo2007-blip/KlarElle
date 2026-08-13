@@ -57,6 +57,16 @@ function ProductDetails() {
   const [showReviewsModal, setShowReviewsModal] = useState(false);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [showSizeRequestModal, setShowSizeRequestModal] = useState(false);
+  
+  const goodsRef = useRef(null);
+  const reviewsRef = useRef(null);
+  const recommendRef = useRef(null);
+
+  const scrollToSection = (ref) => {
+    if (ref.current) {
+      ref.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
 
   const colorMap = {
     'black': '#000000', 'white': '#ffffff', 'red': '#ff0000', 'blue': '#0000ff', 'green': '#008000', 
@@ -91,12 +101,18 @@ function ProductDetails() {
         if (pColors.length > 0) setSelectedColor(pColors[0]);
 
         // Fetch matching styles (random products from same category)
-        const { data: matches } = await supabase
+        let { data: matches } = await supabase
           .from('products')
           .select('*')
           .eq('category', data.category)
           .neq('id', data.id)
           .limit(5);
+          
+        if (!matches || matches.length === 0) {
+          const { data: anyMatches } = await supabase.from('products').select('*').neq('id', data.id).limit(5);
+          matches = anyMatches;
+        }
+        
         if (matches) setMatchingStyles(matches);
         
         // Fetch reviews
@@ -167,12 +183,9 @@ function ProductDetails() {
             }
             .product-layout { display: grid; gap: 40px; }
             
-            .gallery-grid { display: grid; grid-template-columns: 80px 1fr; gap: 20px; }
-            .thumbnails { display: flex; flexDirection: column; gap: 10px; }
-            .thumbnail { width: 80px; height: 100px; object-fit: cover; cursor: pointer; border: 1px solid transparent; }
-            .thumbnail.active { border-color: #000; }
-            .main-image-wrap { background: #f4f4f4; position: relative; max-height: 600px; display: flex; align-items: center; justify-content: center; border-radius: 12px; overflow: hidden; }
-            .main-image { width: 100%; height: 100%; max-height: 600px; object-fit: contain; padding: 24px; }
+            .gallery-grid { display: flex; flex-direction: column; gap: 16px; }
+            .main-image-wrap { background: #f4f4f4; position: relative; display: flex; align-items: center; justify-content: center; border-radius: 12px; overflow: hidden; }
+            .main-image { width: 100%; height: auto; display: block; object-fit: contain; }
             
             .info-section { display: flex; flex-direction: column; gap: 0; }
             .pd-title { font-size: 24px; font-weight: 400; margin: 0 0 12px 0; line-height: 1.3; }
@@ -203,41 +216,29 @@ function ProductDetails() {
             .modal-content { background: #fff; width: 100%; max-width: 500px; border-radius: 16px 16px 0 0; min-height: 60vh; max-height: 90vh; position: relative; padding-bottom: 80px; display: flex; flex-direction: column; }
             
             @media (max-width: 900px) {
-              .gallery-grid { grid-template-columns: 1fr; }
-              .thumbnails { flex-direction: row; order: 2; overflow-x: auto; }
-              .thumbnail { height: 80px; }
-              .main-image-wrap { order: 1; height: 320px; max-height: 320px; }
-              .main-image { height: 100%; max-height: 320px; padding: 12px; }
               .desktop-add-cart { display: none !important; }
             }
           `}</style>
           
           <div className="gallery-grid">
-            <div className="thumbnails">
-              {images.map((img, i) => (
-                <img 
-                  key={i} src={img} alt={`View ${i+1}`}
-                  className={`thumbnail ${activeImage === i ? 'active' : ''}`}
-                  onClick={() => setActiveImage(i)}
-                />
-              ))}
-            </div>
-            <div className="main-image-wrap">
-              <img src={previewImage || images[activeImage]} alt={product.name} className="main-image" />
-              {product.old_price && parseFloat(product.old_price) > parseFloat(product.price) && (
-                <div style={{ position: 'absolute', top: 16, right: 16, background: '#000', color: 'white', padding: '4px 8px', fontSize: '14px', fontWeight: 'bold' }}>
-                  -{Math.round(((product.old_price - product.price) / product.old_price) * 100)}%
-                </div>
-              )}
-            </div>
+            {images.map((img, i) => (
+              <div key={i} className="main-image-wrap">
+                <img src={i === 0 && previewImage ? previewImage : img} alt={`View ${i+1}`} className="main-image" />
+                {i === 0 && product.old_price && parseFloat(product.old_price) > parseFloat(product.price) && (
+                  <div style={{ position: 'absolute', top: 16, right: 16, background: '#000', color: 'white', padding: '4px 8px', fontSize: '14px', fontWeight: 'bold' }}>
+                    -{Math.round(((product.old_price - product.price) / product.old_price) * 100)}%
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
 
           <div className="info-section">
-            <div>
-              <div style={{ display: 'flex', gap: '24px', borderBottom: '1px solid #eee', marginBottom: '16px', paddingBottom: '12px', fontSize: '14px', fontWeight: 'bold' }}>
-                <span style={{ borderBottom: '2px solid #000', paddingBottom: '12px', marginBottom: '-13px' }}>Goods</span>
-                <span style={{ color: '#666' }}>Reviews</span>
-                <span style={{ color: '#666' }}>Recommend</span>
+            <div ref={goodsRef}>
+              <div style={{ display: 'flex', gap: '24px', borderBottom: '1px solid #eee', marginBottom: '16px', paddingBottom: '12px', fontSize: '14px', fontWeight: 'bold', position: 'sticky', top: '0px', background: '#fff', zIndex: 10 }}>
+                <span style={{ borderBottom: '2px solid #000', paddingBottom: '12px', marginBottom: '-13px', cursor: 'pointer' }} onClick={() => scrollToSection(goodsRef)}>Goods</span>
+                <span style={{ color: '#666', cursor: 'pointer' }} onClick={() => scrollToSection(reviewsRef)}>Reviews</span>
+                <span style={{ color: '#666', cursor: 'pointer' }} onClick={() => scrollToSection(recommendRef)}>Recommend</span>
               </div>
               
               <div className="pd-price-wrap">
@@ -385,7 +386,7 @@ function ProductDetails() {
             </div>
             
             {/* Matching Styles */}
-            <div className="section-divider">
+            <div className="section-divider" ref={recommendRef}>
                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
                  <div className="pd-options-title" style={{ fontSize: '16px', margin: 0 }}>Matching Styles</div>
                  <div style={{ fontSize: '11px', color: '#c92a2a', background: '#fff5f5', padding: '4px 10px', borderRadius: '12px', fontWeight: 'bold' }}>You May Love, More Style</div>
