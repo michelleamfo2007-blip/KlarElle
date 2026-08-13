@@ -772,8 +772,18 @@ main {
   .footer-top { grid-template-columns: 1fr 1fr; }
   .header-actions { display: flex; gap: 16px; }
   .header-actions > a > span:not(.badge) { display: none; }
-  .nav-menu { display: none; }
-  
+  .nav-menu {
+    display: flex;
+    overflow-x: auto;
+    white-space: nowrap;
+    padding-bottom: 8px;
+    margin-bottom: 8px;
+    -webkit-overflow-scrolling: touch;
+    gap: 16px;
+  }
+  .nav-menu::-webkit-scrollbar {
+    display: none;
+  }
   /* Mobile Header Fixes */
   .header-main {
     flex-direction: row;
