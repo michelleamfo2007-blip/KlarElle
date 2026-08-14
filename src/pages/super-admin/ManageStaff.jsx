@@ -30,11 +30,13 @@ function ManageStaff() {
     setErrorMsg('');
     setSuccessMsg('');
 
+    const emailToUse = newStaffEmail.toLowerCase().trim();
+
     try {
       const response = await fetch('/api/invite-staff', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: newStaffEmail, role: newStaffRole })
+        body: JSON.stringify({ email: emailToUse, role: newStaffRole })
       });
       
       const data = await response.json();
@@ -45,7 +47,7 @@ function ManageStaff() {
 
       // 2. Add to staff table
       const { error: dbError } = await supabase.from('staff').insert([
-        { email: newStaffEmail, role: newStaffRole, status: 'Pending' }
+        { email: emailToUse, role: newStaffRole, status: 'Pending' }
       ]);
       
       if (dbError) throw dbError;
