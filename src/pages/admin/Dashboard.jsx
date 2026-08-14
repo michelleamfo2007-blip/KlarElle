@@ -467,7 +467,7 @@ function Dashboard() {
                       <span style={{ fontWeight: '600' }}>{item.name}</span>
                     </td>
                     <td>{item.units} units</td>
-                    <td style={{ fontWeight: 'bold' }}>{formatGHS(item.revenue)}</td>
+                    <td style={{ fontWeight: 'bold' }}>{formatUSD(item.revenue)}</td>
                     <td style={{ color: '#16a34a', display: 'flex', alignItems: 'center', gap: '4px', paddingTop: '24px' }}>
                       <TrendingUp size={16} /> Up this week
                     </td>
