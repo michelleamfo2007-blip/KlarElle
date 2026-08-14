@@ -141,7 +141,7 @@ function Home() {
           margin: 0 auto;
           display: flex;
           gap: 12px;
-          align-items: center;
+          align-items: flex-end;
         }
 
         .waitlist-input {
@@ -296,14 +296,19 @@ function Home() {
             </div>
           ) : (
             <form className="waitlist-form" onSubmit={handleJoinWaitlist}>
-              <input 
-                type="email" 
-                className="waitlist-input" 
-                placeholder="Unlock VIP access" 
-                value={waitlistEmail}
-                onChange={(e) => setWaitlistEmail(e.target.value)}
-                required
-              />
+              <div style={{ width: '100%' }}>
+                <label style={{ display: 'block', fontSize: '12px', color: '#BCA38F', marginBottom: '8px', letterSpacing: '1px', textTransform: 'uppercase', textAlign: 'left', marginLeft: '16px' }}>
+                  Be the first to know when Klarelle launches.
+                </label>
+                <input 
+                  type="email" 
+                  className="waitlist-input" 
+                  placeholder="Enter your email address" 
+                  value={waitlistEmail}
+                  onChange={(e) => setWaitlistEmail(e.target.value)}
+                  required
+                />
+              </div>
               <button type="submit" className="waitlist-btn" disabled={waitlistStatus === 'loading'}>
                 {waitlistStatus === 'loading' ? 'JOINING...' : 'JOIN'}
               </button>
@@ -325,20 +330,46 @@ function Home() {
         </div>
       </section>
 
+      {/* Introducing Section */}
+      <section style={{ padding: '80px 20px', backgroundColor: '#fff', textAlign: 'center' }}>
+        <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+          <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: '32px', color: '#111827', marginBottom: '16px', letterSpacing: '2px', textTransform: 'uppercase' }}>
+            Introducing Klarelle
+          </h2>
+          <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '18px', color: '#4b5563', lineHeight: '1.6', maxWidth: '600px', margin: '0 auto' }}>
+            Sophisticated, timeless pieces designed to make women feel confident and elegant.
+          </p>
+        </div>
+      </section>
+
       {/* Luxury Product Section */}
-      <section className="luxury-section">
+      <section className="luxury-section" style={{ backgroundColor: '#FAF9F6' }}>
         <div className="container">
           <div className="luxury-header">
-            <h2 className="luxury-title">New Arrivals</h2>
+            <h2 className="luxury-title">COMING SOON / A GLIMPSE OF KLARELLE</h2>
           </div>
           
           <div className="luxury-grid">
             {loading ? (
-              <div style={{ padding: '40px', textAlign: 'center', gridColumn: '1 / -1', color: '#666' }}>Loading luxury collection...</div>
+              <div style={{ padding: '40px', textAlign: 'center', gridColumn: '1 / -1', color: '#666' }}>Loading collection...</div>
             ) : products.length === 0 ? (
-              <div style={{ padding: '40px', textAlign: 'center', gridColumn: '1 / -1', color: '#666' }}>
-                New arrivals are dropping soon! Stay tuned and get ready to add your favorite pieces to your wishlist.
-              </div>
+              <>
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="luxury-card" style={{ background: 'none', border: 'none', boxShadow: 'none' }}>
+                    <div className="luxury-image-wrap" style={{ borderRadius: '8px', overflow: 'hidden', backgroundColor: '#000' }}>
+                      <img 
+                        src={`/silhouette${i}.png`} 
+                        alt="Coming Soon Silhouette" 
+                        style={{ width: '100%', aspectRatio: '3/4', objectFit: 'cover', opacity: 0.8 }} 
+                      />
+                    </div>
+                    <div className="luxury-info" style={{ textAlign: 'center', marginTop: '16px' }}>
+                      <h3 style={{ fontFamily: 'Playfair Display, serif', fontSize: '18px', color: '#111827', margin: '0 0 8px 0' }}>The First Collection</h3>
+                      <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '14px', color: '#BCA38F', margin: 0, textTransform: 'uppercase', letterSpacing: '1px', fontWeight: '600' }}>Coming Soon</p>
+                    </div>
+                  </div>
+                ))}
+              </>
             ) : (
               products.map((product) => (
                 <div className="luxury-card" key={`luxury-${product.id}`}>
