@@ -10,9 +10,13 @@ CREATE TABLE IF NOT EXISTS public.store_settings (
     store_address TEXT NOT NULL DEFAULT '123 Fashion Ave, Suite 400, New York, NY 10001',
     instagram_url TEXT NOT NULL DEFAULT 'https://instagram.com/klarelle_',
     tiktok_url TEXT NOT NULL DEFAULT 'https://tiktok.com/@klarelle.store',
+    facebook_url TEXT NOT NULL DEFAULT 'https://www.facebook.com/share/18vRTfzg9V/?mibextid=wwXIfr',
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     CONSTRAINT enforce_single_row CHECK (id = 1)
 );
+
+-- Just in case you already ran this file earlier, add the column dynamically:
+ALTER TABLE public.store_settings ADD COLUMN IF NOT EXISTS facebook_url TEXT NOT NULL DEFAULT 'https://www.facebook.com/share/18vRTfzg9V/?mibextid=wwXIfr';
 
 -- Insert the default row if it doesn't exist
 INSERT INTO public.store_settings (id)

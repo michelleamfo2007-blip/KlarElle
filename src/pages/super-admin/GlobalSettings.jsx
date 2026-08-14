@@ -12,7 +12,8 @@ function GlobalSettings() {
     defaultCurrency: 'USD',
     storeAddress: '123 Fashion Ave, Suite 400, New York, NY 10001',
     instagramUrl: 'https://instagram.com/klarelle_',
-    tiktokUrl: 'https://tiktok.com/@klarelle.store'
+    tiktokUrl: 'https://tiktok.com/@klarelle.store',
+    facebookUrl: 'https://www.facebook.com/share/18vRTfzg9V/?mibextid=wwXIfr'
   });
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -35,7 +36,8 @@ function GlobalSettings() {
         defaultCurrency: data.default_currency || 'USD',
         storeAddress: data.store_address || '',
         instagramUrl: data.instagram_url || '',
-        tiktokUrl: data.tiktok_url || ''
+        tiktokUrl: data.tiktok_url || '',
+        facebookUrl: data.facebook_url || ''
       });
     }
     setIsLoading(false);
@@ -61,6 +63,7 @@ function GlobalSettings() {
       store_address: settings.storeAddress,
       instagram_url: settings.instagramUrl,
       tiktok_url: settings.tiktokUrl,
+      facebook_url: settings.facebookUrl,
       updated_at: new Date().toISOString()
     }).eq('id', 1);
 
@@ -200,23 +203,33 @@ function GlobalSettings() {
           
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
             <div>
-              <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#444', marginBottom: '10px' }}>Instagram URL</label>
+              <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '8px' }}>Instagram URL</label>
               <input 
                 type="url" 
                 name="instagramUrl"
                 value={settings.instagramUrl}
                 onChange={handleChange}
-                style={{ width: '100%', padding: '12px 16px', border: '1px solid #e5e7eb', borderRadius: '8px', fontSize: '15px', outline: 'none', transition: 'border-color 0.2s' }}
+                style={{ width: '100%', padding: '10px 14px', border: '1px solid #d1d5db', borderRadius: '6px', fontSize: '14px', outline: 'none' }}
               />
             </div>
             <div>
-              <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#444', marginBottom: '10px' }}>TikTok URL</label>
+              <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '8px' }}>TikTok URL</label>
               <input 
                 type="url" 
                 name="tiktokUrl"
                 value={settings.tiktokUrl}
                 onChange={handleChange}
-                style={{ width: '100%', padding: '12px 16px', border: '1px solid #e5e7eb', borderRadius: '8px', fontSize: '15px', outline: 'none', transition: 'border-color 0.2s' }}
+                style={{ width: '100%', padding: '10px 14px', border: '1px solid #d1d5db', borderRadius: '6px', fontSize: '14px', outline: 'none' }}
+              />
+            </div>
+            <div>
+              <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '8px' }}>Facebook URL</label>
+              <input 
+                type="url" 
+                name="facebookUrl"
+                value={settings.facebookUrl}
+                onChange={handleChange}
+                style={{ width: '100%', padding: '10px 14px', border: '1px solid #d1d5db', borderRadius: '6px', fontSize: '14px', outline: 'none' }}
               />
             </div>
           </div>
