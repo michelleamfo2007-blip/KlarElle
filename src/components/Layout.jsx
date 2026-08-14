@@ -171,12 +171,9 @@ function Layout() {
           <nav className="nav-menu">
             <Link to="/" className={`nav-link ${isActive('/')}`}>HOME</Link>
             <Link to="/category/new-in" className={`nav-link ${isActive('/category/new-in')}`}>NEW IN</Link>
-            <Link to="/category/flash-sale" className={`nav-link sale ${isActive('/category/flash-sale')}`}>FLASH SALE</Link>
-            <Link to="/category/maxi-dresses" className={`nav-link ${isActive('/category/maxi-dresses')}`}>MAXI DRESSES</Link>
-            <Link to="/category/midi-dresses" className={`nav-link ${isActive('/category/midi-dresses')}`}>MIDI DRESSES</Link>
-            <Link to="/category/mini-dresses" className={`nav-link ${isActive('/category/mini-dresses')}`}>MINI DRESSES</Link>
-            <Link to="/category/bodycon" className={`nav-link ${isActive('/category/bodycon')}`}>BODYCON</Link>
-            <Link to="/category/party-wear" className={`nav-link ${isActive('/category/party-wear')}`}>PARTY WEAR</Link>
+            <Link to="/category/all" className={`nav-link ${isActive('/category/all')}`}>COLLECTIONS</Link>
+            <Link to="/page/about-us" className={`nav-link ${isActive('/page/about-us')}`}>ABOUT</Link>
+            <Link to="/page/faq" className={`nav-link ${isActive('/page/faq')}`}>FAQ</Link>
           </nav>
         </div>
       </header>

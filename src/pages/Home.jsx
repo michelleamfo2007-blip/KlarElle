@@ -295,13 +295,13 @@ function Home() {
               <input 
                 type="email" 
                 className="waitlist-input" 
-                placeholder="Enter your email to join the waitlist" 
+                placeholder="Be the first to know when we launch" 
                 value={waitlistEmail}
                 onChange={(e) => setWaitlistEmail(e.target.value)}
                 required
               />
               <button type="submit" className="waitlist-btn" disabled={waitlistStatus === 'loading'}>
-                {waitlistStatus === 'loading' ? 'Joining...' : 'Join'}
+                {waitlistStatus === 'loading' ? 'JOINING...' : 'JOIN THE WAITLIST'}
               </button>
             </form>
           )}
