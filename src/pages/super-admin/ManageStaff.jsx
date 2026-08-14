@@ -122,54 +122,63 @@ function ManageStaff() {
       )}
 
       <div style={{ background: '#fff', borderRadius: '8px', border: '1px solid #D2C4B3', overflow: 'hidden', boxShadow: '0 4px 15px rgba(188, 163, 143, 0.1)' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
-          <thead>
-            <tr style={{ background: '#FAF9F6', borderBottom: '1px solid #D2C4B3' }}>
-              <th style={{ padding: '12px 20px', fontSize: '12px', textTransform: 'uppercase', color: '#BCA38F', letterSpacing: '0.5px' }}>User</th>
-              <th style={{ padding: '12px 20px', fontSize: '12px', textTransform: 'uppercase', color: '#BCA38F', letterSpacing: '0.5px' }}>Role</th>
-              <th style={{ padding: '12px 20px', fontSize: '12px', textTransform: 'uppercase', color: '#BCA38F', letterSpacing: '0.5px' }}>Status</th>
-              <th style={{ padding: '12px 20px', fontSize: '12px', textTransform: 'uppercase', color: '#BCA38F', letterSpacing: '0.5px' }}>Added Date</th>
-              <th style={{ padding: '12px 20px', fontSize: '12px', textTransform: 'uppercase', color: '#BCA38F', letterSpacing: '0.5px', textAlign: 'right' }}>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {staff.map(member => (
-              <tr key={member.id} style={{ borderBottom: '1px solid #FAF9F6' }}>
-                <td style={{ padding: '16px 20px', fontWeight: '500' }}>
-                  {member.email}
-                </td>
-                <td style={{ padding: '16px 20px' }}>
-                  <span style={{ 
-                    padding: '4px 10px', 
-                    borderRadius: '100px', 
-                    fontSize: '12px', 
-                    fontWeight: '600',
-                    background: member.role === 'Super Admin' ? 'rgba(17, 24, 39, 0.1)' : 'rgba(188, 163, 143, 0.15)',
-                    color: member.role === 'Super Admin' ? '#111827' : '#BCA38F'
-                  }}>
-                    {member.role}
-                  </span>
-                </td>
-                <td style={{ padding: '16px 20px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontWeight: '500', color: member.status === 'Active' ? '#16a34a' : '#d97706' }}>
-                    {member.status === 'Active' ? <CheckCircle2 size={16} /> : <XCircle size={16} />}
-                    {member.status}
-                  </div>
-                </td>
-                <td style={{ padding: '16px 20px', color: '#6b7280', fontSize: '14px' }}>
-                  {new Date(member.created_at).toLocaleDateString()}
-                </td>
-                <td style={{ padding: '16px 20px', textAlign: 'right' }}>
-                  {member.role !== 'Super Admin' && (
-                    <button onClick={() => removeStaff(member.id)} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', padding: '4px' }}>
-                      <Trash2 size={18} />
-                    </button>
-                  )}
-                </td>
+        <div className="table-responsive-wrapper">
+          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '600px' }}>
+            <thead>
+              <tr style={{ background: '#FAF9F6', borderBottom: '1px solid #D2C4B3' }}>
+                <th style={{ padding: '12px 20px', fontSize: '12px', textTransform: 'uppercase', color: '#BCA38F', letterSpacing: '0.5px' }}>User</th>
+                <th style={{ padding: '12px 20px', fontSize: '12px', textTransform: 'uppercase', color: '#BCA38F', letterSpacing: '0.5px' }}>Role</th>
+                <th style={{ padding: '12px 20px', fontSize: '12px', textTransform: 'uppercase', color: '#BCA38F', letterSpacing: '0.5px' }}>Status</th>
+                <th style={{ padding: '12px 20px', fontSize: '12px', textTransform: 'uppercase', color: '#BCA38F', letterSpacing: '0.5px' }}>Added Date</th>
+                <th style={{ padding: '12px 20px', fontSize: '12px', textTransform: 'uppercase', color: '#BCA38F', letterSpacing: '0.5px', textAlign: 'right' }}>Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {staff.map(member => (
+                <tr key={member.id} style={{ borderBottom: '1px solid #FAF9F6' }}>
+                  <td style={{ padding: '16px 20px', fontWeight: '500' }}>
+                    {member.email}
+                  </td>
+                  <td style={{ padding: '16px 20px' }}>
+                    <span style={{ 
+                      padding: '4px 10px', 
+                      borderRadius: '100px', 
+                      fontSize: '12px', 
+                      fontWeight: '600',
+                      background: member.role === 'Super Admin' ? 'rgba(17, 24, 39, 0.1)' : 'rgba(188, 163, 143, 0.15)',
+                      color: member.role === 'Super Admin' ? '#111827' : '#BCA38F'
+                    }}>
+                      {member.role}
+                    </span>
+                  </td>
+                  <td style={{ padding: '16px 20px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontWeight: '500', color: member.status === 'Active' ? '#16a34a' : '#d97706' }}>
+                      {member.status === 'Active' ? <CheckCircle2 size={16} /> : <XCircle size={16} />}
+                      {member.status}
+                    </div>
+                  </td>
+                  <td style={{ padding: '16px 20px', color: '#6b7280', fontSize: '14px' }}>
+                    {new Date(member.created_at).toLocaleDateString()}
+                  </td>
+                  <td style={{ padding: '16px 20px', textAlign: 'right' }}>
+                    {member.role !== 'Super Admin' && (
+                      <button onClick={() => removeStaff(member.id)} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', padding: '4px' }}>
+                        <Trash2 size={18} />
+                      </button>
+                    )}
+                  </td>
+                </tr>
+              ))}
+              {staff.length === 0 && (
+                <tr>
+                  <td colSpan="5" style={{ padding: '32px', textAlign: 'center', color: '#6b7280' }}>
+                    No staff members found.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );

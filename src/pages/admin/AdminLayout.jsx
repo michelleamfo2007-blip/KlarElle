@@ -1,13 +1,18 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Outlet, Navigate, Link, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { supabase } from '../../lib/supabase';
-import { LayoutDashboard, Package, LogOut, Ticket, ShoppingBag, Tag } from 'lucide-react';
+import { LayoutDashboard, Package, LogOut, Ticket, ShoppingBag, Tag, Menu, X } from 'lucide-react';
 import './Admin.css';
 
 function AdminLayout() {
   const { session } = useAuth();
   const navigate = useNavigate();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const closeMobileMenu = () => {
+    setIsMobileMenuOpen(false);
+  };
 
   if (!session) {
     return <Navigate to="/admin/login" replace />;
@@ -19,23 +24,34 @@ function AdminLayout() {
   };
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: '#FAF9F6' }}>
+    <div className="admin-layout">
+      {/* Mobile Overlay */}
+      <div 
+        className={`admin-sidebar-overlay ${isMobileMenuOpen ? 'open' : ''}`}
+        onClick={closeMobileMenu}
+      ></div>
+
       {/* Sidebar */}
-      <aside style={{ width: '250px', backgroundColor: '#111827', color: '#FAF9F6', display: 'flex', flexDirection: 'column' }}>
-        <div style={{ padding: '24px', fontSize: '24px', fontWeight: 'bold', borderBottom: '1px solid rgba(250, 249, 246, 0.1)' }}>
-          KlarElle Admin
+      <aside className={`admin-sidebar ${isMobileMenuOpen ? 'open' : ''}`}>
+        <div style={{ padding: '24px', fontSize: '24px', fontWeight: 'bold', borderBottom: '1px solid rgba(250, 249, 246, 0.1)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span>KlarElle Admin</span>
+          {isMobileMenuOpen && (
+            <button onClick={closeMobileMenu} style={{ background: 'none', border: 'none', color: '#fff', cursor: 'pointer' }}>
+              <X size={24} />
+            </button>
+          )}
         </div>
         <nav style={{ flexGrow: 1, padding: '20px 0' }}>
-          <NavLink to="/admin" end className={({isActive}) => isActive ? "admin-nav-item active" : "admin-nav-item"}>
+          <NavLink onClick={closeMobileMenu} to="/admin" end className={({isActive}) => isActive ? "admin-nav-item active" : "admin-nav-item"}>
             <LayoutDashboard size={20} /> Dashboard
           </NavLink>
-          <NavLink to="/admin/products" className={({isActive}) => isActive ? "admin-nav-item active" : "admin-nav-item"}>
+          <NavLink onClick={closeMobileMenu} to="/admin/products" className={({isActive}) => isActive ? "admin-nav-item active" : "admin-nav-item"}>
             <Package size={20} /> Products
           </NavLink>
-          <NavLink to="/admin/orders" className={({isActive}) => isActive ? "admin-nav-item active" : "admin-nav-item"}>
+          <NavLink onClick={closeMobileMenu} to="/admin/orders" className={({isActive}) => isActive ? "admin-nav-item active" : "admin-nav-item"}>
             <ShoppingBag size={20} /> Orders
           </NavLink>
-          <NavLink to="/admin/coupons" className={({isActive}) => isActive ? "admin-nav-item active" : "admin-nav-item"}>
+          <NavLink onClick={closeMobileMenu} to="/admin/coupons" className={({isActive}) => isActive ? "admin-nav-item active" : "admin-nav-item"}>
             <Tag size={20} /> Coupons
           </NavLink>
         </nav>
@@ -47,7 +63,13 @@ function AdminLayout() {
       </aside>
 
       {/* Main Content */}
-      <main style={{ flexGrow: 1, padding: '40px', overflowY: 'auto' }}>
+      <main className="admin-main">
+        {/* Mobile Header Toggle */}
+        <div className="mobile-menu-btn-container" style={{ display: 'flex', marginBottom: '20px' }}>
+          <button className="mobile-menu-btn" onClick={() => setIsMobileMenuOpen(true)}>
+            <Menu size={24} />
+          </button>
+        </div>
         <Outlet />
       </main>
     </div>
