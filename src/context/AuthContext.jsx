@@ -15,9 +15,6 @@ export function AuthProvider({ children }) {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       setSession(session);
-      if (event === 'PASSWORD_RECOVERY' || window.location.hash.includes('type=invite') || window.location.hash.includes('type=recovery')) {
-        window.location.href = '/update-password';
-      }
     });
 
     return () => subscription.unsubscribe();
