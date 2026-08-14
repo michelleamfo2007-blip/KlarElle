@@ -271,8 +271,12 @@ function Home() {
         }
 
         @media (max-width: 900px) {
-          .hero-title { font-size: 36px; }
-          .hero-text-container { margin-top: 0; padding: 30px 15px; margin-bottom: 30px; }
+          .hero-title { font-size: 36px; margin-bottom: 24px; }
+          .hero-text-container { margin-top: 0; padding: 20px 15px; margin-bottom: 30px; }
+          .waitlist-form { flex-direction: column; gap: 10px; }
+          .waitlist-input { width: 100%; box-sizing: border-box; text-align: center; }
+          .waitlist-btn { width: 100%; box-sizing: border-box; }
+          
           .hero-images-container { flex-direction: column; align-items: center; }
           .hero-img-main-left, .hero-img-small-overlap, .hero-img-right-container { display: none; }
           .hero-img-center-wrapper { width: 90%; margin-left: 0; margin-bottom: 20px; }
@@ -295,13 +299,13 @@ function Home() {
               <input 
                 type="email" 
                 className="waitlist-input" 
-                placeholder="Be the first to know when we launch" 
+                placeholder="Unlock VIP access" 
                 value={waitlistEmail}
                 onChange={(e) => setWaitlistEmail(e.target.value)}
                 required
               />
               <button type="submit" className="waitlist-btn" disabled={waitlistStatus === 'loading'}>
-                {waitlistStatus === 'loading' ? 'JOINING...' : 'JOIN THE WAITLIST'}
+                {waitlistStatus === 'loading' ? 'JOINING...' : 'JOIN'}
               </button>
             </form>
           )}
