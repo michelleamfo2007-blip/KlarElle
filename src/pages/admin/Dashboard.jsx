@@ -130,7 +130,7 @@ function Dashboard() {
     }
   };
 
-  const formatUSD = (amount) => `$${amount.toFixed(2)}`;
+  const formatUSD = (amount) => `$${parseFloat(amount || 0).toFixed(2)}`;
 
   const getStatusBadge = (status) => {
     switch (status) {
