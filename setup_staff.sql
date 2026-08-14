@@ -16,18 +16,21 @@ ALTER TABLE public.staff ENABLE ROW LEVEL SECURITY;
 
 -- Create policies for staff table
 -- Allow anyone to read staff (for the admin dashboard)
+DROP POLICY IF EXISTS "Allow public read access to staff" ON public.staff;
 CREATE POLICY "Allow public read access to staff"
     ON public.staff
     FOR SELECT
     USING (true);
 
 -- Allow inserting new staff
+DROP POLICY IF EXISTS "Allow public insert access to staff" ON public.staff;
 CREATE POLICY "Allow public insert access to staff"
     ON public.staff
     FOR INSERT
     WITH CHECK (true);
 
 -- Allow updating staff (for status/role changes)
+DROP POLICY IF EXISTS "Allow public update access to staff" ON public.staff;
 CREATE POLICY "Allow public update access to staff"
     ON public.staff
     FOR UPDATE
@@ -35,6 +38,7 @@ CREATE POLICY "Allow public update access to staff"
     WITH CHECK (true);
 
 -- Allow deleting staff
+DROP POLICY IF EXISTS "Allow public delete access to staff" ON public.staff;
 CREATE POLICY "Allow public delete access to staff"
     ON public.staff
     FOR DELETE
