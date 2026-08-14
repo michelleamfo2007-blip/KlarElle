@@ -158,13 +158,13 @@ function ManageStaff() {
               </tr>
             </thead>
             <tbody>
-              {staff.map(person => (
-                <tr key={person.id} style={{ borderTop: '1px solid #f3f4f6', transition: 'background-color 0.2s' }}>
+              {staff.map(member => (
+                <tr key={member.id} style={{ borderTop: '1px solid #f3f4f6', transition: 'background-color 0.2s' }}>
                   <td style={{ padding: '16px 24px', fontSize: '14px', color: '#111827', fontWeight: '500' }}>
-                    {person.name || 'Unknown'}
+                    {member.name || 'Unknown'}
                   </td>
                   <td style={{ padding: '16px 24px', fontSize: '14px', color: '#4b5563', fontWeight: '500' }}>
-                    {person.email}
+                    {member.email}
                   </td>
                   <td style={{ padding: '16px 20px' }}>
                     <span style={{ 
