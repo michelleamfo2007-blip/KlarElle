@@ -28,19 +28,7 @@ function Login() {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     
     if (error) {
-      if (error.message.includes('Invalid login credentials')) {
-        // If user doesn't exist, try signing them up (for easy dev setup)
-        const { data: signUpData, error: signUpError } = await supabase.auth.signUp({ email, password });
-        if (signUpError) {
-          setError(signUpError.message);
-        } else {
-          if (!signUpData.session) {
-            setMessage('Account created! Please check your email for the confirmation link.');
-          }
-        }
-      } else {
-        setError(error.message);
-      }
+      setError(error.message);
     }
     setLoading(false);
   };
