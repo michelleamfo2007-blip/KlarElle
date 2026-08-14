@@ -13,8 +13,11 @@ export function AuthProvider({ children }) {
       setLoading(false);
     });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       setSession(session);
+      if (event === 'PASSWORD_RECOVERY' || window.location.hash.includes('type=invite') || window.location.hash.includes('type=recovery')) {
+        window.location.href = '/update-password';
+      }
     });
 
     return () => subscription.unsubscribe();

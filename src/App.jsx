@@ -12,6 +12,7 @@ import Category from './pages/Category';
 import Login from './pages/admin/Login';
 import AdminLayout from './pages/admin/AdminLayout';
 import Dashboard from './pages/admin/Dashboard';
+import UpdatePassword from './pages/admin/UpdatePassword';
 import ProductList from './pages/admin/ProductList';
 import ProductForm from './pages/admin/ProductForm';
 import Coupons from './pages/admin/Coupons';
@@ -72,6 +73,7 @@ function App() {
 
             {/* Admin Routes */}
             <Route path="/admin/login" element={<Login />} />
+            <Route path="/update-password" element={<UpdatePassword />} />
             <Route path="/admin" element={<AdminLayout />}>
               <Route index element={<Dashboard />} />
               <Route path="products" element={<ProductList />} />
