@@ -22,7 +22,8 @@ export default async function handler(req, res) {
     );
 
     const { data, error } = await supabaseAdmin.auth.admin.inviteUserByEmail(email, {
-      data: { role: role }
+      data: { role: role },
+      redirectTo: 'https://klarelle.store/update-password'
     });
 
     if (error) {
