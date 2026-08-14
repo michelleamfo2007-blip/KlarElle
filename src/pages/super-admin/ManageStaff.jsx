@@ -54,6 +54,11 @@ function ManageStaff() {
       setNewStaffEmail('');
       setShowAddForm(false);
       fetchStaff();
+      
+      // Clear success message after 4 seconds
+      setTimeout(() => {
+        setSuccessMsg('');
+      }, 4000);
     } catch (error) {
       setErrorMsg(error.message);
     } finally {
@@ -85,11 +90,14 @@ function ManageStaff() {
         </button>
       </div>
 
+      {/* Global Messages */}
+      {errorMsg && <div style={{ padding: '12px', background: '#feeaea', color: '#d93025', borderRadius: '6px', marginBottom: '24px', border: '1px solid #fecaca' }}>{errorMsg}</div>}
+      {successMsg && <div style={{ padding: '12px', background: '#e6f4ea', color: '#10b981', borderRadius: '6px', marginBottom: '24px', border: '1px solid #a7f3d0' }}>{successMsg}</div>}
+
       {showAddForm && (
         <div style={{ background: '#fff', padding: '24px', borderRadius: '8px', border: '1px solid #D2C4B3', marginBottom: '32px', boxShadow: '0 4px 15px rgba(188, 163, 143, 0.1)' }}>
           <h2 style={{ fontSize: '16px', margin: '0 0 16px 0', color: '#111827' }}>Invite New Staff Member</h2>
-          {errorMsg && <div style={{ color: '#ef4444', marginBottom: '16px', fontSize: '14px' }}>{errorMsg}</div>}
-          {successMsg && <div style={{ color: '#10b981', marginBottom: '16px', fontSize: '14px' }}>{successMsg}</div>}
+
           <form onSubmit={handleAddStaff} style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', alignItems: 'flex-end' }}>
             <div style={{ flex: '1 1 300px' }}>
               <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', marginBottom: '6px', color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Email Address</label>
