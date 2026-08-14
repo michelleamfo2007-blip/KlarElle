@@ -11,6 +11,7 @@ function AdminLayout() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [authLoading, setAuthLoading] = useState(true);
+  const [userRole, setUserRole] = useState(null);
 
   useEffect(() => {
     const checkStaffStatus = async () => {
@@ -32,6 +33,7 @@ function AdminLayout() {
         await supabase.auth.signOut();
         navigate('/admin/login');
       } else {
+        setUserRole(data.role);
         setIsAuthorized(true);
       }
       setAuthLoading(false);
@@ -88,6 +90,14 @@ function AdminLayout() {
           <NavLink onClick={closeMobileMenu} to="/admin/coupons" className={({isActive}) => isActive ? "admin-nav-item active" : "admin-nav-item"}>
             <Tag size={20} /> Coupons
           </NavLink>
+          
+          {userRole === 'Super Admin' && (
+            <div style={{ marginTop: '24px', paddingTop: '24px', borderTop: '1px solid rgba(250, 249, 246, 0.1)' }}>
+              <NavLink onClick={closeMobileMenu} to="/super-admin" className="admin-nav-item" style={{ color: '#d4af37', fontWeight: 'bold' }}>
+                <Ticket size={20} /> Super Admin Panel
+              </NavLink>
+            </div>
+          )}
         </nav>
         <div style={{ padding: '24px', borderTop: '1px solid rgba(250, 249, 246, 0.1)' }}>
           <button onClick={handleLogout} className="admin-nav-item logout-btn">
