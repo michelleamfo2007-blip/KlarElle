@@ -47,10 +47,14 @@ function SuperAdminLayout() {
     setIsMobileMenuOpen(false);
   };
 
-  if (!session || (authLoading && !isAuthorized)) {
+  if (authLoading && !isAuthorized && session) {
     return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', backgroundColor: '#111827', color: '#fff' }}>Verifying Super Admin access...</div>;
   }
   
+  if (!session) {
+    return <Navigate to="/admin/login" replace />;
+  }
+
   if (!isAuthorized) {
     return <Navigate to="/admin" replace />;
   }

@@ -46,8 +46,12 @@ function AdminLayout() {
     setIsMobileMenuOpen(false);
   };
 
-  if (!session || (authLoading && !isAuthorized)) {
+  if (authLoading && !isAuthorized && session) {
     return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>Verifying access...</div>;
+  }
+  
+  if (!session) {
+    return <Navigate to="/admin/login" replace />;
   }
   
   if (!isAuthorized) {
