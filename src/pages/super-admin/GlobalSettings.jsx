@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Save, Mail, Phone, Truck, Shield, AlertCircle, DollarSign, MapPin, Share2 } from 'lucide-react';
+import { supabase } from '../../lib/supabase';
 
 function GlobalSettings() {
   const [settings, setSettings] = useState({
@@ -14,14 +15,31 @@ function GlobalSettings() {
     tiktokUrl: 'https://tiktok.com/@klarelle.store'
   });
   const [isSaving, setIsSaving] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [toast, setToast] = useState('');
 
   useEffect(() => {
-    const saved = localStorage.getItem('klarelle_global_settings');
-    if (saved) {
-      setSettings(JSON.parse(saved));
-    }
+    fetchSettings();
   }, []);
+
+  const fetchSettings = async () => {
+    setIsLoading(true);
+    const { data, error } = await supabase.from('store_settings').select('*').eq('id', 1).single();
+    if (data && !error) {
+      setSettings({
+        shippingThreshold: data.shipping_threshold || 100,
+        supportEmail: data.support_email || '',
+        supportPhone: data.support_phone || '',
+        maintenanceMode: data.maintenance_mode || false,
+        taxRate: data.tax_rate || 0,
+        defaultCurrency: data.default_currency || 'USD',
+        storeAddress: data.store_address || '',
+        instagramUrl: data.instagram_url || '',
+        tiktokUrl: data.tiktok_url || ''
+      });
+    }
+    setIsLoading(false);
+  };
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -31,15 +49,30 @@ function GlobalSettings() {
     }));
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     setIsSaving(true);
-    // Simulate API call
-    setTimeout(() => {
-      localStorage.setItem('klarelle_global_settings', JSON.stringify(settings));
-      setIsSaving(false);
+    const { error } = await supabase.from('store_settings').update({
+      shipping_threshold: parseFloat(settings.shippingThreshold) || 0,
+      support_email: settings.supportEmail,
+      support_phone: settings.supportPhone,
+      maintenance_mode: settings.maintenanceMode,
+      tax_rate: parseFloat(settings.taxRate) || 0,
+      default_currency: settings.defaultCurrency,
+      store_address: settings.storeAddress,
+      instagram_url: settings.instagramUrl,
+      tiktok_url: settings.tiktokUrl,
+      updated_at: new Date().toISOString()
+    }).eq('id', 1);
+
+    setIsSaving(false);
+    
+    if (error) {
+      setToast('Error saving settings: ' + error.message);
+    } else {
       setToast('Settings saved successfully');
-      setTimeout(() => setToast(''), 3000);
-    }, 800);
+    }
+    
+    setTimeout(() => setToast(''), 3000);
   };
 
   return (
