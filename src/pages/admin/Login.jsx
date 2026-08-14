@@ -78,9 +78,21 @@ function Login() {
         <button 
           type="submit" 
           disabled={loading}
-          style={{ width: '100%', padding: '12px', backgroundColor: 'black', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}
+          style={{ 
+            width: '100%', 
+            padding: '14px', 
+            background: '#000', 
+            color: 'white', 
+            border: 'none', 
+            borderRadius: '8px', 
+            fontSize: '15px', 
+            fontWeight: '600', 
+            cursor: loading ? 'not-allowed' : 'pointer',
+            opacity: loading ? 0.7 : 1,
+            marginTop: '10px'
+          }}
         >
-          {loading ? 'Processing...' : 'Login / Create Account'}
+          {loading ? 'Processing...' : 'Login'}
         </button>
       </form>
     </div>
