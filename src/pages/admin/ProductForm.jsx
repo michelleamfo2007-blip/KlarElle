@@ -506,7 +506,7 @@ function ProductForm() {
                 <div>
                   <label className="input-label">Selling Price *</label>
                   <div style={{ position: 'relative' }}>
-                    <span style={{ position: 'absolute', left: '12px', top: '10px', color: '#6b7280', fontWeight: '500' }}>₵</span>
+                    <span style={{ position: 'absolute', left: '12px', top: '10px', color: '#6b7280', fontWeight: '500' }}>$</span>
                     <input 
                       type="number" 
                       step="0.01" 
@@ -525,7 +525,7 @@ function ProductForm() {
                     {discount > 0 && <span style={{ fontSize: '12px', color: '#16a34a', fontWeight: 'bold' }}>{discount}% OFF</span>}
                   </div>
                   <div style={{ position: 'relative' }}>
-                    <span style={{ position: 'absolute', left: '12px', top: '10px', color: '#6b7280', fontWeight: '500' }}>₵</span>
+                    <span style={{ position: 'absolute', left: '12px', top: '10px', color: '#6b7280', fontWeight: '500' }}>$</span>
                     <input 
                       type="number" 
                       step="0.01" 
@@ -665,11 +665,11 @@ function ProductForm() {
                     </h3>
                     <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
                       <span style={{ fontSize: '16px', fontWeight: 'bold', color: '#111827' }}>
-                        ₵{parseFloat(formData.price || 0).toFixed(2)}
+                        ${parseFloat(formData.price || 0).toFixed(2)}
                       </span>
                       {formData.old_price && parseFloat(formData.old_price) > parseFloat(formData.price || 0) && (
                         <span style={{ fontSize: '12px', color: '#9ca3af', textDecoration: 'line-through' }}>
-                          ₵{parseFloat(formData.old_price).toFixed(2)}
+                          ${parseFloat(formData.old_price).toFixed(2)}
                         </span>
                       )}
                     </div>

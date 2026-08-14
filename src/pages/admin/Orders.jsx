@@ -36,7 +36,7 @@ function Orders() {
     }
   };
 
-  const formatGHS = (amount) => `₵${parseFloat(amount || 0).toFixed(2)}`;
+  const formatUSD = (amount) => `$${parseFloat(amount || 0).toFixed(2)}`;
 
   const filteredOrders = orders.filter(o => 
     (o.customer_name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -89,7 +89,7 @@ function Orders() {
                     <div style={{ fontWeight: '500' }}>{order.customer_name}</div>
                   </td>
                   <td style={{ padding: '16px 20px', fontWeight: '500' }}>
-                    {formatGHS(order.total_amount)}
+                    {formatUSD(order.total_amount)}
                   </td>
                   <td style={{ padding: '16px 20px' }}>
                     <select 

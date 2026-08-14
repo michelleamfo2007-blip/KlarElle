@@ -130,7 +130,7 @@ function Dashboard() {
     }
   };
 
-  const formatGHS = (amount) => `₵${amount.toFixed(2)}`;
+  const formatUSD = (amount) => `$${amount.toFixed(2)}`;
 
   const getStatusBadge = (status) => {
     switch (status) {
@@ -246,7 +246,7 @@ function Dashboard() {
         <div className="dash-card">
           <div className="dash-card-header">
             <span>Sales Overview</span>
-            <span style={{ fontSize: '14px', fontWeight: 'bold' }}>{formatGHS(totalRevenue)}</span>
+            <span style={{ fontSize: '14px', fontWeight: 'bold' }}>{formatUSD(totalRevenue)}</span>
           </div>
           <div style={{ height: '300px', padding: '20px 20px 0 0' }}>
             <ResponsiveContainer width="100%" height="100%">
@@ -259,10 +259,10 @@ function Dashboard() {
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" />
                 <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#6b7280' }} dy={10} />
-                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#6b7280' }} tickFormatter={(val) => `₵${val}`} />
+                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#6b7280' }} tickFormatter={(val) => `$${val}`} />
                 <Tooltip 
                   contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)' }}
-                  formatter={(value) => [`₵${value}`, 'Revenue']}
+                  formatter={(value) => [`$${value}`, 'Revenue']}
                 />
                 <Area type="monotone" dataKey="revenue" stroke="#000000" strokeWidth={3} fillOpacity={1} fill="url(#colorRevenue)" />
               </AreaChart>
@@ -352,7 +352,7 @@ function Dashboard() {
                         </span>
                       </td>
                       <td>{order.customer_name}</td>
-                      <td style={{ fontWeight: '500' }}>{formatGHS(order.total_amount)}</td>
+                      <td style={{ fontWeight: '500' }}>{formatUSD(order.total_amount)}</td>
                       <td>
                         <select 
                           value={order.status}

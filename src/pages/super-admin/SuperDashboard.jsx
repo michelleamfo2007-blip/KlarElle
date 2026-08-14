@@ -48,7 +48,6 @@ function SuperDashboard() {
     setLoading(false);
   };
 
-  const formatGHS = (amount) => `₵${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   const formatUSD = (amount) => `$${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
   return (
