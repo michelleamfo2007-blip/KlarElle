@@ -11,6 +11,7 @@ function SuperAdminLayout() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [authLoading, setAuthLoading] = useState(true);
+  const [userName, setUserName] = useState('');
 
   useEffect(() => {
     const checkSuperAdminStatus = async () => {
@@ -35,6 +36,7 @@ function SuperAdminLayout() {
         // Not a super admin, send to regular dashboard
         navigate('/admin');
       } else {
+        setUserName(data.name || 'Super Admin');
         setIsAuthorized(true);
       }
       setAuthLoading(false);
@@ -111,7 +113,7 @@ function SuperAdminLayout() {
             <Menu size={24} />
           </button>
         </div>
-        <Outlet />
+        <Outlet context={{ userName }} />
       </main>
     </div>
   );

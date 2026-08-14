@@ -2,10 +2,14 @@
 CREATE TABLE IF NOT EXISTS public.staff (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     email TEXT NOT NULL UNIQUE,
+    name TEXT,
     role TEXT NOT NULL DEFAULT 'Admin',
     status TEXT NOT NULL DEFAULT 'Pending',
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
+
+-- Just in case they already ran this, dynamically add name column:
+ALTER TABLE public.staff ADD COLUMN IF NOT EXISTS name TEXT;
 
 -- Enable Row Level Security
 ALTER TABLE public.staff ENABLE ROW LEVEL SECURITY;

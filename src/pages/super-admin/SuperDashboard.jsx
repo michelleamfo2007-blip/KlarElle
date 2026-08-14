@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Users, DollarSign, ShoppingCart, Activity } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
+import { useOutletContext, Link } from 'react-router-dom';
+import '../admin/Admin.css';
 
 function SuperDashboard() {
   const [stats, setStats] = useState({
@@ -10,6 +12,7 @@ function SuperDashboard() {
     activeUsers: 0
   });
   const [loading, setLoading] = useState(true);
+  const { userName } = useOutletContext();
 
   useEffect(() => {
     fetchGlobalData();
@@ -50,9 +53,11 @@ function SuperDashboard() {
 
   return (
     <div style={{ maxWidth: '1200px', margin: '0 auto', fontFamily: 'Inter, sans-serif', color: '#111827' }}>
-      <div style={{ marginBottom: '32px' }}>
-        <h1 style={{ fontSize: '24px', fontWeight: 'bold', margin: '0 0 4px 0' }}>Platform Overview</h1>
-        <p style={{ color: '#6b7280', margin: 0, fontSize: '14px' }}>Monitor all tenants and platform-wide metrics.</p>
+      <div className="admin-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '24px' }}>
+        <div>
+          <h1 style={{ fontSize: '24px', fontWeight: 'bold', margin: '0 0 8px 0', color: '#111827' }}>Welcome back, {userName}!</h1>
+          <p style={{ color: '#6b7280', margin: 0 }}>Super Admin control center for KlarElle.</p>
+        </div>
       </div>
       {/* KPIs */}
       <div className="kpi-grid">

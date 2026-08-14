@@ -6,6 +6,7 @@ function ManageStaff() {
   const [staff, setStaff] = useState([]);
   const [showAddForm, setShowAddForm] = useState(false);
   const [newStaffEmail, setNewStaffEmail] = useState('');
+  const [newStaffName, setNewStaffName] = useState('');
   const [newStaffRole, setNewStaffRole] = useState('Admin');
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
@@ -47,13 +48,14 @@ function ManageStaff() {
 
       // 2. Add to staff table
       const { error: dbError } = await supabase.from('staff').insert([
-        { email: emailToUse, role: newStaffRole, status: 'Pending' }
+        { email: emailToUse, name: newStaffName, role: newStaffRole, status: 'Pending' }
       ]);
       
       if (dbError) throw dbError;
 
       setSuccessMsg('Invite sent successfully!');
       setNewStaffEmail('');
+      setNewStaffName('');
       setShowAddForm(false);
       fetchStaff();
       
@@ -98,18 +100,29 @@ function ManageStaff() {
 
       {showAddForm && (
         <div style={{ background: '#fff', padding: '24px', borderRadius: '8px', border: '1px solid #D2C4B3', marginBottom: '32px', boxShadow: '0 4px 15px rgba(188, 163, 143, 0.1)' }}>
-          <h2 style={{ fontSize: '16px', margin: '0 0 16px 0', color: '#111827' }}>Invite New Staff Member</h2>
+          <h2 style={{ fontSize: '18px', fontWeight: 'bold', margin: '0 0 16px 0' }}>Invite New Admin</h2>
 
-          <form onSubmit={handleAddStaff} style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', alignItems: 'flex-end' }}>
-            <div style={{ flex: '1 1 300px' }}>
-              <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', marginBottom: '6px', color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Email Address</label>
+          <form onSubmit={handleInvite} style={{ display: 'grid', gap: '16px', gridTemplateColumns: '1fr 1fr 1fr auto', alignItems: 'end' }}>
+            <div>
+              <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#4b5563', marginBottom: '8px' }}>Staff Name</label>
+              <input 
+                type="text" 
+                value={newStaffName}
+                onChange={(e) => setNewStaffName(e.target.value)}
+                placeholder="e.g. Tessy"
+                required
+                style={{ width: '100%', padding: '10px 14px', border: '1px solid #d1d5db', borderRadius: '6px', fontSize: '14px', boxSizing: 'border-box' }}
+              />
+            </div>
+            <div>
+              <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#4b5563', marginBottom: '8px' }}>Email Address</label>
               <input 
                 type="email" 
-                required 
                 value={newStaffEmail}
                 onChange={(e) => setNewStaffEmail(e.target.value)}
-                placeholder="colleague@klarelle.com" 
-                style={{ width: '100%', padding: '10px 12px', border: '1px solid #D2C4B3', borderRadius: '6px', outline: 'none', fontSize: '14px', boxSizing: 'border-box' }}
+                placeholder="admin@klarelle.store"
+                required
+                style={{ width: '100%', padding: '10px 14px', border: '1px solid #d1d5db', borderRadius: '6px', fontSize: '14px', boxSizing: 'border-box' }}
               />
             </div>
             <div style={{ flex: '0 0 200px' }}>
@@ -136,18 +149,22 @@ function ManageStaff() {
           <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '600px' }}>
             <thead>
               <tr style={{ background: '#FAF9F6', borderBottom: '1px solid #D2C4B3' }}>
-                <th style={{ padding: '12px 20px', fontSize: '12px', textTransform: 'uppercase', color: '#BCA38F', letterSpacing: '0.5px' }}>User</th>
-                <th style={{ padding: '12px 20px', fontSize: '12px', textTransform: 'uppercase', color: '#BCA38F', letterSpacing: '0.5px' }}>Role</th>
-                <th style={{ padding: '12px 20px', fontSize: '12px', textTransform: 'uppercase', color: '#BCA38F', letterSpacing: '0.5px' }}>Status</th>
-                <th style={{ padding: '12px 20px', fontSize: '12px', textTransform: 'uppercase', color: '#BCA38F', letterSpacing: '0.5px' }}>Added Date</th>
-                <th style={{ padding: '12px 20px', fontSize: '12px', textTransform: 'uppercase', color: '#BCA38F', letterSpacing: '0.5px', textAlign: 'right' }}>Actions</th>
+                <th style={{ padding: '16px 24px', textAlign: 'left', fontWeight: '600', color: '#4b5563', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Name</th>
+                <th style={{ padding: '16px 24px', textAlign: 'left', fontWeight: '600', color: '#4b5563', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Email</th>
+                <th style={{ padding: '16px 24px', textAlign: 'left', fontWeight: '600', color: '#4b5563', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Role</th>
+                <th style={{ padding: '16px 24px', textAlign: 'left', fontWeight: '600', color: '#4b5563', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Status</th>
+                <th style={{ padding: '16px 24px', textAlign: 'left', fontWeight: '600', color: '#4b5563', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Added</th>
+                <th style={{ padding: '16px 24px', textAlign: 'right', fontWeight: '600', color: '#4b5563', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Actions</th>
               </tr>
             </thead>
             <tbody>
-              {staff.map(member => (
-                <tr key={member.id} style={{ borderBottom: '1px solid #FAF9F6' }}>
-                  <td style={{ padding: '16px 20px', fontWeight: '500' }}>
-                    {member.email}
+              {staff.map(person => (
+                <tr key={person.id} style={{ borderTop: '1px solid #f3f4f6', transition: 'background-color 0.2s' }}>
+                  <td style={{ padding: '16px 24px', fontSize: '14px', color: '#111827', fontWeight: '500' }}>
+                    {person.name || 'Unknown'}
+                  </td>
+                  <td style={{ padding: '16px 24px', fontSize: '14px', color: '#4b5563', fontWeight: '500' }}>
+                    {person.email}
                   </td>
                   <td style={{ padding: '16px 20px' }}>
                     <span style={{ 

@@ -12,6 +12,7 @@ function AdminLayout() {
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [authLoading, setAuthLoading] = useState(true);
   const [userRole, setUserRole] = useState(null);
+  const [userName, setUserName] = useState('');
 
   useEffect(() => {
     const checkStaffStatus = async () => {
@@ -34,6 +35,7 @@ function AdminLayout() {
         navigate('/admin/login');
       } else {
         setUserRole(data.role);
+        setUserName(data.name || 'Admin');
         setIsAuthorized(true);
       }
       setAuthLoading(false);
@@ -118,7 +120,7 @@ function AdminLayout() {
             <Menu size={24} />
           </button>
         </div>
-        <Outlet />
+        <Outlet context={{ userName }} />
       </main>
     </div>
   );

@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
+import { useOutletContext, Link } from 'react-router-dom';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { DollarSign, ShoppingBag, Package, AlertTriangle, TrendingUp, Clock, CheckCircle, Truck, PackageCheck, ArrowRight } from 'lucide-react';
-import { Link } from 'react-router-dom';
 
 function Dashboard() {
   const [totalProducts, setTotalProducts] = useState(0);
@@ -19,6 +19,7 @@ function Dashboard() {
   const [bestSellers, setBestSellers] = useState([]);
   
   const [loading, setLoading] = useState(true);
+  const { userName } = useOutletContext();
 
   useEffect(() => {
     fetchDashboardData();
@@ -144,10 +145,10 @@ function Dashboard() {
     <div style={{ maxWidth: '1200px', margin: '0 auto', fontFamily: 'Inter, sans-serif', color: '#111827' }}>
       
       {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '24px' }}>
         <div>
-          <h1 style={{ fontSize: '24px', fontWeight: 'bold', margin: '0 0 4px 0' }}>Dashboard Overview</h1>
-          <p style={{ color: '#6b7280', margin: 0, fontSize: '14px' }}>Welcome back. Here is what's happening with your store today.</p>
+          <h1 style={{ fontSize: '24px', fontWeight: 'bold', margin: '0 0 8px 0', color: '#111827' }}>Welcome back, {userName}!</h1>
+          <p style={{ color: '#6b7280', margin: 0 }}>Here is what's happening with your store today.</p>
         </div>
         <div>
           <select style={{ padding: '8px 12px', border: '1px solid #d1d5db', borderRadius: '6px', backgroundColor: '#fff', fontSize: '14px', outline: 'none' }}>
