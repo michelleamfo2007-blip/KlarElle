@@ -27,6 +27,10 @@ ON CONFLICT (id) DO NOTHING;
 ALTER TABLE public.store_settings ENABLE ROW LEVEL SECURITY;
 
 -- Create policies for store_settings table
+-- Drop existing policies first so the script can be run multiple times without errors
+DROP POLICY IF EXISTS "Allow public read access to store_settings" ON public.store_settings;
+DROP POLICY IF EXISTS "Allow authenticated update access to store_settings" ON public.store_settings;
+
 -- Allow anyone to read settings
 CREATE POLICY "Allow public read access to store_settings"
     ON public.store_settings
