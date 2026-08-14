@@ -61,6 +61,7 @@ function App() {
               <Route path="profile/wallet" element={<Wallet />} />
               <Route path="check-in" element={<CheckIn />} />
               <Route path="page/about-us" element={<StaticPage title="About Us" />} />
+              <Route path="page/faq" element={<StaticPage title="FAQ" />} />
               <Route path="page/fashion-blogger" element={<StaticPage title="Fashion Blogger" />} />
               <Route path="page/social-responsibility" element={<StaticPage title="Social Responsibility" />} />
               <Route path="page/shipping-info" element={<StaticPage title="Shipping Info" />} />
