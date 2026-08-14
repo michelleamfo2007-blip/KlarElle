@@ -21,6 +21,17 @@ function Checkout() {
   const [couponInput, setCouponInput] = useState("");
   const [appliedCoupon, setAppliedCoupon] = useState(null);
   const [couponMessage, setCouponMessage] = useState({ text: "", type: "" });
+  const [shippingThreshold, setShippingThreshold] = useState(100);
+  
+  useEffect(() => {
+    const fetchSettings = async () => {
+      const { data } = await supabase.from('store_settings').select('shipping_threshold').eq('id', 1).single();
+      if (data && data.shipping_threshold !== undefined) {
+        setShippingThreshold(data.shipping_threshold);
+      }
+    };
+    fetchSettings();
+  }, []);
   
   // Shipping Form State
   const [showShippingForm, setShowShippingForm] = useState(false);
@@ -37,8 +48,8 @@ function Checkout() {
     apartment: ''
   });
 
-  const shippingFee = cartTotal >= 1515.15 ? 0 : 176.43;
-  const shippingGuarantee = 11.65;
+  const shippingFee = cartTotal >= shippingThreshold ? 0 : 15.00;
+  const shippingGuarantee = 1.50;
   
   const discountAmount = appliedCoupon ? (cartTotal * (appliedCoupon.discount_percent / 100)) : 0;
   const finalTotal = cartTotal - discountAmount + shippingFee + shippingGuarantee;
