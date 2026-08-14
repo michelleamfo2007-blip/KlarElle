@@ -25,13 +25,21 @@ function UpdatePassword() {
     setLoading(true);
     setError(null);
 
-    const { error } = await supabase.auth.updateUser({
+    const { data: userData, error } = await supabase.auth.updateUser({
       password: password
     });
 
     if (error) {
       setError(error.message);
     } else {
+      // Update staff status to Active
+      if (userData?.user?.email) {
+        await supabase
+          .from('staff')
+          .update({ status: 'Active' })
+          .eq('email', userData.user.email);
+      }
+      
       setSuccess(true);
       setTimeout(() => {
         navigate('/admin');
