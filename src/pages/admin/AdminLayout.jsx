@@ -9,12 +9,46 @@ function AdminLayout() {
   const { session } = useAuth();
   const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isAuthorized, setIsAuthorized] = useState(false);
+  const [authLoading, setAuthLoading] = useState(true);
+
+  useEffect(() => {
+    const checkStaffStatus = async () => {
+      if (!session) {
+        setAuthLoading(false);
+        return;
+      }
+
+      // Check if user is in the staff table and Active
+      const { data, error } = await supabase
+        .from('staff')
+        .select('*')
+        .ilike('email', session.user.email)
+        .eq('status', 'Active')
+        .single();
+
+      if (error || !data) {
+        // User not found, not active, or deleted
+        await supabase.auth.signOut();
+        navigate('/admin/login');
+      } else {
+        setIsAuthorized(true);
+      }
+      setAuthLoading(false);
+    };
+
+    checkStaffStatus();
+  }, [session, navigate]);
 
   const closeMobileMenu = () => {
     setIsMobileMenuOpen(false);
   };
 
-  if (!session) {
+  if (!session || (authLoading && !isAuthorized)) {
+    return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>Verifying access...</div>;
+  }
+  
+  if (!isAuthorized) {
     return <Navigate to="/admin/login" replace />;
   }
 

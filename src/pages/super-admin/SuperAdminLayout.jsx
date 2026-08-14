@@ -9,13 +9,50 @@ function SuperAdminLayout() {
   const { session } = useAuth();
   const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isAuthorized, setIsAuthorized] = useState(false);
+  const [authLoading, setAuthLoading] = useState(true);
+
+  useEffect(() => {
+    const checkSuperAdminStatus = async () => {
+      if (!session) {
+        setAuthLoading(false);
+        return;
+      }
+
+      // Check if user is in the staff table, Active, and has Super Admin role
+      const { data, error } = await supabase
+        .from('staff')
+        .select('*')
+        .ilike('email', session.user.email)
+        .eq('status', 'Active')
+        .single();
+
+      if (error || !data) {
+        // User not found, not active, or deleted
+        await supabase.auth.signOut();
+        navigate('/admin/login');
+      } else if (data.role !== 'Super Admin') {
+        // Not a super admin, send to regular dashboard
+        navigate('/admin');
+      } else {
+        setIsAuthorized(true);
+      }
+      setAuthLoading(false);
+    };
+
+    checkSuperAdminStatus();
+  }, [session, navigate]);
 
   const closeMobileMenu = () => {
     setIsMobileMenuOpen(false);
   };
 
-  if (!session) {
-    return <Navigate to="/admin/login" replace />;
+  if (!session || (authLoading && !isAuthorized)) {
+    return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', backgroundColor: '#111827', color: '#fff' }}>Verifying Super Admin access...</div>;
+  }
+  
+  if (!isAuthorized) {
+    return <Navigate to="/admin" replace />;
   }
 
   const handleLogout = async () => {
