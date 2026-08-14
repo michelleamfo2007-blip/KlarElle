@@ -8,7 +8,19 @@ function UpdatePassword() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
+  const [hasSession, setHasSession] = useState(true);
+  const [checkingSession, setCheckingSession] = useState(true);
   const navigate = useNavigate();
+
+  React.useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!session) {
+        setHasSession(false);
+        setError("This invite link has expired or was already used. Please ask the admin to send a new invite.");
+      }
+      setCheckingSession(false);
+    });
+  }, []);
 
   const handleUpdate = async (e) => {
     e.preventDefault();
@@ -37,7 +49,7 @@ function UpdatePassword() {
         await supabase
           .from('staff')
           .update({ status: 'Active' })
-          .eq('email', userData.user.email);
+          .ilike('email', userData.user.email);
       }
       
       setSuccess(true);
@@ -54,6 +66,8 @@ function UpdatePassword() {
       <form onSubmit={handleUpdate} style={{ background: 'white', padding: '40px', borderRadius: '8px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', width: '100%', maxWidth: '400px' }}>
         <h2 style={{ textAlign: 'center', marginBottom: '8px', fontWeight: 'bold' }}>Set Your Password</h2>
         <p style={{ textAlign: 'center', marginBottom: '24px', color: '#6b7280', fontSize: '14px' }}>Welcome to KlarElle! Please set a secure password for your admin account.</p>
+        
+        {checkingSession && <div style={{ textAlign: 'center', marginBottom: '16px', color: '#666' }}>Verifying link...</div>}
         
         {error && <div style={{ color: 'red', marginBottom: '16px', fontSize: '14px', padding: '8px', background: '#fee2e2', borderRadius: '4px' }}>{error}</div>}
         {success && <div style={{ color: '#059669', marginBottom: '16px', fontSize: '14px', padding: '8px', background: '#d1fae5', borderRadius: '4px' }}>Password set successfully! Redirecting to dashboard...</div>}
@@ -82,8 +96,8 @@ function UpdatePassword() {
 
         <button 
           type="submit" 
-          disabled={loading || success}
-          style={{ width: '100%', padding: '12px', background: '#a89f91', color: 'white', border: 'none', borderRadius: '4px', cursor: (loading || success) ? 'not-allowed' : 'pointer', fontWeight: 'bold' }}
+          disabled={loading || success || !hasSession || checkingSession}
+          style={{ width: '100%', padding: '12px', background: '#a89f91', color: 'white', border: 'none', borderRadius: '4px', cursor: (loading || success || !hasSession || checkingSession) ? 'not-allowed' : 'pointer', fontWeight: 'bold', opacity: (hasSession && !checkingSession) ? 1 : 0.5 }}
         >
           {loading ? 'Saving...' : 'Set Password'}
         </button>
