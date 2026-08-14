@@ -196,7 +196,7 @@ function Dashboard() {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
               <div className="kpi-label">Total Revenue</div>
-              <div className="kpi-value">{loading ? '...' : formatGHS(totalRevenue)}</div>
+              <div className="kpi-value">{loading ? '...' : formatUSD(totalRevenue)}</div>
             </div>
             <div className="kpi-icon" style={{ background: 'rgba(188, 163, 143, 0.1)', color: '#BCA38F' }}><DollarSign size={20} /></div>
           </div>
