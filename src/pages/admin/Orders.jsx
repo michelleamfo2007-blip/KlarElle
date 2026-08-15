@@ -38,7 +38,7 @@ function Orders() {
 
   const generateShippingLabel = async (order) => {
     try {
-      const res = await fetch('/api/create-usps-label', {
+      const res = await fetch('/api/create-label', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
@@ -49,14 +49,14 @@ function Orders() {
       });
       const data = await res.json();
       if (data.success) {
-        alert(`USPS Label generated successfully!\nTracking Number: ${data.trackingNumber}`);
+        alert(`Shipping Label generated successfully!\nTracking Number: ${data.trackingNumber}`);
         updateOrderStatus(order.id, 'Shipped');
       } else {
         alert('Error generating label: ' + data.error);
       }
     } catch (err) {
       console.error(err);
-      alert('Failed to connect to USPS shipping API');
+      alert('Failed to connect to Shippo API');
     }
   };
 

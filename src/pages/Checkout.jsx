@@ -22,7 +22,9 @@ function Checkout() {
   const [appliedCoupon, setAppliedCoupon] = useState(null);
   const [couponMessage, setCouponMessage] = useState({ text: "", type: "" });
   const [shippingThreshold, setShippingThreshold] = useState(100);
-  const [dynamicShippingRate, setDynamicShippingRate] = useState(null);
+  const [shippingRates, setShippingRates] = useState([]);
+  const [selectedRateId, setSelectedRateId] = useState(null);
+  const [isFetchingRates, setIsFetchingRates] = useState(false);
   
   useEffect(() => {
     const fetchSettings = async () => {
@@ -49,7 +51,9 @@ function Checkout() {
     apartment: ''
   });
 
-  const shippingFee = cartTotal >= shippingThreshold ? 0 : (dynamicShippingRate !== null ? dynamicShippingRate : 15.00);
+  const selectedRate = shippingRates.find(r => r.objectId === selectedRateId);
+  const baseShippingFee = selectedRate ? selectedRate.amount : 15.00;
+  const shippingFee = cartTotal >= shippingThreshold ? 0 : baseShippingFee;
   const shippingGuarantee = 1.50;
   
   const discountAmount = appliedCoupon ? (cartTotal * (appliedCoupon.discount_percent / 100)) : 0;
@@ -218,18 +222,22 @@ function Checkout() {
               onClick={async () => {
                 setShowShippingForm(false);
                 if (formData.postcode) {
+                  setIsFetchingRates(true);
                   try {
-                    const res = await fetch('/api/usps-rates', {
+                    const res = await fetch('/api/shipping-rates', {
                       method: 'POST',
                       headers: { 'Content-Type': 'application/json' },
                       body: JSON.stringify({ destinationZip: formData.postcode })
                     });
                     const data = await res.json();
-                    if (data.success && data.rate) {
-                      setDynamicShippingRate(data.rate);
+                    if (data.success && data.rates && data.rates.length > 0) {
+                      setShippingRates(data.rates);
+                      setSelectedRateId(data.rates[0].objectId);
                     }
                   } catch (err) {
-                    console.error('Failed to fetch USPS rates', err);
+                    console.error('Failed to fetch rates', err);
+                  } finally {
+                    setIsFetchingRates(false);
                   }
                 }
               }}
@@ -295,11 +303,49 @@ function Checkout() {
       {/* Shipping Method */}
       <div style={{ background: '#fff', padding: '16px', marginTop: '8px' }}>
         <h3 style={{ fontSize: '16px', margin: '0 0 16px 0' }}>Shipping Method</h3>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-          <span style={{ fontWeight: 'bold', fontSize: '14px' }}>Express Shipping</span>
-          <span style={{ fontWeight: 'bold', fontSize: '14px' }}>{formatPrice(shippingFee)}</span>
-        </div>
-        <div style={{ fontSize: '12px', color: '#666', marginBottom: '16px' }}>Delivery: 11-22 business days</div>
+        
+        {isFetchingRates ? (
+          <div style={{ padding: '20px', textAlign: 'center', color: '#666' }}>Fetching live rates...</div>
+        ) : shippingRates.length > 0 ? (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '8px' }}>
+            {shippingRates.map(rate => (
+              <div 
+                key={rate.objectId}
+                onClick={() => setSelectedRateId(rate.objectId)}
+                style={{ 
+                  display: 'flex', 
+                  justifyContent: 'space-between', 
+                  alignItems: 'center', 
+                  padding: '12px', 
+                  border: selectedRateId === rate.objectId ? '2px solid #000' : '1px solid #eee', 
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  background: selectedRateId === rate.objectId ? '#f9f9f9' : '#fff'
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <div style={{ width: '18px', height: '18px', borderRadius: '50%', border: '1px solid #000', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    {selectedRateId === rate.objectId && <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#000' }}></div>}
+                  </div>
+                  <div>
+                    <div style={{ fontWeight: '500' }}>{rate.provider} - {rate.serviceLevel}</div>
+                  </div>
+                </div>
+                <div style={{ fontWeight: 'bold' }}>{formatPrice(rate.amount)}</div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <div style={{ width: '16px', height: '16px', borderRadius: '50%', border: '5px solid #000', boxSizing: 'border-box' }}></div>
+              <div>Standard Shipping</div>
+            </div>
+            <div style={{ fontWeight: 'bold' }}>{shippingFee === 0 ? 'Free' : formatPrice(shippingFee)}</div>
+          </div>
+        )}
+      </div>
+      <div style={{ fontSize: '12px', color: '#666', marginBottom: '16px' }}>Delivery: 11-22 business days</div>
         
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '16px', borderTop: '1px solid #eee' }}>
           <div>
