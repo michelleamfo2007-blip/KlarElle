@@ -22,6 +22,7 @@ function Checkout() {
   const [appliedCoupon, setAppliedCoupon] = useState(null);
   const [couponMessage, setCouponMessage] = useState({ text: "", type: "" });
   const [shippingThreshold, setShippingThreshold] = useState(100);
+  const [dynamicShippingRate, setDynamicShippingRate] = useState(null);
   
   useEffect(() => {
     const fetchSettings = async () => {
@@ -48,7 +49,7 @@ function Checkout() {
     apartment: ''
   });
 
-  const shippingFee = cartTotal >= shippingThreshold ? 0 : 15.00;
+  const shippingFee = cartTotal >= shippingThreshold ? 0 : (dynamicShippingRate !== null ? dynamicShippingRate : 15.00);
   const shippingGuarantee = 1.50;
   
   const discountAmount = appliedCoupon ? (cartTotal * (appliedCoupon.discount_percent / 100)) : 0;
@@ -214,10 +215,27 @@ function Checkout() {
         <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, display: 'flex', justifyContent: 'center', pointerEvents: 'none' }}>
           <div style={{ width: '100%', maxWidth: '600px', background: '#fff', padding: '16px', borderTop: '1px solid #eee', pointerEvents: 'auto' }}>
             <button 
-              onClick={() => setShowShippingForm(false)}
-              style={{ width: '100%', padding: '16px', background: '#000', color: '#fff', border: 'none', fontWeight: 'bold', fontSize: '16px', borderRadius: '4px' }}
+              onClick={async () => {
+                setShowShippingForm(false);
+                if (formData.postcode) {
+                  try {
+                    const res = await fetch('/api/usps-rates', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ destinationZip: formData.postcode })
+                    });
+                    const data = await res.json();
+                    if (data.success && data.rate) {
+                      setDynamicShippingRate(data.rate);
+                    }
+                  } catch (err) {
+                    console.error('Failed to fetch USPS rates', err);
+                  }
+                }
+              }}
+              style={{ width: '100%', padding: '16px', background: '#000', color: '#fff', border: 'none', fontWeight: 'bold', fontSize: '16px', borderRadius: '4px', cursor: 'pointer' }}
             >
-              SAVE
+              SAVE ADDRESS & CALCULATE SHIPPING
             </button>
           </div>
         </div>

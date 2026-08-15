@@ -36,6 +36,30 @@ function Orders() {
     }
   };
 
+  const generateShippingLabel = async (order) => {
+    try {
+      const res = await fetch('/api/create-usps-label', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          orderId: order.id,
+          name: order.customer_name,
+          destinationZip: '10001' 
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert(`USPS Label generated successfully!\nTracking Number: ${data.trackingNumber}`);
+        updateOrderStatus(order.id, 'Shipped');
+      } else {
+        alert('Error generating label: ' + data.error);
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Failed to connect to USPS shipping API');
+    }
+  };
+
   const formatUSD = (amount) => `$${parseFloat(amount || 0).toFixed(2)}`;
 
   const filteredOrders = orders.filter(o => 
@@ -71,6 +95,7 @@ function Orders() {
               <th style={{ padding: '12px 20px', fontSize: '12px', textTransform: 'uppercase', color: '#BCA38F', letterSpacing: '0.5px' }}>Customer</th>
               <th style={{ padding: '12px 20px', fontSize: '12px', textTransform: 'uppercase', color: '#BCA38F', letterSpacing: '0.5px' }}>Amount</th>
               <th style={{ padding: '12px 20px', fontSize: '12px', textTransform: 'uppercase', color: '#BCA38F', letterSpacing: '0.5px' }}>Status</th>
+              <th style={{ padding: '12px 20px', fontSize: '12px', textTransform: 'uppercase', color: '#BCA38F', letterSpacing: '0.5px' }}>Shipping</th>
             </tr>
           </thead>
           <tbody>
@@ -116,6 +141,14 @@ function Orders() {
                       <option value="Shipped">Shipped</option>
                       <option value="Delivered">Delivered</option>
                     </select>
+                  </td>
+                  <td style={{ padding: '16px 20px' }}>
+                    <button 
+                      onClick={() => generateShippingLabel(order)}
+                      style={{ padding: '6px 12px', background: '#000', color: '#fff', border: 'none', borderRadius: '4px', fontSize: '12px', cursor: 'pointer' }}
+                    >
+                      Print Label
+                    </button>
                   </td>
                 </tr>
               ))
