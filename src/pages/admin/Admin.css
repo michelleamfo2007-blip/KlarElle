@@ -288,6 +288,9 @@
   width: 100%;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
+  background: #fff;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
 }
 
 /* Media Queries */

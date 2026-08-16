@@ -84,8 +84,7 @@ function Waitlist() {
 
       {/* Table */}
       <div className="table-responsive-wrapper">
-        <div style={{ background: '#fff', borderRadius: '8px', border: '1px solid #e5e7eb', overflow: 'hidden' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '500px' }}>
           <thead>
             <tr style={{ background: '#FAF9F6', borderBottom: '1px solid #D2C4B3' }}>
               <th style={{ padding: '12px 20px', fontSize: '12px', textTransform: 'uppercase', color: '#BCA38F', letterSpacing: '0.5px' }}>Email Address</th>
@@ -134,7 +133,6 @@ function Waitlist() {
             )}
           </tbody>
         </table>
-      </div>
       </div>
     </div>
   );
