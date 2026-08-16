@@ -45,6 +45,7 @@ import Vouchers from './pages/Vouchers';
 import Wallet from './pages/Wallet';
 import CheckIn from './pages/CheckIn';
 import StaticPage from './pages/StaticPage';
+import ContactUs from './pages/ContactUs';
 import { AuthProvider } from './context/AuthContext';
 import { CurrencyProvider } from './context/CurrencyContext';
 import './index.css';
@@ -80,7 +81,7 @@ function App() {
               <Route path="page/shipping-info" element={<StaticPage title="Shipping Info" />} />
               <Route path="page/returns" element={<StaticPage title="Returns" />} />
               <Route path="page/how-to-order" element={<StaticPage title="How to Order" />} />
-              <Route path="page/contact-us" element={<StaticPage title="Contact Us" />} />
+              <Route path="page/contact-us" element={<ContactUs />} />
               <Route path="page/payment-method" element={<StaticPage title="Payment Method" />} />
               <Route path="page/bonus-point" element={<StaticPage title="Bonus Point" />} />
             </Route>
