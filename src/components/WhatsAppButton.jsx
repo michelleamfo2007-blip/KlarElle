@@ -10,6 +10,7 @@ function WhatsAppButton() {
   return (
     <a 
       href={whatsappUrl} 
+      className="whatsapp-float"
       target="_blank" 
       rel="noopener noreferrer"
       style={{
@@ -27,7 +28,7 @@ function WhatsAppButton() {
         boxShadow: '0 4px 12px rgba(37, 211, 102, 0.4)',
         zIndex: 9999,
         cursor: 'pointer',
-        transition: 'transform 0.2s'
+        transition: 'transform 0.2s, bottom 0.3s'
       }}
       onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.1)'}
       onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}

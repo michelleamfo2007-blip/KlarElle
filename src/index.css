@@ -825,6 +825,10 @@ main {
   .hero-center {
     display: none; /* Simplify mobile view by hiding the massive center banner */
   }
+
+  .whatsapp-float {
+    bottom: 90px !important;
+  }
 }
 
 @media (max-width: 480px) {
