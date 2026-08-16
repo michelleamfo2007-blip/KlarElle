@@ -318,7 +318,7 @@ function ProductDetails() {
 
 
             {/* Reviews Section */}
-            <div className="section-divider">
+            <div className="section-divider" ref={reviewsRef}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
                   <span style={{ fontSize: '24px', fontWeight: '900' }}>{reviewStats.count > 0 ? reviewStats.avg : '0.00'}</span>
