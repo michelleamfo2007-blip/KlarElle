@@ -47,7 +47,7 @@ function Waitlist() {
     <div style={{ maxWidth: '1000px', margin: '0 auto', fontFamily: 'Inter, sans-serif' }}>
       
       {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '24px' }}>
+      <div className="admin-header-flex">
         <div>
           <h1 style={{ fontSize: '24px', fontWeight: 'bold', margin: '0 0 4px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Users size={24} /> Waitlist
@@ -55,7 +55,7 @@ function Waitlist() {
           <p style={{ color: '#6b7280', margin: 0, fontSize: '14px' }}>Manage and track your early subscribers.</p>
         </div>
         
-        <div style={{ display: 'flex', gap: '16px' }}>
+        <div className="stats-row">
           <div style={{ background: '#fff', border: '1px solid #e5e7eb', padding: '12px 20px', borderRadius: '8px', textAlign: 'center' }}>
             <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#111827' }}>{waitlist.length}</div>
             <div style={{ fontSize: '12px', color: '#6b7280', textTransform: 'uppercase' }}>Total Subscribers</div>
@@ -83,8 +83,9 @@ function Waitlist() {
       </div>
 
       {/* Table */}
-      <div style={{ background: '#fff', borderRadius: '8px', border: '1px solid #e5e7eb', overflow: 'hidden' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+      <div className="table-responsive-wrapper">
+        <div style={{ background: '#fff', borderRadius: '8px', border: '1px solid #e5e7eb', overflow: 'hidden' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
           <thead>
             <tr style={{ background: '#FAF9F6', borderBottom: '1px solid #D2C4B3' }}>
               <th style={{ padding: '12px 20px', fontSize: '12px', textTransform: 'uppercase', color: '#BCA38F', letterSpacing: '0.5px' }}>Email Address</th>
@@ -133,6 +134,7 @@ function Waitlist() {
             )}
           </tbody>
         </table>
+      </div>
       </div>
     </div>
   );
