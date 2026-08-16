@@ -42,8 +42,9 @@ function Checkout() {
     firstName: '',
     lastName: '',
     email: session?.user?.email || '',
+    phoneCode: '+1',
     phone: '',
-    location: 'Ghana',
+    location: 'United States',
     region: '',
     city: '',
     postcode: '',
@@ -116,8 +117,8 @@ function Checkout() {
           customer_email: formData.email,
           total_amount: finalTotal,
           status: 'Paid',
-          shipping_address: `${formData.houseNo}, ${formData.city}, ${formData.region}`,
-          phone_number: formData.phone,
+          shipping_address: `${formData.houseNo}, ${formData.city}, ${formData.region}, ${formData.location}`,
+          phone_number: `${formData.phoneCode} ${formData.phone}`,
           shipping_provider: selectedRate ? selectedRate.provider : 'Standard',
           shipping_service: selectedRate ? selectedRate.serviceLevel : 'Shipping',
           shippo_rate_id: selectedRate ? selectedRate.objectId : null
@@ -185,7 +186,16 @@ function Checkout() {
           <div style={{ marginBottom: '16px' }}>
             <label style={{ display: 'block', fontSize: '12px', color: '#666', marginBottom: '4px' }}>Phone Number *</label>
             <div style={{ display: 'flex', border: '1px solid #ddd', borderRadius: '4px' }}>
-              <div style={{ padding: '12px', background: '#f9f9f9', borderRight: '1px solid #ddd', color: '#666' }}>US +1</div>
+              <select name="phoneCode" value={formData.phoneCode} onChange={handleInputChange} style={{ padding: '12px', background: '#f9f9f9', borderRight: '1px solid #ddd', color: '#666', border: 'none', outline: 'none', cursor: 'pointer' }}>
+                <option value="+1">US +1</option>
+                <option value="+44">UK +44</option>
+                <option value="+233">GH +233</option>
+                <option value="+234">NG +234</option>
+                <option value="+27">ZA +27</option>
+                <option value="+61">AU +61</option>
+                <option value="+49">DE +49</option>
+                <option value="+33">FR +33</option>
+              </select>
               <input type="tel" name="phone" value={formData.phone} onChange={handleInputChange} style={{ width: '100%', padding: '12px', border: 'none', outline: 'none' }} />
             </div>
             <div style={{ fontSize: '11px', color: '#999', marginTop: '4px' }}>Need Correct Phone Number for delivery.</div>
