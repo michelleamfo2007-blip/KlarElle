@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { Search, User, Heart, ShoppingBag, Globe, Smartphone, ChevronDown } from 'lucide-react';
+import { Search, User, Heart, ShoppingBag, Globe, Smartphone, ChevronDown, Wrench } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { useCurrency } from '../context/CurrencyContext';
@@ -19,6 +19,24 @@ function Layout() {
   const [showCurrMenu, setShowCurrMenu] = useState(false);
   const [newsletterEmail, setNewsletterEmail] = useState('');
   const [subscribing, setSubscribing] = useState(false);
+  const [maintenanceMode, setMaintenanceMode] = useState(false);
+  const [checkingMaintenance, setCheckingMaintenance] = useState(true);
+
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const { data } = await supabase.from('store_settings').select('maintenance_mode').eq('id', 1).single();
+        if (data && data.maintenance_mode) {
+          setMaintenanceMode(true);
+        }
+      } catch (err) {
+        console.error('Error fetching maintenance status:', err);
+      } finally {
+        setCheckingMaintenance(false);
+      }
+    };
+    fetchSettings();
+  }, [location.pathname]);
 
   const showToast = (message) => {
     setToastMessage(message);
@@ -60,6 +78,20 @@ function Layout() {
   };
 
   const isActive = (path) => location.pathname === path ? 'active' : '';
+
+  if (checkingMaintenance) {
+    return <div style={{ height: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>Loading...</div>;
+  }
+
+  if (maintenanceMode) {
+    return (
+      <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', background: '#fafafa', textAlign: 'center', padding: '20px' }}>
+        <Wrench size={48} color="#000" style={{ marginBottom: '24px' }} />
+        <h1 style={{ fontFamily: 'Georgia, serif', fontSize: '32px', marginBottom: '16px' }}>We'll be back shortly</h1>
+        <p style={{ color: '#666', maxWidth: '400px', lineHeight: '1.6' }}>KlarElle is currently undergoing scheduled maintenance to improve your shopping experience. Please check back soon.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="app-wrapper">
