@@ -1,6 +1,14 @@
 import React from 'react';
+import { useLocation } from 'react-router-dom';
 
 function WhatsAppButton() {
+  const location = useLocation();
+
+  // Hide WhatsApp button on admin and super-admin routes
+  if (location.pathname.startsWith('/admin') || location.pathname.startsWith('/super-admin')) {
+    return null;
+  }
+
   // Replace this with your actual WhatsApp business number (include country code, no + or spaces)
   const phoneNumber = "233595164329"; 
   const defaultMessage = "Hi KlarElle! I need some help with...";
