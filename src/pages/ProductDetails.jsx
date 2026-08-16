@@ -60,6 +60,14 @@ function ProductDetails() {
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [showSizeRequestModal, setShowSizeRequestModal] = useState(false);
   
+  // Write Review State
+  const [showWriteReviewModal, setShowWriteReviewModal] = useState(false);
+  const [newReviewRating, setNewReviewRating] = useState(5);
+  const [newReviewFit, setNewReviewFit] = useState('True to Size');
+  const [newReviewText, setNewReviewText] = useState('');
+  const [newReviewName, setNewReviewName] = useState('');
+  const [submittingReview, setSubmittingReview] = useState(false);
+  
   const goodsRef = useRef(null);
   const reviewsRef = useRef(null);
   const recommendRef = useRef(null);
@@ -125,16 +133,17 @@ function ProductDetails() {
           .order('created_at', { ascending: false });
           
         if (revs) {
-          setReviews(revs);
-          if (revs.length > 0) {
-            const avg = (revs.reduce((sum, r) => sum + r.rating, 0) / revs.length).toFixed(2);
-            const fitSmall = revs.filter(r => r.fit === 'Small').length;
-            const fitTrue = revs.filter(r => r.fit === 'True to Size').length;
-            const fitLarge = revs.filter(r => r.fit === 'Large').length;
+          const approvedRevs = revs.filter(r => (r.status || 'Approved') === 'Approved');
+          setReviews(approvedRevs);
+          if (approvedRevs.length > 0) {
+            const avg = (approvedRevs.reduce((sum, r) => sum + r.rating, 0) / approvedRevs.length).toFixed(2);
+            const fitSmall = approvedRevs.filter(r => r.fit === 'Small').length;
+            const fitTrue = approvedRevs.filter(r => r.fit === 'True to Size').length;
+            const fitLarge = approvedRevs.filter(r => r.fit === 'Large').length;
             const totalFit = fitSmall + fitTrue + fitLarge;
             setReviewStats({
               avg,
-              count: revs.length,
+              count: approvedRevs.length,
               fitSmall: totalFit ? Math.round((fitSmall/totalFit)*100) : 0,
               fitTrue: totalFit ? Math.round((fitTrue/totalFit)*100) : 0,
               fitLarge: totalFit ? Math.round((fitLarge/totalFit)*100) : 0
@@ -148,14 +157,64 @@ function ProductDetails() {
     fetchProductAndMatches();
   }, [id]);
 
+  const submitReview = async (e) => {
+    e.preventDefault();
+    if (!newReviewText.trim()) return alert("Please enter a review.");
+    setSubmittingReview(true);
+    
+    const { data, error } = await supabase.from('product_reviews').insert([{
+      product_id: product.id,
+      user_name: newReviewName || 'Anonymous User',
+      rating: newReviewRating,
+      text: newReviewText,
+      fit: newReviewFit,
+      size_bought: selectedSize || null,
+      color_bought: selectedColor || null,
+      status: 'Approved' // User opted for auto-approve by default
+    }]).select();
+    
+    setSubmittingReview(false);
+    
+    if (error) {
+      alert("Failed to submit review.");
+      console.error(error);
+    } else {
+      alert("Thank you for your review!");
+      setShowWriteReviewModal(false);
+      setNewReviewText('');
+      setNewReviewName('');
+      setNewReviewRating(5);
+      
+      // Update local state instantly if it's auto-approved
+      if (data && data[0]) {
+        const newReviewList = [data[0], ...reviews];
+        setReviews(newReviewList);
+        
+        // Update stats
+        const avg = (newReviewList.reduce((sum, r) => sum + r.rating, 0) / newReviewList.length).toFixed(2);
+        const fitSmall = newReviewList.filter(r => r.fit === 'Small').length;
+        const fitTrue = newReviewList.filter(r => r.fit === 'True to Size').length;
+        const fitLarge = newReviewList.filter(r => r.fit === 'Large').length;
+        const totalFit = fitSmall + fitTrue + fitLarge;
+        setReviewStats({
+          avg,
+          count: newReviewList.length,
+          fitSmall: totalFit ? Math.round((fitSmall/totalFit)*100) : 0,
+          fitTrue: totalFit ? Math.round((fitTrue/totalFit)*100) : 0,
+          fitLarge: totalFit ? Math.round((fitLarge/totalFit)*100) : 0
+        });
+      }
+    }
+  };
+
   useEffect(() => {
-    if (showSizeModal || showGuideModal || showGuideTypeSelector || showReviewsModal || showDetailsModal || showSizeRequestModal) {
+    if (showSizeModal || showGuideModal || showGuideTypeSelector || showReviewsModal || showDetailsModal || showSizeRequestModal || showWriteReviewModal) {
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = 'unset';
     }
     return () => { document.body.style.overflow = 'unset'; };
-  }, [showSizeModal, showGuideModal, showGuideTypeSelector, showReviewsModal, showDetailsModal, showSizeRequestModal]);
+  }, [showSizeModal, showGuideModal, showGuideTypeSelector, showReviewsModal, showDetailsModal, showSizeRequestModal, showWriteReviewModal]);
 
   if (loading) return <div style={{ padding: '100px 20px', textAlign: 'center', fontSize: '18px', color: '#666' }}>Loading product details...</div>;
   if (!product) return <div style={{ padding: '100px 20px', textAlign: 'center', fontSize: '18px', color: '#666' }}>Product not found.</div>;
@@ -328,7 +387,10 @@ function ProductDetails() {
                   </div>
                   <span style={{ fontSize: '12px', color: '#666' }}>({reviewStats.count})</span>
                 </div>
-                <span style={{ fontSize: '12px', color: '#666', display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => setShowReviewsModal(true)}>View more <ChevronRight size={14} /></span>
+                <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                  <button onClick={() => setShowWriteReviewModal(true)} style={{ padding: '6px 12px', background: '#000', color: '#fff', border: 'none', borderRadius: '4px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}>Write Review</button>
+                  <span style={{ fontSize: '12px', color: '#666', display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => setShowReviewsModal(true)}>View more <ChevronRight size={14} /></span>
+                </div>
               </div>
               
               {reviewStats.count > 0 && (
@@ -887,6 +949,80 @@ function ProductDetails() {
                 <p>{product.description || "Enhance your wardrobe with this stunning piece, crafted with premium materials for maximum comfort and style. Perfect for both casual outings and elegant evening events. Designed to fit beautifully and make you feel confident."}</p>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Write Review Modal */}
+      {showWriteReviewModal && (
+        <div className="modal-overlay" onClick={() => setShowWriteReviewModal(false)}>
+          <div className="modal-content" style={{ minHeight: 'auto', paddingBottom: '20px', display: 'flex', flexDirection: 'column' }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px', borderBottom: '1px solid #eee' }}>
+              <div style={{ width: '24px' }}></div>
+              <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 'bold' }}>Write a Review</h3>
+              <X size={24} onClick={() => setShowWriteReviewModal(false)} style={{ cursor: 'pointer' }} />
+            </div>
+            <form onSubmit={submitReview} style={{ padding: '20px', flex: 1, display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '14px', fontWeight: 'bold', marginBottom: '8px' }}>Your Rating</label>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  {[1, 2, 3, 4, 5].map(star => (
+                    <Star 
+                      key={star} 
+                      size={24} 
+                      onClick={() => setNewReviewRating(star)}
+                      fill={star <= newReviewRating ? "#fcc419" : "none"} 
+                      stroke={star <= newReviewRating ? "#fcc419" : "#d1d5db"} 
+                      style={{ cursor: 'pointer' }}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '14px', fontWeight: 'bold', marginBottom: '8px' }}>Your Name (Optional)</label>
+                <input 
+                  type="text" 
+                  value={newReviewName} 
+                  onChange={e => setNewReviewName(e.target.value)} 
+                  placeholder="How should we call you?"
+                  style={{ width: '100%', padding: '10px 12px', border: '1px solid #d1d5db', borderRadius: '4px', fontSize: '14px', outline: 'none' }}
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '14px', fontWeight: 'bold', marginBottom: '8px' }}>How was the fit?</label>
+                <select 
+                  value={newReviewFit} 
+                  onChange={e => setNewReviewFit(e.target.value)}
+                  style={{ width: '100%', padding: '10px 12px', border: '1px solid #d1d5db', borderRadius: '4px', fontSize: '14px', outline: 'none', background: '#fff' }}
+                >
+                  <option value="Small">Runs Small</option>
+                  <option value="True to Size">True to Size</option>
+                  <option value="Large">Runs Large</option>
+                </select>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '14px', fontWeight: 'bold', marginBottom: '8px' }}>Your Review</label>
+                <textarea 
+                  value={newReviewText} 
+                  onChange={e => setNewReviewText(e.target.value)} 
+                  placeholder="Tell others what you thought about this item..."
+                  rows="4"
+                  required
+                  style={{ width: '100%', padding: '10px 12px', border: '1px solid #d1d5db', borderRadius: '4px', fontSize: '14px', outline: 'none', resize: 'vertical' }}
+                ></textarea>
+              </div>
+
+              <button 
+                type="submit" 
+                disabled={submittingReview}
+                style={{ background: '#000', color: '#fff', padding: '14px', border: 'none', borderRadius: '4px', fontSize: '14px', fontWeight: 'bold', cursor: submittingReview ? 'not-allowed' : 'pointer', marginTop: '8px', opacity: submittingReview ? 0.7 : 1 }}
+              >
+                {submittingReview ? 'Submitting...' : 'Submit Review'}
+              </button>
+            </form>
           </div>
         </div>
       )}
