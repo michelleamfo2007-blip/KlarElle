@@ -185,8 +185,9 @@ function ProductDetails() {
             }
             .product-layout { display: grid; gap: 40px; }
             
-            .gallery-grid { display: flex; flex-direction: column; gap: 16px; }
-            .main-image-wrap { background: #f4f4f4; position: relative; display: flex; align-items: center; justify-content: center; border-radius: 12px; overflow: hidden; }
+            .gallery-grid { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 0; scrollbar-width: none; -ms-overflow-style: none; }
+            .gallery-grid::-webkit-scrollbar { display: none; }
+            .main-image-wrap { background: #f4f4f4; position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden; flex: 0 0 100%; scroll-snap-align: start; }
             .main-image { width: 100%; height: auto; display: block; object-fit: contain; }
             
             .info-section { display: flex; flex-direction: column; gap: 0; }
