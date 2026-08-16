@@ -298,9 +298,7 @@ function ProductDetails() {
                 
                 <div style={{ display: 'flex', gap: '16px', fontSize: '12px', fontWeight: 'bold', marginTop: '12px' }}>
                   <span style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }} onClick={() => setShowGuideModal(true)}><Ruler size={14} style={{marginRight:'4px'}}/> Size Guide <ChevronRight size={14} /></span>
-                  <span style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }} onClick={() => {setShowSizeModal(true); setSizeModalStep(1);}}>📏 Check My Size <ChevronRight size={14} /></span>
                 </div>
-                <div style={{ fontSize: '12px', color: '#666', marginTop: '8px', cursor: 'pointer' }} onClick={() => setShowSizeRequestModal(true)}>Not your size? Tell us <ChevronRight size={12}/></div>
               </div>
             )}
 
