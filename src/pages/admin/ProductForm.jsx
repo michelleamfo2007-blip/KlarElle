@@ -27,7 +27,8 @@ function ProductForm() {
     composition: '',
     pattern_type: '',
     care_instructions: '',
-    style: ''
+    style: '',
+    size_guide_url: ''
   });
 
   const [sizesInput, setSizesInput] = useState('');
@@ -74,6 +75,7 @@ function ProductForm() {
         pattern_type: data.pattern_type || '',
         care_instructions: data.care_instructions || '',
         style: data.style || '',
+        size_guide_url: data.size_guide_url || '',
       });
 
       setSizesInput(Array.isArray(data.sizes) ? data.sizes.join(', ') : (data.sizes || ''));
@@ -215,6 +217,7 @@ function ProductForm() {
       pattern_type: formData.pattern_type,
       care_instructions: formData.care_instructions,
       style: formData.style,
+      size_guide_url: formData.size_guide_url,
       sizes: sizesInput.split(/[;,]+/).map(s => s.trim()).filter(Boolean),
       colors: colorsInput.split(/[;,]+/).map(c => c.trim()).filter(Boolean),
       tags: tagsInput.split(/[;,]+/).map(t => t.trim()).filter(Boolean),
@@ -595,6 +598,16 @@ function ProductForm() {
                     placeholder="e.g. Black, White, Red"
                     value={colorsInput} 
                     onChange={(e) => setColorsInput(e.target.value)} 
+                  />
+                </div>
+                <div>
+                  <label className="input-label">Size Guide Image URL</label>
+                  <input 
+                    type="text" 
+                    className="input-field" 
+                    placeholder="https://example.com/size-guide.jpg"
+                    value={formData.size_guide_url} 
+                    onChange={(e) => setFormData({...formData, size_guide_url: e.target.value})} 
                   />
                 </div>
               </div>

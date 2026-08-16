@@ -441,7 +441,13 @@ function ProductDetails() {
             </div>
             
             <div style={{ overflowY: 'auto', flex: 1, paddingBottom: '40px' }}>
-              <div style={{ padding: '16px 20px', borderBottom: '8px solid #f5f5f5' }}>
+              {product.size_guide_url ? (
+                <div style={{ padding: '20px', textAlign: 'center' }}>
+                  <img src={product.size_guide_url} alt="Size Guide" style={{ maxWidth: '100%', height: 'auto', borderRadius: '8px' }} />
+                </div>
+              ) : (
+                <>
+                  <div style={{ padding: '16px 20px', borderBottom: '8px solid #f5f5f5' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
                   <span style={{ fontWeight: 'bold', fontSize: '15px' }}>Switch to</span>
                   <div style={{ display: 'flex', gap: '12px' }}>
@@ -565,6 +571,8 @@ function ProductDetails() {
                   </div>
                 </div>
               </div>
+              </>
+            )}
 
               <div style={{ padding: '24px 20px' }}>
                 <h4 style={{ margin: '0 0 16px 0', fontSize: '16px', fontWeight: 'bold' }}>How Buyer's Reviewed The Fit</h4>
