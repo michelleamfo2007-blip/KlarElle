@@ -287,7 +287,7 @@ function Home() {
       {/* Hero Section */}
       <section className="hero-editorial">
         <div className="hero-text-container">
-          <div className="hero-presents">KlarElle Presents</div>
+          <div className="hero-presents">KlarElle</div>
           <h1 className="hero-title">Coming Soon</h1>
           
           {waitlistStatus === 'success' ? (
