@@ -185,7 +185,7 @@ function Checkout() {
           <div style={{ marginBottom: '16px' }}>
             <label style={{ display: 'block', fontSize: '12px', color: '#666', marginBottom: '4px' }}>Phone Number *</label>
             <div style={{ display: 'flex', border: '1px solid #ddd', borderRadius: '4px' }}>
-              <div style={{ padding: '12px', background: '#f9f9f9', borderRight: '1px solid #ddd', color: '#666' }}>GH +233</div>
+              <div style={{ padding: '12px', background: '#f9f9f9', borderRight: '1px solid #ddd', color: '#666' }}>US +1</div>
               <input type="tel" name="phone" value={formData.phone} onChange={handleInputChange} style={{ width: '100%', padding: '12px', border: 'none', outline: 'none' }} />
             </div>
             <div style={{ fontSize: '11px', color: '#999', marginTop: '4px' }}>Need Correct Phone Number for delivery.</div>
