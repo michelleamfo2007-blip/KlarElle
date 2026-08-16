@@ -28,7 +28,8 @@ function ProductForm() {
     pattern_type: '',
     care_instructions: '',
     style: '',
-    size_guide_url: ''
+    size_guide_url: '',
+    video_url: ''
   });
 
   const [sizesInput, setSizesInput] = useState('');
@@ -76,6 +77,7 @@ function ProductForm() {
         care_instructions: data.care_instructions || '',
         style: data.style || '',
         size_guide_url: data.size_guide_url || '',
+        video_url: data.video_url || '',
       });
 
       setSizesInput(Array.isArray(data.sizes) ? data.sizes.join(', ') : (data.sizes || ''));
@@ -163,6 +165,32 @@ function ProductForm() {
     }
   };
 
+  const processSingleFile = async (e, field) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    if (file.size > 20 * 1024 * 1024) {
+      alert(`${file.name} is too large. Max 20MB.`);
+      return;
+    }
+
+    try {
+      setUploading(true);
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${field}-${Math.random()}.${fileExt}`;
+      
+      const { error: uploadError } = await supabase.storage.from('product-images').upload(fileName, file);
+      if (uploadError) throw uploadError;
+
+      const { data } = supabase.storage.from('product-images').getPublicUrl(fileName);
+      setFormData(prev => ({ ...prev, [field]: data.publicUrl }));
+    } catch (error) {
+      alert(error.message);
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const removeImage = (index) => {
     const newImages = [...images];
     const removed = newImages.splice(index, 1)[0];
@@ -218,6 +246,7 @@ function ProductForm() {
       care_instructions: formData.care_instructions,
       style: formData.style,
       size_guide_url: formData.size_guide_url,
+      video_url: formData.video_url,
       sizes: sizesInput.split(/[;,]+/).map(s => s.trim()).filter(Boolean),
       colors: colorsInput.split(/[;,]+/).map(c => c.trim()).filter(Boolean),
       tags: tagsInput.split(/[;,]+/).map(t => t.trim()).filter(Boolean),
@@ -601,14 +630,48 @@ function ProductForm() {
                   />
                 </div>
                 <div>
-                  <label className="input-label">Size Guide Image URL</label>
-                  <input 
-                    type="text" 
-                    className="input-field" 
-                    placeholder="https://example.com/size-guide.jpg"
-                    value={formData.size_guide_url} 
-                    onChange={(e) => setFormData({...formData, size_guide_url: e.target.value})} 
-                  />
+                  <label className="input-label">Size Guide Image</label>
+                  {formData.size_guide_url ? (
+                    <div style={{ position: 'relative', display: 'inline-block', marginBottom: '8px' }}>
+                      <img src={formData.size_guide_url} alt="Size Guide" style={{ width: '100px', height: '100px', objectFit: 'cover', borderRadius: '4px', border: '1px solid #eee' }} />
+                      <button type="button" onClick={() => setFormData({...formData, size_guide_url: ''})} style={{ position: 'absolute', top: '-8px', right: '-8px', background: 'red', color: 'white', borderRadius: '50%', border: 'none', cursor: 'pointer', padding: '4px' }}><X size={12} /></button>
+                    </div>
+                  ) : (
+                    <div>
+                      <input 
+                        type="file" 
+                        accept="image/*"
+                        onChange={(e) => processSingleFile(e, 'size_guide_url')} 
+                        style={{ display: 'none' }}
+                        id="size-guide-upload"
+                      />
+                      <label htmlFor="size-guide-upload" style={{ display: 'inline-block', padding: '8px 16px', border: '1px solid #d1d5db', borderRadius: '4px', cursor: 'pointer', fontSize: '13px', background: '#f9fafb' }}>
+                        {uploading ? 'Uploading...' : 'Upload Image'}
+                      </label>
+                    </div>
+                  )}
+                </div>
+                <div>
+                  <label className="input-label">Product Video (Optional)</label>
+                  {formData.video_url ? (
+                    <div style={{ position: 'relative', display: 'inline-block', marginBottom: '8px' }}>
+                      <video src={formData.video_url} style={{ width: '100px', height: '100px', objectFit: 'cover', borderRadius: '4px', border: '1px solid #eee' }} controls />
+                      <button type="button" onClick={() => setFormData({...formData, video_url: ''})} style={{ position: 'absolute', top: '-8px', right: '-8px', background: 'red', color: 'white', borderRadius: '50%', border: 'none', cursor: 'pointer', padding: '4px' }}><X size={12} /></button>
+                    </div>
+                  ) : (
+                    <div>
+                      <input 
+                        type="file" 
+                        accept="video/mp4,video/quicktime"
+                        onChange={(e) => processSingleFile(e, 'video_url')} 
+                        style={{ display: 'none' }}
+                        id="video-upload"
+                      />
+                      <label htmlFor="video-upload" style={{ display: 'inline-block', padding: '8px 16px', border: '1px solid #d1d5db', borderRadius: '4px', cursor: 'pointer', fontSize: '13px', background: '#f9fafb' }}>
+                        {uploading ? 'Uploading...' : 'Upload Video (Max 20MB)'}
+                      </label>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

@@ -223,6 +223,18 @@ function ProductDetails() {
           `}</style>
           
           <div className="gallery-grid">
+            {product.video_url && (
+              <div className="main-image-wrap">
+                <video 
+                  src={product.video_url} 
+                  className="main-image" 
+                  autoPlay 
+                  muted 
+                  loop 
+                  playsInline 
+                />
+              </div>
+            )}
             {images.map((img, i) => (
               <div key={i} className="main-image-wrap">
                 <img src={i === 0 && previewImage ? previewImage : img} alt={`View ${i+1}`} className="main-image" />
