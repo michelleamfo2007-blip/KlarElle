@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import { Package, Search } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 function Orders() {
   const [orders, setOrders] = useState([]);
@@ -37,6 +38,15 @@ function Orders() {
   };
 
   const generateShippingLabel = async (order) => {
+    if (order.shipping_label_url) {
+      window.open(order.shipping_label_url, '_blank');
+      return;
+    }
+
+    if (!window.confirm(`Are you sure you want to purchase a shipping label for Order #${order.id.split('-')[0]}? This will charge your Shippo account.`)) {
+      return;
+    }
+
     try {
       const res = await fetch('/api/create-label', {
         method: 'POST',
@@ -44,13 +54,27 @@ function Orders() {
         body: JSON.stringify({ 
           orderId: order.id,
           name: order.customer_name,
-          destinationZip: '10001' 
+          destinationZip: '10001', // Ideally fetch from order.shipping_address
+          rateObjectId: order.shippo_rate_id 
         })
       });
       const data = await res.json();
       if (data.success) {
         alert(`Shipping Label generated successfully!\nTracking Number: ${data.trackingNumber}`);
-        updateOrderStatus(order.id, 'Shipped');
+        
+        // Save to DB
+        await supabase
+          .from('orders')
+          .update({ 
+            status: 'Shipped', 
+            tracking_number: data.trackingNumber, 
+            shipping_label_url: data.labelUrl 
+          })
+          .eq('id', order.id);
+          
+        // Optimistic UI update so it changes to "Shipped" instantly
+        setOrders(prev => prev.map(o => o.id === order.id ? { ...o, status: 'Shipped', tracking_number: data.trackingNumber, shipping_label_url: data.labelUrl } : o));
+        fetchOrders();
       } else {
         alert('Error generating label: ' + data.error);
       }
@@ -107,8 +131,10 @@ function Orders() {
               filteredOrders.map(order => (
                 <tr key={order.id} style={{ borderBottom: '1px solid #FAF9F6', color: '#111827' }}>
                   <td style={{ padding: '16px 20px' }}>
-                    <div style={{ fontWeight: '600' }}>{order.id.split('-')[0]}...</div>
-                    <div style={{ fontSize: '12px', color: '#6b7280' }}>{new Date(order.created_at).toLocaleDateString()}</div>
+                    <Link to={`/admin/orders/${order.id}`} style={{ fontWeight: '600', color: '#111827', textDecoration: 'none', display: 'block' }}>
+                      {order.id.split('-')[0]}...
+                    </Link>
+                    <div style={{ fontSize: '12px', color: '#6b7280', marginTop: '4px' }}>{new Date(order.created_at).toLocaleDateString()}</div>
                   </td>
                   <td style={{ padding: '16px 20px' }}>
                     <div style={{ fontWeight: '500' }}>{order.customer_name}</div>
@@ -145,9 +171,9 @@ function Orders() {
                   <td style={{ padding: '16px 20px' }}>
                     <button 
                       onClick={() => generateShippingLabel(order)}
-                      style={{ padding: '6px 12px', background: '#000', color: '#fff', border: 'none', borderRadius: '4px', fontSize: '12px', cursor: 'pointer' }}
+                      style={{ padding: '6px 12px', background: order.shipping_label_url ? '#16a34a' : '#000', color: '#fff', border: 'none', borderRadius: '4px', fontSize: '12px', cursor: 'pointer' }}
                     >
-                      Print Label
+                      {order.shipping_label_url ? 'Print PDF Label' : 'Buy Label'}
                     </button>
                   </td>
                 </tr>

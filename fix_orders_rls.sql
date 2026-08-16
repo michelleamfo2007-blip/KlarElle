@@ -1,20 +1,15 @@
--- Run this in your Supabase SQL Editor to allow customers to place orders
+-- Drop existing insert policies if they exist to prevent conflicts
+DROP POLICY IF EXISTS "Allow public insert to orders" ON public.orders;
+DROP POLICY IF EXISTS "Allow public insert to order_items" ON public.order_items;
 
--- 1. Enable RLS on orders and order_items (just in case they aren't enabled)
-ALTER TABLE orders ENABLE ROW LEVEL SECURITY;
-ALTER TABLE order_items ENABLE ROW LEVEL SECURITY;
+-- Re-create the policy allowing ANYONE (even non-logged-in users) to place an order
+CREATE POLICY "Allow public insert to orders" 
+ON public.orders FOR INSERT 
+TO public
+WITH CHECK (true);
 
--- 2. Create policies to allow ANYONE (including guests) to insert orders
-CREATE POLICY "Allow public insert on orders" ON orders
-    FOR INSERT WITH CHECK (true);
-
--- 3. Create policies to allow ANYONE (including guests) to insert order items
-CREATE POLICY "Allow public insert on order_items" ON order_items
-    FOR INSERT WITH CHECK (true);
-
--- 4. Ensure authenticated users (Admins) have full access
-CREATE POLICY "Allow authenticated full access to orders" ON orders
-    FOR ALL USING (auth.role() = 'authenticated');
-
-CREATE POLICY "Allow authenticated full access to order_items" ON order_items
-    FOR ALL USING (auth.role() = 'authenticated');
+-- Re-create the policy for the cart items inside that order
+CREATE POLICY "Allow public insert to order_items" 
+ON public.order_items FOR INSERT 
+TO public
+WITH CHECK (true);

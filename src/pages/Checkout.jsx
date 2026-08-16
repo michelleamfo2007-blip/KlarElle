@@ -117,7 +117,10 @@ function Checkout() {
           total_amount: finalTotal,
           status: 'Paid',
           shipping_address: `${formData.houseNo}, ${formData.city}, ${formData.region}`,
-          phone_number: formData.phone
+          phone_number: formData.phone,
+          shipping_provider: selectedRate ? selectedRate.provider : 'Standard',
+          shipping_service: selectedRate ? selectedRate.serviceLevel : 'Shipping',
+          shippo_rate_id: selectedRate ? selectedRate.objectId : null
         }])
         .select()
         .single();

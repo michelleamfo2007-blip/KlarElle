@@ -223,9 +223,11 @@ function ProductForm() {
 
     try {
       if (isEditing) {
-        await supabase.from('products').update(productData).eq('id', id);
+        const { error } = await supabase.from('products').update(productData).eq('id', id);
+        if (error) throw error;
       } else {
-        await supabase.from('products').insert([productData]);
+        const { error } = await supabase.from('products').insert([productData]);
+        if (error) throw error;
       }
       navigate('/admin/products');
     } catch (err) {

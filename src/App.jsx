@@ -17,6 +17,8 @@ import ProductList from './pages/admin/ProductList';
 import ProductForm from './pages/admin/ProductForm';
 import Coupons from './pages/admin/Coupons';
 import Orders from './pages/admin/Orders';
+import Waitlist from './pages/admin/Waitlist';
+import OrderDetails from './pages/admin/OrderDetails';
 import SuperAdminLayout from './pages/super-admin/SuperAdminLayout';
 import SuperDashboard from './pages/super-admin/SuperDashboard';
 import ManageStaff from './pages/super-admin/ManageStaff';
@@ -82,6 +84,8 @@ function App() {
               <Route path="products/edit/:id" element={<ProductForm />} />
               <Route path="coupons" element={<Coupons />} />
               <Route path="orders" element={<Orders />} />
+              <Route path="orders/:id" element={<OrderDetails />} />
+              <Route path="waitlist" element={<Waitlist />} />
             </Route>
 
             {/* Super Admin Routes */}
