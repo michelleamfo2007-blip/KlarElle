@@ -29,6 +29,8 @@ function CustomerRegister() {
     if (error) {
       setError(error.message);
     } else {
+      // Mark as checked off in waitlist
+      await supabase.from('waitlist').update({ status: 'Checked Off' }).eq('email', email);
       // Auto sign in or show success
       navigate('/');
     }

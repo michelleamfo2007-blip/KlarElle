@@ -21,7 +21,7 @@ function Waitlist() {
     setLoading(false);
   };
 
-  const updateStatus = async (id, newStatus) => {
+  const updateStatus = async (id, newStatus, email) => {
     // Optimistic UI update
     setWaitlist(prev => prev.map(w => w.id === id ? { ...w, status: newStatus } : w));
     
@@ -33,6 +33,21 @@ function Waitlist() {
     if (error) {
       alert('Failed to update status');
       fetchWaitlist();
+      return;
+    }
+
+    if (newStatus === 'Invited') {
+      try {
+        await fetch('/api/send-waitlist-invite', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email })
+        });
+        alert(`Invitation email sent to ${email}`);
+      } catch (err) {
+        console.error('Failed to send invite email:', err);
+        alert('Status updated, but failed to send the invite email.');
+      }
     }
   };
 
@@ -109,7 +124,7 @@ function Waitlist() {
                   <td style={{ padding: '16px 20px' }}>
                     <select 
                       value={user.status || 'Pending'}
-                      onChange={(e) => updateStatus(user.id, e.target.value)}
+                      onChange={(e) => updateStatus(user.id, e.target.value, user.email)}
                       style={{
                         padding: '6px 12px',
                         borderRadius: '6px',
