@@ -22,7 +22,7 @@ function SuperDashboard() {
     setLoading(true);
     
     // Fetch all orders
-    const { data: orders } = await supabase.from('orders').select('total_amount, customer_name');
+    const { data: orders } = await supabase.from('orders').select('total_amount, customer_name, status');
     
     if (orders) {
       const revenue = orders.reduce((sum, order) => sum + parseFloat(order.total_amount || 0), 0);
@@ -30,18 +30,24 @@ function SuperDashboard() {
       // Calculate unique customers
       const uniqueCustomers = new Set(orders.map(o => o.customer_name)).size;
       
-      // 1. Fetch Staff Count
-      const savedStaff = localStorage.getItem('klarelle_staff');
-      let staffCount = 1;
-      if (savedStaff) {
-        staffCount = JSON.parse(savedStaff).length;
-      }
+      // Order statuses
+      const pendingOrders = orders.filter(o => o.status === 'Pending').length;
+      const processingOrders = orders.filter(o => o.status === 'Processing').length;
+      const shippedOrders = orders.filter(o => o.status === 'Shipped').length;
+      const deliveredOrders = orders.filter(o => o.status === 'Delivered').length;
+      const cancelledOrders = orders.filter(o => o.status === 'Cancelled').length;
+      const refundedOrders = orders.filter(o => o.status === 'Refunded').length;
       
       setStats({
-        totalStaff: staffCount,
         platformRevenue: revenue,
         totalOrders: orders.length,
-        activeUsers: uniqueCustomers
+        activeUsers: uniqueCustomers,
+        pendingOrders,
+        processingOrders,
+        shippedOrders,
+        deliveredOrders,
+        cancelledOrders,
+        refundedOrders
       });
     }
     
@@ -59,37 +65,45 @@ function SuperDashboard() {
         </div>
       </div>
       {/* KPIs */}
-      <div className="kpi-grid">
+      <div className="kpi-grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))' }}>
         <div style={{ background: '#fff', padding: '24px', borderRadius: '12px', border: '1px solid #D2C4B3', boxShadow: '0 4px 15px rgba(188, 163, 143, 0.1)' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
-            <div style={{ color: '#BCA38F', fontSize: '14px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Total Staff</div>
-            <div style={{ background: 'rgba(188, 163, 143, 0.1)', padding: '8px', borderRadius: '8px', color: '#BCA38F' }}><Users size={20} /></div>
-          </div>
-          <div style={{ fontSize: '28px', fontWeight: 'bold', color: '#111827' }}>{loading ? '...' : stats.totalStaff}</div>
+          <div style={{ color: '#BCA38F', fontSize: '12px', fontWeight: '600', textTransform: 'uppercase', marginBottom: '8px' }}>Total Sales</div>
+          <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#111827' }}>{loading ? '...' : formatUSD(stats.platformRevenue)}</div>
         </div>
 
         <div style={{ background: '#fff', padding: '24px', borderRadius: '12px', border: '1px solid #D2C4B3', boxShadow: '0 4px 15px rgba(188, 163, 143, 0.1)' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
-            <div style={{ color: '#BCA38F', fontSize: '14px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Platform Revenue</div>
-            <div style={{ background: 'rgba(188, 163, 143, 0.1)', padding: '8px', borderRadius: '8px', color: '#BCA38F' }}><DollarSign size={20} /></div>
-          </div>
-          <div style={{ fontSize: '28px', fontWeight: 'bold', color: '#111827' }}>{loading ? '...' : formatUSD(stats.platformRevenue)}</div>
+          <div style={{ color: '#BCA38F', fontSize: '12px', fontWeight: '600', textTransform: 'uppercase', marginBottom: '8px' }}>Total Orders</div>
+          <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#111827' }}>{loading ? '...' : stats.totalOrders}</div>
         </div>
 
         <div style={{ background: '#fff', padding: '24px', borderRadius: '12px', border: '1px solid #D2C4B3', boxShadow: '0 4px 15px rgba(188, 163, 143, 0.1)' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
-            <div style={{ color: '#BCA38F', fontSize: '14px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Total Orders</div>
-            <div style={{ background: 'rgba(17, 24, 39, 0.05)', padding: '8px', borderRadius: '8px', color: '#111827' }}><ShoppingCart size={20} /></div>
-          </div>
-          <div style={{ fontSize: '28px', fontWeight: 'bold', color: '#111827' }}>{loading ? '...' : stats.totalOrders}</div>
+          <div style={{ color: '#BCA38F', fontSize: '12px', fontWeight: '600', textTransform: 'uppercase', marginBottom: '8px' }}>Total Customers</div>
+          <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#111827' }}>{loading ? '...' : stats.activeUsers}</div>
         </div>
 
         <div style={{ background: '#fff', padding: '24px', borderRadius: '12px', border: '1px solid #D2C4B3', boxShadow: '0 4px 15px rgba(188, 163, 143, 0.1)' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
-            <div style={{ color: '#BCA38F', fontSize: '14px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Active Users (Est)</div>
-            <div style={{ background: 'rgba(188, 163, 143, 0.1)', padding: '8px', borderRadius: '8px', color: '#BCA38F' }}><Activity size={20} /></div>
-          </div>
-          <div style={{ fontSize: '28px', fontWeight: 'bold', color: '#111827' }}>{loading ? '...' : stats.activeUsers}</div>
+          <div style={{ color: '#BCA38F', fontSize: '12px', fontWeight: '600', textTransform: 'uppercase', marginBottom: '8px' }}>Pending Orders</div>
+          <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#111827' }}>{loading ? '...' : stats.pendingOrders}</div>
+        </div>
+
+        <div style={{ background: '#fff', padding: '24px', borderRadius: '12px', border: '1px solid #D2C4B3', boxShadow: '0 4px 15px rgba(188, 163, 143, 0.1)' }}>
+          <div style={{ color: '#BCA38F', fontSize: '12px', fontWeight: '600', textTransform: 'uppercase', marginBottom: '8px' }}>Processing Orders</div>
+          <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#111827' }}>{loading ? '...' : stats.processingOrders}</div>
+        </div>
+
+        <div style={{ background: '#fff', padding: '24px', borderRadius: '12px', border: '1px solid #D2C4B3', boxShadow: '0 4px 15px rgba(188, 163, 143, 0.1)' }}>
+          <div style={{ color: '#BCA38F', fontSize: '12px', fontWeight: '600', textTransform: 'uppercase', marginBottom: '8px' }}>Shipped Orders</div>
+          <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#111827' }}>{loading ? '...' : stats.shippedOrders}</div>
+        </div>
+
+        <div style={{ background: '#fff', padding: '24px', borderRadius: '12px', border: '1px solid #D2C4B3', boxShadow: '0 4px 15px rgba(188, 163, 143, 0.1)' }}>
+          <div style={{ color: '#BCA38F', fontSize: '12px', fontWeight: '600', textTransform: 'uppercase', marginBottom: '8px' }}>Delivered Orders</div>
+          <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#111827' }}>{loading ? '...' : stats.deliveredOrders}</div>
+        </div>
+
+        <div style={{ background: '#fff', padding: '24px', borderRadius: '12px', border: '1px solid #D2C4B3', boxShadow: '0 4px 15px rgba(188, 163, 143, 0.1)' }}>
+          <div style={{ color: '#BCA38F', fontSize: '12px', fontWeight: '600', textTransform: 'uppercase', marginBottom: '8px' }}>Cancelled Orders</div>
+          <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#111827' }}>{loading ? '...' : stats.cancelledOrders}</div>
         </div>
       </div>
 

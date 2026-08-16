@@ -23,6 +23,17 @@ import SuperAdminLayout from './pages/super-admin/SuperAdminLayout';
 import SuperDashboard from './pages/super-admin/SuperDashboard';
 import ManageStaff from './pages/super-admin/ManageStaff';
 import GlobalSettings from './pages/super-admin/GlobalSettings';
+import SuperOrders from './pages/super-admin/SuperOrders';
+import SuperCustomers from './pages/super-admin/SuperCustomers';
+import SuperPayments from './pages/super-admin/SuperPayments';
+import SuperShipping from './pages/super-admin/SuperShipping';
+import SuperDiscounts from './pages/super-admin/SuperDiscounts';
+import SuperWebsite from './pages/super-admin/SuperWebsite';
+import SuperReviews from './pages/super-admin/SuperReviews';
+import SuperSupport from './pages/super-admin/SuperSupport';
+import SuperReports from './pages/super-admin/SuperReports';
+import SuperNotifications from './pages/super-admin/SuperNotifications';
+import SuperActivity from './pages/super-admin/SuperActivity';
 import CustomerLogin from './pages/CustomerLogin';
 import CustomerRegister from './pages/CustomerRegister';
 import Checkout from './pages/Checkout';
@@ -91,6 +102,18 @@ function App() {
             {/* Super Admin Routes */}
             <Route path="/super-admin" element={<SuperAdminLayout />}>
               <Route index element={<SuperDashboard />} />
+              <Route path="orders" element={<Orders />} />
+              <Route path="orders/:id" element={<OrderDetails />} />
+              <Route path="customers" element={<SuperCustomers />} />
+              <Route path="payments" element={<SuperPayments />} />
+              <Route path="shipping" element={<SuperShipping />} />
+              <Route path="discounts" element={<Coupons />} />
+              <Route path="website" element={<SuperWebsite />} />
+              <Route path="reviews" element={<SuperReviews />} />
+              <Route path="support" element={<SuperSupport />} />
+              <Route path="reports" element={<SuperReports />} />
+              <Route path="notifications" element={<SuperNotifications />} />
+              <Route path="activity" element={<SuperActivity />} />
               <Route path="staff" element={<ManageStaff />} />
               <Route path="settings" element={<GlobalSettings />} />
             </Route>
