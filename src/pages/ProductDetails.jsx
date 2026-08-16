@@ -399,8 +399,7 @@ function ProductDetails() {
             {/* Matching Styles */}
             <div className="section-divider" ref={recommendRef}>
                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                 <div className="pd-options-title" style={{ fontSize: '16px', margin: 0 }}>Matching Styles</div>
-                 <div style={{ fontSize: '11px', color: '#c92a2a', background: '#fff5f5', padding: '4px 10px', borderRadius: '12px', fontWeight: 'bold' }}>You May Love, More Style</div>
+                 <div className="pd-options-title" style={{ fontSize: '16px', margin: 0 }}>You Might Also Like</div>
                </div>
                
                <div style={{ display: 'flex', gap: '12px', overflowX: 'auto', paddingBottom: '16px' }}>
