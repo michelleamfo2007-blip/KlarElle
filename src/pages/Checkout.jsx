@@ -76,12 +76,25 @@ function Checkout() {
       .single();
 
     if (error || !data) {
-      setCouponMessage({ text: "Invalid or expired coupon code", type: "error" });
+      setCouponMessage({ text: "Invalid coupon code", type: "error" });
       setAppliedCoupon(null);
-    } else {
-      setAppliedCoupon(data);
-      setCouponMessage({ text: `Success! ${data.discount_percent}% off applied`, type: "success" });
+      return;
     }
+
+    if (data.expires_at && new Date(data.expires_at) < new Date()) {
+      setCouponMessage({ text: "This coupon has expired", type: "error" });
+      setAppliedCoupon(null);
+      return;
+    }
+
+    if (data.usage_limit && data.times_used >= data.usage_limit) {
+      setCouponMessage({ text: "This coupon has reached its usage limit", type: "error" });
+      setAppliedCoupon(null);
+      return;
+    }
+
+    setAppliedCoupon(data);
+    setCouponMessage({ text: `Success! ${data.discount_percent}% off applied`, type: "success" });
   };
 
   useEffect(() => {
@@ -139,6 +152,10 @@ function Checkout() {
 
       const { error: itemsError } = await supabase.from('order_items').insert(orderItems);
       if (itemsError) throw itemsError;
+
+      if (appliedCoupon) {
+        await supabase.rpc('increment_coupon_usage', { coupon_id: appliedCoupon.id });
+      }
 
       clearCart();
       navigate('/order-success');
