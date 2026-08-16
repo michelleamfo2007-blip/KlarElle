@@ -29,7 +29,7 @@ export default async function handler(req, res) {
       transaction = {
         status: 'SUCCESS',
         trackingNumber: 'SHIPPO_' + Math.floor(Math.random() * 1000000000),
-        labelUrl: 'https://shippo-delivery-mock-label.pdf'
+        labelUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf'
       };
     }
 
