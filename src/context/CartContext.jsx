@@ -1,4 +1,5 @@
 import React, { createContext, useState, useContext } from 'react';
+import { useAuth } from './AuthContext';
 
 const CartContext = createContext();
 
@@ -6,8 +7,14 @@ export const useCart = () => useContext(CartContext);
 
 export const CartProvider = ({ children }) => {
   const [cartItems, setCartItems] = useState([]); // Removed mock data
+  const { session } = useAuth();
 
   const addToCart = (product, selectedSize = null, selectedColor = null) => {
+    if (!session?.user) {
+      alert("Please sign in or create an account to add items to your cart.");
+      window.location.href = '/login';
+      return;
+    }
     setCartItems(prev => {
       const cartItemId = `${product.id}-${selectedSize || 'default'}-${selectedColor || 'default'}`;
       const existing = prev.find(item => item.cartItemId === cartItemId);
