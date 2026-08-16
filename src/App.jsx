@@ -96,7 +96,14 @@ function App() {
               <Route path="coupons" element={<Coupons />} />
               <Route path="orders" element={<Orders />} />
               <Route path="orders/:id" element={<OrderDetails />} />
+              <Route path="customers" element={<SuperCustomers />} />
+              <Route path="payments" element={<SuperPayments />} />
+              <Route path="shipping" element={<SuperShipping />} />
               <Route path="waitlist" element={<Waitlist />} />
+              <Route path="reviews" element={<SuperReviews />} />
+              <Route path="support" element={<SuperSupport />} />
+              <Route path="reports" element={<SuperReports />} />
+              <Route path="notifications" element={<SuperNotifications />} />
             </Route>
 
             {/* Super Admin Routes */}

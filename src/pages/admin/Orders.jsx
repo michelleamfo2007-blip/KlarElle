@@ -143,30 +143,36 @@ function Orders() {
                     {formatUSD(order.total_amount)}
                   </td>
                   <td style={{ padding: '16px 20px' }}>
-                    <select 
-                      value={order.status}
-                      onChange={(e) => updateOrderStatus(order.id, e.target.value)}
-                      style={{
-                        padding: '4px 8px',
-                        borderRadius: '100px',
-                        fontSize: '12px',
-                        fontWeight: '600',
-                        border: '1px solid #d1d5db',
-                        background: order.status === 'Delivered' ? '#dcfce7' : 
-                                    order.status === 'Processing' ? '#dbeafe' : 
-                                    order.status === 'Shipped' ? '#fef9c3' : '#fee2e2',
-                        color: order.status === 'Delivered' ? '#166534' : 
-                               order.status === 'Processing' ? '#1e40af' : 
-                               order.status === 'Shipped' ? '#854d0e' : '#991b1b',
-                        outline: 'none',
-                        cursor: 'pointer'
-                      }}
-                    >
-                      <option value="Pending">Pending</option>
-                      <option value="Processing">Processing</option>
-                      <option value="Shipped">Shipped</option>
-                      <option value="Delivered">Delivered</option>
-                    </select>
+                        <select 
+                          value={order.status}
+                          onChange={(e) => updateOrderStatus(order.id, e.target.value)}
+                          style={{
+                            padding: '4px 8px',
+                            borderRadius: '100px',
+                            fontSize: '12px',
+                            fontWeight: '600',
+                            border: '1px solid #d1d5db',
+                            background: order.status === 'Delivered' ? '#dcfce7' : 
+                                        order.status === 'Processing' ? '#dbeafe' : 
+                                        order.status === 'Shipped' ? '#fef9c3' : 
+                                        order.status === 'Cancelled' ? '#f3f4f6' : 
+                                        order.status === 'Refunded' ? '#fce7f3' : '#fee2e2',
+                            color: order.status === 'Delivered' ? '#166534' : 
+                                   order.status === 'Processing' ? '#1e40af' : 
+                                   order.status === 'Shipped' ? '#854d0e' : 
+                                   order.status === 'Cancelled' ? '#4b5563' : 
+                                   order.status === 'Refunded' ? '#be185d' : '#991b1b',
+                            outline: 'none',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          <option value="Pending">Pending</option>
+                          <option value="Processing">Processing</option>
+                          <option value="Shipped">Shipped</option>
+                          <option value="Delivered">Delivered</option>
+                          <option value="Cancelled">Cancelled</option>
+                          <option value="Refunded">Refunded</option>
+                        </select>
                   </td>
                   <td style={{ padding: '16px 20px' }}>
                     <button 

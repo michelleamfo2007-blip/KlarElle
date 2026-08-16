@@ -60,8 +60,16 @@ function OrderDetails() {
             <h1 style={{ fontSize: '24px', fontWeight: 'bold', margin: 0 }}>Order #{order.id.split('-')[0]}</h1>
             <span style={{ 
               padding: '4px 12px', borderRadius: '100px', fontSize: '12px', fontWeight: '600',
-              background: order.status === 'Delivered' ? '#dcfce7' : order.status === 'Processing' ? '#dbeafe' : order.status === 'Shipped' ? '#fef9c3' : '#fee2e2',
-              color: order.status === 'Delivered' ? '#166534' : order.status === 'Processing' ? '#1e40af' : order.status === 'Shipped' ? '#854d0e' : '#991b1b',
+              background: order.status === 'Delivered' ? '#dcfce7' : 
+                          order.status === 'Processing' ? '#dbeafe' : 
+                          order.status === 'Shipped' ? '#fef9c3' : 
+                          order.status === 'Cancelled' ? '#f3f4f6' : 
+                          order.status === 'Refunded' ? '#fce7f3' : '#fee2e2',
+              color: order.status === 'Delivered' ? '#166534' : 
+                     order.status === 'Processing' ? '#1e40af' : 
+                     order.status === 'Shipped' ? '#854d0e' : 
+                     order.status === 'Cancelled' ? '#4b5563' : 
+                     order.status === 'Refunded' ? '#be185d' : '#991b1b',
             }}>
               {order.status}
             </span>

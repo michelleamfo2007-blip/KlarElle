@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import { useOutletContext, Link } from 'react-router-dom';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { DollarSign, ShoppingBag, Package, AlertTriangle, TrendingUp, Clock, CheckCircle, Truck, PackageCheck, ArrowRight } from 'lucide-react';
+import { DollarSign, ShoppingBag, Package, AlertTriangle, TrendingUp, Clock, CheckCircle, Truck, PackageCheck, ArrowRight, XCircle, RefreshCcw } from 'lucide-react';
 
 function Dashboard() {
   const [totalProducts, setTotalProducts] = useState(0);
@@ -11,7 +11,7 @@ function Dashboard() {
   // Real Data States
   const [totalRevenue, setTotalRevenue] = useState(0);
   const [totalOrders, setTotalOrders] = useState(0);
-  const [orderSummary, setOrderSummary] = useState({ Pending: 0, Processing: 0, Shipped: 0, Delivered: 0 });
+  const [orderSummary, setOrderSummary] = useState({ Pending: 0, Processing: 0, Shipped: 0, Delivered: 0, Cancelled: 0, Refunded: 0 });
   const [recentOrders, setRecentOrders] = useState([]);
   const [allFetchedOrders, setAllFetchedOrders] = useState([]);
   const [showAllOrders, setShowAllOrders] = useState(false);
@@ -45,7 +45,7 @@ function Dashboard() {
       setTotalOrders(orders.length);
       
       let revenue = 0;
-      let summary = { Pending: 0, Processing: 0, Shipped: 0, Delivered: 0 };
+      let summary = { Pending: 0, Processing: 0, Shipped: 0, Delivered: 0, Cancelled: 0, Refunded: 0 };
       
       // Calculate revenue & summary
       orders.forEach(o => {
@@ -308,6 +308,22 @@ function Dashboard() {
               </div>
               <div style={{ fontSize: '18px', fontWeight: 'bold' }}>{orderSummary.Delivered}</div>
             </div>
+            <div className="order-summary-item">
+              <div className="order-icon-wrap" style={{ background: '#f3f4f6', color: '#4b5563' }}><XCircle size={18} /></div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: '14px', fontWeight: '600' }}>Cancelled</div>
+                <div style={{ fontSize: '12px', color: '#6b7280' }}>Order was cancelled</div>
+              </div>
+              <div style={{ fontSize: '18px', fontWeight: 'bold' }}>{orderSummary.Cancelled}</div>
+            </div>
+            <div className="order-summary-item">
+              <div className="order-icon-wrap" style={{ background: '#fce7f3', color: '#be185d' }}><RefreshCcw size={18} /></div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: '14px', fontWeight: '600' }}>Refunded</div>
+                <div style={{ fontSize: '12px', color: '#6b7280' }}>Payment refunded</div>
+              </div>
+              <div style={{ fontSize: '18px', fontWeight: 'bold' }}>{orderSummary.Refunded}</div>
+            </div>
           </div>
           <div style={{ padding: '16px 20px', borderTop: '1px solid #e5e7eb', background: '#fafafa' }}>
             <Link to="/admin/orders" style={{ width: '100%', padding: '8px', background: '#fff', border: '1px solid #d1d5db', borderRadius: '6px', fontSize: '14px', fontWeight: '500', cursor: 'pointer', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', textDecoration: 'none', color: '#111827' }}>
@@ -365,10 +381,14 @@ function Dashboard() {
                             border: '1px solid #d1d5db',
                             background: order.status === 'Delivered' ? '#dcfce7' : 
                                         order.status === 'Processing' ? '#dbeafe' : 
-                                        order.status === 'Shipped' ? '#fef9c3' : '#fee2e2',
+                                        order.status === 'Shipped' ? '#fef9c3' : 
+                                        order.status === 'Cancelled' ? '#f3f4f6' : 
+                                        order.status === 'Refunded' ? '#fce7f3' : '#fee2e2',
                             color: order.status === 'Delivered' ? '#166534' : 
                                    order.status === 'Processing' ? '#1e40af' : 
-                                   order.status === 'Shipped' ? '#854d0e' : '#991b1b',
+                                   order.status === 'Shipped' ? '#854d0e' : 
+                                   order.status === 'Cancelled' ? '#4b5563' : 
+                                   order.status === 'Refunded' ? '#be185d' : '#991b1b',
                             outline: 'none',
                             cursor: 'pointer'
                           }}
@@ -377,6 +397,8 @@ function Dashboard() {
                           <option value="Processing">Processing</option>
                           <option value="Shipped">Shipped</option>
                           <option value="Delivered">Delivered</option>
+                          <option value="Cancelled">Cancelled</option>
+                          <option value="Refunded">Refunded</option>
                         </select>
                       </td>
                     </tr>
