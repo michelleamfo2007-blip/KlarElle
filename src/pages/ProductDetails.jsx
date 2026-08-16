@@ -250,10 +250,10 @@ function ProductDetails() {
 
           <div className="info-section">
             <div ref={goodsRef}>
+              <h1 className="pd-title" style={{ fontSize: '16px' }}>{product.name}</h1>
               <div className="pd-price-row">
                 <span className="pd-price" style={{ color: '#000' }}>{formatPrice(product.price)}</span>
               </div>
-              <h1 className="pd-title" style={{ fontSize: '16px' }}>{product.name}</h1>
             </div>
 
             {/* Colors */}
