@@ -187,8 +187,8 @@ function ProductDetails() {
             
             .gallery-grid { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 0; scrollbar-width: none; -ms-overflow-style: none; }
             .gallery-grid::-webkit-scrollbar { display: none; }
-            .main-image-wrap { background: #f4f4f4; position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden; flex: 0 0 100%; scroll-snap-align: start; }
-            .main-image { width: 100%; height: auto; display: block; object-fit: contain; }
+            .main-image-wrap { background: #f4f4f4; position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden; flex: 0 0 100%; scroll-snap-align: start; max-height: 60vh; aspect-ratio: 4/5; }
+            .main-image { width: 100%; height: 100%; display: block; object-fit: cover; }
             
             .info-section { display: flex; flex-direction: column; gap: 0; }
             .pd-title { font-size: 24px; font-weight: 400; margin: 0 0 12px 0; line-height: 1.3; }
@@ -224,6 +224,16 @@ function ProductDetails() {
           `}</style>
           
           <div className="gallery-grid">
+            {images.map((img, i) => (
+              <div key={i} className="main-image-wrap">
+                <img src={i === 0 && previewImage ? previewImage : img} alt={`View ${i+1}`} className="main-image" />
+                {i === 0 && product.old_price && parseFloat(product.old_price) > parseFloat(product.price) && (
+                  <div style={{ position: 'absolute', top: 16, right: 16, background: '#000', color: 'white', padding: '4px 8px', fontSize: '14px', fontWeight: 'bold' }}>
+                    -{Math.round(((product.old_price - product.price) / product.old_price) * 100)}%
+                  </div>
+                )}
+              </div>
+            ))}
             {product.video_url && (
               <div className="main-image-wrap">
                 <video 
@@ -236,16 +246,6 @@ function ProductDetails() {
                 />
               </div>
             )}
-            {images.map((img, i) => (
-              <div key={i} className="main-image-wrap">
-                <img src={i === 0 && previewImage ? previewImage : img} alt={`View ${i+1}`} className="main-image" />
-                {i === 0 && product.old_price && parseFloat(product.old_price) > parseFloat(product.price) && (
-                  <div style={{ position: 'absolute', top: 16, right: 16, background: '#000', color: 'white', padding: '4px 8px', fontSize: '14px', fontWeight: 'bold' }}>
-                    -{Math.round(((product.old_price - product.price) / product.old_price) * 100)}%
-                  </div>
-                )}
-              </div>
-            ))}
           </div>
 
           <div className="info-section">
