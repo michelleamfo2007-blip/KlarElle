@@ -93,10 +93,6 @@ function SuperDashboard() {
         </div>
       </div>
 
-      <div style={{ background: '#fff', borderRadius: '8px', border: '1px solid #e5e7eb', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', padding: '24px' }}>
-        <h3 style={{ margin: '0 0 20px 0', fontSize: '18px' }}>Recent Tenant Activity</h3>
-        <p style={{ color: '#6b7280' }}>Platform activity charts and tables will go here once more tenants join.</p>
-      </div>
     </div>
   );
 }
