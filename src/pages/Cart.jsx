@@ -2,14 +2,18 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
+import { useCurrency } from '../context/CurrencyContext';
 import { Trash2, Minus, Plus, ShieldCheck } from 'lucide-react';
 import './Cart.css';
 
 function Cart() {
   const { cartItems, removeFromCart, updateQuantity, cartTotal } = useCart();
   const { session } = useAuth();
+  const { formatPrice } = useCurrency();
   
-  const shipping = cartTotal >= 1515.15 ? 0 : 176.43;
+  const shippingThreshold = 100;
+  const baseShippingFee = 15.00;
+  const shipping = cartTotal >= shippingThreshold ? 0 : baseShippingFee;
   const finalTotal = cartTotal + shipping;
 
   if (cartItems.length === 0) {
@@ -33,7 +37,7 @@ function Cart() {
             {shipping === 0 ? (
               <span><strong>Congratulations!</strong> You get free standard shipping.</span>
             ) : (
-              <span>Add <strong>${(49 - cartTotal).toFixed(2)}</strong> more to get free standard shipping!</span>
+              <span>Add <strong>{formatPrice(shippingThreshold - cartTotal)}</strong> more to get free standard shipping!</span>
             )}
           </div>
           
@@ -48,7 +52,7 @@ function Cart() {
                     {item.selectedColor && item.selectedSize && ' | '}
                     {item.selectedSize && `Size: ${item.selectedSize}`}
                   </div>
-                  <div className="cart-item-price">₵{parseFloat(item.price || 0).toFixed(2)}</div>
+                  <div className="cart-item-price">{formatPrice(item.price || 0)}</div>
                   
                   <div className="cart-item-actions">
                     <div className="quantity-selector">
@@ -71,18 +75,18 @@ function Cart() {
             <h3>Order Summary</h3>
             <div className="summary-row">
               <span>Retail Price</span>
-              <span>₵{cartTotal.toFixed(2)}</span>
+              <span>{formatPrice(cartTotal)}</span>
             </div>
             <div className="summary-row">
               <span>Standard Shipping</span>
-              <span>{shipping === 0 ? 'Free' : `₵${shipping.toFixed(2)}`}</span>
+              <span>{shipping === 0 ? 'Free' : formatPrice(shipping)}</span>
             </div>
             
             <div className="summary-divider"></div>
             
             <div className="summary-row total">
               <span>Total</span>
-              <span>₵{(finalTotal).toFixed(2)}</span>
+              <span>{formatPrice(finalTotal)}</span>
             </div>
             
             <Link to="/checkout" className="btn btn-primary checkout-btn" style={{ display: 'block', textAlign: 'center', textDecoration: 'none' }}>CHECKOUT</Link>
