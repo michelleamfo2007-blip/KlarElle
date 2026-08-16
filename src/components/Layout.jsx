@@ -127,7 +127,7 @@ function Layout() {
             </div>
           </div>
           <div style={{ color: '#666' }}>
-            {t('Free shipping on orders over')} {formatPrice(1515.15)}
+            {t('Free shipping on orders over')} {formatPrice(100)}
           </div>
         </div>
       </div>
