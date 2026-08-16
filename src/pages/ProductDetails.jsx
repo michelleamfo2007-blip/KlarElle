@@ -250,12 +250,6 @@ function ProductDetails() {
 
           <div className="info-section">
             <div ref={goodsRef}>
-              <div style={{ display: 'flex', gap: '24px', borderBottom: '1px solid #eee', marginBottom: '16px', paddingBottom: '12px', fontSize: '14px', fontWeight: 'bold', position: 'sticky', top: '0px', background: '#fff', zIndex: 10 }}>
-                <span style={{ borderBottom: '2px solid #000', paddingBottom: '12px', marginBottom: '-13px', cursor: 'pointer' }} onClick={() => scrollToSection(goodsRef)}>Goods</span>
-                <span style={{ color: '#666', cursor: 'pointer' }} onClick={() => scrollToSection(reviewsRef)}>Reviews</span>
-                <span style={{ color: '#666', cursor: 'pointer' }} onClick={() => scrollToSection(recommendRef)}>Recommend</span>
-              </div>
-              
               <div className="pd-price-row">
                 <span className="pd-price" style={{ color: '#000' }}>{formatPrice(product.price)}</span>
               </div>
@@ -315,6 +309,12 @@ function ProductDetails() {
               </div>
             </div>
 
+            {/* Sticky Navigation Tabs */}
+            <div style={{ display: 'flex', gap: '24px', borderBottom: '1px solid #eee', marginTop: '24px', marginBottom: '16px', paddingBottom: '12px', fontSize: '14px', fontWeight: 'bold', position: 'sticky', top: '0px', background: '#fff', zIndex: 10 }}>
+              <span style={{ borderBottom: '2px solid #000', paddingBottom: '12px', marginBottom: '-13px', cursor: 'pointer' }} onClick={() => scrollToSection(goodsRef)}>Goods</span>
+              <span style={{ color: '#666', cursor: 'pointer' }} onClick={() => scrollToSection(reviewsRef)}>Reviews</span>
+              <span style={{ color: '#666', cursor: 'pointer' }} onClick={() => scrollToSection(recommendRef)}>Recommend</span>
+            </div>
 
             {/* Reviews Section */}
             <div className="section-divider" ref={reviewsRef}>
