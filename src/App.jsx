@@ -116,6 +116,7 @@ function App() {
               <Route path="payments" element={<SuperPayments />} />
               <Route path="shipping" element={<SuperShipping />} />
               <Route path="discounts" element={<Coupons />} />
+              <Route path="waitlist" element={<Waitlist />} />
               <Route path="website" element={<SuperWebsite />} />
               <Route path="reviews" element={<SuperReviews />} />
               <Route path="support" element={<SuperSupport />} />
