@@ -56,27 +56,27 @@ function SuperReviews() {
 
   return (
     <div style={{ maxWidth: '1200px', margin: '0 auto', fontFamily: 'Inter, sans-serif', color: '#111827' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '24px' }}>
+      <div className="admin-header-flex" style={{ marginBottom: '24px' }}>
         <div>
           <h1 style={{ fontSize: '24px', fontWeight: 'bold', margin: '0 0 4px 0' }}>Customer Reviews</h1>
           <p style={{ color: '#6b7280', margin: 0, fontSize: '14px' }}>Moderate and manage product reviews.</p>
         </div>
         
-        <div style={{ display: 'flex', gap: '16px' }}>
-          <div style={{ position: 'relative' }}>
+        <div className="flex-column-mobile" style={{ gap: '16px' }}>
+          <div style={{ position: 'relative', flex: 1 }}>
             <Search size={18} color="#9ca3af" style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)' }} />
             <input 
               type="text" 
               placeholder="Search reviews..." 
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              style={{ padding: '8px 12px 8px 36px', border: '1px solid #d1d5db', borderRadius: '6px', fontSize: '14px', outline: 'none', width: '250px' }}
+              style={{ padding: '8px 12px 8px 36px', border: '1px solid #d1d5db', borderRadius: '6px', fontSize: '14px', outline: 'none', width: '100%', boxSizing: 'border-box' }}
             />
           </div>
           <select 
             value={filterStatus}
             onChange={e => setFilterStatus(e.target.value)}
-            style={{ padding: '8px 12px', border: '1px solid #d1d5db', borderRadius: '6px', fontSize: '14px', outline: 'none', background: '#fff' }}
+            style={{ padding: '8px 12px', border: '1px solid #d1d5db', borderRadius: '6px', fontSize: '14px', outline: 'none', background: '#fff', width: '100%', boxSizing: 'border-box' }}
           >
             <option value="All">All Statuses</option>
             <option value="Pending">Pending</option>
