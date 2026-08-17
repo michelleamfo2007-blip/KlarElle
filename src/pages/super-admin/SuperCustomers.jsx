@@ -66,7 +66,7 @@ function SuperCustomers() {
       </div>
 
       <div style={{ background: '#fff', borderRadius: '8px', border: '1px solid #e5e7eb', padding: '20px', marginBottom: '24px' }}>
-        <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+        <div className="flex-column-mobile" style={{ gap: '16px', alignItems: 'center' }}>
           <div style={{ position: 'relative', flex: 1, maxWidth: '400px' }}>
             <Search size={18} color="#9ca3af" style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)' }} />
             <input 
@@ -74,7 +74,7 @@ function SuperCustomers() {
               placeholder="Search customers by name or email..." 
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              style={{ width: '100%', padding: '10px 12px 10px 36px', border: '1px solid #d1d5db', borderRadius: '6px', outline: 'none' }}
+              style={{ width: '100%', padding: '10px 12px 10px 36px', border: '1px solid #d1d5db', borderRadius: '6px', outline: 'none', boxSizing: 'border-box' }}
             />
           </div>
           <div style={{ color: '#6b7280', fontSize: '14px' }}>
@@ -83,7 +83,7 @@ function SuperCustomers() {
         </div>
       </div>
 
-      <div className="table-responsive-wrapper" style={{ background: '#fff', borderRadius: '8px', border: '1px solid #e5e7eb', overflow: 'hidden' }}>
+      <div className="table-responsive-wrapper" style={{ background: '#fff', borderRadius: '8px', border: '1px solid #e5e7eb' }}>
         <table className="admin-table" style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
           <thead style={{ background: '#f9fafb', borderBottom: '1px solid #e5e7eb' }}>
             <tr>
