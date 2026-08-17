@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Save, Image as ImageIcon, Layout, Type, Bell } from 'lucide-react';
+import { supabase } from '../../lib/supabase';
 
 function SuperWebsite() {
   const [formData, setFormData] = useState({
@@ -10,22 +11,59 @@ function SuperWebsite() {
     aboutText: 'KlarElle is a premium brand dedicated to bringing you the finest clothing and accessories.'
   });
   const [isSaving, setIsSaving] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [toast, setToast] = useState('');
+
+  useEffect(() => {
+    fetchContent();
+  }, []);
+
+  const fetchContent = async () => {
+    setIsLoading(true);
+    const { data, error } = await supabase.from('website_content').select('*').eq('id', 1).single();
+    if (data && !error) {
+      setFormData({
+        announcementText: data.announcement_text || '',
+        heroTitle: data.hero_title || '',
+        heroSubtitle: data.hero_subtitle || '',
+        featuredCollection: data.featured_collection || '',
+        aboutText: data.about_text || ''
+      });
+    }
+    setIsLoading(false);
+  };
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSave = (e) => {
+  const handleSave = async (e) => {
     e.preventDefault();
     setIsSaving(true);
-    // Simulate API call to save website content
-    setTimeout(() => {
-      setIsSaving(false);
+    
+    const { error } = await supabase.from('website_content').update({
+      announcement_text: formData.announcementText,
+      hero_title: formData.heroTitle,
+      hero_subtitle: formData.heroSubtitle,
+      featured_collection: formData.featuredCollection,
+      about_text: formData.aboutText,
+      updated_at: new Date().toISOString()
+    }).eq('id', 1);
+
+    setIsSaving(false);
+    
+    if (error) {
+      setToast('Error saving content: ' + error.message);
+    } else {
       setToast('Website content saved successfully!');
-      setTimeout(() => setToast(''), 3000);
-    }, 1000);
+    }
+    
+    setTimeout(() => setToast(''), 3000);
   };
+
+  if (isLoading) {
+    return <div style={{ padding: '40px', textAlign: 'center', color: '#6b7280' }}>Loading content...</div>;
+  }
 
   return (
     <div style={{ maxWidth: '800px', margin: '0 auto', fontFamily: 'Inter, sans-serif', color: '#111827' }}>
@@ -72,8 +110,8 @@ function SuperWebsite() {
             <h2 style={{ fontSize: '18px', fontWeight: '600', margin: '0 0 4px 0' }}>Homepage Hero Section</h2>
           </div>
           
-          <div className="flex-column-mobile" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', marginBottom: '24px' }}>
-            <div>
+          <div className="flex-column-mobile" style={{ display: 'flex', gap: '24px', marginBottom: '24px' }}>
+            <div style={{ flex: 1 }}>
               <label style={{ display: 'block', fontSize: '13px', fontWeight: '500', color: '#374151', marginBottom: '8px' }}>Hero Title</label>
               <input 
                 type="text" 
@@ -83,7 +121,7 @@ function SuperWebsite() {
                 style={{ width: '100%', padding: '12px', border: '1px solid #d1d5db', borderRadius: '8px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }}
               />
             </div>
-            <div>
+            <div style={{ flex: 1 }}>
               <label style={{ display: 'block', fontSize: '13px', fontWeight: '500', color: '#374151', marginBottom: '8px' }}>Featured Collection Name</label>
               <input 
                 type="text" 
