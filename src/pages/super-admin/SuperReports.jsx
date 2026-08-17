@@ -114,7 +114,7 @@ function SuperReports() {
 
   return (
     <div style={{ maxWidth: '1200px', margin: '0 auto', fontFamily: 'Inter, sans-serif', color: '#111827' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+      <div className="admin-header-flex">
         <div>
           <h1 style={{ fontSize: '24px', fontWeight: 'bold', margin: '0 0 4px 0' }}>Reports & Analytics</h1>
           <p style={{ color: '#6b7280', margin: 0, fontSize: '14px' }}>Gain insights into your store's performance.</p>
@@ -172,7 +172,7 @@ function SuperReports() {
       </div>
 
       {/* Charts Grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '20px', marginBottom: '40px' }}>
+      <div className="order-details-grid" style={{ marginBottom: '40px' }}>
         
         {/* Revenue Chart */}
         <div style={{ background: '#fff', borderRadius: '8px', border: '1px solid #e5e7eb', padding: '24px' }}>

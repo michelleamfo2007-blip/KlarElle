@@ -37,7 +37,7 @@ function SuperNotifications() {
 
   return (
     <div style={{ maxWidth: '1000px', margin: '0 auto', fontFamily: 'Inter, sans-serif', color: '#111827' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+      <div className="admin-header-flex">
         <div>
           <h1 style={{ fontSize: '24px', fontWeight: 'bold', margin: '0 0 4px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Bell size={24} /> System Alerts
@@ -69,7 +69,7 @@ function SuperNotifications() {
               </div>
               <div style={{ padding: '0 24px' }}>
                 {lowStockProducts.map((product, index) => (
-                  <div key={product.id} style={{ padding: '16px 0', borderBottom: index < lowStockProducts.length - 1 ? '1px solid #f3f4f6' : 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div key={product.id} className="flex-column-mobile" style={{ padding: '16px 0', borderBottom: index < lowStockProducts.length - 1 ? '1px solid #f3f4f6' : 'none', justifyContent: 'space-between', alignItems: 'flex-start', gap: '12px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                       <div style={{ background: '#f3f4f6', padding: '8px', borderRadius: '6px' }}><Package size={16} color="#4b5563" /></div>
                       <div>
@@ -95,7 +95,7 @@ function SuperNotifications() {
               </div>
               <div style={{ padding: '0 24px' }}>
                 {urgentTickets.map((ticket, index) => (
-                  <div key={ticket.id} style={{ padding: '16px 0', borderBottom: index < urgentTickets.length - 1 ? '1px solid #f3f4f6' : 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div key={ticket.id} className="flex-column-mobile" style={{ padding: '16px 0', borderBottom: index < urgentTickets.length - 1 ? '1px solid #f3f4f6' : 'none', justifyContent: 'space-between', alignItems: 'flex-start', gap: '12px' }}>
                     <div>
                       <div style={{ fontWeight: '600', fontSize: '14px' }}>{ticket.subject}</div>
                       <div style={{ fontSize: '13px', color: '#6b7280' }}>From {ticket.customer_name} • {new Date(ticket.created_at).toLocaleString()}</div>
@@ -118,7 +118,7 @@ function SuperNotifications() {
               </div>
               <div style={{ padding: '0 24px' }}>
                 {pendingWaitlist.slice(0, 5).map((user, index) => (
-                  <div key={user.id} style={{ padding: '16px 0', borderBottom: index < Math.min(pendingWaitlist.length, 5) - 1 ? '1px solid #f3f4f6' : 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div key={user.id} className="flex-column-mobile" style={{ padding: '16px 0', borderBottom: index < Math.min(pendingWaitlist.length, 5) - 1 ? '1px solid #f3f4f6' : 'none', justifyContent: 'space-between', alignItems: 'flex-start', gap: '12px' }}>
                     <div>
                       <div style={{ fontWeight: '600', fontSize: '14px' }}>{user.email}</div>
                       <div style={{ fontSize: '13px', color: '#6b7280' }}>Waiting since {new Date(user.created_at).toLocaleDateString()}</div>
