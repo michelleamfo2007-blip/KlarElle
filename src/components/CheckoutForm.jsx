@@ -6,7 +6,7 @@ import {
 } from "@stripe/react-stripe-js";
 import { Loader2, Lock } from 'lucide-react';
 
-export default function CheckoutForm({ amount, onSuccess, onFail }) {
+export default function CheckoutForm({ amount, formattedAmount, onSuccess, onFail }) {
   const stripe = useStripe();
   const elements = useElements();
 
@@ -65,7 +65,7 @@ export default function CheckoutForm({ amount, onSuccess, onFail }) {
         }}
       >
         {isLoading ? <Loader2 size={20} className="spin" /> : <Lock size={18} />}
-        PAY ₵{parseFloat(amount).toFixed(2)}
+        PAY {formattedAmount || `₵${parseFloat(amount).toFixed(2)}`}
       </button>
       
       <p style={{ textAlign: 'center', color: '#6b7280', fontSize: '12px', marginTop: '16px' }}>

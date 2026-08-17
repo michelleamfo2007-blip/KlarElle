@@ -15,7 +15,7 @@ function Checkout() {
   const navigate = useNavigate();
   const { cartItems, cartTotal, clearCart } = useCart();
   const { session } = useAuth();
-  const { formatPrice } = useCurrency();
+  const { currency, EXCHANGE_RATES, formatPrice } = useCurrency();
   
   const [clientSecret, setClientSecret] = useState("");
   const [couponInput, setCouponInput] = useState("");
@@ -99,16 +99,20 @@ function Checkout() {
 
   useEffect(() => {
     if (finalTotal > 0) {
-      fetch("http://localhost:4242/create-payment-intent", {
+      const activeCurrency = currency || 'USD';
+      const rate = EXCHANGE_RATES[activeCurrency]?.rate || 1;
+      const convertedAmount = finalTotal * rate;
+
+      fetch("/api/create-payment-intent", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amount: finalTotal }),
+        body: JSON.stringify({ amount: convertedAmount, currency: activeCurrency }),
       })
         .then((res) => res.json())
         .then((data) => setClientSecret(data.clientSecret))
         .catch((err) => console.error("Error fetching client secret", err));
     }
-  }, [finalTotal]);
+  }, [finalTotal, currency, EXCHANGE_RATES]);
 
   if (cartItems.length === 0) {
     return (
@@ -389,7 +393,7 @@ function Checkout() {
         <h3 style={{ fontSize: '16px', margin: '0 0 16px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>Payment Method <CheckCircle2 size={16} fill="#00cf6e" color="#fff" /></h3>
         {clientSecret ? (
           <Elements options={options} stripe={stripePromise}>
-            <CheckoutForm amount={finalTotal} onSuccess={handlePaymentSuccess} />
+            <CheckoutForm amount={finalTotal} formattedAmount={formatPrice(finalTotal)} onSuccess={handlePaymentSuccess} />
           </Elements>
         ) : (
           <div style={{ padding: '24px', textAlign: 'center', background: '#f9fafb' }}>
