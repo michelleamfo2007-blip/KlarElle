@@ -363,6 +363,11 @@ function Checkout() {
                   </div>
                   <div>
                     <div style={{ fontWeight: '500' }}>{rate.provider} - {rate.serviceLevel}</div>
+                    {rate.estimatedDays && (
+                      <div style={{ fontSize: '12px', color: '#666', marginTop: '2px' }}>
+                        Estimated Delivery: {rate.estimatedDays} business day{rate.estimatedDays !== 1 ? 's' : ''}
+                      </div>
+                    )}
                   </div>
                 </div>
                 <div style={{ fontWeight: 'bold' }}>{formatPrice(rate.amount)}</div>
@@ -378,7 +383,7 @@ function Checkout() {
             <div style={{ fontWeight: 'bold' }}>{shippingFee === 0 ? 'Free' : formatPrice(shippingFee)}</div>
           </div>
         )}
-        <div style={{ fontSize: '12px', color: '#666', marginBottom: '16px', marginTop: '12px' }}>Delivery: 11-22 business days</div>
+
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '16px', borderTop: '1px solid #eee' }}>
           <div>
             <div style={{ fontWeight: 'bold', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '4px' }}>Shipping Guarantee <CheckCircle2 size={16} fill="#000" color="#fff" /></div>

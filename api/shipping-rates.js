@@ -51,15 +51,16 @@ export default async function handler(req, res) {
         serviceLevel: r.servicelevel.name,
         amount: parseFloat(r.amount),
         currency: r.currency,
-        objectId: r.objectId
+        objectId: r.objectId,
+        estimatedDays: r.estimatedDays
       }));
     } else {
       // Mock data for development
       rates = [
-        { provider: 'USPS', serviceLevel: 'Priority Mail', amount: 9.50, objectId: 'usps_mock_1' },
-        { provider: 'UPS', serviceLevel: 'UPS Ground', amount: 12.80, objectId: 'ups_mock_1' },
-        { provider: 'USPS', serviceLevel: 'Priority Mail Express', amount: 28.00, objectId: 'usps_mock_2' },
-        { provider: 'UPS', serviceLevel: 'UPS Next Day Air', amount: 45.00, objectId: 'ups_mock_2' }
+        { provider: 'USPS', serviceLevel: 'Priority Mail', amount: 9.50, objectId: 'usps_mock_1', estimatedDays: 3 },
+        { provider: 'UPS', serviceLevel: 'UPS Ground', amount: 12.80, objectId: 'ups_mock_1', estimatedDays: 5 },
+        { provider: 'USPS', serviceLevel: 'Priority Mail Express', amount: 28.00, objectId: 'usps_mock_2', estimatedDays: 1 },
+        { provider: 'UPS', serviceLevel: 'UPS Next Day Air', amount: 45.00, objectId: 'ups_mock_2', estimatedDays: 1 }
       ];
     }
 

@@ -1,6 +1,6 @@
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+import Stripe from 'stripe';
 
-module.exports = exports = async function(req, res) {
+export default async function handler(req, res) {
   // CORS headers
   res.setHeader('Access-Control-Allow-Credentials', true);
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -11,8 +11,7 @@ module.exports = exports = async function(req, res) {
   );
 
   if (req.method === 'OPTIONS') {
-    res.status(200).end();
-    return;
+    return res.status(200).end();
   }
 
   if (req.method !== 'POST') {
@@ -26,6 +25,8 @@ module.exports = exports = async function(req, res) {
   }
 
   try {
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+    
     const paymentIntent = await stripe.paymentIntents.create({
       amount: Math.round(amount * 100), // Stripe expects amounts in cents/smallest currency unit
       currency: currency.toLowerCase(),
@@ -34,15 +35,15 @@ module.exports = exports = async function(req, res) {
       },
     });
 
-    res.status(200).json({
+    return res.status(200).json({
       clientSecret: paymentIntent.client_secret,
     });
   } catch (error) {
     console.error("Error creating payment intent:", error);
-    res.status(400).json({
+    return res.status(400).json({
       error: {
         message: error.message,
       },
     });
   }
-};
+}
