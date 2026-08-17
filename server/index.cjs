@@ -15,13 +15,13 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-app.post('/create-payment-intent', async (req, res) => {
-  const { amount } = req.body;
+app.post('/api/create-payment-intent', async (req, res) => {
+  const { amount, currency } = req.body;
 
   try {
     const paymentIntent = await stripe.paymentIntents.create({
       amount: Math.round(amount * 100), // Stripe expects amounts in cents/smallest currency unit
-      currency: 'usd', // Update to your preferred currency (e.g. 'ghs' if Stripe supports it, or standard 'usd')
+      currency: (currency || 'usd').toLowerCase(),
       automatic_payment_methods: {
         enabled: true,
       },
