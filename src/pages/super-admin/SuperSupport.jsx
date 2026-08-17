@@ -136,7 +136,7 @@ function SuperSupport() {
           <div style={{ textAlign: 'center', padding: '40px', background: '#fff', borderRadius: '8px', border: '1px solid #e5e7eb', color: '#6b7280' }}>No tickets found.</div>
         ) : (
           filteredTickets.map(ticket => (
-            <div key={ticket.id} style={{ background: '#fff', borderRadius: '8px', border: '1px solid #e5e7eb', padding: '24px', display: 'flex', gap: '24px' }}>
+            <div key={ticket.id} className="flex-column-mobile" style={{ background: '#fff', borderRadius: '8px', border: '1px solid #e5e7eb', padding: '24px', gap: '24px' }}>
               <div style={{ flex: 1 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
                   <div>

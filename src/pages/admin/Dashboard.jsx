@@ -345,8 +345,8 @@ function Dashboard() {
               View All
             </Link>
           </div>
-          <div style={{ overflowX: 'auto' }}>
-            <table className="table-standard">
+          <div className="table-responsive-wrapper">
+            <table className="table-standard admin-table">
               <thead>
                 <tr>
                   <th>Order ID</th>
@@ -414,8 +414,8 @@ function Dashboard() {
           <div className="dash-card-header">
             <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><AlertTriangle size={18} color="#dc2626"/> Inventory Alerts</span>
           </div>
-          <div style={{ overflowX: 'auto' }}>
-            <table className="table-standard">
+          <div className="table-responsive-wrapper">
+            <table className="table-standard admin-table">
               <thead>
                 <tr>
                   <th>Product</th>
@@ -464,8 +464,8 @@ function Dashboard() {
         <div className="dash-card-header">
           <span>Best Selling Products</span>
         </div>
-        <div style={{ overflowX: 'auto' }}>
-          <table className="table-standard">
+        <div className="table-responsive-wrapper">
+          <table className="table-standard admin-table">
             <thead>
               <tr>
                 <th>Product</th>

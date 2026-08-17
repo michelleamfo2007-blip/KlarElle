@@ -102,7 +102,7 @@ function ManageStaff() {
         <div style={{ background: '#fff', padding: '24px', borderRadius: '8px', border: '1px solid #D2C4B3', marginBottom: '32px', boxShadow: '0 4px 15px rgba(188, 163, 143, 0.1)' }}>
           <h2 style={{ fontSize: '18px', fontWeight: 'bold', margin: '0 0 16px 0' }}>Invite New Admin</h2>
 
-          <form onSubmit={handleAddStaff} style={{ display: 'grid', gap: '16px', gridTemplateColumns: '1fr 1fr 1fr auto', alignItems: 'end' }}>
+          <form onSubmit={handleAddStaff} className="grid-4-to-1">
             <div>
               <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#4b5563', marginBottom: '8px' }}>Staff Name</label>
               <input 

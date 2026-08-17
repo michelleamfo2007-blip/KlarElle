@@ -33,8 +33,8 @@ function ProductList() {
       </div>
 
       {loading ? <p>Loading products...</p> : (
-        <div style={{ background: 'white', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0,0,0,0.05)', overflow: 'hidden' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+        <div className="table-responsive-wrapper" style={{ boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}>
+          <table className="admin-table">
             <thead>
               <tr style={{ borderBottom: '1px solid #eee', backgroundColor: '#fafafa' }}>
                 <th style={{ padding: '16px' }}>Image</th>
