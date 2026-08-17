@@ -104,12 +104,12 @@ function SuperShipping() {
       </div>
 
       {/* Shipping Settings */}
-      <div style={{ background: '#fff', borderRadius: '8px', border: '1px solid #e5e7eb', padding: '24px', marginBottom: '24px', display: 'flex', gap: '24px', alignItems: 'center' }}>
+      <div className="flex-column-mobile" style={{ background: '#fff', borderRadius: '8px', border: '1px solid #e5e7eb', padding: '24px', marginBottom: '24px', gap: '24px', alignItems: 'flex-start', justifyContent: 'space-between' }}>
         <div>
           <h3 style={{ margin: '0 0 4px 0', fontSize: '16px', fontWeight: '600' }}>Free Shipping Threshold</h3>
           <p style={{ margin: 0, fontSize: '13px', color: '#6b7280' }}>Orders over this amount will qualify for free standard shipping.</p>
         </div>
-        <div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginLeft: 'auto' }}>
+        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
           <div style={{ position: 'relative' }}>
             <span style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#6b7280', fontWeight: 'bold' }}>$</span>
             <input 
@@ -125,9 +125,9 @@ function SuperShipping() {
         </div>
       </div>
 
-      {/* Filters */}
-      <div style={{ display: 'flex', gap: '16px', marginBottom: '16px' }}>
-        <div style={{ position: 'relative', flex: 1, maxWidth: '400px' }}>
+      {/* Search and Filter */}
+      <div className="flex-column-mobile" style={{ display: 'flex', gap: '16px', marginBottom: '16px' }}>
+        <div style={{ position: 'relative', flex: 1, maxWidth: '400px', width: '100%' }}>
           <Search size={18} color="#9ca3af" style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)' }} />
           <input 
             type="text" 
@@ -151,8 +151,8 @@ function SuperShipping() {
       </div>
 
       {/* Orders Table */}
-      <div style={{ background: '#fff', borderRadius: '8px', border: '1px solid #e5e7eb', overflow: 'hidden' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+      <div className="table-responsive-wrapper" style={{ background: '#fff', borderRadius: '8px', border: '1px solid #e5e7eb' }}>
+        <table className="admin-table" style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
           <thead>
             <tr style={{ background: '#f9fafb', borderBottom: '1px solid #e5e7eb' }}>
               <th style={{ padding: '16px 20px', fontSize: '12px', textTransform: 'uppercase', color: '#6b7280', fontWeight: '600' }}>Order Details</th>
