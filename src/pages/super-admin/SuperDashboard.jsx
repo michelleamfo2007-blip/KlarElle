@@ -9,7 +9,8 @@ function SuperDashboard() {
     totalTenants: 1, // Currently only 1 tenant is supported natively
     platformRevenue: 0,
     totalOrders: 0,
-    activeUsers: 0
+    activeUsers: 0,
+    siteViews: 0
   });
   const [loading, setLoading] = useState(true);
   const { userName } = useOutletContext();
@@ -38,10 +39,14 @@ function SuperDashboard() {
       const cancelledOrders = orders.filter(o => o.status === 'Cancelled').length;
       const refundedOrders = orders.filter(o => o.status === 'Refunded').length;
       
+      // Site views
+      const { count: viewCount } = await supabase.from('page_views').select('*', { count: 'exact', head: true });
+
       setStats({
         platformRevenue: revenue,
         totalOrders: orders.length,
         activeUsers: uniqueCustomers,
+        siteViews: viewCount || 0,
         pendingOrders,
         processingOrders,
         shippedOrders,
@@ -79,6 +84,11 @@ function SuperDashboard() {
         <div style={{ background: '#fff', padding: '24px', borderRadius: '12px', border: '1px solid #D2C4B3', boxShadow: '0 4px 15px rgba(188, 163, 143, 0.1)' }}>
           <div style={{ color: '#BCA38F', fontSize: '12px', fontWeight: '600', textTransform: 'uppercase', marginBottom: '8px' }}>Total Customers</div>
           <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#111827' }}>{loading ? '...' : stats.activeUsers}</div>
+        </div>
+
+        <div style={{ background: '#fff', padding: '24px', borderRadius: '12px', border: '1px solid #D2C4B3', boxShadow: '0 4px 15px rgba(188, 163, 143, 0.1)' }}>
+          <div style={{ color: '#BCA38F', fontSize: '12px', fontWeight: '600', textTransform: 'uppercase', marginBottom: '8px' }}>Site Views</div>
+          <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#111827' }}>{loading ? '...' : stats.siteViews}</div>
         </div>
 
         <div style={{ background: '#fff', padding: '24px', borderRadius: '12px', border: '1px solid #D2C4B3', boxShadow: '0 4px 15px rgba(188, 163, 143, 0.1)' }}>

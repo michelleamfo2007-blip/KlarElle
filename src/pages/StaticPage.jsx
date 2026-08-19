@@ -30,7 +30,7 @@ function StaticPage({ title }) {
             <p style={{ marginBottom: '16px', fontStyle: 'italic', color: '#555', fontWeight: 'bold' }}>Designed by women. For women.</p>
           </div>
         );
-      case 'Fashion Blogger':
+      case 'Influencer Collaboration':
         return (
           <div style={{ lineHeight: '1.6' }}>
             <h2 style={{ marginBottom: '16px', fontSize: '20px', textTransform: 'uppercase' }}>Creator & Influencer Collaborations</h2>
@@ -237,19 +237,129 @@ function StaticPage({ title }) {
             <p style={{ marginBottom: '16px' }}>All transactions are securely encrypted, ensuring your financial information is always protected.</p>
           </>
         );
-      case 'Bonus Point':
+      case 'Rewards':
         return (
           <>
             <p style={{ marginBottom: '16px' }}>Welcome to KLARELLE Rewards! Earn points every time you shop and redeem them for exclusive discounts.</p>
             <p style={{ marginBottom: '16px' }}><strong>How to Earn:</strong></p>
             <ul style={{ listStyleType: 'disc', paddingLeft: '20px', marginBottom: '16px' }}>
               <li style={{ marginBottom: '8px' }}>Create an account: 100 Points</li>
-              <li style={{ marginBottom: '8px' }}>Make a purchase: 1 Point for every {formatPrice(1)} spent</li>
+              <li style={{ marginBottom: '8px' }}>Make a purchase: 10 Points for every {formatPrice(100)} spent</li>
               <li style={{ marginBottom: '8px' }}>Leave a photo review: 50 Points</li>
-              <li style={{ marginBottom: '8px' }}>Celebrate your birthday: 200 Points</li>
             </ul>
             <p style={{ marginBottom: '16px' }}><strong>How to Redeem:</strong> 100 Points = {formatPrice(10)} off. You can apply your points directly at checkout to save on your next favorite outfit!</p>
           </>
+        );
+      case 'FAQ':
+        return (
+          <div style={{ lineHeight: '1.6' }}>
+            <h2 style={{ marginBottom: '16px', fontSize: '20px', textTransform: 'uppercase' }}>Frequently Asked Questions</h2>
+            
+            <h3 style={{ marginTop: '32px', marginBottom: '12px', fontSize: '18px', textTransform: 'uppercase' }}>Orders</h3>
+            <p style={{ fontWeight: 'bold' }}>How will I know my order was received?</p>
+            <p style={{ marginBottom: '16px' }}>After completing your purchase, you will receive an order-confirmation email containing your order number and purchase details. Please check your spam or junk folder if you do not see it.</p>
+            
+            <p style={{ fontWeight: 'bold' }}>Can I change or cancel my order?</p>
+            <p style={{ marginBottom: '16px' }}>Please contact us as soon as possible after placing your order. Once an order has entered processing or has been shipped, we may be unable to change or cancel it.</p>
+            
+            <p style={{ fontWeight: 'bold' }}>Can I combine multiple orders?</p>
+            <p style={{ marginBottom: '16px' }}>We cannot guarantee that separately placed orders will be combined. Each order may be processed and shipped individually.</p>
+            
+            <p style={{ fontWeight: 'bold' }}>What happens if an item in my order becomes unavailable?</p>
+            <p style={{ marginBottom: '24px' }}>If an item becomes unavailable after your order is placed, we will notify you and issue a refund for the unavailable item to your original payment method.</p>
+            
+            <h3 style={{ marginTop: '32px', marginBottom: '12px', fontSize: '18px', textTransform: 'uppercase' }}>Sizing and Fit</h3>
+            <p style={{ fontWeight: 'bold' }}>How do I choose the correct size?</p>
+            <p style={{ marginBottom: '16px' }}>Please review the size guide provided on each product page before ordering. Product measurements and fit may vary between styles, so we also recommend reading the fit notes and fabric details.</p>
+            
+            <p style={{ fontWeight: 'bold' }}>What should I do if I am between sizes?</p>
+            <p style={{ marginBottom: '16px' }}>Your best size will depend on the garment’s material and fit. For fitted styles with little or no stretch, we generally recommend sizing up. For stretchy styles, your usual size may provide the best fit.</p>
+            
+            <p style={{ fontWeight: 'bold' }}>Will the color look exactly like the website pictures?</p>
+            <p style={{ marginBottom: '24px' }}>We make every effort to display colors accurately. However, colors may appear slightly different depending on lighting, photography, and your device’s screen settings.</p>
+
+            <h3 style={{ marginTop: '32px', marginBottom: '12px', fontSize: '18px', textTransform: 'uppercase' }}>Payments</h3>
+            <p style={{ fontWeight: 'bold' }}>Which payment methods do you accept?</p>
+            <p style={{ marginBottom: '16px' }}>Klarelle accepts major debit and credit cards and any additional payment options displayed during checkout. Available installment-payment methods may depend on your country and eligibility.</p>
+            
+            <p style={{ fontWeight: 'bold' }}>Is my payment information secure?</p>
+            <p style={{ marginBottom: '16px' }}>Yes. Payments are processed through secure third-party payment providers. Klarelle does not directly store your complete card information.</p>
+            
+            <p style={{ fontWeight: 'bold' }}>Can I use more than one payment method?</p>
+            <p style={{ marginBottom: '24px' }}>Only one payment method can generally be used per order unless otherwise stated during checkout.</p>
+
+            <h3 style={{ marginTop: '32px', marginBottom: '12px', fontSize: '18px', textTransform: 'uppercase' }}>Shipping and Delivery</h3>
+            <p style={{ fontWeight: 'bold' }}>Where does Klarelle ship?</p>
+            <p style={{ marginBottom: '16px' }}>We offer shipping within the United States and to selected international destinations. Available shipping services and costs will be displayed at checkout.</p>
+            
+            <p style={{ fontWeight: 'bold' }}>How much does shipping cost?</p>
+            <p style={{ marginBottom: '16px' }}>Shipping costs depend on your location, package weight, and selected delivery service. Your exact shipping fee will be calculated at checkout before payment.</p>
+            
+            <p style={{ fontWeight: 'bold' }}>How long will my order take to arrive?</p>
+            <p style={{ marginBottom: '16px' }}>Orders require processing before shipment. Estimated delivery times will be shown at checkout, but they do not include unexpected carrier, customs, weather, or holiday delays.</p>
+            
+            <p style={{ fontWeight: 'bold' }}>How can I track my order?</p>
+            <p style={{ marginBottom: '16px' }}>Once your order ships, you will receive a confirmation email containing your tracking number. Please allow time for the carrier’s tracking information to update.</p>
+
+            <p style={{ fontWeight: 'bold' }}>What should I do if my package is delayed?</p>
+            <p style={{ marginBottom: '16px' }}>Carrier delays may occur after an order leaves our facility. Please check your tracking information first. If there has been no tracking update for several business days, contact our customer-care team for assistance.</p>
+            
+            <p style={{ fontWeight: 'bold' }}>What happens if my package is marked delivered but I cannot find it?</p>
+            <p style={{ marginBottom: '16px' }}>Please check around your property, mailbox, building reception area, and with household members or neighbors. You should also contact the carrier directly. If you still cannot locate the package, contact us promptly so we can review the situation.</p>
+            
+            <p style={{ fontWeight: 'bold' }}>Am I responsible for entering the correct address?</p>
+            <p style={{ marginBottom: '24px' }}>Yes. Customers are responsible for providing a complete and accurate shipping address. Please contact us immediately if you notice an error. We cannot guarantee changes after processing begins, and additional shipping charges may apply if a package is returned because of an incorrect address.</p>
+
+            <h3 style={{ marginTop: '32px', marginBottom: '12px', fontSize: '18px', textTransform: 'uppercase' }}>International Orders</h3>
+            <p style={{ fontWeight: 'bold' }}>Will I have to pay customs duties or taxes?</p>
+            <p style={{ marginBottom: '16px' }}>International orders may be subject to customs duties, import taxes, or handling fees imposed by the destination country. Unless otherwise stated at checkout, these charges are the customer’s responsibility and are not included in the product or shipping price.</p>
+            
+            <p style={{ fontWeight: 'bold' }}>Can international orders experience customs delays?</p>
+            <p style={{ marginBottom: '24px' }}>Yes. Customs processing times are controlled by the destination country and may delay delivery. Klarelle cannot guarantee a specific customs-clearance date.</p>
+
+            <h3 style={{ marginTop: '32px', marginBottom: '12px', fontSize: '18px', textTransform: 'uppercase' }}>Returns and Exchanges</h3>
+            <p style={{ fontWeight: 'bold' }}>What is Klarelle’s return policy?</p>
+            <p style={{ marginBottom: '16px' }}>Eligible items may be returned within the period stated in our Return Policy. Approved returns are issued as an exchange or store credit unless the item qualifies for a refund under applicable law or our policy. Please review the complete Return Policy before submitting a request.</p>
+            
+            <p style={{ fontWeight: 'bold' }}>How do I request a return?</p>
+            <p style={{ marginBottom: '16px' }}>Contact our customer-care team with your order number, the item you wish to return, and the reason for the request. Do not mail an item back until you receive return instructions and authorization.</p>
+
+            <p style={{ fontWeight: 'bold' }}>Are original shipping fees refundable?</p>
+            <p style={{ marginBottom: '16px' }}>Original shipping fees are generally non-refundable unless Klarelle made an error with your order or applicable law requires otherwise.</p>
+
+            <p style={{ fontWeight: 'bold' }}>Are return-shipping costs refundable?</p>
+            <p style={{ marginBottom: '16px' }}>Customers are generally responsible for return-shipping costs unless the item received was incorrect, damaged, or confirmed to be defective.</p>
+
+            <p style={{ fontWeight: 'bold' }}>Which items cannot be returned?</p>
+            <p style={{ marginBottom: '16px' }}>Items must be unworn, unwashed, unaltered, free from stains and odors, and returned with all original tags attached. Final-sale items, intimate items, bodysuits, gift cards, and items that do not meet our return conditions may be ineligible.</p>
+
+            <p style={{ fontWeight: 'bold' }}>Can I return a final-sale item?</p>
+            <p style={{ marginBottom: '16px' }}>No. Items marked “Final Sale” cannot be returned, exchanged, or credited unless they arrive damaged, defective, or incorrect.</p>
+
+            <p style={{ fontWeight: 'bold' }}>What if I receive a damaged, defective, or incorrect item?</p>
+            <p style={{ marginBottom: '16px' }}>Contact us promptly after delivery and include your order number and clear photographs or video of the item, packaging, tags, and shipping label. We will review the claim and provide the appropriate resolution.</p>
+
+            <p style={{ fontWeight: 'bold' }}>How long does it take to process a return?</p>
+            <p style={{ marginBottom: '24px' }}>Returns are inspected after delivery to our return location. Once approved, your exchange or store credit will be processed, and you will receive confirmation by email.</p>
+
+            <h3 style={{ marginTop: '32px', marginBottom: '12px', fontSize: '18px', textTransform: 'uppercase' }}>Products and Care</h3>
+            <p style={{ fontWeight: 'bold' }}>How should I care for my Klarelle item?</p>
+            <p style={{ marginBottom: '16px' }}>Always follow the care label attached to the garment. Some delicate, embellished, structured, or specialty-fabric pieces may require hand washing or professional dry cleaning.</p>
+            
+            <p style={{ fontWeight: 'bold' }}>Will sold-out items be restocked?</p>
+            <p style={{ marginBottom: '24px' }}>Some popular styles may be restocked, but restocks are not guaranteed. Join our mailing list and follow Klarelle on social media for availability announcements.</p>
+
+            <h3 style={{ marginTop: '32px', marginBottom: '12px', fontSize: '18px', textTransform: 'uppercase' }}>Promotions and Gift Cards</h3>
+            <p style={{ fontWeight: 'bold' }}>Can discount codes be combined?</p>
+            <p style={{ marginBottom: '16px' }}>Unless otherwise stated, only one promotional code may be used per order. Discount codes cannot usually be applied after an order has been submitted.</p>
+            
+            <p style={{ fontWeight: 'bold' }}>Do promotions apply to every product?</p>
+            <p style={{ marginBottom: '24px' }}>Certain products, collections, gift cards, or final-sale items may be excluded. Any exclusions will be stated in the promotion’s terms.</p>
+
+            <h3 style={{ marginTop: '32px', marginBottom: '12px', fontSize: '18px', textTransform: 'uppercase' }}>Contact Us</h3>
+            <p style={{ fontWeight: 'bold' }}>How can I contact Klarelle?</p>
+            <p style={{ marginBottom: '16px' }}>Please contact our customer-care team through the Contact Us page or the customer-care email listed on our website. Include your full name and order number for order-related questions. Please allow the stated response time for a reply.</p>
+          </div>
         );
       default:
         return <p style={{ marginBottom: '16px' }}>Content for {title} will be available soon.</p>;

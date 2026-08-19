@@ -1,5 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { Analytics } from '@vercel/analytics/react';
+import PageTracker from './components/PageTracker';
 import { CartProvider } from './context/CartContext';
 import { FavoritesProvider } from './context/FavoritesContext';
 import Layout from './components/Layout';
@@ -52,12 +54,15 @@ import './index.css';
 
 function App() {
   return (
-    <CurrencyProvider>
-      <AuthProvider>
-        <FavoritesProvider>
-          <CartProvider>
-            <Router>
-            <Routes>
+    <>
+      <Analytics />
+      <CurrencyProvider>
+        <AuthProvider>
+          <FavoritesProvider>
+            <CartProvider>
+              <Router>
+                <PageTracker />
+              <Routes>
             <Route path="/" element={<Layout />}>
               <Route index element={<Home />} />
               <Route path="product/:id" element={<ProductDetails />} />
@@ -76,14 +81,14 @@ function App() {
               <Route path="check-in" element={<CheckIn />} />
               <Route path="page/about-us" element={<StaticPage title="About Us" />} />
               <Route path="page/faq" element={<StaticPage title="FAQ" />} />
-              <Route path="page/fashion-blogger" element={<StaticPage title="Fashion Blogger" />} />
+              <Route path="page/influencer-collaboration" element={<StaticPage title="Influencer Collaboration" />} />
               <Route path="page/social-responsibility" element={<StaticPage title="Social Responsibility" />} />
               <Route path="page/shipping-info" element={<StaticPage title="Shipping Info" />} />
               <Route path="page/returns" element={<StaticPage title="Returns" />} />
               <Route path="page/how-to-order" element={<StaticPage title="How to Order" />} />
               <Route path="page/contact-us" element={<ContactUs />} />
               <Route path="page/payment-method" element={<StaticPage title="Payment Method" />} />
-              <Route path="page/bonus-point" element={<StaticPage title="Bonus Point" />} />
+              <Route path="page/rewards" element={<StaticPage title="Rewards" />} />
             </Route>
 
             {/* Admin Routes */}
@@ -133,6 +138,7 @@ function App() {
       </FavoritesProvider>
     </AuthProvider>
     </CurrencyProvider>
+    </>
   );
 }
 

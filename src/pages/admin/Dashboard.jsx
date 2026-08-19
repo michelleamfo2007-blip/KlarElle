@@ -2,11 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import { useOutletContext, Link } from 'react-router-dom';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { DollarSign, ShoppingBag, Package, AlertTriangle, TrendingUp, Clock, CheckCircle, Truck, PackageCheck, ArrowRight, XCircle, RefreshCcw } from 'lucide-react';
+import { DollarSign, ShoppingBag, Package, AlertTriangle, TrendingUp, Clock, CheckCircle, Truck, PackageCheck, ArrowRight, XCircle, RefreshCcw, Eye } from 'lucide-react';
 
 function Dashboard() {
   const [totalProducts, setTotalProducts] = useState(0);
   const [lowStockItems, setLowStockItems] = useState([]);
+  const [siteViews, setSiteViews] = useState(0);
   
   // Real Data States
   const [totalRevenue, setTotalRevenue] = useState(0);
@@ -109,6 +110,11 @@ function Dashboard() {
       setBestSellers(topSellers);
     }
     
+    
+    // 5. Site Views
+    const { count: viewCount } = await supabase.from('page_views').select('*', { count: 'exact', head: true });
+    setSiteViews(viewCount || 0);
+    
     setLoading(false);
   };
 
@@ -162,7 +168,7 @@ function Dashboard() {
       <style>{`
         .dash-card { background: #fff; border-radius: 8px; border: 1px solid #D2C4B3; box-shadow: 0 4px 15px rgba(188, 163, 143, 0.1); overflow: hidden; }
         .dash-card-header { padding: 16px 20px; border-bottom: 1px solid #FAF9F6; font-weight: 600; display: flex; justify-content: space-between; align-items: center; color: #111827; }
-        .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 24px; }
+        .kpi-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 20px; margin-bottom: 24px; }
         .kpi-card { background: #fff; padding: 20px; border-radius: 8px; border: 1px solid #D2C4B3; box-shadow: 0 4px 15px rgba(188, 163, 143, 0.1); }
         .kpi-icon { width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 16px; }
         .kpi-value { font-size: 28px; font-weight: bold; margin: 4px 0; color: #111827; }
@@ -181,6 +187,9 @@ function Dashboard() {
         .order-summary-item:last-child { border-bottom: none; }
         .order-icon-wrap { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
         
+        @media (max-width: 1200px) {
+          .kpi-grid { grid-template-columns: repeat(3, 1fr); }
+        }
         @media (max-width: 1024px) {
           .kpi-grid { grid-template-columns: repeat(2, 1fr); }
           .section-2col-65-35, .section-2col-50-50 { grid-template-columns: 1fr; }
@@ -236,6 +245,17 @@ function Dashboard() {
           <div className="kpi-change" style={{ color: lowStockItems.length > 0 ? '#111827' : '#BCA38F' }}>
             {lowStockItems.length > 0 ? 'Needs attention immediately' : 'Inventory levels healthy'}
           </div>
+        </div>
+        
+        <div className="kpi-card">
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <div>
+              <div className="kpi-label">Site Views</div>
+              <div className="kpi-value">{loading ? '...' : siteViews}</div>
+            </div>
+            <div className="kpi-icon" style={{ background: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6' }}><Eye size={20} /></div>
+          </div>
+          <div className="kpi-change" style={{ color: '#BCA38F' }}>Total views all time</div>
         </div>
       </div>
 

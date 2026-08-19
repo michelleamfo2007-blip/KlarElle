@@ -222,13 +222,14 @@ function Layout() {
               <h4>Company Info</h4>
               <div className="footer-links">
                 <Link to="/page/about-us">About Us</Link>
-                <Link to="/page/fashion-blogger">Fashion Blogger</Link>
+                <Link to="/page/influencer-collaboration">Influencer Collaboration</Link>
                 <Link to="/page/social-responsibility">Social Responsibility</Link>
               </div>
             </div>
             <div className="footer-col">
               <h4>Help & Support</h4>
               <div className="footer-links">
+                <Link to="/page/faq">FAQ</Link>
                 <Link to="/page/shipping-info">Shipping Info</Link>
                 <Link to="/page/returns">Returns</Link>
                 <Link to="/page/how-to-order">How to Order</Link>
@@ -240,7 +241,7 @@ function Layout() {
               <div className="footer-links">
                 <a href="mailto:support@klarelle.store">Contact Us</a>
                 <Link to="/page/payment-method">Payment Method</Link>
-                <Link to="/page/bonus-point">Bonus Point</Link>
+                <Link to="/page/rewards">Rewards</Link>
                 <a href="mailto:support@klarelle.store">Support</a>
               </div>
             </div>
