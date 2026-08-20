@@ -58,6 +58,7 @@ function ProductDetails() {
   
   const [showReviewsModal, setShowReviewsModal] = useState(false);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [detailsExpanded, setDetailsExpanded] = useState(false);
   const [showSizeRequestModal, setShowSizeRequestModal] = useState(false);
   
   // Write Review State
@@ -356,8 +357,86 @@ function ProductDetails() {
               </div>
             )}
 
+            {/* Product Details (Expandable) */}
+            <div style={{ marginTop: '24px', borderTop: '1px solid #eee', paddingTop: '16px' }}>
+              <div 
+                style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', paddingBottom: detailsExpanded ? '12px' : '0' }} 
+                onClick={() => setDetailsExpanded(!detailsExpanded)}
+              >
+                <div className="pd-options-title" style={{ margin: 0, fontSize: '14px', textTransform: 'uppercase' }}>Product Details</div>
+                <div style={{ transform: detailsExpanded ? 'rotate(-90deg)' : 'rotate(90deg)', transition: 'transform 0.2s', display: 'flex' }}>
+                  <ChevronRight size={16} />
+                </div>
+              </div>
+              
+              {detailsExpanded && (
+                <div style={{ fontSize: '13px', lineHeight: '1.6', color: '#333' }}>
+                  {product.description && (
+                    <div style={{ marginBottom: '12px', whiteSpace: 'pre-line' }}>{product.description}</div>
+                  )}
+                  
+                  <div style={{ display: 'grid', gridTemplateColumns: '120px 1fr', gap: '8px', fontWeight: '500' }}>
+                    {product.material && (
+                      <>
+                        <span style={{ color: '#666', fontWeight: 'normal' }}>Material:</span>
+                        <span>{product.material}</span>
+                      </>
+                    )}
+                    {product.composition && (
+                      <>
+                        <span style={{ color: '#666', fontWeight: 'normal' }}>Composition:</span>
+                        <span>{product.composition}</span>
+                      </>
+                    )}
+                    {product.style && (
+                      <>
+                        <span style={{ color: '#666', fontWeight: 'normal' }}>Style:</span>
+                        <span>{product.style}</span>
+                      </>
+                    )}
+                    {product.fit && (
+                      <>
+                        <span style={{ color: '#666', fontWeight: 'normal' }}>Fit:</span>
+                        <span>{product.fit}</span>
+                      </>
+                    )}
+                    {product.occasion && (
+                      <>
+                        <span style={{ color: '#666', fontWeight: 'normal' }}>Occasion:</span>
+                        <span>{product.occasion}</span>
+                      </>
+                    )}
+                    {product.pattern_type && (
+                      <>
+                        <span style={{ color: '#666', fontWeight: 'normal' }}>Pattern Type:</span>
+                        <span>{product.pattern_type}</span>
+                      </>
+                    )}
+                    {product.features && (
+                      <>
+                        <span style={{ color: '#666', fontWeight: 'normal' }}>Features:</span>
+                        <span>{product.features}</span>
+                      </>
+                    )}
+                    {product.care_instructions && (
+                      <>
+                        <span style={{ color: '#666', fontWeight: 'normal' }}>Care:</span>
+                        <span>{product.care_instructions}</span>
+                      </>
+                    )}
+                    {product.measurements && (
+                      <>
+                        <span style={{ color: '#666', fontWeight: 'normal' }}>Measurements:</span>
+                        <span>{product.measurements}</span>
+                      </>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+
             {/* More Options */}
-            <div style={{ marginTop: '24px' }}>
+            <div style={{ marginTop: '16px', borderTop: '1px solid #eee', paddingTop: '16px' }}>
               <div className="pd-options-title" style={{ marginBottom: '12px' }}>More Options</div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
                 {(product.tags || []).map(tag => (
@@ -445,19 +524,7 @@ function ProductDetails() {
               {reviews.length === 0 && <p style={{ fontSize: '13px', color: '#666' }}>No reviews yet.</p>}
             </div>
 
-            {/* Details Section */}
-            <div className="section-divider">
-              <div className="pd-options-title" style={{ fontSize: '16px', marginBottom: '16px' }}>Details</div>
-              <div style={{ display: 'grid', gridTemplateColumns: '120px 1fr', gap: '16px', fontSize: '13px', color: '#000', fontWeight: '600' }}>
-                <span style={{ color: '#666', fontWeight: 'normal' }}>Material:</span>
-                <span>{product.material || 'N/A'}</span>
-                <span style={{ color: '#666', fontWeight: 'normal' }}>Composition:</span>
-                <span>{product.composition || 'N/A'}</span>
-              </div>
-              <div style={{ textAlign: 'center', marginTop: '24px', fontSize: '13px', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }} onClick={() => setShowDetailsModal(true)}>
-                View more <ChevronRight size={14} />
-              </div>
-            </div>
+
             
             {/* Matching Styles */}
             <div className="section-divider" ref={recommendRef}>
