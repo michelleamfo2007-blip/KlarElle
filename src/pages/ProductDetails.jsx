@@ -254,7 +254,7 @@ function ProductDetails() {
             .main-image-wrap { background: #f4f4f4; position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden; flex: 0 0 100%; scroll-snap-align: start; max-height: 70vh; }
             .main-image { width: 100%; height: 100%; display: block; object-fit: cover; object-position: top center; }
             
-            .info-section { display: flex; flex-direction: column; gap: 0; }
+            .info-section { display: flex; flex-direction: column; gap: 0; min-width: 0; }
             .pd-title { font-size: 24px; font-weight: 400; margin: 0 0 12px 0; line-height: 1.3; }
             .pd-price-wrap { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; }
             .pd-price { font-size: 28px; font-weight: 800; }
@@ -543,7 +543,7 @@ function ProductDetails() {
                  <div className="pd-options-title" style={{ fontSize: '16px', margin: 0 }}>You Might Also Like</div>
                </div>
                
-               <div style={{ display: 'flex', gap: '12px', overflowX: 'auto', paddingBottom: '16px' }}>
+               <div style={{ display: 'flex', gap: '12px', overflowX: 'auto', paddingBottom: '16px', WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none' }}>
                  {matchingStyles.map(p => (
                    <Link to={`/product/${p.id}`} key={p.id} style={{ minWidth: '120px', textDecoration: 'none', color: '#000' }}>
                      <img src={p.image_url} alt={p.name} style={{ width: '120px', height: '160px', objectFit: 'cover', borderRadius: '4px' }} />
