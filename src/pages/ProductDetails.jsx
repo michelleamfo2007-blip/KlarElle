@@ -221,8 +221,12 @@ function ProductDetails() {
   if (!product) return <div style={{ padding: '100px 20px', textAlign: 'center', fontSize: '18px', color: '#666' }}>Product not found.</div>;
 
   const images = [];
-  if (product.image_url) images.push(product.image_url);
-  if (product.hover_image_url) images.push(product.hover_image_url);
+  if (product.images && Array.isArray(product.images) && product.images.length > 0) {
+    images.push(...product.images);
+  } else {
+    if (product.image_url) images.push(product.image_url);
+    if (product.hover_image_url) images.push(product.hover_image_url);
+  }
   if (images.length === 0) images.push('/placeholder.png');
 
   const isOutOfStock = product.stock <= 0;

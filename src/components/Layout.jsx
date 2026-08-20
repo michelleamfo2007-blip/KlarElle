@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { Search, User, Heart, ShoppingBag, Globe, Smartphone, ChevronDown, Wrench, Instagram, Facebook } from 'lucide-react';
+import { Search, User, Heart, ShoppingBag, Globe, Smartphone, ChevronDown, Wrench } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { useCurrency } from '../context/CurrencyContext';
@@ -250,7 +250,11 @@ function Layout() {
                 <h4 style={{ marginBottom: '12px' }}>Follow Us</h4>
                 <div style={{ display: 'flex', gap: '16px', color: '#666', alignItems: 'center' }}>
                   <a href="https://www.instagram.com/klarelle_?igsh=d2xiYmloaHhzbThr" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', color: 'inherit' }} title="Instagram">
-                    <Instagram size={20} />
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                      <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+                    </svg>
                   </a>
                   <a href="https://www.tiktok.com/@klarelle.store?_r=1&_t=ZS-98qn2e8LpYe" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', color: 'inherit' }} title="TikTok">
                     <svg width="18" height="18" viewBox="0 0 448 512" fill="currentColor">
@@ -258,7 +262,9 @@ function Layout() {
                     </svg>
                   </a>
                   <a href="https://www.facebook.com/share/1ETeTXkNfh/?mibextid=wwXIfr" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', color: 'inherit' }} title="Facebook">
-                    <Facebook size={20} />
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
+                    </svg>
                   </a>
                 </div>
               </div>

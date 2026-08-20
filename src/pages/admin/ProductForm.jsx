@@ -86,8 +86,12 @@ function ProductForm() {
       setVariantImages(data.variant_images || {});
 
       const loadedImages = [];
-      if (data.image_url) loadedImages.push({ url: data.image_url, isMain: true });
-      if (data.hover_image_url) loadedImages.push({ url: data.hover_image_url, isMain: false });
+      if (data.images && Array.isArray(data.images) && data.images.length > 0) {
+        data.images.forEach((url, i) => loadedImages.push({ url, isMain: i === 0 }));
+      } else {
+        if (data.image_url) loadedImages.push({ url: data.image_url, isMain: true });
+        if (data.hover_image_url) loadedImages.push({ url: data.hover_image_url, isMain: false });
+      }
       setImages(loadedImages);
     }
   };
@@ -224,8 +228,14 @@ function ProductForm() {
     
     setLoading(true);
     
-    const mainImg = images.find(img => img.isMain)?.url || '';
-    const hoverImg = images.find(img => !img.isMain)?.url || '';
+    const mainImgNode = images.find(img => img.isMain);
+    const sortedImages = mainImgNode 
+      ? [mainImgNode, ...images.filter(img => !img.isMain)] 
+      : images;
+      
+    const imageUrls = sortedImages.map(img => img.url);
+    const mainImg = imageUrls[0] || '';
+    const hoverImg = imageUrls[1] || '';
 
     const productData = {
       name: formData.name,
@@ -240,6 +250,7 @@ function ProductForm() {
       visibility: formData.visibility,
       image_url: mainImg,
       hover_image_url: hoverImg,
+      images: imageUrls,
       material: formData.material,
       composition: formData.composition,
       pattern_type: formData.pattern_type,
