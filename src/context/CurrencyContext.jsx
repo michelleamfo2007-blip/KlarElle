@@ -4,7 +4,7 @@ const CurrencyContext = createContext();
 
 export const EXCHANGE_RATES = {
   USD: { rate: 1, symbol: '$', name: 'US Dollar' },
-  GHS: { rate: 15.15, symbol: 'GH₵', name: 'Ghanaian Cedi' },
+  GHS: { rate: 11.0, symbol: 'GH₵', name: 'Ghanaian Cedi' },
   EUR: { rate: 0.91, symbol: '€', name: 'Euro' },
   GBP: { rate: 0.79, symbol: '£', name: 'British Pound' },
   CAD: { rate: 1.36, symbol: 'CA$', name: 'Canadian Dollar' },
