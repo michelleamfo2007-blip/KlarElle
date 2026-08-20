@@ -18,6 +18,7 @@ import UpdatePassword from './pages/admin/UpdatePassword';
 import ProductList from './pages/admin/ProductList';
 import ProductForm from './pages/admin/ProductForm';
 import Coupons from './pages/admin/Coupons';
+import AdminReturns from './pages/admin/AdminReturns';
 import Orders from './pages/admin/Orders';
 import Waitlist from './pages/admin/Waitlist';
 import OrderDetails from './pages/admin/OrderDetails';
@@ -45,6 +46,8 @@ import CustomerProfile from './pages/CustomerProfile';
 import MyOrders from './pages/MyOrders';
 import Vouchers from './pages/Vouchers';
 import Wallet from './pages/Wallet';
+import RequestReturn from './pages/RequestReturn';
+import ReturnDetails from './pages/ReturnDetails';
 import CheckIn from './pages/CheckIn';
 import StaticPage from './pages/StaticPage';
 import ContactUs from './pages/ContactUs';
@@ -76,6 +79,8 @@ function App() {
               <Route path="track-order" element={<TrackOrder />} />
               <Route path="profile" element={<CustomerProfile />} />
               <Route path="profile/orders" element={<MyOrders />} />
+              <Route path="profile/returns/request/:id" element={<RequestReturn />} />
+              <Route path="profile/returns/:id" element={<ReturnDetails />} />
               <Route path="profile/vouchers" element={<Vouchers />} />
               <Route path="profile/wallet" element={<Wallet />} />
               <Route path="check-in" element={<CheckIn />} />
@@ -102,6 +107,7 @@ function App() {
               <Route path="coupons" element={<Coupons />} />
               <Route path="orders" element={<Orders />} />
               <Route path="orders/:id" element={<OrderDetails />} />
+              <Route path="returns" element={<AdminReturns />} />
               <Route path="customers" element={<SuperCustomers />} />
               <Route path="payments" element={<SuperPayments />} />
               <Route path="shipping" element={<SuperShipping />} />
@@ -117,6 +123,7 @@ function App() {
               <Route index element={<SuperDashboard />} />
               <Route path="orders" element={<Orders />} />
               <Route path="orders/:id" element={<OrderDetails />} />
+              <Route path="returns" element={<AdminReturns />} />
               <Route path="customers" element={<SuperCustomers />} />
               <Route path="payments" element={<SuperPayments />} />
               <Route path="shipping" element={<SuperShipping />} />

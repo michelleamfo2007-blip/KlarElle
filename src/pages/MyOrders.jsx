@@ -10,6 +10,7 @@ function MyOrders() {
   const { formatPrice } = useCurrency();
   const location = useLocation();
   const [orders, setOrders] = useState([]);
+  const [returnsMap, setReturnsMap] = useState({});
   const [loading, setLoading] = useState(true);
   
   // Parse initial status from URL
@@ -34,6 +35,17 @@ function MyOrders() {
         .order('created_at', { ascending: false });
         
       if (data) setOrders(data);
+
+      const { data: returnsData } = await supabase
+        .from('return_requests')
+        .select('id, order_id, status')
+        .eq('customer_email', session.user.email);
+        
+      if (returnsData) {
+        const map = {};
+        returnsData.forEach(r => map[r.order_id] = r.id);
+        setReturnsMap(map);
+      }
     } catch (err) {
       console.error('Error fetching orders:', err);
     }
@@ -175,18 +187,46 @@ function MyOrders() {
                       </div>
                     </div>
                     
-                    <Link to="/track-order" style={{ 
-                      padding: '8px 16px', 
-                      border: '1px solid #ddd', 
-                      borderRadius: '20px', 
-                      fontSize: '12px', 
-                      fontWeight: 'bold', 
-                      color: '#000',
-                      textDecoration: 'none'
-                    }}>
-                      Track Order
-                    </Link>
-                  </div>
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        {order.status === 'Delivered' && !returnsMap[order.id] && (
+                          <Link to={`/profile/returns/request/${order.id}`} style={{ 
+                            padding: '8px 16px', 
+                            border: '1px solid #ddd', 
+                            borderRadius: '20px', 
+                            fontSize: '12px', 
+                            fontWeight: 'bold', 
+                            color: '#000',
+                            textDecoration: 'none'
+                          }}>
+                            Request Return
+                          </Link>
+                        )}
+                        {returnsMap[order.id] && (
+                          <Link to={`/profile/returns/${returnsMap[order.id]}`} style={{ 
+                            padding: '8px 16px', 
+                            background: '#000', 
+                            borderRadius: '20px', 
+                            fontSize: '12px', 
+                            fontWeight: 'bold', 
+                            color: '#fff',
+                            textDecoration: 'none'
+                          }}>
+                            View Return
+                          </Link>
+                        )}
+                        <Link to="/track-order" style={{ 
+                          padding: '8px 16px', 
+                          border: '1px solid #ddd', 
+                          borderRadius: '20px', 
+                          fontSize: '12px', 
+                          fontWeight: 'bold', 
+                          color: '#000',
+                          textDecoration: 'none'
+                        }}>
+                          Track
+                        </Link>
+                      </div>
+                    </div>
                   
                 </div>
               ))}
