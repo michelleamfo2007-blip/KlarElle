@@ -58,6 +58,8 @@ function ProductDetails() {
   const [userHips, setUserHips] = useState(100);
   
   const [showReviewsModal, setShowReviewsModal] = useState(false);
+  const [showImageModal, setShowImageModal] = useState(false);
+  const [modalImageIndex, setModalImageIndex] = useState(0);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [detailsExpanded, setDetailsExpanded] = useState(false);
   const [showSizeRequestModal, setShowSizeRequestModal] = useState(false);
@@ -210,13 +212,13 @@ function ProductDetails() {
   };
 
   useEffect(() => {
-    if (showSizeModal || showGuideModal || showGuideTypeSelector || showReviewsModal || showDetailsModal || showSizeRequestModal || showWriteReviewModal) {
+    if (showSizeModal || showGuideModal || showGuideTypeSelector || showReviewsModal || showDetailsModal || showSizeRequestModal || showWriteReviewModal || showImageModal) {
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = 'unset';
     }
     return () => { document.body.style.overflow = 'unset'; };
-  }, [showSizeModal, showGuideModal, showGuideTypeSelector, showReviewsModal, showDetailsModal, showSizeRequestModal, showWriteReviewModal]);
+  }, [showSizeModal, showGuideModal, showGuideTypeSelector, showReviewsModal, showDetailsModal, showSizeRequestModal, showWriteReviewModal, showImageModal]);
 
   if (loading) return <div style={{ padding: '100px 20px', textAlign: 'center', fontSize: '18px', color: '#666' }}>Loading product details...</div>;
   if (!product) return <div style={{ padding: '100px 20px', textAlign: 'center', fontSize: '18px', color: '#666' }}>Product not found.</div>;
@@ -293,7 +295,7 @@ function ProductDetails() {
           
           <div className="gallery-grid">
             {images.map((img, i) => (
-              <div key={i} className="main-image-wrap">
+              <div key={i} className="main-image-wrap" onClick={() => { setModalImageIndex(i); setShowImageModal(true); }} style={{ cursor: 'zoom-in' }}>
                 <img src={i === 0 && previewImage ? previewImage : img} alt={`View ${i+1}`} className="main-image" />
                 {i === 0 && product.old_price && parseFloat(product.old_price) > parseFloat(product.price) && (
                   <div style={{ position: 'absolute', top: 16, right: 16, background: '#000', color: 'white', padding: '4px 8px', fontSize: '14px', fontWeight: 'bold' }}>
@@ -1168,6 +1170,29 @@ function ProductDetails() {
                 Submit Request
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Fullscreen Image Modal */}
+      {showImageModal && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: '#000', zIndex: 99999, display: 'flex', flexDirection: 'column' }}>
+          <div style={{ position: 'absolute', top: '24px', right: '24px', zIndex: 100000, cursor: 'pointer', background: 'rgba(0,0,0,0.5)', borderRadius: '50%', padding: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={() => setShowImageModal(false)}>
+            <X size={24} color="#fff" />
+          </div>
+          
+          <div style={{ display: 'flex', overflowX: 'auto', scrollSnapType: 'x mandatory', flex: 1, WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none' }} 
+               ref={el => {
+                 if (el && el.dataset.initialized !== 'true') {
+                   setTimeout(() => { el.scrollLeft = window.innerWidth * modalImageIndex; }, 10);
+                   el.dataset.initialized = 'true';
+                 }
+               }}>
+            {images.map((img, i) => (
+              <div key={i} style={{ flex: '0 0 100vw', scrollSnapAlign: 'start', display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+                <img src={img} alt={`Zoomed ${i+1}`} style={{ width: '100%', maxHeight: '100vh', objectFit: 'contain' }} />
+              </div>
+            ))}
           </div>
         </div>
       )}
