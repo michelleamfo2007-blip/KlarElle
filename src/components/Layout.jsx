@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { Search, User, Heart, ShoppingBag, Globe, Smartphone, ChevronDown, Wrench } from 'lucide-react';
+import { Search, User, Heart, ShoppingBag, Globe, Smartphone, ChevronDown, Wrench, Instagram, Facebook } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { useCurrency } from '../context/CurrencyContext';
@@ -248,10 +248,18 @@ function Layout() {
             <div className="footer-col">
               <div>
                 <h4 style={{ marginBottom: '12px' }}>Follow Us</h4>
-                <div style={{ display: 'flex', gap: '16px', color: '#666', fontSize: '13px' }}>
-                  <a href="https://www.instagram.com/klarelle_?igsh=d2xiYmloaHhzbThr" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>Instagram</a>
-                  <a href="https://www.tiktok.com/@klarelle.store?_r=1&_t=ZS-98qn2e8LpYe" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>TikTok</a>
-                  <a href="https://www.facebook.com/share/1ETeTXkNfh/?mibextid=wwXIfr" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>Facebook</a>
+                <div style={{ display: 'flex', gap: '16px', color: '#666', alignItems: 'center' }}>
+                  <a href="https://www.instagram.com/klarelle_?igsh=d2xiYmloaHhzbThr" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', color: 'inherit' }} title="Instagram">
+                    <Instagram size={20} />
+                  </a>
+                  <a href="https://www.tiktok.com/@klarelle.store?_r=1&_t=ZS-98qn2e8LpYe" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', color: 'inherit' }} title="TikTok">
+                    <svg width="18" height="18" viewBox="0 0 448 512" fill="currentColor">
+                      <path d="M448,209.91a210.06,210.06,0,0,1-122.77-39.25V349.38A162.55,162.55,0,1,1,185,188.31V278.2a74.62,74.62,0,1,0,52.23,71.18V0l88,0a121.18,121.18,0,0,0,1.86,22.17h0A122.18,122.18,0,0,0,381,102.39a121.43,121.43,0,0,0,67,20.14Z"/>
+                    </svg>
+                  </a>
+                  <a href="https://www.facebook.com/share/1ETeTXkNfh/?mibextid=wwXIfr" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', color: 'inherit' }} title="Facebook">
+                    <Facebook size={20} />
+                  </a>
                 </div>
               </div>
               <h4 style={{ marginTop: '24px' }}>Sign up for KLARELLE style news</h4>
