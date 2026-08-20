@@ -40,6 +40,7 @@ function ProductDetails() {
   const [selectedSize, setSelectedSize] = useState('M');
   const [activeImage, setActiveImage] = useState(0);
   const [previewImage, setPreviewImage] = useState(null);
+  const [quantity, setQuantity] = useState(1);
 
   // Modal State
   const [showSizeModal, setShowSizeModal] = useState(false);
@@ -444,10 +445,18 @@ function ProductDetails() {
               </div>
             )}
 
-
+            {/* Quantity Selector */}
+            <div style={{ marginTop: '24px' }}>
+              <div className="pd-options-title">Quantity</div>
+              <div style={{ display: 'flex', alignItems: 'center', marginTop: '12px', border: '1px solid #e0e0e0', width: 'fit-content', borderRadius: '4px' }}>
+                <button onClick={() => setQuantity(Math.max(1, quantity - 1))} style={{ padding: '8px 16px', fontSize: '18px', cursor: 'pointer', background: '#f9f9f9', borderRight: '1px solid #e0e0e0', borderTopLeftRadius: '4px', borderBottomLeftRadius: '4px' }}>-</button>
+                <div style={{ padding: '0 24px', fontSize: '16px', fontWeight: 'bold' }}>{quantity}</div>
+                <button onClick={() => setQuantity(quantity + 1)} style={{ padding: '8px 16px', fontSize: '18px', cursor: 'pointer', background: '#f9f9f9', borderLeft: '1px solid #e0e0e0', borderTopRightRadius: '4px', borderBottomRightRadius: '4px' }}>+</button>
+              </div>
+            </div>
 
             {/* More Options */}
-            <div style={{ marginTop: '16px', borderTop: '1px solid #eee', paddingTop: '16px' }}>
+            <div style={{ marginTop: '24px', borderTop: '1px solid #eee', paddingTop: '16px' }}>
               <div className="pd-options-title" style={{ marginBottom: '12px' }}>More Options</div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
                 {(product.tags || []).map(tag => (
@@ -558,7 +567,7 @@ function ProductDetails() {
               <button style={{ width: '50px', height: '50px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #000', background: 'transparent', cursor: 'pointer', borderRadius: '4px' }} onClick={() => toggleFavorite(product.id)}>
                 <Heart size={24} fill={isFavorite(product.id) ? '#000' : 'none'} />
               </button>
-              <button className="add-to-bag" onClick={() => addToCart(product, selectedSize, selectedColor)} disabled={isOutOfStock}>
+              <button className="add-to-bag" onClick={() => addToCart(product, selectedSize, selectedColor, quantity)} disabled={isOutOfStock}>
                 {isOutOfStock ? 'OUT OF STOCK' : 'Add to Cart'}
               </button>
             </div>
@@ -573,7 +582,7 @@ function ProductDetails() {
          </button>
          <button 
            className="add-to-bag"
-           onClick={() => addToCart(product, selectedSize, selectedColor)}
+           onClick={() => addToCart(product, selectedSize, selectedColor, quantity)}
            disabled={isOutOfStock}
          >
            {isOutOfStock ? 'OUT OF STOCK' : 'Add to Cart'}

@@ -9,7 +9,7 @@ export const CartProvider = ({ children }) => {
   const [cartItems, setCartItems] = useState([]); // Removed mock data
   const { session } = useAuth();
 
-  const addToCart = (product, selectedSize = null, selectedColor = null) => {
+  const addToCart = (product, selectedSize = null, selectedColor = null, quantity = 1) => {
     if (!session?.user) {
       alert("Please sign in or create an account to add items to your cart.");
       window.location.href = '/login';
@@ -19,9 +19,9 @@ export const CartProvider = ({ children }) => {
       const cartItemId = `${product.id}-${selectedSize || 'default'}-${selectedColor || 'default'}`;
       const existing = prev.find(item => item.cartItemId === cartItemId);
       if (existing) {
-        return prev.map(item => item.cartItemId === cartItemId ? { ...item, quantity: item.quantity + 1 } : item);
+        return prev.map(item => item.cartItemId === cartItemId ? { ...item, quantity: item.quantity + quantity } : item);
       }
-      return [...prev, { ...product, cartItemId, selectedSize, selectedColor, quantity: 1 }];
+      return [...prev, { ...product, cartItemId, selectedSize, selectedColor, quantity }];
     });
   };
 
