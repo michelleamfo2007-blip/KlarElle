@@ -251,8 +251,8 @@ function ProductDetails() {
             
             .gallery-grid { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 0; scrollbar-width: none; -ms-overflow-style: none; }
             .gallery-grid::-webkit-scrollbar { display: none; }
-            .main-image-wrap { background: #f4f4f4; position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden; flex: 0 0 100%; scroll-snap-align: start; max-height: 60vh; aspect-ratio: 4/5; }
-            .main-image { width: 100%; height: 100%; display: block; object-fit: cover; }
+            .main-image-wrap { background: #fff; position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden; flex: 0 0 100%; scroll-snap-align: start; max-height: 65vh; }
+            .main-image { width: 100%; height: 100%; display: block; object-fit: contain; object-position: center; }
             
             .info-section { display: flex; flex-direction: column; gap: 0; }
             .pd-title { font-size: 24px; font-weight: 400; margin: 0 0 12px 0; line-height: 1.3; }
