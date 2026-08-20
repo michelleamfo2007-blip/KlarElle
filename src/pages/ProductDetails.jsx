@@ -221,7 +221,7 @@ function ProductDetails() {
     return () => { document.body.style.overflow = 'unset'; };
   }, [showSizeModal, showGuideModal, showGuideTypeSelector, showReviewsModal, showDetailsModal, showSizeRequestModal, showWriteReviewModal, showImageModal]);
 
-  if (loading) return <div style={{ padding: '100px 20px', textAlign: 'center', fontSize: '18px', color: '#666' }}>Loading product details...</div>;
+  if (loading) return <div style={{ minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '100px 20px', fontSize: '18px', color: '#666' }}>Loading product details...</div>;
   if (!product) return <div style={{ padding: '100px 20px', textAlign: 'center', fontSize: '18px', color: '#666' }}>Product not found.</div>;
 
   const images = [];
