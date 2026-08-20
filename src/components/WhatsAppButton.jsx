@@ -11,7 +11,7 @@ function WhatsAppButton() {
 
   // Replace this with your actual WhatsApp business number (include country code, no + or spaces)
   const phoneNumber = "233595164329"; 
-  const defaultMessage = "Hi KlarElle! I need some help with...";
+  const defaultMessage = "Hello, I would love to inquire about a KlarElle piece.";
 
   const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(defaultMessage)}`;
 
