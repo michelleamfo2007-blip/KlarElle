@@ -59,6 +59,7 @@ function ProductDetails() {
   
   const [showReviewsModal, setShowReviewsModal] = useState(false);
   const [showImageModal, setShowImageModal] = useState(false);
+  const [imageModalReady, setImageModalReady] = useState(false);
   const [modalImageIndex, setModalImageIndex] = useState(0);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [detailsExpanded, setDetailsExpanded] = useState(false);
@@ -295,7 +296,7 @@ function ProductDetails() {
           
           <div className="gallery-grid">
             {images.map((img, i) => (
-              <div key={i} className="main-image-wrap" onClick={() => { setModalImageIndex(i); setShowImageModal(true); }} style={{ cursor: 'zoom-in' }}>
+              <div key={i} className="main-image-wrap" onClick={() => { setModalImageIndex(i); setImageModalReady(false); setShowImageModal(true); }} style={{ cursor: 'zoom-in' }}>
                 <img src={i === 0 && previewImage ? previewImage : img} alt={`View ${i+1}`} className="main-image" />
                 {i === 0 && product.old_price && parseFloat(product.old_price) > parseFloat(product.price) && (
                   <div style={{ position: 'absolute', top: 16, right: 16, background: '#000', color: 'white', padding: '4px 8px', fontSize: '14px', fontWeight: 'bold' }}>
@@ -1176,7 +1177,7 @@ function ProductDetails() {
 
       {/* Fullscreen Image Modal */}
       {showImageModal && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: '#000', zIndex: 99999, display: 'flex', flexDirection: 'column' }}>
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: '#000', zIndex: 99999, display: 'flex', flexDirection: 'column', opacity: imageModalReady ? 1 : 0, transition: 'opacity 0.15s ease-in' }}>
           <div style={{ position: 'absolute', top: '24px', right: '24px', zIndex: 100000, cursor: 'pointer', background: 'rgba(0,0,0,0.5)', borderRadius: '50%', padding: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={() => setShowImageModal(false)}>
             <X size={24} color="#fff" />
           </div>
@@ -1184,7 +1185,10 @@ function ProductDetails() {
           <div style={{ display: 'flex', overflowX: 'auto', scrollSnapType: 'x mandatory', flex: 1, WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none' }} 
                ref={el => {
                  if (el && el.dataset.initialized !== 'true') {
-                   setTimeout(() => { el.scrollLeft = window.innerWidth * modalImageIndex; }, 10);
+                   setTimeout(() => { 
+                     el.scrollLeft = window.innerWidth * modalImageIndex; 
+                     setImageModalReady(true);
+                   }, 20);
                    el.dataset.initialized = 'true';
                  }
                }}>
