@@ -66,10 +66,12 @@ function Favorites() {
             <div className="luxury-card" key={`fav-${product.id}`}>
               <div className="luxury-image-wrap">
                 <Link to={`/product/${product.id}`} className="luxury-image-link">
-                  <img src={product.image_url || '/placeholder.png'} alt={product.name} className="luxury-image primary" />
+                  <img src={product.image_url || '/placeholder.png'} alt={product.name} className="luxury-image primary" style={{ opacity: product.stock <= 0 ? 0.6 : 1 }} />
                 </Link>
                 
-                {product.old_price && parseFloat(product.old_price) > parseFloat(product.price) && (
+                {product.stock <= 0 ? (
+                  <div className="luxury-badge" style={{ background: '#000', color: '#fff', letterSpacing: '1px' }}>SOLD OUT</div>
+                ) : product.old_price && parseFloat(product.old_price) > parseFloat(product.price) && (
                   <div className="luxury-badge">-{Math.round(((product.old_price - product.price) / product.old_price) * 100)}%</div>
                 )}
                 
@@ -83,7 +85,9 @@ function Favorites() {
                     <Heart size={16} fill={isFavorite(product.id) ? "currentColor" : "none"} />
                   </div>
                   <Link to={`/product/${product.id}`} className="luxury-action-icon" style={{ display: 'flex', color: 'inherit', textDecoration: 'none' }} title="Quick View"><Eye size={16} /></Link>
-                  <div className="luxury-action-icon" title="Add to Bag" onClick={() => addToCart(product)}><ShoppingBag size={16} /></div>
+                  {product.stock > 0 && (
+                    <div className="luxury-action-icon" title="Add to Bag" onClick={() => addToCart(product)}><ShoppingBag size={16} /></div>
+                  )}
                 </div>
               </div>
               

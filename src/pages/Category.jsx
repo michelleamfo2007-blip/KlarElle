@@ -150,16 +150,22 @@ function Category() {
           <div className="products-grid">
             {products.map(product => (
               <div className="product-card" key={product.id}>
-                {product.old_price && parseFloat(product.old_price) > parseFloat(product.price) && (
+                {product.stock <= 0 ? (
+                    <div className="product-badge" style={{ background: '#000', color: '#fff' }}>SOLD OUT</div>
+                ) : product.old_price && parseFloat(product.old_price) > parseFloat(product.price) && (
                     <div className="product-badge">-{Math.round(((product.old_price - product.price) / product.old_price) * 100)}%</div>
                 )}
                 <div className="product-image-wrap">
                   <Link to={`/product/${product.id}`}>
-                    <img src={product.image_url || '/placeholder.png'} alt={product.name} className="product-image primary" />
+                    <img src={product.image_url || '/placeholder.png'} alt={product.name} className="product-image primary" style={{ opacity: product.stock <= 0 ? 0.6 : 1 }} />
                     {product.hover_image_url && <img src={product.hover_image_url} alt={product.name} className="product-image secondary" />}
                   </Link>
                   <div className="product-actions">
-                    <button className="action-btn add-cart" onClick={() => addToCart(product)}>ADD TO CART</button>
+                    {product.stock > 0 ? (
+                      <button className="action-btn add-cart" onClick={() => addToCart(product)}>ADD TO CART</button>
+                    ) : (
+                      <button className="action-btn add-cart" disabled style={{ background: '#ddd', color: '#666', cursor: 'not-allowed' }}>SOLD OUT</button>
+                    )}
                     <button className="action-btn"><Heart size={18} /></button>
                   </div>
                 </div>
