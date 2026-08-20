@@ -316,49 +316,14 @@ function ProductDetails() {
               </div>
             </div>
 
-            {/* Colors */}
-            {product.parsedColors && product.parsedColors.length > 0 && (
-              <div style={{ marginTop: '8px' }}>
-                <div className="pd-options-title">Color: <span style={{fontWeight:'normal'}}>{selectedColor}</span></div>
-                <div className="color-grid">
-                  {product.parsedColors.map((color, index) => (
-                    <button 
-                      key={color} className={`color-swatch ${selectedColor === color ? 'active' : ''}`}
-                      onClick={() => {
-                        setSelectedColor(color);
-                        if (product.variant_images && product.variant_images[color]) setPreviewImage(product.variant_images[color]);
-                        else setPreviewImage(null);
-                      }}
-                      style={{ backgroundColor: getColorHex(color) }}
-                    />
-                  ))}
-                </div>
+            {/* Description & Product Details (Expandable) */}
+            {product.description && (
+              <div style={{ marginTop: '16px', fontSize: '13px', lineHeight: '1.6', color: '#333', whiteSpace: 'pre-line' }}>
+                {product.description}
               </div>
             )}
-
-            {/* Sizes */}
-            {product.parsedSizes && product.parsedSizes.length > 0 && (
-              <div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <div className="pd-options-title">Size <span style={{fontWeight:'normal', color:'#666', fontSize:'12px'}}>Default <ChevronRight size={12}/></span></div>
-                </div>
-                
-                <div className="size-grid">
-                  {product.parsedSizes.map(size => (
-                    <button key={size} className={`size-btn ${selectedSize === size ? 'active' : ''}`} onClick={() => setSelectedSize(size)}>
-                      {size}
-                    </button>
-                  ))}
-                </div>
-                
-                <div style={{ display: 'flex', gap: '16px', fontSize: '12px', fontWeight: 'bold', marginTop: '12px' }}>
-                  <span style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }} onClick={() => setShowGuideModal(true)}><Ruler size={14} style={{marginRight:'4px'}}/> Size Guide <ChevronRight size={14} /></span>
-                </div>
-              </div>
-            )}
-
-            {/* Product Details (Expandable) */}
-            <div style={{ marginTop: '24px', borderTop: '1px solid #eee', paddingTop: '16px' }}>
+            
+            <div style={{ marginTop: '16px', borderTop: '1px solid #eee', paddingTop: '16px', marginBottom: '16px' }}>
               <div 
                 style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', paddingBottom: detailsExpanded ? '12px' : '0' }} 
                 onClick={() => setDetailsExpanded(!detailsExpanded)}
@@ -371,10 +336,6 @@ function ProductDetails() {
               
               {detailsExpanded && (
                 <div style={{ fontSize: '13px', lineHeight: '1.6', color: '#333' }}>
-                  {product.description && (
-                    <div style={{ marginBottom: '12px', whiteSpace: 'pre-line' }}>{product.description}</div>
-                  )}
-                  
                   <div style={{ display: 'grid', gridTemplateColumns: '120px 1fr', gap: '8px', fontWeight: '500' }}>
                     {product.material && (
                       <>
@@ -434,6 +395,49 @@ function ProductDetails() {
                 </div>
               )}
             </div>
+
+            {/* Colors */}
+            {product.parsedColors && product.parsedColors.length > 0 && (
+              <div style={{ marginTop: '8px' }}>
+                <div className="pd-options-title">Color: <span style={{fontWeight:'normal'}}>{selectedColor}</span></div>
+                <div className="color-grid">
+                  {product.parsedColors.map((color, index) => (
+                    <button 
+                      key={color} className={`color-swatch ${selectedColor === color ? 'active' : ''}`}
+                      onClick={() => {
+                        setSelectedColor(color);
+                        if (product.variant_images && product.variant_images[color]) setPreviewImage(product.variant_images[color]);
+                        else setPreviewImage(null);
+                      }}
+                      style={{ backgroundColor: getColorHex(color) }}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Sizes */}
+            {product.parsedSizes && product.parsedSizes.length > 0 && (
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div className="pd-options-title">Size <span style={{fontWeight:'normal', color:'#666', fontSize:'12px'}}>Default <ChevronRight size={12}/></span></div>
+                </div>
+                
+                <div className="size-grid">
+                  {product.parsedSizes.map(size => (
+                    <button key={size} className={`size-btn ${selectedSize === size ? 'active' : ''}`} onClick={() => setSelectedSize(size)}>
+                      {size}
+                    </button>
+                  ))}
+                </div>
+                
+                <div style={{ display: 'flex', gap: '16px', fontSize: '12px', fontWeight: 'bold', marginTop: '12px' }}>
+                  <span style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }} onClick={() => setShowGuideModal(true)}><Ruler size={14} style={{marginRight:'4px'}}/> Size Guide <ChevronRight size={14} /></span>
+                </div>
+              </div>
+            )}
+
+
 
             {/* More Options */}
             <div style={{ marginTop: '16px', borderTop: '1px solid #eee', paddingTop: '16px' }}>
