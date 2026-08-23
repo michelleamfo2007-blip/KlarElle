@@ -77,7 +77,7 @@ function SuperNotifications() {
                         <div style={{ fontSize: '13px', color: '#dc2626', fontWeight: '500' }}>Only {product.stock} left in stock</div>
                       </div>
                     </div>
-                    <Link to={`/super-admin/products/edit/${product.id}`} style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '13px', color: '#2563eb', textDecoration: 'none', fontWeight: '500' }}>
+                    <Link to={`/admin/products/edit/${product.id}`} style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '13px', color: '#2563eb', textDecoration: 'none', fontWeight: '500' }}>
                       Update Inventory <ArrowRight size={14} />
                     </Link>
                   </div>
