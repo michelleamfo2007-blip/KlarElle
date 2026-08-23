@@ -245,7 +245,7 @@ function Dashboard() {
 
       {/* ROW 1: KPIs */}
       <div className="kpi-grid">
-        <div className="kpi-card">
+        <Link to="/admin/reports" style={{ textDecoration: 'none', color: 'inherit' }} className="kpi-card">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
               <div className="kpi-label">Total Revenue</div>
@@ -254,7 +254,7 @@ function Dashboard() {
             <div className="kpi-icon" style={{ background: 'rgba(188, 163, 143, 0.1)', color: '#BCA38F' }}><DollarSign size={20} /></div>
           </div>
           <div className="kpi-change" style={{ color: '#BCA38F' }}><TrendingUp size={14} /> +0.0% from last week</div>
-        </div>
+        </Link>
         
         <Link to="/admin/orders" style={{ textDecoration: 'none', color: 'inherit' }} className="kpi-card">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
@@ -278,7 +278,7 @@ function Dashboard() {
           <div className="kpi-change" style={{ color: '#BCA38F' }}>Active listings in store</div>
         </Link>
 
-        <div className="kpi-card">
+        <Link to="/admin/products" style={{ textDecoration: 'none', color: 'inherit' }} className="kpi-card">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
               <div className="kpi-label">Low Stock Items</div>
@@ -289,9 +289,9 @@ function Dashboard() {
           <div className="kpi-change" style={{ color: lowStockItems.length > 0 ? '#111827' : '#BCA38F' }}>
             {lowStockItems.length > 0 ? 'Needs attention immediately' : 'Inventory levels healthy'}
           </div>
-        </div>
+        </Link>
         
-        <div className="kpi-card">
+        <Link to="/admin/reports" style={{ textDecoration: 'none', color: 'inherit' }} className="kpi-card">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
               <div className="kpi-label">Site Views</div>
@@ -300,7 +300,7 @@ function Dashboard() {
             <div className="kpi-icon" style={{ background: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6' }}><Eye size={20} /></div>
           </div>
           <div className="kpi-change" style={{ color: '#BCA38F' }}>Total views all time</div>
-        </div>
+        </Link>
       </div>
 
       {/* ROW 2: Charts & Order Summary */}
