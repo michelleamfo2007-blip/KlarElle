@@ -11,12 +11,14 @@ import ProductDetails from './pages/ProductDetails';
 import Cart from './pages/Cart';
 import Favorites from './pages/Favorites';
 import Category from './pages/Category';
+import Search from './pages/Search';
 import Login from './pages/admin/Login';
 import AdminLayout from './pages/admin/AdminLayout';
 import Dashboard from './pages/admin/Dashboard';
 import UpdatePassword from './pages/admin/UpdatePassword';
 import ProductList from './pages/admin/ProductList';
 import ProductForm from './pages/admin/ProductForm';
+import Categories from './pages/admin/Categories';
 import Coupons from './pages/admin/Coupons';
 import AdminReturns from './pages/admin/AdminReturns';
 import Orders from './pages/admin/Orders';
@@ -70,6 +72,7 @@ function App() {
               <Route index element={<Home />} />
               <Route path="product/:id" element={<ProductDetails />} />
               <Route path="category/:id" element={<Category />} />
+              <Route path="search" element={<Search />} />
               <Route path="cart" element={<Cart />} />
               <Route path="favorites" element={<Favorites />} />
               <Route path="login" element={<CustomerLogin />} />
@@ -104,6 +107,7 @@ function App() {
               <Route path="products" element={<ProductList />} />
               <Route path="products/new" element={<ProductForm />} />
               <Route path="products/edit/:id" element={<ProductForm />} />
+              <Route path="categories" element={<Categories />} />
               <Route path="coupons" element={<Coupons />} />
               <Route path="orders" element={<Orders />} />
               <Route path="orders/:id" element={<OrderDetails />} />

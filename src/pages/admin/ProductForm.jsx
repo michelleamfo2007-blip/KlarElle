@@ -39,23 +39,24 @@ function ProductForm() {
 
   const [images, setImages] = useState([]);
   const [errors, setErrors] = useState({});
-
-  // Categories from the mock data, in a real app this might be fetched
-  const categories = [
-    { value: 'new-in', label: 'New In' },
-    { value: 'flash-sale', label: 'Flash Sale' },
-    { value: 'maxi-dresses', label: 'Maxi Dresses' },
-    { value: 'midi-dresses', label: 'Midi Dresses' },
-    { value: 'mini-dresses', label: 'Mini Dresses' },
-    { value: 'bodycon', label: 'Bodycon' },
-    { value: 'party-wear', label: 'Party Wear' }
-  ];
+  const [categories, setCategories] = useState([]);
 
   useEffect(() => {
+    fetchCategories();
     if (isEditing) {
       fetchProduct();
     }
   }, [id]);
+
+  const fetchCategories = async () => {
+    const { data, error } = await supabase
+      .from('categories')
+      .select('*')
+      .order('name', { ascending: true });
+    if (!error && data) {
+      setCategories(data.map(c => ({ value: c.slug, label: c.name })));
+    }
+  };
 
   const fetchProduct = async () => {
     const { data, error } = await supabase.from('products').select('*').eq('id', id).single();

@@ -18,9 +18,18 @@ function Layout() {
   const [showLangMenu, setShowLangMenu] = useState(false);
   const [showCurrMenu, setShowCurrMenu] = useState(false);
   const [newsletterEmail, setNewsletterEmail] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
   const [subscribing, setSubscribing] = useState(false);
   const [maintenanceMode, setMaintenanceMode] = useState(false);
   const [checkingMaintenance, setCheckingMaintenance] = useState(true);
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+      setSearchQuery('');
+    }
+  };
 
   useEffect(() => {
     const fetchSettings = async () => {
@@ -170,11 +179,17 @@ function Layout() {
           <div className="header-main">
             <Link to="/" className="logo">KLARELLE</Link>
             
-            <div className="search-bar">
-              <input type="text" className="search-input" placeholder="Search dresses..." />
+            <form className="search-bar" onSubmit={handleSearch}>
+              <input 
+                type="text" 
+                className="search-input" 
+                placeholder="Search dresses..." 
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
               <Search className="search-icon" size={18} />
-              <button className="search-btn">SEARCH</button>
-            </div>
+              <button type="submit" className="search-btn">SEARCH</button>
+            </form>
             
             <div className="header-actions">
               {session?.user ? (
