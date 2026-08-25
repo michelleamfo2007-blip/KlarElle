@@ -41,6 +41,7 @@ import SuperNotifications from './pages/super-admin/SuperNotifications';
 import SuperActivity from './pages/super-admin/SuperActivity';
 import CustomerLogin from './pages/CustomerLogin';
 import CustomerRegister from './pages/CustomerRegister';
+import ForgotPassword from './pages/ForgotPassword';
 import Checkout from './pages/Checkout';
 import OrderSuccess from './pages/OrderSuccess';
 import TrackOrder from './pages/TrackOrder';
@@ -77,6 +78,7 @@ function App() {
               <Route path="favorites" element={<Favorites />} />
               <Route path="login" element={<CustomerLogin />} />
               <Route path="register" element={<CustomerRegister />} />
+              <Route path="forgot-password" element={<ForgotPassword />} />
               <Route path="checkout" element={<Checkout />} />
               <Route path="order-success" element={<OrderSuccess />} />
               <Route path="track-order" element={<TrackOrder />} />

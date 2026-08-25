@@ -48,7 +48,10 @@ function CustomerLogin() {
             />
           </div>
           <div>
-            <label style={{ display: 'block', fontSize: '14px', marginBottom: '6px', fontWeight: '500' }}>Password</label>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+              <label style={{ fontSize: '14px', fontWeight: '500' }}>Password</label>
+              <Link to="/forgot-password" style={{ fontSize: '13px', color: '#666', textDecoration: 'none' }}>Forgot password?</Link>
+            </div>
             <input 
               type="password" 
               required

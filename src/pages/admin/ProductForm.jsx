@@ -84,7 +84,17 @@ function ProductForm() {
       setSizesInput(Array.isArray(data.sizes) ? data.sizes.join(', ') : (data.sizes || ''));
       setColorsInput(Array.isArray(data.colors) ? data.colors.join(', ') : (data.colors || ''));
       setTagsInput(Array.isArray(data.tags) ? data.tags.join(', ') : (data.tags || ''));
-      setVariantImages(data.variant_images || {});
+      const loadedVariants = {};
+      if (data.variant_images) {
+        for (const [color, value] of Object.entries(data.variant_images)) {
+          if (typeof value === 'string') {
+            loadedVariants[color] = { image: value, stock: {} };
+          } else {
+            loadedVariants[color] = value;
+          }
+        }
+      }
+      setVariantImages(loadedVariants);
 
       const loadedImages = [];
       if (data.images && Array.isArray(data.images) && data.images.length > 0) {
@@ -188,7 +198,16 @@ function ProductForm() {
       if (uploadError) throw uploadError;
 
       const { data } = supabase.storage.from('product-images').getPublicUrl(fileName);
-      setFormData(prev => ({ ...prev, [field]: data.publicUrl }));
+      
+      if (field.startsWith('color_')) {
+        const color = field.replace('color_', '');
+        setVariantImages(prev => ({
+          ...prev,
+          [color]: { ...(prev[color] || { stock: {} }), image: data.publicUrl }
+        }));
+      } else {
+        setFormData(prev => ({ ...prev, [field]: data.publicUrl }));
+      }
     } catch (error) {
       alert(error.message);
     } finally {
@@ -238,6 +257,14 @@ function ProductForm() {
     const mainImg = imageUrls[0] || '';
     const hoverImg = imageUrls[1] || '';
 
+    const totalVariantStock = Object.values(variantImages).reduce((total, variant) => {
+      const stockObj = variant.stock || {};
+      return total + Object.values(stockObj).reduce((sum, qty) => sum + (parseInt(qty, 10) || 0), 0);
+    }, 0);
+    
+    // Auto-calculate total stock if variants exist, otherwise use manual input
+    const finalStock = (sizesInput && colorsInput && totalVariantStock > 0) ? totalVariantStock : parseInt(formData.stock, 10);
+
     const productData = {
       name: formData.name,
       sku: formData.sku,
@@ -245,7 +272,7 @@ function ProductForm() {
       price: parseFloat(formData.price),
       old_price: formData.old_price ? parseFloat(formData.old_price) : null,
       category: formData.category,
-      stock: parseInt(formData.stock, 10),
+      stock: finalStock,
       low_stock_threshold: parseInt(formData.low_stock_threshold, 10),
       status: saveAsStatus || formData.status,
       visibility: formData.visibility,
@@ -591,12 +618,16 @@ function ProductForm() {
               <div className="card-header"><Box size={18} /> Inventory & Stock</div>
               <div className="card-body" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
                 <div>
-                  <label className="input-label">Stock Quantity *</label>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <label className="input-label">Stock Quantity *</label>
+                    {(sizesInput && colorsInput) && <span style={{ fontSize: '12px', color: '#16a34a' }}>Auto-calculated from variants</span>}
+                  </div>
                   <input 
                     type="number" 
                     className="input-field" 
-                    value={formData.stock} 
+                    value={(sizesInput && colorsInput) ? Object.values(variantImages).reduce((t, v) => t + Object.values(v.stock || {}).reduce((s, q) => s + (parseInt(q)||0), 0), 0) : formData.stock} 
                     onChange={(e) => setFormData({...formData, stock: e.target.value})} 
+                    disabled={!!(sizesInput && colorsInput)}
                   />
                 </div>
                 <div>
@@ -688,26 +719,74 @@ function ProductForm() {
               </div>
             </div>
 
-            {/* Color Images */}
-            {colorsInput && colorsInput.trim().length > 0 && (
+            {/* Variant Inventory Matrix and Images */}
+            {colorsInput && colorsInput.trim().length > 0 && sizesInput && sizesInput.trim().length > 0 && (
               <div className="card">
-                <div className="card-header"><Image size={18} /> Color Specific Images</div>
+                <div className="card-header"><Box size={18} /> Variant Inventory & Images</div>
                 <div className="card-body" style={{ display: 'grid', gap: '20px' }}>
-                  <p style={{ fontSize: '13px', color: '#666', margin: 0 }}>Add an image URL for each color. When customers select this color, the main image will automatically change to this image!</p>
+                  <p style={{ fontSize: '13px', color: '#666', margin: 0 }}>Set the stock quantity for each combination of color and size. You can also upload a specific image for each color.</p>
                   
                   {colorsInput.split(/[;,]+/).map(c => c.trim()).filter(Boolean).map(color => (
-                    <div key={color}>
-                      <label className="input-label" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <div style={{ width: 12, height: 12, borderRadius: '50%', backgroundColor: color.toLowerCase(), border: '1px solid #ddd' }} />
-                        {color} Image URL
-                      </label>
-                      <input 
-                        type="text" 
-                        className="input-field" 
-                        placeholder={`https://example.com/${color.toLowerCase()}-dress.jpg`}
-                        value={variantImages[color] || ''} 
-                        onChange={(e) => setVariantImages({...variantImages, [color]: e.target.value})} 
-                      />
+                    <div key={color} style={{ border: '1px solid #e5e7eb', borderRadius: '8px', padding: '16px', background: '#fafafa' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
+                        <label className="input-label" style={{ display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}>
+                          <div style={{ width: 16, height: 16, borderRadius: '50%', backgroundColor: color.toLowerCase(), border: '1px solid #ddd' }} />
+                          <span style={{ fontWeight: 'bold', fontSize: '16px' }}>{color}</span>
+                        </label>
+                        
+                        {/* Image Upload for this Color */}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                          {(variantImages[color] && variantImages[color].image) ? (
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                              <img src={variantImages[color].image} alt={color} style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '4px', border: '1px solid #ddd' }} />
+                              <button type="button" onClick={() => setVariantImages(prev => ({ ...prev, [color]: { ...prev[color], image: null } }))} style={{ color: 'red', background: 'none', border: 'none', cursor: 'pointer', fontSize: '12px' }}>Remove</button>
+                            </div>
+                          ) : (
+                            <div>
+                              <input 
+                                type="file" 
+                                accept="image/*"
+                                onChange={(e) => processSingleFile(e, `color_${color}`)} 
+                                style={{ display: 'none' }}
+                                id={`color-upload-${color}`}
+                              />
+                              <label htmlFor={`color-upload-${color}`} style={{ display: 'inline-block', padding: '6px 12px', border: '1px solid #d1d5db', borderRadius: '4px', cursor: 'pointer', fontSize: '12px', background: '#fff' }}>
+                                {uploading ? '...' : 'Upload Image'}
+                              </label>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Stock Matrix for this Color */}
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))', gap: '12px' }}>
+                        {sizesInput.split(/[;,]+/).map(s => s.trim()).filter(Boolean).map(size => (
+                          <div key={size}>
+                            <label style={{ fontSize: '12px', color: '#666', marginBottom: '4px', display: 'block' }}>Size {size}</label>
+                            <input 
+                              type="number" 
+                              className="input-field" 
+                              placeholder="0"
+                              min="0"
+                              style={{ padding: '6px 8px' }}
+                              value={(variantImages[color]?.stock?.[size]) || ''} 
+                              onChange={(e) => {
+                                const val = e.target.value;
+                                setVariantImages(prev => ({
+                                  ...prev,
+                                  [color]: {
+                                    ...(prev[color] || { image: null }),
+                                    stock: {
+                                      ...(prev[color]?.stock || {}),
+                                      [size]: val
+                                    }
+                                  }
+                                }));
+                              }} 
+                            />
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   ))}
                 </div>

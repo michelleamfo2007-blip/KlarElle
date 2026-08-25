@@ -233,7 +233,18 @@ function ProductDetails() {
   }
   if (images.length === 0) images.push('/placeholder.png');
 
-  const isOutOfStock = product.stock <= 0;
+  let isOutOfStock = product.stock <= 0;
+  if (product.variant_images) {
+    const hasVariantInventory = Object.values(product.variant_images).some(v => typeof v === 'object' && v !== null && v.stock);
+    if (hasVariantInventory) {
+      const colorData = product.variant_images[selectedColor];
+      if (colorData && colorData.stock && colorData.stock[selectedSize] !== undefined) {
+        isOutOfStock = parseInt(colorData.stock[selectedSize], 10) <= 0;
+      } else {
+        isOutOfStock = true;
+      }
+    }
+  }
 
   return (
     <div className="product-details-page" style={{ paddingBottom: '90px' }}>
@@ -417,7 +428,10 @@ function ProductDetails() {
                       key={color} className={`color-swatch ${selectedColor === color ? 'active' : ''}`}
                       onClick={() => {
                         setSelectedColor(color);
-                        if (product.variant_images && product.variant_images[color]) setPreviewImage(product.variant_images[color]);
+                        if (product.variant_images && product.variant_images[color]) {
+                          const val = product.variant_images[color];
+                          setPreviewImage(typeof val === 'string' ? val : (val.image || null));
+                        }
                         else setPreviewImage(null);
                       }}
                       style={{ backgroundColor: getColorHex(color) }}
