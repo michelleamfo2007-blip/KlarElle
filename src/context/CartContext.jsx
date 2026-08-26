@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext } from 'react';
+import React, { createContext, useState, useContext, useEffect } from 'react';
 import { useAuth } from './AuthContext';
 
 const CartContext = createContext();
@@ -6,8 +6,19 @@ const CartContext = createContext();
 export const useCart = () => useContext(CartContext);
 
 export const CartProvider = ({ children }) => {
-  const [cartItems, setCartItems] = useState([]); // Removed mock data
+  const [cartItems, setCartItems] = useState(() => {
+    try {
+      const saved = localStorage.getItem('klarelle_cart');
+      return saved ? JSON.parse(saved) : [];
+    } catch (e) {
+      return [];
+    }
+  });
   const { session } = useAuth();
+
+  useEffect(() => {
+    localStorage.setItem('klarelle_cart', JSON.stringify(cartItems));
+  }, [cartItems]);
 
   const addToCart = (product, selectedSize = null, selectedColor = null, quantity = 1) => {
     setCartItems(prev => {
