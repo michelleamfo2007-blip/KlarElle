@@ -84,7 +84,7 @@ function Checkout() {
     ? shippingRates.reduce((prev, curr) => prev.amount < curr.amount ? prev : curr).objectId 
     : null;
 
-  let baseShippingFee = selectedRate ? selectedRate.amount : 15.00;
+  let baseShippingFee = selectedRate ? selectedRate.amount : 0.00;
   
   // Apply free shipping ONLY if they select the cheapest option (Standard)
   let shippingFee = baseShippingFee;
@@ -352,7 +352,7 @@ function Checkout() {
                   const data = await res.json();
                   if (data.success && data.rates && data.rates.length > 0) {
                     setShippingRates(data.rates);
-                    setSelectedRateId(data.rates[0].objectId);
+                    // Do not auto-select the first rate, make them choose
                   }
                 } catch (err) {
                   console.error('Failed to fetch rates', err);
@@ -493,7 +493,11 @@ function Checkout() {
           </div>
         )}
 
-        {clientSecret ? (
+        {!selectedRateId && shippingRates.length > 0 ? (
+          <div style={{ padding: '24px', textAlign: 'center', background: '#f9fafb', color: '#666', border: '1px solid #eee', borderRadius: '8px' }}>
+            Please select a shipping method above to proceed with payment.
+          </div>
+        ) : clientSecret ? (
           <Elements options={options} stripe={stripePromise}>
             <CheckoutForm amount={finalTotal} formattedAmount={formatPrice(finalTotal)} onSuccess={handlePaymentSuccess} />
           </Elements>
