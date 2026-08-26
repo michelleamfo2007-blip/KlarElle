@@ -47,6 +47,25 @@ function OrderDetails() {
   if (loading) return <div style={{ padding: '40px' }}>Loading order details...</div>;
   if (!order) return <div style={{ padding: '40px' }}>Order not found.</div>;
 
+  const handlePurchaseLabel = async () => {
+    try {
+      setLoading(true);
+      const res = await fetch('/api/create-label', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ order_id: order.id })
+      });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.error || 'Failed to purchase label');
+      
+      alert('Label generated successfully!');
+      fetchOrderDetails();
+    } catch (err) {
+      alert(err.message);
+      setLoading(false);
+    }
+  };
+
   return (
     <div style={{ maxWidth: '1000px', margin: '0 auto', fontFamily: 'Inter, sans-serif', color: '#111827' }}>
       
@@ -122,8 +141,19 @@ function OrderDetails() {
 
           {/* Shipping Logistics */}
           <div style={{ background: '#fff', borderRadius: '8px', border: '1px solid #e5e7eb', overflow: 'hidden' }}>
-            <div style={{ padding: '16px 20px', borderBottom: '1px solid #e5e7eb', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Truck size={18} /> Shipping & Fulfillment
+            <div style={{ padding: '16px 20px', borderBottom: '1px solid #e5e7eb', fontWeight: '600', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Truck size={18} /> Shipping & Fulfillment
+              </div>
+              {!order.tracking_number && (
+                <button 
+                  onClick={handlePurchaseLabel}
+                  disabled={loading}
+                  style={{ background: '#000', color: '#fff', padding: '6px 12px', borderRadius: '4px', border: 'none', fontSize: '13px', fontWeight: '500', cursor: 'pointer' }}
+                >
+                  Purchase Label
+                </button>
+              )}
             </div>
             <div style={{ padding: '20px' }}>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
@@ -134,7 +164,14 @@ function OrderDetails() {
                 <div>
                   <div style={{ fontSize: '12px', color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>Tracking Number</div>
                   {order.tracking_number ? (
-                    <div style={{ fontWeight: '500', color: '#16a34a' }}>{order.tracking_number}</div>
+                    <div>
+                      <div style={{ fontWeight: '500', color: '#16a34a' }}>{order.tracking_number}</div>
+                      {order.label_url && (
+                        <a href={order.label_url} target="_blank" rel="noreferrer" style={{ display: 'inline-block', marginTop: '8px', fontSize: '13px', color: '#2563eb', textDecoration: 'underline' }}>
+                          Download Label PDF
+                        </a>
+                      )}
+                    </div>
                   ) : (
                     <div style={{ color: '#9ca3af' }}>No tracking available</div>
                   )}

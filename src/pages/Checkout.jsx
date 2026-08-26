@@ -8,6 +8,7 @@ import { loadStripe } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
 import CheckoutForm from '../components/CheckoutForm';
 import { ChevronLeft, MapPin, ChevronRight, CheckCircle2 } from 'lucide-react';
+import { COUNTRIES } from '../utils/countries';
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
@@ -189,8 +190,11 @@ function Checkout() {
           <div style={{ marginBottom: '16px' }}>
             <label style={{ display: 'block', fontSize: '12px', color: '#666', marginBottom: '4px' }}>Location *</label>
             <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px', border: '1px solid #ddd', borderRadius: '4px' }}>
-              <span>{formData.location}</span>
-              <ChevronRight size={16} color="#999" />
+              <select name="location" value={formData.location} onChange={handleInputChange} style={{ width: '100%', border: 'none', outline: 'none', background: 'transparent' }}>
+                {Object.keys(COUNTRIES).map(countryName => (
+                  <option key={countryName} value={countryName}>{countryName}</option>
+                ))}
+              </select>
             </div>
           </div>
 
@@ -261,7 +265,11 @@ function Checkout() {
                     const res = await fetch('/api/shipping-rates', {
                       method: 'POST',
                       headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({ destinationZip: formData.postcode })
+                      body: JSON.stringify({ 
+                        destinationZip: formData.postcode, 
+                        country: formData.location,
+                        cartItems: cartItems 
+                      })
                     });
                     const data = await res.json();
                     if (data.success && data.rates && data.rates.length > 0) {

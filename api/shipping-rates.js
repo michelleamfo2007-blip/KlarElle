@@ -1,73 +1,360 @@
 import { Shippo } from 'shippo';
+import { readFileSync } from 'fs';
+import { join } from 'path';
+
+const COUNTRY_CODES = {
+  "United States": "US",
+  "Afghanistan": "AF",
+  "Albania": "AL",
+  "Algeria": "DZ",
+  "Andorra": "AD",
+  "Angola": "AO",
+  "Antigua and Barbuda": "AG",
+  "Argentina": "AR",
+  "Armenia": "AM",
+  "Australia": "AU",
+  "Austria": "AT",
+  "Azerbaijan": "AZ",
+  "Bahamas": "BS",
+  "Bahrain": "BH",
+  "Bangladesh": "BD",
+  "Barbados": "BB",
+  "Belarus": "BY",
+  "Belgium": "BE",
+  "Belize": "BZ",
+  "Benin": "BJ",
+  "Bhutan": "BT",
+  "Bolivia": "BO",
+  "Bosnia and Herzegovina": "BA",
+  "Botswana": "BW",
+  "Brazil": "BR",
+  "Brunei": "BN",
+  "Bulgaria": "BG",
+  "Burkina Faso": "BF",
+  "Burundi": "BI",
+  "Cabo Verde": "CV",
+  "Cambodia": "KH",
+  "Cameroon": "CM",
+  "Canada": "CA",
+  "Central African Republic": "CF",
+  "Chad": "TD",
+  "Chile": "CL",
+  "China": "CN",
+  "Colombia": "CO",
+  "Comoros": "KM",
+  "Congo (Congo-Brazzaville)": "CG",
+  "Costa Rica": "CR",
+  "Croatia": "HR",
+  "Cuba": "CU",
+  "Cyprus": "CY",
+  "Czechia (Czech Republic)": "CZ",
+  "Democratic Republic of the Congo": "CD",
+  "Denmark": "DK",
+  "Djibouti": "DJ",
+  "Dominica": "DM",
+  "Dominican Republic": "DO",
+  "Ecuador": "EC",
+  "Egypt": "EG",
+  "El Salvador": "SV",
+  "Equatorial Guinea": "GQ",
+  "Eritrea": "ER",
+  "Estonia": "EE",
+  "Eswatini": "SZ",
+  "Ethiopia": "ET",
+  "Fiji": "FJ",
+  "Finland": "FI",
+  "France": "FR",
+  "Gabon": "GA",
+  "Gambia": "GM",
+  "Georgia": "GE",
+  "Germany": "DE",
+  "Ghana": "GH",
+  "Greece": "GR",
+  "Grenada": "GD",
+  "Guatemala": "GT",
+  "Guinea": "GN",
+  "Guinea-Bissau": "GW",
+  "Guyana": "GY",
+  "Haiti": "HT",
+  "Honduras": "HN",
+  "Hungary": "HU",
+  "Iceland": "IS",
+  "India": "IN",
+  "Indonesia": "ID",
+  "Iran": "IR",
+  "Iraq": "IQ",
+  "Ireland": "IE",
+  "Israel": "IL",
+  "Italy": "IT",
+  "Jamaica": "JM",
+  "Japan": "JP",
+  "Jordan": "JO",
+  "Kazakhstan": "KZ",
+  "Kenya": "KE",
+  "Kiribati": "KI",
+  "Kuwait": "KW",
+  "Kyrgyzstan": "KG",
+  "Laos": "LA",
+  "Latvia": "LV",
+  "Lebanon": "LB",
+  "Lesotho": "LS",
+  "Liberia": "LR",
+  "Libya": "LY",
+  "Liechtenstein": "LI",
+  "Lithuania": "LT",
+  "Luxembourg": "LU",
+  "Madagascar": "MG",
+  "Malawi": "MW",
+  "Malaysia": "MY",
+  "Maldives": "MV",
+  "Mali": "ML",
+  "Malta": "MT",
+  "Marshall Islands": "MH",
+  "Mauritania": "MR",
+  "Mauritius": "MU",
+  "Mexico": "MX",
+  "Micronesia": "FM",
+  "Moldova": "MD",
+  "Monaco": "MC",
+  "Mongolia": "MN",
+  "Montenegro": "ME",
+  "Morocco": "MA",
+  "Mozambique": "MZ",
+  "Myanmar (formerly Burma)": "MM",
+  "Namibia": "NA",
+  "Nauru": "NR",
+  "Nepal": "NP",
+  "Netherlands": "NL",
+  "New Zealand": "NZ",
+  "Nicaragua": "NI",
+  "Niger": "NE",
+  "Nigeria": "NG",
+  "North Korea": "KP",
+  "North Macedonia": "MK",
+  "Norway": "NO",
+  "Oman": "OM",
+  "Pakistan": "PK",
+  "Palau": "PW",
+  "Palestine State": "PS",
+  "Panama": "PA",
+  "Papua New Guinea": "PG",
+  "Paraguay": "PY",
+  "Peru": "PE",
+  "Philippines": "PH",
+  "Poland": "PL",
+  "Portugal": "PT",
+  "Qatar": "QA",
+  "Romania": "RO",
+  "Russia": "RU",
+  "Rwanda": "RW",
+  "Saint Kitts and Nevis": "KN",
+  "Saint Lucia": "LC",
+  "Saint Vincent and the Grenadines": "VC",
+  "Samoa": "WS",
+  "San Marino": "SM",
+  "Sao Tome and Principe": "ST",
+  "Saudi Arabia": "SA",
+  "Senegal": "SN",
+  "Serbia": "RS",
+  "Seychelles": "SC",
+  "Sierra Leone": "SL",
+  "Singapore": "SG",
+  "Slovakia": "SK",
+  "Slovenia": "SI",
+  "Solomon Islands": "SB",
+  "Somalia": "SO",
+  "South Africa": "ZA",
+  "South Korea": "KR",
+  "South Sudan": "SS",
+  "Spain": "ES",
+  "Sri Lanka": "LK",
+  "Sudan": "SD",
+  "Suriname": "SR",
+  "Sweden": "SE",
+  "Switzerland": "CH",
+  "Syria": "SY",
+  "Tajikistan": "TJ",
+  "Tanzania": "TZ",
+  "Thailand": "TH",
+  "Timor-Leste": "TL",
+  "Togo": "TG",
+  "Tonga": "TO",
+  "Trinidad and Tobago": "TT",
+  "Tunisia": "TN",
+  "Turkey": "TR",
+  "Turkmenistan": "TM",
+  "Tuvalu": "TV",
+  "Uganda": "UG",
+  "Ukraine": "UA",
+  "United Arab Emirates": "AE",
+  "United Kingdom": "GB",
+  "Uruguay": "UY",
+  "Uzbekistan": "UZ",
+  "Vanuatu": "VU",
+  "Venezuela": "VE",
+  "Vietnam": "VN",
+  "Yemen": "YE",
+  "Zambia": "ZM",
+  "Zimbabwe": "ZW"
+};
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { destinationZip, weightPounds = 0, weightOunces = 10 } = req.body;
-  const apiKey = process.env.SHIPPO_API_KEY;
+  const { destinationZip, country = 'United States', cartItems = [] } = req.body;
+  const isUS = country === 'United States' || country === 'US';
+  const destCountryCode = COUNTRY_CODES[country] || 'US';
 
-  if (!apiKey) {
-    return res.status(500).json({ error: 'SHIPPO_API_KEY is not configured' });
+  // Calculate totals for items
+  let totalWeight = 0; // kg
+  const items = cartItems.map(item => {
+    // defaults if product data is missing
+    const weight = item.weight ? parseFloat(item.weight) : 0.5;
+    totalWeight += weight * item.quantity;
+    return {
+      description: item.name,
+      sku: item.sku || `SKU-${item.id}`,
+      actual_weight: weight,
+      height: item.height ? parseFloat(item.height) : 5,
+      width: item.width ? parseFloat(item.width) : 20,
+      length: item.length ? parseFloat(item.length) : 30,
+      category: "fashion",
+      declared_currency: "USD",
+      declared_customs_value: item.price,
+      quantity: item.quantity
+    };
+  });
+
+  if (items.length === 0) {
+    items.push({
+      description: "Apparel",
+      sku: "DEFAULT",
+      actual_weight: 0.5,
+      height: 5,
+      width: 20,
+      length: 30,
+      category: "fashion",
+      declared_currency: "USD",
+      declared_customs_value: 50,
+      quantity: 1
+    });
+    totalWeight = 0.5;
   }
 
-  const shippo = new Shippo({ apiKeyHeader: `ShippoToken ${apiKey}` });
+  if (isUS) {
+    // SHIPPO LOGIC FOR US
+    const apiKey = process.env.SHIPPO_API_KEY;
+    if (!apiKey) return res.status(500).json({ error: 'SHIPPO_API_KEY is not configured' });
 
-  try {
-    const shipment = await shippo.shipments.create({
-      addressFrom: {
-        name: 'Klarelle Store',
-        street1: '123 Fashion Ave',
-        city: 'New York',
-        state: 'NY',
-        zip: '10001',
-        country: 'US',
-      },
-      addressTo: {
-        name: 'Customer',
-        street1: '123 Main St',
-        city: 'Anytown',
-        state: 'NY',
-        zip: destinationZip || '10001',
-        country: 'US',
-      },
-      parcels: [{
-        length: '10',
-        width: '8',
-        height: '4',
-        distanceUnit: 'in',
-        weight: ((weightPounds * 16) + weightOunces).toString(),
-        massUnit: 'oz',
-      }],
-      async: false
-    });
-
-    let rates = [];
+    const shippo = new Shippo({ apiKeyHeader: `ShippoToken ${apiKey}` });
     
-    if (shipment && shipment.rates && shipment.rates.length > 0) {
-      rates = shipment.rates.map(r => ({
-        provider: r.provider,
-        serviceLevel: r.servicelevel.name,
-        amount: parseFloat(r.amount),
-        currency: r.currency,
-        objectId: r.objectId,
-        estimatedDays: r.estimatedDays
-      }));
-    } else {
-      // Mock data for development
-      rates = [
-        { provider: 'USPS', serviceLevel: 'Priority Mail', amount: 9.50, objectId: 'usps_mock_1', estimatedDays: 3 },
-        { provider: 'UPS', serviceLevel: 'UPS Ground', amount: 12.80, objectId: 'ups_mock_1', estimatedDays: 5 },
-        { provider: 'USPS', serviceLevel: 'Priority Mail Express', amount: 28.00, objectId: 'usps_mock_2', estimatedDays: 1 },
-        { provider: 'UPS', serviceLevel: 'UPS Next Day Air', amount: 45.00, objectId: 'ups_mock_2', estimatedDays: 1 }
+    // convert total weight to ounces for Shippo
+    const weightOunces = (totalWeight * 35.274).toFixed(2);
+
+    try {
+      const shipment = await shippo.shipments.create({
+        addressFrom: {
+          name: 'Klarelle Store',
+          street1: '123 Fashion Ave',
+          city: 'New York',
+          state: 'NY',
+          zip: '10001',
+          country: 'US',
+        },
+        addressTo: {
+          name: 'Customer',
+          street1: '123 Main St',
+          city: 'Anytown',
+          state: 'NY',
+          zip: destinationZip || '10001',
+          country: 'US',
+        },
+        parcels: [{
+          length: '10',
+          width: '8',
+          height: '4',
+          distanceUnit: 'in',
+          weight: weightOunces,
+          massUnit: 'oz',
+        }],
+        async: false
+      });
+
+      let rates = [];
+      if (shipment && shipment.rates && shipment.rates.length > 0) {
+        rates = shipment.rates.map(r => ({
+          provider: r.provider,
+          serviceLevel: r.servicelevel.name,
+          amount: parseFloat(r.amount),
+          currency: r.currency,
+          objectId: r.objectId,
+          estimatedDays: r.estimatedDays
+        }));
+      } else {
+        rates = [
+          { provider: 'USPS', serviceLevel: 'Priority Mail', amount: 9.50, objectId: 'usps_mock_1', estimatedDays: 3 },
+          { provider: 'UPS', serviceLevel: 'UPS Ground', amount: 12.80, objectId: 'ups_mock_1', estimatedDays: 5 }
+        ];
+      }
+
+      return res.status(200).json({ success: true, rates });
+    } catch (error) {
+      console.error('Shippo API Error:', error);
+      return res.status(500).json({ error: 'Internal server error while fetching shipping rates' });
+    }
+  } else {
+    // EASYSHIP LOGIC FOR INTERNATIONAL
+    const apiKey = process.env.EASYSHIP_API_KEY;
+    if (!apiKey) {
+      // Return mock Easyship data if no API key is set yet (for development)
+      const mockRates = [
+        { provider: 'ePost Global', serviceLevel: 'Economy International', amount: 19.99, objectId: 'easyship_mock_1', estimatedDays: '7-16' },
+        { provider: 'DHL Express', serviceLevel: 'Express Worldwide', amount: 45.00, objectId: 'easyship_mock_2', estimatedDays: '3-5' }
       ];
+      return res.status(200).json({ success: true, rates: mockRates });
     }
 
-    return res.status(200).json({ success: true, rates });
+    try {
+      const response = await fetch('https://api.easyship.com/2023-01/rates', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`
+        },
+        body: JSON.stringify({
+          origin_country_alpha2: 'US',
+          origin_postal_code: '10001',
+          destination_country_alpha2: destCountryCode,
+          destination_postal_code: destinationZip,
+          taxes_duties_paid_by: 'Receiver',
+          is_insured: false,
+          items: items
+        })
+      });
 
-  } catch (error) {
-    console.error('Shippo API Error:', error);
-    return res.status(500).json({ error: 'Internal server error while fetching shipping rates' });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error?.message || 'Failed to fetch Easyship rates');
+      }
+
+      let rates = [];
+      if (data.rates && data.rates.length > 0) {
+        rates = data.rates.map(r => ({
+          provider: r.courier_name,
+          serviceLevel: r.courier_service_name,
+          amount: parseFloat(r.total_charge),
+          currency: r.currency,
+          objectId: r.easyship_rate_id,
+          estimatedDays: `${r.min_delivery_time}-${r.max_delivery_time}`
+        }));
+      }
+
+      return res.status(200).json({ success: true, rates });
+    } catch (error) {
+      console.error('Easyship API Error:', error);
+      return res.status(500).json({ error: 'Internal server error while fetching international rates' });
+    }
   }
 }

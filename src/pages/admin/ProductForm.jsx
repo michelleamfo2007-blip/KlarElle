@@ -29,7 +29,13 @@ function ProductForm() {
     care_instructions: '',
     style: '',
     size_guide_url: '',
-    video_url: ''
+    video_url: '',
+    weight: '',
+    length: '',
+    width: '',
+    height: '',
+    country_of_manufacture: '',
+    hs_code: ''
   });
 
   const [sizesInput, setSizesInput] = useState('');
@@ -79,6 +85,12 @@ function ProductForm() {
         style: data.style || '',
         size_guide_url: data.size_guide_url || '',
         video_url: data.video_url || '',
+        weight: data.weight || '',
+        length: data.length || '',
+        width: data.width || '',
+        height: data.height || '',
+        country_of_manufacture: data.country_of_manufacture || '',
+        hs_code: data.hs_code || '',
       });
 
       setSizesInput(Array.isArray(data.sizes) ? data.sizes.join(', ') : (data.sizes || ''));
@@ -286,6 +298,12 @@ function ProductForm() {
       style: formData.style,
       size_guide_url: formData.size_guide_url,
       video_url: formData.video_url,
+      weight: formData.weight ? parseFloat(formData.weight) : null,
+      length: formData.length ? parseFloat(formData.length) : null,
+      width: formData.width ? parseFloat(formData.width) : null,
+      height: formData.height ? parseFloat(formData.height) : null,
+      country_of_manufacture: formData.country_of_manufacture,
+      hs_code: formData.hs_code,
       sizes: sizesInput.split(/[;,]+/).map(s => s.trim()).filter(Boolean),
       colors: colorsInput.split(/[;,]+/).map(c => c.trim()).filter(Boolean),
       tags: tagsInput.split(/[;,]+/).map(t => t.trim()).filter(Boolean),
@@ -645,6 +663,78 @@ function ProductForm() {
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '4px 10px', borderRadius: '100px', fontSize: '13px', fontWeight: '600', backgroundColor: stockStatus.bg, color: stockStatus.color }}>
                   {stockStatus.icon} {stockStatus.text}
                 </span>
+              </div>
+            </div>
+
+            {/* Shipping & Customs */}
+            <div className="card">
+              <div className="card-header"><Box size={18} /> Shipping & Customs</div>
+              <div className="card-body" style={{ display: 'grid', gap: '20px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                  <div>
+                    <label className="input-label">Weight (kg)</label>
+                    <input 
+                      type="number" 
+                      step="0.01"
+                      className="input-field" 
+                      placeholder="e.g. 0.45"
+                      value={formData.weight} 
+                      onChange={(e) => setFormData({...formData, weight: e.target.value})} 
+                    />
+                  </div>
+                  <div>
+                    <label className="input-label">HS Code</label>
+                    <input 
+                      type="text" 
+                      className="input-field" 
+                      placeholder="e.g. 6104.43"
+                      value={formData.hs_code} 
+                      onChange={(e) => setFormData({...formData, hs_code: e.target.value})} 
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="input-label">Country of Manufacture</label>
+                  <input 
+                    type="text" 
+                    className="input-field" 
+                    placeholder="e.g. USA"
+                    value={formData.country_of_manufacture} 
+                    onChange={(e) => setFormData({...formData, country_of_manufacture: e.target.value})} 
+                  />
+                </div>
+                <div>
+                  <label className="input-label">Package Dimensions (L x W x H in cm)</label>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
+                    <input 
+                      type="number" 
+                      step="0.1"
+                      className="input-field" 
+                      placeholder="Length"
+                      value={formData.length} 
+                      onChange={(e) => setFormData({...formData, length: e.target.value})} 
+                    />
+                    <input 
+                      type="number" 
+                      step="0.1"
+                      className="input-field" 
+                      placeholder="Width"
+                      value={formData.width} 
+                      onChange={(e) => setFormData({...formData, width: e.target.value})} 
+                    />
+                    <input 
+                      type="number" 
+                      step="0.1"
+                      className="input-field" 
+                      placeholder="Height"
+                      value={formData.height} 
+                      onChange={(e) => setFormData({...formData, height: e.target.value})} 
+                    />
+                  </div>
+                </div>
+              </div>
+              <div style={{ padding: '16px 20px', borderTop: '1px solid #e5e7eb', background: '#fafafa', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <span style={{ fontSize: '13px', color: '#6b7280' }}>These fields are required for accurate international shipping calculation via Easyship.</span>
               </div>
             </div>
 
