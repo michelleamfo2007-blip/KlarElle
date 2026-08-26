@@ -39,18 +39,33 @@ function Checkout() {
   
   // Shipping Form State
   const [showShippingForm, setShowShippingForm] = useState(false);
-  const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    email: session?.user?.email || '',
-    phoneCode: '+1',
-    phone: '',
-    location: 'United States',
-    region: '',
-    city: '',
-    postcode: '',
-    houseNo: '',
-    apartment: ''
+  const [formData, setFormData] = useState(() => {
+    const savedAddress = localStorage.getItem('klarelle_saved_address');
+    if (savedAddress) {
+      try {
+        const parsed = JSON.parse(savedAddress);
+        // Ensure email matches session if logged in, otherwise use saved
+        if (session?.user?.email) {
+          parsed.email = session.user.email;
+        }
+        return parsed;
+      } catch (e) {
+        console.error("Error parsing saved address", e);
+      }
+    }
+    return {
+      firstName: '',
+      lastName: '',
+      email: session?.user?.email || '',
+      phoneCode: '+1',
+      phone: '',
+      location: 'United States',
+      region: '',
+      city: '',
+      postcode: '',
+      houseNo: '',
+      apartment: ''
+    };
   });
 
   const selectedRate = shippingRates.find(r => r.objectId === selectedRateId);
@@ -161,6 +176,9 @@ function Checkout() {
       if (appliedCoupon) {
         await supabase.rpc('increment_coupon_usage', { coupon_id: appliedCoupon.id });
       }
+
+      // Save address to localStorage for future purchases
+      localStorage.setItem('klarelle_saved_address', JSON.stringify(formData));
 
       // Trigger automated receipt and admin notification emails
       // We don't await this so the user isn't stuck waiting on the checkout screen
