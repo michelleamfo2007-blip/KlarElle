@@ -78,8 +78,22 @@ function Checkout() {
   });
 
   const selectedRate = shippingRates.find(r => r.objectId === selectedRateId);
-  const baseShippingFee = selectedRate ? selectedRate.amount : 15.00;
-  const shippingFee = cartTotal >= shippingThreshold ? 0 : baseShippingFee;
+  
+  // Find the cheapest rate to apply free shipping
+  const cheapestRateId = shippingRates.length > 0 
+    ? shippingRates.reduce((prev, curr) => prev.amount < curr.amount ? prev : curr).objectId 
+    : null;
+
+  let baseShippingFee = selectedRate ? selectedRate.amount : 15.00;
+  
+  // Apply free shipping ONLY if they select the cheapest option (Standard)
+  let shippingFee = baseShippingFee;
+  if (cartTotal >= shippingThreshold) {
+    if (selectedRateId === cheapestRateId || !selectedRateId) {
+      shippingFee = 0;
+    }
+  }
+
   const shippingGuarantee = 1.50;
   
   const discountAmount = appliedCoupon ? (cartTotal * (appliedCoupon.discount_percent / 100)) : 0;
@@ -403,7 +417,12 @@ function Checkout() {
           <div style={{ padding: '20px', textAlign: 'center', color: '#666' }}>Fetching live rates...</div>
         ) : shippingRates.length > 0 ? (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '8px' }}>
-            {shippingRates.map(rate => (
+            {shippingRates.map(rate => {
+              const isCheapest = cheapestRateId === rate.objectId;
+              const isFreeEligible = cartTotal >= shippingThreshold && isCheapest;
+              const displayAmount = isFreeEligible ? 0 : rate.amount;
+              
+              return (
               <div 
                 key={rate.objectId}
                 onClick={() => setSelectedRateId(rate.objectId)}
@@ -426,14 +445,14 @@ function Checkout() {
                     <div style={{ fontWeight: '500' }}>{rate.provider} - {rate.serviceLevel}</div>
                     {rate.estimatedDays && (
                       <div style={{ fontSize: '12px', color: '#666', marginTop: '2px' }}>
-                        Estimated Delivery: {rate.estimatedDays} business day{rate.estimatedDays !== 1 ? 's' : ''}
+                        Estimated Delivery: {rate.estimatedDays} business day{rate.estimatedDays !== 1 && rate.estimatedDays !== '1' ? 's' : ''}
                       </div>
                     )}
                   </div>
                 </div>
-                <div style={{ fontWeight: 'bold' }}>{formatPrice(rate.amount)}</div>
+                <div style={{ fontWeight: 'bold' }}>{displayAmount === 0 ? 'Free' : formatPrice(displayAmount)}</div>
               </div>
-            ))}
+            )})}
           </div>
         ) : (
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
