@@ -10,11 +10,6 @@ export const CartProvider = ({ children }) => {
   const { session } = useAuth();
 
   const addToCart = (product, selectedSize = null, selectedColor = null, quantity = 1) => {
-    if (!session?.user) {
-      alert("Please sign in or create an account to add items to your cart.");
-      window.location.href = '/login';
-      return;
-    }
     setCartItems(prev => {
       const cartItemId = `${product.id}-${selectedSize || 'default'}-${selectedColor || 'default'}`;
       const existing = prev.find(item => item.cartItemId === cartItemId);
