@@ -36,9 +36,17 @@ function Checkout() {
     };
     fetchSettings();
   }, []);
-  
   // Shipping Form State
-  const [showShippingForm, setShowShippingForm] = useState(false);
+  const [showShippingForm, setShowShippingForm] = useState(() => {
+    const saved = localStorage.getItem('klarelle_saved_address');
+    if (saved) {
+      try {
+        const p = JSON.parse(saved);
+        if (p.firstName && p.postcode) return false;
+      } catch(e){}
+    }
+    return true;
+  });
   const [formData, setFormData] = useState(() => {
     const savedAddress = localStorage.getItem('klarelle_saved_address');
     if (savedAddress) {
@@ -207,7 +215,13 @@ function Checkout() {
       <div style={{ background: '#f5f5f5', minHeight: '100vh', fontFamily: '-apple-system, sans-serif' }}>
         <div style={{ maxWidth: '600px', margin: '0 auto', background: '#f5f5f5', minHeight: '100vh', position: 'relative' }}>
           <div style={{ background: '#fff', padding: '16px', display: 'flex', alignItems: 'center', position: 'sticky', top: 0, zIndex: 10, borderBottom: '1px solid #eee' }}>
-            <ChevronLeft size={24} onClick={() => setShowShippingForm(false)} style={{ cursor: 'pointer' }} />
+            <ChevronLeft size={24} onClick={() => {
+              if (!formData.firstName || !formData.postcode || !formData.houseNo) {
+                navigate('/cart');
+              } else {
+                setShowShippingForm(false);
+              }
+            }} style={{ cursor: 'pointer' }} />
             <h1 style={{ flex: 1, textAlign: 'center', fontSize: '18px', margin: 0 }}>Shipping Address</h1>
           <div style={{ width: '24px' }}></div>
         </div>
@@ -284,29 +298,31 @@ function Checkout() {
           <div style={{ width: '100%', maxWidth: '600px', background: '#fff', padding: '16px', borderTop: '1px solid #eee', pointerEvents: 'auto' }}>
             <button 
               onClick={async () => {
+                if (!formData.firstName || !formData.lastName || !formData.email || !formData.phone || !formData.region || !formData.city || !formData.postcode || !formData.houseNo) {
+                  alert("Please fill in all required fields to continue.");
+                  return;
+                }
                 setShowShippingForm(false);
-                if (formData.postcode) {
-                  setIsFetchingRates(true);
-                  try {
-                    const res = await fetch('/api/shipping-rates', {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({ 
-                        destinationZip: formData.postcode, 
-                        country: formData.location,
-                        cartItems: cartItems 
-                      })
-                    });
-                    const data = await res.json();
-                    if (data.success && data.rates && data.rates.length > 0) {
-                      setShippingRates(data.rates);
-                      setSelectedRateId(data.rates[0].objectId);
-                    }
-                  } catch (err) {
-                    console.error('Failed to fetch rates', err);
-                  } finally {
-                    setIsFetchingRates(false);
+                setIsFetchingRates(true);
+                try {
+                  const res = await fetch('/api/shipping-rates', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                      destinationZip: formData.postcode, 
+                      country: formData.location,
+                      cartItems: cartItems 
+                    })
+                  });
+                  const data = await res.json();
+                  if (data.success && data.rates && data.rates.length > 0) {
+                    setShippingRates(data.rates);
+                    setSelectedRateId(data.rates[0].objectId);
                   }
+                } catch (err) {
+                  console.error('Failed to fetch rates', err);
+                } finally {
+                  setIsFetchingRates(false);
                 }
               }}
               style={{ width: '100%', padding: '16px', background: '#000', color: '#fff', border: 'none', fontWeight: 'bold', fontSize: '16px', borderRadius: '4px', cursor: 'pointer' }}
