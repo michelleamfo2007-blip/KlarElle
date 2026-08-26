@@ -138,11 +138,13 @@ function Checkout() {
 
   useEffect(() => {
     if (finalTotal > 0) {
-      const activeCurrency = currency || 'USD';
+      // Comprehensive list of Stripe-supported currencies
+      const STRIPE_SUPPORTED_CURRENCIES = [
+        "usd", "aed", "afn", "all", "amd", "ang", "aoa", "ars", "aud", "awg", "azn", "bam", "bbd", "bdt", "bgn", "bif", "bmd", "bnd", "bob", "brl", "bsd", "bwp", "byn", "bzd", "cad", "cdf", "chf", "clp", "cny", "cop", "crc", "cve", "czk", "djf", "dkk", "dop", "dzd", "egp", "etb", "eur", "fjd", "fkp", "gbp", "gel", "gip", "gmd", "gnf", "gtq", "gyd", "hkd", "hnl", "hrk", "htg", "huf", "idr", "ils", "inr", "isk", "jmd", "jpy", "kes", "kgs", "khr", "kmf", "krw", "kyd", "kzt", "lak", "lbp", "lkr", "lrd", "lsl", "mad", "mdl", "mga", "mkd", "mmk", "mnt", "mop", "mur", "mvr", "mwk", "mxn", "myr", "mzn", "nad", "ngn", "nio", "nok", "npr", "nzd", "pab", "pen", "pgk", "php", "pkr", "pln", "pyg", "qar", "ron", "rsd", "rub", "rwf", "sar", "sbd", "scr", "sek", "sgd", "shp", "sle", "sos", "srd", "std", "szl", "thb", "tjs", "top", "try", "ttd", "twd", "tzs", "uah", "ugx", "uyu", "uzs", "vnd", "vuv", "wst", "xaf", "xcd", "xcg", "xof", "xpf", "yer", "zar", "zmw"
+      ];
       
-      // Stripe does not support GHS on all accounts. Fallback to USD.
-      const unsupportedByStripe = ['GHS'];
-      const stripeCurrency = unsupportedByStripe.includes(activeCurrency) ? 'USD' : activeCurrency;
+      const isStripeSupported = STRIPE_SUPPORTED_CURRENCIES.includes(activeCurrency.toLowerCase());
+      const stripeCurrency = isStripeSupported ? activeCurrency : 'USD';
       
       let convertedAmount;
       if (stripeCurrency === 'USD') {
@@ -487,11 +489,21 @@ function Checkout() {
       <div style={{ background: '#fff', padding: '16px', marginTop: '8px' }}>
         <h3 style={{ fontSize: '16px', margin: '0 0 16px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>Payment Method <CheckCircle2 size={16} fill="#00cf6e" color="#fff" /></h3>
         
-        {['GHS'].includes(currency) && (
-          <div style={{ padding: '12px', background: '#f5f5f5', borderRadius: '4px', fontSize: '12px', color: '#666', marginBottom: '16px' }}>
-            <strong>Note:</strong> Your bank will process this payment in US Dollars <strong>(${finalTotal.toFixed(2)})</strong>. The {currency} amount is an estimate based on current exchange rates.
-          </div>
-        )}
+        {(() => {
+          const STRIPE_SUPPORTED_CURRENCIES = [
+            "usd", "aed", "afn", "all", "amd", "ang", "aoa", "ars", "aud", "awg", "azn", "bam", "bbd", "bdt", "bgn", "bif", "bmd", "bnd", "bob", "brl", "bsd", "bwp", "byn", "bzd", "cad", "cdf", "chf", "clp", "cny", "cop", "crc", "cve", "czk", "djf", "dkk", "dop", "dzd", "egp", "etb", "eur", "fjd", "fkp", "gbp", "gel", "gip", "gmd", "gnf", "gtq", "gyd", "hkd", "hnl", "hrk", "htg", "huf", "idr", "ils", "inr", "isk", "jmd", "jpy", "kes", "kgs", "khr", "kmf", "krw", "kyd", "kzt", "lak", "lbp", "lkr", "lrd", "lsl", "mad", "mdl", "mga", "mkd", "mmk", "mnt", "mop", "mur", "mvr", "mwk", "mxn", "myr", "mzn", "nad", "ngn", "nio", "nok", "npr", "nzd", "pab", "pen", "pgk", "php", "pkr", "pln", "pyg", "qar", "ron", "rsd", "rub", "rwf", "sar", "sbd", "scr", "sek", "sgd", "shp", "sle", "sos", "srd", "std", "szl", "thb", "tjs", "top", "try", "ttd", "twd", "tzs", "uah", "ugx", "uyu", "uzs", "vnd", "vuv", "wst", "xaf", "xcd", "xcg", "xof", "xpf", "yer", "zar", "zmw"
+          ];
+          const isStripeSupported = STRIPE_SUPPORTED_CURRENCIES.includes((currency || 'USD').toLowerCase());
+          
+          if (!isStripeSupported) {
+            return (
+              <div style={{ padding: '12px', background: '#f5f5f5', borderRadius: '4px', fontSize: '12px', color: '#666', marginBottom: '16px' }}>
+                <strong>Note:</strong> Your bank will process this payment in US Dollars <strong>(${finalTotal.toFixed(2)})</strong>. The {currency} amount is an estimate based on current exchange rates.
+              </div>
+            );
+          }
+          return null;
+        })()}
 
         {!selectedRateId && shippingRates.length > 0 ? (
           <div style={{ padding: '24px', textAlign: 'center', background: '#f9fafb', color: '#666', border: '1px solid #eee', borderRadius: '8px' }}>
