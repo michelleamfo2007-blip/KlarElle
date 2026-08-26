@@ -41,6 +41,13 @@ function ProductDetails() {
   const [activeImage, setActiveImage] = useState(0);
   const [previewImage, setPreviewImage] = useState(null);
   const [quantity, setQuantity] = useState(1);
+  const [addedToCart, setAddedToCart] = useState(false);
+
+  const handleAddToCart = () => {
+    addToCart(product, selectedSize, selectedColor, quantity);
+    setAddedToCart(true);
+    setTimeout(() => setAddedToCart(false), 2500);
+  };
 
   // Modal State
   const [showSizeModal, setShowSizeModal] = useState(false);
@@ -584,8 +591,13 @@ function ProductDetails() {
               <button style={{ width: '50px', height: '50px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #000', background: 'transparent', cursor: 'pointer', borderRadius: '4px' }} onClick={() => toggleFavorite(product.id)}>
                 <Heart size={24} fill={isFavorite(product.id) ? '#000' : 'none'} />
               </button>
-              <button className="add-to-bag" onClick={() => addToCart(product, selectedSize, selectedColor, quantity)} disabled={isOutOfStock}>
-                {isOutOfStock ? 'OUT OF STOCK' : 'Add to Cart'}
+              <button 
+                className="add-to-bag" 
+                onClick={handleAddToCart} 
+                disabled={isOutOfStock}
+                style={{ background: addedToCart ? '#2f9e44' : '#000' }}
+              >
+                {isOutOfStock ? 'OUT OF STOCK' : addedToCart ? '✓ Added to Cart' : 'Add to Cart'}
               </button>
             </div>
           </div>
@@ -599,10 +611,11 @@ function ProductDetails() {
          </button>
          <button 
            className="add-to-bag"
-           onClick={() => addToCart(product, selectedSize, selectedColor, quantity)}
+           onClick={handleAddToCart}
            disabled={isOutOfStock}
+           style={{ background: addedToCart ? '#2f9e44' : '#000' }}
          >
-           {isOutOfStock ? 'OUT OF STOCK' : 'Add to Cart'}
+           {isOutOfStock ? 'OUT OF STOCK' : addedToCart ? '✓ Added to Cart' : 'Add to Cart'}
          </button>
       </div>
       
