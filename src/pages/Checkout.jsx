@@ -139,14 +139,24 @@ function Checkout() {
   useEffect(() => {
     if (finalTotal > 0) {
       const activeCurrency = currency || 'USD';
-      const rate = EXCHANGE_RATES[activeCurrency]?.rate || 1;
-      const convertedAmount = finalTotal * rate;
+      
+      // Stripe does not support GHS on all accounts. Fallback to USD.
+      const unsupportedByStripe = ['GHS'];
+      const stripeCurrency = unsupportedByStripe.includes(activeCurrency) ? 'USD' : activeCurrency;
+      
+      let convertedAmount;
+      if (stripeCurrency === 'USD') {
+        convertedAmount = finalTotal; // Base amount is already USD
+      } else {
+        const rate = EXCHANGE_RATES[activeCurrency]?.rate || 1;
+        convertedAmount = finalTotal * rate;
+      }
 
       setPaymentError("");
       fetch("/api/create-payment-intent", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amount: convertedAmount, currency: activeCurrency }),
+        body: JSON.stringify({ amount: convertedAmount, currency: stripeCurrency }),
       })
         .then(async (res) => {
           const data = await res.json();
@@ -476,6 +486,13 @@ function Checkout() {
       {/* Payment Method */}
       <div style={{ background: '#fff', padding: '16px', marginTop: '8px' }}>
         <h3 style={{ fontSize: '16px', margin: '0 0 16px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>Payment Method <CheckCircle2 size={16} fill="#00cf6e" color="#fff" /></h3>
+        
+        {['GHS'].includes(currency) && (
+          <div style={{ padding: '12px', background: '#f5f5f5', borderRadius: '4px', fontSize: '12px', color: '#666', marginBottom: '16px' }}>
+            <strong>Note:</strong> Your bank will process this payment in US Dollars <strong>(${finalTotal.toFixed(2)})</strong>. The {currency} amount is an estimate based on current exchange rates.
+          </div>
+        )}
+
         {clientSecret ? (
           <Elements options={options} stripe={stripePromise}>
             <CheckoutForm amount={finalTotal} formattedAmount={formatPrice(finalTotal)} onSuccess={handlePaymentSuccess} />
