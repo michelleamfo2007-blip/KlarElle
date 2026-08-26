@@ -19,6 +19,7 @@ function Checkout() {
   const { currency, EXCHANGE_RATES, formatPrice } = useCurrency();
   
   const [clientSecret, setClientSecret] = useState("");
+  const [paymentError, setPaymentError] = useState("");
   const [couponInput, setCouponInput] = useState("");
   const [appliedCoupon, setAppliedCoupon] = useState(null);
   const [couponMessage, setCouponMessage] = useState({ text: "", type: "" });
@@ -127,14 +128,24 @@ function Checkout() {
       const rate = EXCHANGE_RATES[activeCurrency]?.rate || 1;
       const convertedAmount = finalTotal * rate;
 
+      setPaymentError("");
       fetch("/api/create-payment-intent", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ amount: convertedAmount, currency: activeCurrency }),
       })
-        .then((res) => res.json())
+        .then(async (res) => {
+          const data = await res.json();
+          if (!res.ok || data.error) {
+            throw new Error(data.error?.message || data.error || 'Failed to initialize payment');
+          }
+          return data;
+        })
         .then((data) => setClientSecret(data.clientSecret))
-        .catch((err) => console.error("Error fetching client secret", err));
+        .catch((err) => {
+          console.error("Error fetching client secret", err);
+          setPaymentError(err.message);
+        });
     }
   }, [finalTotal, currency, EXCHANGE_RATES]);
 
@@ -450,6 +461,12 @@ function Checkout() {
           <Elements options={options} stripe={stripePromise}>
             <CheckoutForm amount={finalTotal} formattedAmount={formatPrice(finalTotal)} onSuccess={handlePaymentSuccess} />
           </Elements>
+        ) : paymentError ? (
+          <div style={{ padding: '24px', textAlign: 'center', background: '#fee2e2', color: '#dc2626', borderRadius: '8px' }}>
+            <strong>Payment Setup Error:</strong><br/>
+            {paymentError}<br/>
+            <span style={{ fontSize: '12px', marginTop: '8px', display: 'block' }}>If you are the admin, ensure your STRIPE_SECRET_KEY is added to Vercel Environment Variables.</span>
+          </div>
         ) : (
           <div style={{ padding: '24px', textAlign: 'center', background: '#f9fafb' }}>
             Loading secure payment form...
