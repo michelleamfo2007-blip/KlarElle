@@ -269,13 +269,32 @@ function ProductForm() {
     const mainImg = imageUrls[0] || '';
     const hoverImg = imageUrls[1] || '';
 
-    const totalVariantStock = Object.values(variantImages).reduce((total, variant) => {
-      const stockObj = variant.stock || {};
-      return total + Object.values(stockObj).reduce((sum, qty) => sum + (parseInt(qty, 10) || 0), 0);
-    }, 0);
+    const activeColors = colorsInput.split(/[;,]+/).map(c => c.trim()).filter(Boolean);
+    const activeSizes = sizesInput.split(/[;,]+/).map(s => s.trim()).filter(Boolean);
+    
+    const cleanVariantImages = {};
+    let totalVariantStock = 0;
+
+    if (activeColors.length > 0 && activeSizes.length > 0) {
+      activeColors.forEach(color => {
+        if (variantImages[color]) {
+          cleanVariantImages[color] = { ...variantImages[color], stock: {} };
+          activeSizes.forEach(size => {
+            const qty = parseInt(variantImages[color].stock?.[size], 10) || 0;
+            cleanVariantImages[color].stock[size] = qty;
+            totalVariantStock += qty;
+          });
+        } else {
+          cleanVariantImages[color] = { stock: {} };
+          activeSizes.forEach(size => {
+            cleanVariantImages[color].stock[size] = 0;
+          });
+        }
+      });
+    }
     
     // Auto-calculate total stock if variants exist, otherwise use manual input
-    const finalStock = (sizesInput && colorsInput && totalVariantStock > 0) ? totalVariantStock : parseInt(formData.stock, 10);
+    const finalStock = (activeSizes.length > 0 && activeColors.length > 0) ? totalVariantStock : parseInt(formData.stock, 10);
 
     const productData = {
       name: formData.name,
@@ -304,10 +323,10 @@ function ProductForm() {
       height: formData.height ? parseFloat(formData.height) : null,
       country_of_manufacture: formData.country_of_manufacture,
       hs_code: formData.hs_code,
-      sizes: sizesInput.split(/[;,]+/).map(s => s.trim()).filter(Boolean),
-      colors: colorsInput.split(/[;,]+/).map(c => c.trim()).filter(Boolean),
+      sizes: activeSizes,
+      colors: activeColors,
       tags: tagsInput.split(/[;,]+/).map(t => t.trim()).filter(Boolean),
-      variant_images: variantImages
+      variant_images: cleanVariantImages
     };
 
     try {
@@ -327,6 +346,23 @@ function ProductForm() {
   };
 
   const discount = calculateDiscount();
+
+  const getActiveTotalStock = () => {
+    if (!sizesInput || !colorsInput) return parseInt(formData.stock, 10) || 0;
+    const activeColors = colorsInput.split(/[;,]+/).map(c => c.trim()).filter(Boolean);
+    const activeSizes = sizesInput.split(/[;,]+/).map(s => s.trim()).filter(Boolean);
+    let total = 0;
+    activeColors.forEach(color => {
+      if (variantImages[color] && variantImages[color].stock) {
+        activeSizes.forEach(size => {
+          total += parseInt(variantImages[color].stock[size], 10) || 0;
+        });
+      }
+    });
+    return total;
+  };
+
+  const activeTotalStock = getActiveTotalStock();
   const stockStatus = getStockStatus();
 
   return (
@@ -643,7 +679,7 @@ function ProductForm() {
                   <input 
                     type="number" 
                     className="input-field" 
-                    value={(sizesInput && colorsInput) ? Object.values(variantImages).reduce((t, v) => t + Object.values(v.stock || {}).reduce((s, q) => s + (parseInt(q)||0), 0), 0) : formData.stock} 
+                    value={(sizesInput && colorsInput) ? activeTotalStock : formData.stock} 
                     onChange={(e) => setFormData({...formData, stock: e.target.value})} 
                     disabled={!!(sizesInput && colorsInput)}
                   />
