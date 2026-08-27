@@ -84,12 +84,15 @@ function Checkout() {
     ? shippingRates.reduce((prev, curr) => prev.amount < curr.amount ? prev : curr).objectId 
     : null;
 
-  let baseShippingFee = selectedRate ? selectedRate.amount : 0.00;
+  // Default fallback rate in USD if the shipping API returns no rates for the country
+  const FALLBACK_SHIPPING_RATE = 15.00;
+
+  let baseShippingFee = selectedRate ? selectedRate.amount : (shippingRates.length === 0 ? FALLBACK_SHIPPING_RATE : 0.00);
   
   // Apply free shipping ONLY if they select the cheapest option (Standard)
   let shippingFee = baseShippingFee;
   if (cartTotal >= shippingThreshold) {
-    if (selectedRateId === cheapestRateId || !selectedRateId) {
+    if (shippingRates.length === 0 || selectedRateId === cheapestRateId) {
       shippingFee = 0;
     }
   }
@@ -143,14 +146,14 @@ function Checkout() {
         "usd", "aed", "afn", "all", "amd", "ang", "aoa", "ars", "aud", "awg", "azn", "bam", "bbd", "bdt", "bgn", "bif", "bmd", "bnd", "bob", "brl", "bsd", "bwp", "byn", "bzd", "cad", "cdf", "chf", "clp", "cny", "cop", "crc", "cve", "czk", "djf", "dkk", "dop", "dzd", "egp", "etb", "eur", "fjd", "fkp", "gbp", "gel", "gip", "gmd", "gnf", "gtq", "gyd", "hkd", "hnl", "hrk", "htg", "huf", "idr", "ils", "inr", "isk", "jmd", "jpy", "kes", "kgs", "khr", "kmf", "krw", "kyd", "kzt", "lak", "lbp", "lkr", "lrd", "lsl", "mad", "mdl", "mga", "mkd", "mmk", "mnt", "mop", "mur", "mvr", "mwk", "mxn", "myr", "mzn", "nad", "ngn", "nio", "nok", "npr", "nzd", "pab", "pen", "pgk", "php", "pkr", "pln", "pyg", "qar", "ron", "rsd", "rub", "rwf", "sar", "sbd", "scr", "sek", "sgd", "shp", "sle", "sos", "srd", "std", "szl", "thb", "tjs", "top", "try", "ttd", "twd", "tzs", "uah", "ugx", "uyu", "uzs", "vnd", "vuv", "wst", "xaf", "xcd", "xcg", "xof", "xpf", "yer", "zar", "zmw"
       ];
       
-      const isStripeSupported = STRIPE_SUPPORTED_CURRENCIES.includes(activeCurrency.toLowerCase());
-      const stripeCurrency = isStripeSupported ? activeCurrency : 'USD';
+      const isStripeSupported = STRIPE_SUPPORTED_CURRENCIES.includes((currency || 'USD').toLowerCase());
+      const stripeCurrency = isStripeSupported ? currency : 'USD';
       
       let convertedAmount;
       if (stripeCurrency === 'USD') {
         convertedAmount = finalTotal; // Base amount is already USD
       } else {
-        const rate = EXCHANGE_RATES[activeCurrency]?.rate || 1;
+        const rate = EXCHANGE_RATES[currency]?.rate || 1;
         convertedAmount = finalTotal * rate;
       }
 
