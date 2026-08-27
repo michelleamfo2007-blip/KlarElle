@@ -26,7 +26,7 @@ const CustomSlider = ({ value, min, max, onChange, marks }) => {
 
 function ProductDetails() {
   const { id } = useParams();
-  const { addToCart } = useCart();
+  const { addToCart, cartItems } = useCart();
   const { toggleFavorite, isFavorite } = useFavorites();
   const { formatPrice } = useCurrency();
   
@@ -43,7 +43,38 @@ function ProductDetails() {
   const [quantity, setQuantity] = useState(1);
   const [addedToCart, setAddedToCart] = useState(false);
 
+  // Compute available stock based on currently selected product and variations
+  let availableStock = product?.stock || 0;
+  if (product?.variant_images) {
+    const hasVariantInventory = Object.values(product.variant_images).some(v => typeof v === 'object' && v !== null && v.stock);
+    if (hasVariantInventory) {
+      const colorData = product.variant_images[selectedColor];
+      if (colorData && colorData.stock && colorData.stock[selectedSize] !== undefined) {
+        availableStock = parseInt(colorData.stock[selectedSize], 10);
+      } else {
+        availableStock = 0;
+      }
+    }
+  }
+
+  const cartItemId = product ? `${product.id}-${selectedSize || 'default'}-${selectedColor || 'default'}` : null;
+  const qtyInCart = cartItems?.find(item => item.cartItemId === cartItemId)?.quantity || 0;
+  const remainingStock = Math.max(0, availableStock - qtyInCart);
+
+  // Cap quantity if they switch to a variant with less stock than currently selected
+  useEffect(() => {
+    if (product && quantity > remainingStock && remainingStock > 0) {
+      setQuantity(remainingStock);
+    } else if (product && remainingStock === 0) {
+      setQuantity(1); // Reset to 1 visually, button will be disabled anyway
+    }
+  }, [remainingStock, quantity, product]);
+
   const handleAddToCart = () => {
+    if (quantity > remainingStock) {
+      alert(`You already have ${qtyInCart} in your cart. You can only add ${remainingStock} more.`);
+      return;
+    }
     addToCart(product, selectedSize, selectedColor, quantity);
     setAddedToCart(true);
     setTimeout(() => setAddedToCart(false), 2500);
@@ -240,19 +271,7 @@ function ProductDetails() {
   }
   if (images.length === 0) images.push('/placeholder.png');
 
-  let isOutOfStock = product.stock <= 0;
-  if (product.variant_images) {
-    const hasVariantInventory = Object.values(product.variant_images).some(v => typeof v === 'object' && v !== null && v.stock);
-    if (hasVariantInventory) {
-      const colorData = product.variant_images[selectedColor];
-      if (colorData && colorData.stock && colorData.stock[selectedSize] !== undefined) {
-        isOutOfStock = parseInt(colorData.stock[selectedSize], 10) <= 0;
-      } else {
-        isOutOfStock = true;
-      }
-    }
-  }
-
+  let isOutOfStock = remainingStock <= 0;
   return (
     <div className="product-details-page" style={{ paddingBottom: '90px' }}>
       <div className="container" style={{ padding: '40px 20px' }}>
@@ -471,11 +490,17 @@ function ProductDetails() {
 
             {/* Quantity Selector */}
             <div style={{ marginTop: '24px' }}>
-              <div className="pd-options-title">Quantity</div>
+              <div className="pd-options-title">Quantity <span style={{fontSize: '12px', color: '#666', fontWeight: 'normal'}}>(Available: {availableStock})</span></div>
               <div style={{ display: 'flex', alignItems: 'center', marginTop: '12px', border: '1px solid #e0e0e0', width: 'fit-content', borderRadius: '4px' }}>
                 <button onClick={() => setQuantity(Math.max(1, quantity - 1))} style={{ padding: '8px 16px', fontSize: '18px', cursor: 'pointer', background: '#f9f9f9', borderRight: '1px solid #e0e0e0', borderTopLeftRadius: '4px', borderBottomLeftRadius: '4px' }}>-</button>
                 <div style={{ padding: '0 24px', fontSize: '16px', fontWeight: 'bold' }}>{quantity}</div>
-                <button onClick={() => setQuantity(quantity + 1)} style={{ padding: '8px 16px', fontSize: '18px', cursor: 'pointer', background: '#f9f9f9', borderLeft: '1px solid #e0e0e0', borderTopRightRadius: '4px', borderBottomRightRadius: '4px' }}>+</button>
+                <button onClick={() => {
+                  if (quantity < remainingStock) {
+                    setQuantity(quantity + 1);
+                  } else {
+                    alert(`Sorry, only ${remainingStock} more items available to add to your cart (You already have ${qtyInCart} in cart).`);
+                  }
+                }} style={{ padding: '8px 16px', fontSize: '18px', cursor: 'pointer', background: '#f9f9f9', borderLeft: '1px solid #e0e0e0', borderTopRightRadius: '4px', borderBottomRightRadius: '4px' }}>+</button>
               </div>
             </div>
 
@@ -597,7 +622,7 @@ function ProductDetails() {
                 disabled={isOutOfStock}
                 style={{ background: addedToCart ? '#2f9e44' : '#000' }}
               >
-                {isOutOfStock ? 'OUT OF STOCK' : addedToCart ? '✓ Added to Cart' : 'Add to Cart'}
+                {isOutOfStock ? (qtyInCart >= availableStock && availableStock > 0 ? 'MAX IN CART' : 'OUT OF STOCK') : addedToCart ? '✓ Added to Cart' : 'Add to Cart'}
               </button>
             </div>
           </div>
@@ -615,7 +640,7 @@ function ProductDetails() {
            disabled={isOutOfStock}
            style={{ background: addedToCart ? '#2f9e44' : '#000' }}
          >
-           {isOutOfStock ? 'OUT OF STOCK' : addedToCart ? '✓ Added to Cart' : 'Add to Cart'}
+           {isOutOfStock ? (qtyInCart >= availableStock && availableStock > 0 ? 'MAX IN CART' : 'OUT OF STOCK') : addedToCart ? '✓ Added to Cart' : 'Add to Cart'}
          </button>
       </div>
       
