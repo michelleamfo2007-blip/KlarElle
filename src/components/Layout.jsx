@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { Search, User, Heart, ShoppingBag, Globe, Smartphone, ChevronDown, Wrench } from 'lucide-react';
+import { Search, User, Heart, ShoppingBag, Globe, Smartphone, ChevronDown, Wrench, Camera, Loader2 } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { useCurrency } from '../context/CurrencyContext';
@@ -22,12 +22,74 @@ function Layout() {
   const [subscribing, setSubscribing] = useState(false);
   const [maintenanceMode, setMaintenanceMode] = useState(false);
   const [checkingMaintenance, setCheckingMaintenance] = useState(true);
+  const [analyzingImage, setAnalyzingImage] = useState(false);
+  const fileInputRef = React.useRef(null);
 
   const handleSearch = (e) => {
     e.preventDefault();
     if (searchQuery.trim()) {
       navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
       setSearchQuery('');
+    }
+  };
+
+  const handleImageUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      showToast("Image too large. Maximum size is 5MB.");
+      return;
+    }
+
+    try {
+      setAnalyzingImage(true);
+      showToast("Analyzing image...");
+
+      // Convert to base64
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      
+      reader.onload = async () => {
+        const base64Data = reader.result;
+        
+        try {
+          // Adjust this URL to point to your backend/Vercel endpoint
+          const apiUrl = import.meta.env.VITE_API_URL || '';
+          const response = await fetch(`${apiUrl}/api/analyze-image`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              image: base64Data,
+              mimeType: file.type
+            }),
+          });
+
+          if (!response.ok) {
+            throw new Error('Failed to analyze image');
+          }
+
+          const data = await response.json();
+          if (data.keywords) {
+            navigate(`/search?q=${encodeURIComponent(data.keywords)}`);
+          }
+        } catch (error) {
+          console.error(error);
+          showToast("Couldn't analyze image. Please try again.");
+        } finally {
+          setAnalyzingImage(false);
+          // Reset file input
+          if (fileInputRef.current) {
+            fileInputRef.current.value = '';
+          }
+        }
+      };
+    } catch (error) {
+      console.error(error);
+      setAnalyzingImage(false);
+      showToast("An error occurred.");
     }
   };
 
@@ -179,17 +241,59 @@ function Layout() {
           <div className="header-main">
             <Link to="/" className="logo">KLARELLE</Link>
             
-            <form className="search-bar" onSubmit={handleSearch}>
+            <form className="search-bar" onSubmit={handleSearch} style={{ position: 'relative' }}>
               <input 
                 type="text" 
                 className="search-input" 
                 placeholder="Search dresses..." 
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
+                disabled={analyzingImage}
+                style={{ paddingRight: '40px' }}
               />
               <Search className="search-icon" size={18} />
-              <button type="submit" className="search-btn">SEARCH</button>
+              
+              <button 
+                type="button" 
+                className="camera-btn" 
+                onClick={() => fileInputRef.current?.click()}
+                disabled={analyzingImage}
+                style={{
+                  position: 'absolute',
+                  right: '90px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  background: 'none',
+                  border: 'none',
+                  color: '#666',
+                  cursor: analyzingImage ? 'default' : 'pointer',
+                  padding: '4px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
+                title="Search by Image"
+              >
+                {analyzingImage ? <Loader2 size={18} className="spin" /> : <Camera size={18} />}
+              </button>
+              
+              <input 
+                type="file" 
+                accept="image/*" 
+                capture="environment"
+                ref={fileInputRef}
+                onChange={handleImageUpload}
+                style={{ display: 'none' }}
+              />
+              
+              <button type="submit" className="search-btn" disabled={analyzingImage}>SEARCH</button>
             </form>
+            
+            <style>{`
+              @keyframes spin { 100% { transform: rotate(360deg); } }
+              .spin { animation: spin 1s linear infinite; }
+              .camera-btn:hover { color: #000 !important; }
+            `}</style>
             
             <div className="header-actions">
               {session?.user ? (
