@@ -8,6 +8,7 @@ function OrderDetails() {
   const [order, setOrder] = useState(null);
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [manualTracking, setManualTracking] = useState('');
 
   useEffect(() => {
     fetchOrderDetails();
@@ -42,6 +43,26 @@ function OrderDetails() {
     }
     
     setLoading(false);
+  };
+
+  const saveManualTracking = async () => {
+    if (!manualTracking.trim()) {
+      alert('Please enter a tracking number.');
+      return;
+    }
+    try {
+      const { error: updateError } = await supabase
+        .from('orders')
+        .update({ tracking_number: manualTracking, status: 'Shipped' })
+        .eq('id', id);
+
+      if (updateError) throw updateError;
+      
+      setOrder(prev => ({ ...prev, tracking_number: manualTracking, status: 'Shipped' }));
+      alert('Tracking number saved and order marked as Shipped.');
+    } catch (err) {
+      alert('Error saving tracking: ' + err.message);
+    }
   };
 
   if (loading) return <div style={{ padding: '40px' }}>Loading order details...</div>;
@@ -166,14 +187,31 @@ function OrderDetails() {
                   {order.tracking_number ? (
                     <div>
                       <div style={{ fontWeight: '500', color: '#16a34a' }}>{order.tracking_number}</div>
-                      {order.label_url && (
-                        <a href={order.label_url} target="_blank" rel="noreferrer" style={{ display: 'inline-block', marginTop: '8px', fontSize: '13px', color: '#2563eb', textDecoration: 'underline' }}>
+                      {order.shipping_label_url && (
+                        <a href={order.shipping_label_url} target="_blank" rel="noreferrer" style={{ display: 'inline-block', marginTop: '8px', fontSize: '13px', color: '#2563eb', textDecoration: 'underline' }}>
                           Download Label PDF
                         </a>
                       )}
                     </div>
                   ) : (
-                    <div style={{ color: '#9ca3af' }}>No tracking available</div>
+                    <div>
+                      <div style={{ color: '#9ca3af', marginBottom: '8px' }}>No tracking available</div>
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        <input 
+                          type="text" 
+                          placeholder="Enter Supplier Tracking #" 
+                          value={manualTracking}
+                          onChange={(e) => setManualTracking(e.target.value)}
+                          style={{ padding: '6px', fontSize: '13px', border: '1px solid #d1d5db', borderRadius: '4px', flex: 1 }}
+                        />
+                        <button 
+                          onClick={saveManualTracking}
+                          style={{ padding: '6px 12px', fontSize: '13px', background: '#000', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                        >
+                          Save
+                        </button>
+                      </div>
+                    </div>
                   )}
                 </div>
               </div>

@@ -19,8 +19,9 @@ function ProductForm() {
     price: '',
     old_price: '',
     category: 'new-in',
-    stock: 0,
-    low_stock_threshold: 5,
+    stock: '',
+    stock_international: '',
+    low_stock_threshold: '5',
     status: 'active',
     visibility: true,
     material: '',
@@ -74,8 +75,9 @@ function ProductForm() {
         price: data.price || '',
         old_price: data.old_price || '',
         category: data.category || 'new-in',
-        stock: data.stock || 0,
-        low_stock_threshold: data.low_stock_threshold || 5,
+        stock: data.stock !== null ? data.stock.toString() : '',
+        stock_international: data.stock_international !== null ? data.stock_international.toString() : '',
+        low_stock_threshold: data.low_stock_threshold !== null ? data.low_stock_threshold.toString() : '5',
         status: data.status || 'active',
         visibility: data.visibility ?? true,
         material: data.material || '',
@@ -137,8 +139,9 @@ function ProductForm() {
   };
 
   const getStockStatus = () => {
-    if (formData.stock <= 0) return { text: 'Out of Stock', color: '#dc2626', bg: '#fef2f2', icon: '🔴' };
-    if (formData.stock <= formData.low_stock_threshold) return { text: 'Low Stock', color: '#d97706', bg: '#fffbeb', icon: '🟠' };
+    const totalStock = (parseInt(formData.stock, 10) || 0) + (parseInt(formData.stock_international, 10) || 0);
+    if (totalStock <= 0) return { text: 'Out of Stock', color: '#dc2626', bg: '#fef2f2', icon: '🔴' };
+    if (totalStock <= parseInt(formData.low_stock_threshold, 10)) return { text: 'Low Stock', color: '#d97706', bg: '#fffbeb', icon: '🟠' };
     return { text: 'In Stock', color: '#16a34a', bg: '#f0fdf4', icon: '🟢' };
   };
 
@@ -293,7 +296,6 @@ function ProductForm() {
       });
     }
     
-    // Auto-calculate total stock if variants exist, otherwise use manual input
     const finalStock = (activeSizes.length > 0 && activeColors.length > 0) ? totalVariantStock : parseInt(formData.stock, 10);
 
     const productData = {
@@ -304,7 +306,8 @@ function ProductForm() {
       old_price: formData.old_price ? parseFloat(formData.old_price) : null,
       category: formData.category,
       stock: finalStock,
-      low_stock_threshold: parseInt(formData.low_stock_threshold, 10),
+      stock_international: formData.stock_international ? parseInt(formData.stock_international, 10) : 0,
+      low_stock_threshold: formData.low_stock_threshold ? parseInt(formData.low_stock_threshold, 10) : 5,
       status: saveAsStatus || formData.status,
       visibility: formData.visibility,
       image_url: mainImg,
@@ -346,23 +349,6 @@ function ProductForm() {
   };
 
   const discount = calculateDiscount();
-
-  const getActiveTotalStock = () => {
-    if (!sizesInput || !colorsInput) return parseInt(formData.stock, 10) || 0;
-    const activeColors = colorsInput.split(/[;,]+/).map(c => c.trim()).filter(Boolean);
-    const activeSizes = sizesInput.split(/[;,]+/).map(s => s.trim()).filter(Boolean);
-    let total = 0;
-    activeColors.forEach(color => {
-      if (variantImages[color] && variantImages[color].stock) {
-        activeSizes.forEach(size => {
-          total += parseInt(variantImages[color].stock[size], 10) || 0;
-        });
-      }
-    });
-    return total;
-  };
-
-  const activeTotalStock = getActiveTotalStock();
   const stockStatus = getStockStatus();
 
   return (
@@ -430,10 +416,8 @@ function ProductForm() {
 
         <div className="form-grid" style={{ display: 'grid', gap: '24px' }}>
           
-          {/* LEFT COLUMN - MAIN FORM */}
           <div style={{ display: 'flex', flexDirection: 'column' }}>
             
-            {/* Product Information */}
             <div className="card">
               <div className="card-header"><Box size={18} /> Product Information</div>
               <div className="card-body" style={{ display: 'grid', gap: '20px' }}>
@@ -594,7 +578,6 @@ function ProductForm() {
               </div>
             </div>
 
-            {/* Media / Images */}
             <div className="card">
               <div className="card-header"><Upload size={18} /> Product Images *</div>
               <div className="card-body">
@@ -662,7 +645,6 @@ function ProductForm() {
               </div>
             </div>
 
-            {/* Pricing */}
             <div className="card">
               <div className="card-header"><Tag size={18} /> Pricing</div>
               <div className="card-body" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
@@ -703,28 +685,35 @@ function ProductForm() {
               </div>
             </div>
 
-            {/* Inventory */}
             <div className="card">
               <div className="card-header"><Box size={18} /> Inventory & Stock</div>
-              <div className="card-body" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+              <div className="card-body" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '20px' }}>
                 <div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <label className="input-label">Stock Quantity *</label>
-                    {(sizesInput && colorsInput) && <span style={{ fontSize: '12px', color: '#16a34a' }}>Auto-calculated from variants</span>}
-                  </div>
+                  <label className="input-label">U.S. Warehouse Stock</label>
                   <input 
                     type="number" 
                     className="input-field" 
-                    value={(sizesInput && colorsInput) ? activeTotalStock : formData.stock} 
+                    placeholder="0"
+                    value={formData.stock} 
                     onChange={(e) => setFormData({...formData, stock: e.target.value})} 
-                    disabled={!!(sizesInput && colorsInput)}
                   />
                 </div>
                 <div>
-                  <label className="input-label">Low Stock Threshold</label>
+                  <label className="input-label">International Warehouse Stock</label>
                   <input 
                     type="number" 
                     className="input-field" 
+                    placeholder="0"
+                    value={formData.stock_international} 
+                    onChange={(e) => setFormData({...formData, stock_international: e.target.value})} 
+                  />
+                </div>
+                <div>
+                  <label className="input-label">Low Stock Alert Threshold</label>
+                  <input 
+                    type="number" 
+                    className="input-field" 
+                    placeholder="5"
                     value={formData.low_stock_threshold} 
                     onChange={(e) => setFormData({...formData, low_stock_threshold: e.target.value})} 
                   />
@@ -921,31 +910,62 @@ function ProductForm() {
                       </div>
 
                       {/* Stock Matrix for this Color */}
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))', gap: '12px' }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '12px' }}>
                         {sizesInput.split(/[;,]+/).map(s => s.trim()).filter(Boolean).map(size => (
-                          <div key={size}>
-                            <label style={{ fontSize: '12px', color: '#666', marginBottom: '4px', display: 'block' }}>Size {size}</label>
-                            <input 
-                              type="number" 
-                              className="input-field" 
-                              placeholder="0"
-                              min="0"
-                              style={{ padding: '6px 8px' }}
-                              value={(variantImages[color]?.stock?.[size]) || ''} 
-                              onChange={(e) => {
-                                const val = e.target.value;
-                                setVariantImages(prev => ({
-                                  ...prev,
-                                  [color]: {
-                                    ...(prev[color] || { image: null }),
-                                    stock: {
-                                      ...(prev[color]?.stock || {}),
-                                      [size]: val
-                                    }
-                                  }
-                                }));
-                              }} 
-                            />
+                          <div key={size} style={{ border: '1px solid #ddd', padding: '8px', borderRadius: '4px', background: '#fff' }}>
+                            <label style={{ fontSize: '13px', fontWeight: 'bold', color: '#111', marginBottom: '8px', display: 'block' }}>Size {size}</label>
+                            
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                <span style={{ fontSize: '11px', color: '#666' }}>US Stock:</span>
+                                <input 
+                                  type="number" 
+                                  className="input-field" 
+                                  placeholder="0"
+                                  min="0"
+                                  style={{ padding: '4px 6px', width: '60px', height: '24px', fontSize: '12px' }}
+                                  value={(variantImages[color]?.stock?.[size]) || ''} 
+                                  onChange={(e) => {
+                                    const val = e.target.value;
+                                    setVariantImages(prev => ({
+                                      ...prev,
+                                      [color]: {
+                                        ...(prev[color] || { image: null }),
+                                        stock: {
+                                          ...(prev[color]?.stock || {}),
+                                          [size]: val
+                                        }
+                                      }
+                                    }));
+                                  }} 
+                                />
+                              </div>
+                              
+                              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                <span style={{ fontSize: '11px', color: '#666' }}>Int'l Stock:</span>
+                                <input 
+                                  type="number" 
+                                  className="input-field" 
+                                  placeholder="0"
+                                  min="0"
+                                  style={{ padding: '4px 6px', width: '60px', height: '24px', fontSize: '12px' }}
+                                  value={(variantImages[color]?.stock_international?.[size]) || ''} 
+                                  onChange={(e) => {
+                                    const val = e.target.value;
+                                    setVariantImages(prev => ({
+                                      ...prev,
+                                      [color]: {
+                                        ...(prev[color] || { image: null }),
+                                        stock_international: {
+                                          ...(prev[color]?.stock_international || {}),
+                                          [size]: val
+                                        }
+                                      }
+                                    }));
+                                  }} 
+                                />
+                              </div>
+                            </div>
                           </div>
                         ))}
                       </div>
