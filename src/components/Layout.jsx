@@ -90,7 +90,8 @@ function Layout() {
           }
         } catch (error) {
           console.error(error);
-          showToast("Couldn't analyze image. Please try again.");
+          showToast("We couldn't clearly identify this image, but here are some of our popular styles!");
+          navigate('/category/all');
         } finally {
           setAnalyzingImage(false);
           // Reset file input
@@ -102,7 +103,8 @@ function Layout() {
     } catch (error) {
       console.error(error);
       setAnalyzingImage(false);
-      showToast("An error occurred.");
+      showToast("We couldn't process this image. Here are our popular styles instead!");
+      navigate('/category/all');
     }
   };
 
