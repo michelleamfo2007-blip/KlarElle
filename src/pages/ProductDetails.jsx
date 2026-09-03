@@ -60,18 +60,19 @@ function ProductDetails() {
   const cartItemId = product ? `${product.id}-${selectedSize || 'default'}-${selectedColor || 'default'}` : null;
   const qtyInCart = cartItems?.find(item => item.cartItemId === cartItemId)?.quantity || 0;
   const remainingStock = Math.max(0, availableStock - qtyInCart);
+  const isPreOrder = remainingStock <= 0 || availableStock <= 0;
 
   // Cap quantity if they switch to a variant with less stock than currently selected
   useEffect(() => {
-    if (product && quantity > remainingStock && remainingStock > 0) {
+    if (product && !isPreOrder && quantity > remainingStock && remainingStock > 0) {
       setQuantity(remainingStock);
-    } else if (product && remainingStock === 0) {
+    } else if (product && !isPreOrder && remainingStock === 0) {
       setQuantity(1); // Reset to 1 visually, button will be disabled anyway
     }
-  }, [remainingStock, quantity, product]);
+  }, [remainingStock, quantity, product, isPreOrder]);
 
   const handleAddToCart = () => {
-    if (quantity > remainingStock) {
+    if (!isPreOrder && quantity > remainingStock) {
       alert(`You already have ${qtyInCart} in your cart. You can only add ${remainingStock} more.`);
       return;
     }
@@ -271,7 +272,7 @@ function ProductDetails() {
   }
   if (images.length === 0) images.push('/placeholder.png');
 
-  let isOutOfStock = remainingStock <= 0;
+
   return (
     <div className="product-details-page" style={{ paddingBottom: '90px' }}>
       <div className="container" style={{ padding: '40px 20px' }}>
@@ -464,6 +465,10 @@ function ProductDetails() {
                     />
                   ))}
                 </div>
+                <div style={{ marginTop: '8px', fontSize: '12px', color: '#666', lineHeight: '1.4' }}>
+                  <strong>Color and Appearance</strong><br/>
+                  We use reasonable efforts to present color and details accurately. Device settings, lighting, dye lots, fabric direction, and hand-finished embellishments may cause minor variation.
+                </div>
               </div>
             )}
 
@@ -485,17 +490,22 @@ function ProductDetails() {
                 <div style={{ display: 'flex', gap: '16px', fontSize: '12px', fontWeight: 'bold', marginTop: '12px' }}>
                   <span style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }} onClick={() => setShowGuideModal(true)}><Ruler size={14} style={{marginRight:'4px'}}/> Size Guide <ChevronRight size={14} /></span>
                 </div>
+                
+                <div style={{ marginTop: '12px', fontSize: '12px', color: '#666', lineHeight: '1.4' }}>
+                  <strong>Sizing and Fit</strong><br/>
+                  Compare your body measurements with the product-specific chart. Sizing may vary by fabric, compression, construction, and silhouette. If between sizes, consider the listed stretch and fit recommendation or contact Klarelle.support. A size recommendation is guidance and does not guarantee individual fit.
+                </div>
               </div>
             )}
 
             {/* Quantity Selector */}
             <div style={{ marginTop: '24px' }}>
-              <div className="pd-options-title">Quantity <span style={{fontSize: '12px', color: '#666', fontWeight: 'normal'}}>(Available: {availableStock})</span></div>
+              <div className="pd-options-title">Quantity <span style={{fontSize: '12px', color: '#666', fontWeight: 'normal'}}>{isPreOrder ? '(Pre-order Available)' : `(Available: ${availableStock})`}</span></div>
               <div style={{ display: 'flex', alignItems: 'center', marginTop: '12px', border: '1px solid #e0e0e0', width: 'fit-content', borderRadius: '4px' }}>
                 <button onClick={() => setQuantity(Math.max(1, quantity - 1))} style={{ padding: '8px 16px', fontSize: '18px', cursor: 'pointer', background: '#f9f9f9', borderRight: '1px solid #e0e0e0', borderTopLeftRadius: '4px', borderBottomLeftRadius: '4px' }}>-</button>
                 <div style={{ padding: '0 24px', fontSize: '16px', fontWeight: 'bold' }}>{quantity}</div>
                 <button onClick={() => {
-                  if (quantity < remainingStock) {
+                  if (isPreOrder || quantity < remainingStock) {
                     setQuantity(quantity + 1);
                   } else {
                     alert(`Sorry, only ${remainingStock} more items available to add to your cart (You already have ${qtyInCart} in cart).`);
@@ -513,6 +523,17 @@ function ProductDetails() {
                     {tag} <ChevronRight size={12} color="#999"/>
                   </span>
                 ))}
+              </div>
+            </div>
+
+            {/* Shipping & Returns */}
+            <div style={{ marginTop: '24px', borderTop: '1px solid #eee', paddingTop: '16px' }}>
+              <div className="pd-options-title" style={{ marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Truck size={16} /> Shipping & Returns
+              </div>
+              <div style={{ fontSize: '13px', color: '#333', lineHeight: '1.6' }}>
+                <strong>Shipping:</strong> Standard shipping takes 3-5 business days. Free shipping on orders over $150.<br />
+                <strong>Returns:</strong> We accept returns within 30 days of delivery. Items must be unworn and in original condition with tags attached.
               </div>
             </div>
 
@@ -619,10 +640,9 @@ function ProductDetails() {
               <button 
                 className="add-to-bag" 
                 onClick={handleAddToCart} 
-                disabled={isOutOfStock}
                 style={{ background: addedToCart ? '#2f9e44' : '#000' }}
               >
-                {isOutOfStock ? (qtyInCart >= availableStock && availableStock > 0 ? 'MAX IN CART' : 'OUT OF STOCK') : addedToCart ? '✓ Added to Cart' : 'Add to Cart'}
+                {isPreOrder ? (addedToCart ? '✓ Pre-ordered' : 'Pre-order') : addedToCart ? '✓ Added to Cart' : 'Add to Cart'}
               </button>
             </div>
           </div>
@@ -637,10 +657,9 @@ function ProductDetails() {
          <button 
            className="add-to-bag"
            onClick={handleAddToCart}
-           disabled={isOutOfStock}
            style={{ background: addedToCart ? '#2f9e44' : '#000' }}
          >
-           {isOutOfStock ? (qtyInCart >= availableStock && availableStock > 0 ? 'MAX IN CART' : 'OUT OF STOCK') : addedToCart ? '✓ Added to Cart' : 'Add to Cart'}
+           {isPreOrder ? (addedToCart ? '✓ Pre-ordered' : 'Pre-order') : addedToCart ? '✓ Added to Cart' : 'Add to Cart'}
          </button>
       </div>
       

@@ -59,6 +59,7 @@ export const exportDashboardDataToExcel = async (startDate = null, endDate = nul
 
       return {
         'SKU': p.sku || '',
+        'Image Link': p.image_url || '',
         'Style / Dress Name': p.name || '',
         'Color': Array.isArray(p.colors) ? p.colors.join(', ') : (p.colors || ''),
         'S': '', 'M': '', 'L': '', 'XL': '', 'XXL': '', // Specific size stock not tracked
@@ -82,7 +83,7 @@ export const exportDashboardDataToExcel = async (startDate = null, endDate = nul
     // Order # | Order Date | Customer Name | SKU | Product | Size | Qty | Order Total | COGS | Payment Status | Fulfillment Status | Tracking # | Carrier | Notes
     const { data: ordersWithItems } = await supabase
       .from('orders')
-      .select('*, order_items(quantity, price_at_time, product_id, size, products(sku, name))')
+      .select('*, order_items(quantity, price_at_time, product_id, size, products(sku, name, image_url))')
       .order('created_at', { ascending: false });
 
     // Date filtering manually since it's a join
@@ -106,6 +107,7 @@ export const exportDashboardDataToExcel = async (startDate = null, endDate = nul
             'Order Date': orderDate,
             'Customer Name': order.customer_name || '',
             'SKU': item.products ? item.products.sku : '',
+            'Image Link': item.products ? item.products.image_url : '',
             'Product': item.products ? item.products.name : '',
             'Size': item.size || '',
             'Qty': item.quantity || 1,
@@ -124,7 +126,7 @@ export const exportDashboardDataToExcel = async (startDate = null, endDate = nul
           'Order #': order.id.split('-')[0],
           'Order Date': orderDate,
           'Customer Name': order.customer_name || '',
-          'SKU': '', 'Product': '', 'Size': '', 'Qty': '',
+          'SKU': '', 'Image Link': '', 'Product': '', 'Size': '', 'Qty': '',
           'Order Total': `$${parseFloat(order.total_amount || 0).toFixed(2)}`,
           'COGS': '$0.00',
           'Payment Status': 'Paid',

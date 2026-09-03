@@ -31,10 +31,10 @@ function ProductForm() {
     size_guide_url: '',
     video_url: '',
     weight: '',
-    length: '',
-    width: '',
-    height: '',
-    country_of_manufacture: '',
+    length: '40',
+    width: '5',
+    height: '50',
+    country_of_manufacture: 'China',
     hs_code: ''
   });
 
@@ -86,10 +86,10 @@ function ProductForm() {
         size_guide_url: data.size_guide_url || '',
         video_url: data.video_url || '',
         weight: data.weight || '',
-        length: data.length || '',
-        width: data.width || '',
-        height: data.height || '',
-        country_of_manufacture: data.country_of_manufacture || '',
+        length: data.length || '40',
+        width: data.width || '5',
+        height: data.height || '50',
+        country_of_manufacture: data.country_of_manufacture || 'China',
         hs_code: data.hs_code || '',
       });
 

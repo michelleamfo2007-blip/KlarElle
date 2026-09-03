@@ -7,7 +7,7 @@ import { supabase } from '../lib/supabase';
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
 import CheckoutForm from '../components/CheckoutForm';
-import { ChevronLeft, MapPin, ChevronRight, CheckCircle2 } from 'lucide-react';
+import { ChevronLeft, MapPin, ChevronRight, CheckCircle2, Truck } from 'lucide-react';
 import { COUNTRIES } from '../utils/countries';
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
@@ -27,6 +27,7 @@ function Checkout() {
   const [shippingRates, setShippingRates] = useState([]);
   const [selectedRateId, setSelectedRateId] = useState(null);
   const [isFetchingRates, setIsFetchingRates] = useState(false);
+  const [termsAccepted, setTermsAccepted] = useState(false);
   
   useEffect(() => {
     const fetchSettings = async () => {
@@ -342,6 +343,16 @@ function Checkout() {
                   alert("Please fill in all required fields to continue.");
                   return;
                 }
+                const phoneRegex = /^[0-9]{7,15}$/;
+                const postcodeRegex = /^[a-zA-Z0-9\s-]{3,10}$/;
+                if (!phoneRegex.test(formData.phone.replace(/[\s-]/g, ''))) {
+                  alert("Please enter a valid phone number.");
+                  return;
+                }
+                if (!postcodeRegex.test(formData.postcode)) {
+                  alert("Please enter a valid postal code/zip code.");
+                  return;
+                }
                 setShowShippingForm(false);
                 setIsFetchingRates(true);
                 try {
@@ -581,6 +592,31 @@ function Checkout() {
             {appliedCoupon && <div style={{ fontSize: '12px', color: '#ff4444' }}>Saved {formatPrice(discountAmount)}</div>}
           </div>
         </div>
+
+        {/* Shipping & Returns */}
+        <div style={{ marginTop: '24px', borderTop: '1px solid #eee', paddingTop: '16px' }}>
+          <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 'bold', fontSize: '14px' }}>
+            <Truck size={16} /> Shipping & Returns
+          </div>
+          <div style={{ fontSize: '12px', color: '#666', lineHeight: '1.4' }}>
+            <strong>Shipping:</strong> Standard shipping takes 3-5 business days. Free shipping on orders over $150.<br />
+            <strong>Returns:</strong> We accept returns within 30 days of delivery. Items must be unworn and in original condition with tags attached.
+          </div>
+        </div>
+
+        {/* Terms & Conditions */}
+        <div style={{ marginTop: '16px', padding: '12px', background: '#f9f9f9', borderRadius: '4px', border: '1px solid #eee', display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
+          <input 
+            type="checkbox" 
+            id="terms" 
+            checked={termsAccepted}
+            onChange={(e) => setTermsAccepted(e.target.checked)}
+            style={{ marginTop: '3px', cursor: 'pointer' }}
+          />
+          <label htmlFor="terms" style={{ fontSize: '13px', color: '#333', cursor: 'pointer', lineHeight: '1.4' }}>
+            I agree to the <Link to="/terms" target="_blank" style={{ color: '#000', textDecoration: 'underline' }}>Terms of Sale</Link> and acknowledge the <Link to="/privacy" target="_blank" style={{ color: '#000', textDecoration: 'underline' }}>Privacy Policy</Link>. *
+          </label>
+        </div>
       </div>
 
       {/* Bottom Fixed Bar */}
@@ -591,8 +627,14 @@ function Checkout() {
             {appliedCoupon && <div style={{ fontSize: '12px', color: '#ff4444' }}>Saved {formatPrice(discountAmount)}</div>}
           </div>
           <button 
-            onClick={() => document.getElementById('submit').click()} 
-            style={{ background: '#000', color: '#fff', padding: '12px 32px', borderRadius: '4px', fontWeight: 'bold', fontSize: '14px', border: 'none' }}
+            onClick={() => {
+              if (!termsAccepted) {
+                alert("Please agree to the Terms of Sale and Privacy Policy to proceed.");
+                return;
+              }
+              document.getElementById('submit').click();
+            }} 
+            style={{ background: termsAccepted ? '#000' : '#ccc', color: '#fff', padding: '12px 32px', borderRadius: '4px', fontWeight: 'bold', fontSize: '14px', border: 'none', cursor: termsAccepted ? 'pointer' : 'not-allowed' }}
           >
             Place Order
           </button>

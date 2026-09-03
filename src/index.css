@@ -860,3 +860,43 @@ main {
     font-size: 16px !important;
   }
 }
+
+/* --- Global Accessibility Styles --- */
+/* Ensure visible focus indicator without keyboard traps */
+:focus {
+  outline: 2px solid #000;
+  outline-offset: 2px;
+}
+
+:focus:not(:focus-visible) {
+  outline: none; /* Hide focus for mouse users */
+}
+
+:focus-visible {
+  outline: 2px solid #000 !important;
+  outline-offset: 2px !important;
+  z-index: 100;
+}
+
+/* Ensure sufficiently large touch targets on mobile */
+@media screen and (max-width: 768px) {
+  button, .btn, a.nav-link, select, input[type="submit"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* Ensure text remains usable when enlarged (no fixed small heights/overflow hidden) */
+* {
+  text-size-adjust: 100%;
+}
+
+/* Prevent rapid flashing content */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
