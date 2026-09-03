@@ -658,7 +658,6 @@ function ProductDetails() {
                 {addedToCart ? 'ADDED TO BAG' : 'ADD TO BAG'}
               </button>
             </div>
-            </div>
             {fulfilledFrom === 'CN' && (
               <div style={{ marginTop: '12px', fontSize: '12px', color: '#d97706', display: 'flex', alignItems: 'center', gap: '6px', fontWeight: '500' }}>
                 <Truck size={14} /> Shipping from International Warehouse (9-15 days)
