@@ -9,7 +9,13 @@ const fetchImageBase64 = async (url) => {
     const blob = await response.blob();
     return await new Promise((resolve, reject) => {
       const reader = new FileReader();
-      reader.onloadend = () => resolve(reader.result);
+      reader.onloadend = () => {
+        if (typeof reader.result === 'string' && reader.result.includes(',')) {
+          resolve(reader.result.split(',')[1]);
+        } else {
+          resolve(reader.result);
+        }
+      };
       reader.onerror = reject;
       reader.readAsDataURL(blob);
     });
