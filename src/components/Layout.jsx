@@ -23,8 +23,21 @@ function Layout() {
   const [maintenanceMode, setMaintenanceMode] = useState(false);
   const [checkingMaintenance, setCheckingMaintenance] = useState(true);
   const [analyzingImage, setAnalyzingImage] = useState(false);
+  const [categories, setCategories] = useState([]);
   const fileInputRef = React.useRef(null);
 
+  useEffect(() => {
+    const fetchCategories = async () => {
+      const { data, error } = await supabase
+        .from('categories')
+        .select('*')
+        .order('name', { ascending: true });
+      if (!error && data) {
+        setCategories(data);
+      }
+    };
+    fetchCategories();
+  }, []);
   const handleSearch = (e) => {
     e.preventDefault();
     if (searchQuery.trim()) {
@@ -322,7 +335,19 @@ function Layout() {
           <nav className="nav-menu">
             <Link to="/" className={`nav-link ${isActive('/')}`}>HOME</Link>
             <Link to="/category/new-in" className={`nav-link ${isActive('/category/new-in')}`}>NEW IN</Link>
-            <Link to="/category/all" className={`nav-link ${isActive('/category/all')}`}>COLLECTIONS</Link>
+            <div className="nav-dropdown">
+              <Link to="/category/all" className={`nav-link ${isActive('/category/all')}`}>COLLECTIONS</Link>
+              {categories.length > 0 && (
+                <div className="dropdown-menu">
+                  {categories.map((cat) => (
+                    <Link key={cat.id} to={`/category/${cat.slug}`} className={`nav-link ${isActive(`/category/${cat.slug}`)}`}>
+                      {cat.name}
+                    </Link>
+                  ))}
+                  <Link to="/category/all" className={`nav-link ${isActive('/category/all')}`}>All Collections</Link>
+                </div>
+              )}
+            </div>
             <Link to="/page/about-us" className={`nav-link ${isActive('/page/about-us')}`}>ABOUT</Link>
             <Link to="/page/faq" className={`nav-link ${isActive('/page/faq')}`}>FAQ</Link>
           </nav>
