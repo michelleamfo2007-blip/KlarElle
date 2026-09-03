@@ -653,15 +653,17 @@ function ProductDetails() {
               </button>
               <button 
                 className="add-to-bag" 
-                onClick={() => {
-                  addToCart(product, selectedSize, selectedColor);
-                  setAddedToCart(true);
-                  setTimeout(() => setAddedToCart(false), 2000);
-                }}
+                onClick={handleAddToCart}
               >
                 {addedToCart ? 'ADDED TO BAG' : 'ADD TO BAG'}
               </button>
             </div>
+            </div>
+            {fulfilledFrom === 'CN' && (
+              <div style={{ marginTop: '12px', fontSize: '12px', color: '#d97706', display: 'flex', alignItems: 'center', gap: '6px', fontWeight: '500' }}>
+                <Truck size={14} /> Shipping from International Warehouse (9-15 days)
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -673,11 +675,7 @@ function ProductDetails() {
          </button>
          <button 
            className="add-to-bag"
-           onClick={() => {
-             addToCart(product, selectedSize, selectedColor);
-             setAddedToCart(true);
-             setTimeout(() => setAddedToCart(false), 2000);
-           }}
+           onClick={handleAddToCart}
          >
            {addedToCart ? 'ADDED TO BAG' : 'ADD TO BAG'}
          </button>
