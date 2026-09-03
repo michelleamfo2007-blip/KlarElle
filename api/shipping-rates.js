@@ -207,6 +207,19 @@ export default async function handler(req, res) {
   const isUS = country === 'United States' || country === 'US';
   const destCountryCode = COUNTRY_CODES[country] || 'US';
 
+  const AFRICAN_COUNTRIES = [
+    "Algeria", "Angola", "Benin", "Botswana", "Burkina Faso", "Burundi", "Cabo Verde", "Cameroon",
+    "Central African Republic", "Chad", "Comoros", "Democratic Republic of the Congo",
+    "Congo (Congo-Brazzaville)", "Djibouti", "Egypt", "Equatorial Guinea", "Eritrea", "Eswatini",
+    "Ethiopia", "Gabon", "Gambia", "Ghana", "Guinea", "Guinea-Bissau", "Ivory Coast (Côte d'Ivoire)",
+    "Kenya", "Lesotho", "Liberia", "Libya", "Madagascar", "Malawi", "Mali", "Mauritania", "Mauritius",
+    "Morocco", "Mozambique", "Namibia", "Niger", "Nigeria", "Rwanda", "Sao Tome and Principe",
+    "Senegal", "Seychelles", "Sierra Leone", "Somalia", "South Africa", "South Sudan", "Sudan",
+    "Tanzania", "Togo", "Tunisia", "Uganda", "Zambia", "Zimbabwe"
+  ];
+  
+  const isAfrican = AFRICAN_COUNTRIES.includes(country);
+
   // Calculate totals for items
   let totalWeight = 0; // kg
   const items = cartItems.map(item => {
@@ -243,7 +256,24 @@ export default async function handler(req, res) {
     totalWeight = 0.5;
   }
 
-  if (isUS) {
+  if (isAfrican) {
+    let amount = 40.00;
+    if (totalWeight > 1.0) {
+      amount = 65.00;
+    }
+    
+    return res.status(200).json({
+      success: true,
+      rates: [{
+        provider: 'International Warehouse Fulfillment',
+        serviceLevel: 'Door-to-Door Delivery',
+        amount: amount,
+        currency: 'USD',
+        objectId: `african_dropship_${Date.now()}`,
+        estimatedDays: '10-14'
+      }]
+    });
+  } else if (isUS) {
     // SHIPPO LOGIC FOR US
     const apiKey = process.env.SHIPPO_API_KEY;
     if (!apiKey) return res.status(500).json({ error: 'SHIPPO_API_KEY is not configured' });

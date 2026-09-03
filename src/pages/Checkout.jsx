@@ -12,6 +12,17 @@ import { COUNTRIES } from '../utils/countries';
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
+const AFRICAN_COUNTRIES = [
+  "Algeria", "Angola", "Benin", "Botswana", "Burkina Faso", "Burundi", "Cabo Verde", "Cameroon",
+  "Central African Republic", "Chad", "Comoros", "Democratic Republic of the Congo",
+  "Congo (Congo-Brazzaville)", "Djibouti", "Egypt", "Equatorial Guinea", "Eritrea", "Eswatini",
+  "Ethiopia", "Gabon", "Gambia", "Ghana", "Guinea", "Guinea-Bissau", "Ivory Coast (Côte d'Ivoire)",
+  "Kenya", "Lesotho", "Liberia", "Libya", "Madagascar", "Malawi", "Mali", "Mauritania", "Mauritius",
+  "Morocco", "Mozambique", "Namibia", "Niger", "Nigeria", "Rwanda", "Sao Tome and Principe",
+  "Senegal", "Seychelles", "Sierra Leone", "Somalia", "South Africa", "South Sudan", "Sudan",
+  "Tanzania", "Togo", "Tunisia", "Uganda", "Zambia", "Zimbabwe"
+];
+
 function Checkout() {
   const navigate = useNavigate();
   const { cartItems, cartTotal, clearCart } = useCart();
@@ -141,7 +152,7 @@ function Checkout() {
   };
 
   useEffect(() => {
-    if (finalTotal > 0) {
+    if (finalTotal > 0 && !showShippingForm) {
       // Comprehensive list of Stripe-supported currencies
       const STRIPE_SUPPORTED_CURRENCIES = [
         "usd", "aed", "afn", "all", "amd", "ang", "aoa", "ars", "aud", "awg", "azn", "bam", "bbd", "bdt", "bgn", "bif", "bmd", "bnd", "bob", "brl", "bsd", "bwp", "byn", "bzd", "cad", "cdf", "chf", "clp", "cny", "cop", "crc", "cve", "czk", "djf", "dkk", "dop", "dzd", "egp", "etb", "eur", "fjd", "fkp", "gbp", "gel", "gip", "gmd", "gnf", "gtq", "gyd", "hkd", "hnl", "hrk", "htg", "huf", "idr", "ils", "inr", "isk", "jmd", "jpy", "kes", "kgs", "khr", "kmf", "krw", "kyd", "kzt", "lak", "lbp", "lkr", "lrd", "lsl", "mad", "mdl", "mga", "mkd", "mmk", "mnt", "mop", "mur", "mvr", "mwk", "mxn", "myr", "mzn", "nad", "ngn", "nio", "nok", "npr", "nzd", "pab", "pen", "pgk", "php", "pkr", "pln", "pyg", "qar", "ron", "rsd", "rub", "rwf", "sar", "sbd", "scr", "sek", "sgd", "shp", "sle", "sos", "srd", "std", "szl", "thb", "tjs", "top", "try", "ttd", "twd", "tzs", "uah", "ugx", "uyu", "uzs", "vnd", "vuv", "wst", "xaf", "xcd", "xcg", "xof", "xpf", "yer", "zar", "zmw"
@@ -177,7 +188,10 @@ function Checkout() {
           setPaymentError(err.message);
         });
     }
-  }, [finalTotal, currency, EXCHANGE_RATES]);
+    } else if (showShippingForm) {
+      setClientSecret("");
+    }
+  }, [finalTotal, currency, EXCHANGE_RATES, showShippingForm]);
 
   if (cartItems.length === 0) {
     return (
@@ -400,7 +414,12 @@ function Checkout() {
       </div>
 
       {/* Address Block */}
-      <div style={{ background: '#fff', padding: '16px', display: 'flex', alignItems: 'flex-start', gap: '12px', cursor: 'pointer' }} onClick={() => setShowShippingForm(true)}>
+      <div style={{ background: '#fff', padding: '16px', display: 'flex', alignItems: 'flex-start', gap: '12px', cursor: 'pointer' }} onClick={() => {
+        setShowShippingForm(true);
+        setClientSecret("");
+        setShippingRates([]);
+        setSelectedRateId(null);
+      }}>
         <MapPin size={20} style={{ marginTop: '4px' }} />
         <div style={{ flex: 1 }}>
           {formData.firstName ? (
@@ -498,6 +517,18 @@ function Checkout() {
           <span style={{ fontWeight: 'bold', fontSize: '14px' }}>{formatPrice(shippingGuarantee)}</span>
         </div>
       </div>
+
+      {AFRICAN_COUNTRIES.includes(formData.location) && formData.firstName && !showShippingForm && (
+        <div style={{ background: '#fff', padding: '16px', marginTop: '8px', borderLeft: '4px solid #000' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+            <Truck size={20} />
+            <h3 style={{ fontSize: '14px', margin: 0, fontWeight: 'bold' }}>International Warehouse Fulfillment</h3>
+          </div>
+          <p style={{ fontSize: '13px', color: '#444', lineHeight: '1.5', margin: 0 }}>
+            This order will be shipped directly from our international warehouse using door-to-door delivery. Customs clearance and duties are included in the shipping fee, so no additional payment will be required upon delivery.
+          </p>
+        </div>
+      )}
 
       {/* Payment Method */}
       <div style={{ background: '#fff', padding: '16px', marginTop: '8px' }}>
