@@ -1,9 +1,22 @@
 import { supabase } from '../lib/supabase';
-import * as XLSX from 'xlsx';
+import ExcelJS from 'exceljs';
+
+// Helper to fetch images and convert to buffer
+const fetchImageBuffer = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) return null;
+    return await response.arrayBuffer();
+  } catch (error) {
+    console.error("Failed to fetch image", url, error);
+    return null;
+  }
+};
 
 export const exportDashboardDataToExcel = async (startDate = null, endDate = null, isAdmin = false) => {
   try {
-    const workbook = XLSX.utils.book_new();
+    const workbook = new ExcelJS.Workbook();
+    workbook.creator = 'KlarElle System';
 
     // Helper to fetch data with date filters
     const fetchData = async (table, dateField = 'created_at') => {
@@ -18,7 +31,6 @@ export const exportDashboardDataToExcel = async (startDate = null, endDate = nul
     };
 
     // --- 1. Dashboard Tab ---
-    // (A simplified KPI view for the Dashboard tab)
     const { data: allOrders } = await fetchData('orders');
     let totalRev = 0;
     if (allOrders) totalRev = allOrders.reduce((acc, o) => acc + parseFloat(o.total_amount || 0), 0);
@@ -29,64 +41,119 @@ export const exportDashboardDataToExcel = async (startDate = null, endDate = nul
     if (allProducts) {
       allProducts.forEach(p => {
         invUnits += (p.stock || 0);
-        // Assuming unit cost is unknown, we just use 0, but if we have it we calculate
         invCost += (p.stock || 0) * 0; 
       });
     }
 
-    const dashboardData = [
-      { 'KPI': 'Total Revenue', 'Current': `$${totalRev.toFixed(2)}`, '': '', 'Launch Snapshot': 'Ready', 'Count': 0 },
-      { 'KPI': 'Total Expenses', 'Current': '$0.00', '': '', 'Launch Snapshot': 'In Progress', 'Count': 0 },
-      { 'KPI': 'Gross Profit', 'Current': `$${totalRev.toFixed(2)}`, '': '', 'Launch Snapshot': 'Not Started', 'Count': 0 },
-      { 'KPI': 'Inventory Units', 'Current': invUnits, '': '', 'Launch Snapshot': 'Blocked', 'Count': 0 },
-      { 'KPI': 'Inventory Cost Value', 'Current': `$${invCost.toFixed(2)}`, '': '', 'Launch Snapshot': 'Total Tasks', 'Count': 0 },
-      { 'KPI': 'Open Customer Orders', 'Current': allOrders ? allOrders.filter(o => o.status === 'Pending' || o.status === 'Processing').length : 0, '': '', 'Launch Snapshot': '', 'Count': '' }
+    const wsDashboard = workbook.addWorksheet("Dashboard");
+    wsDashboard.columns = [
+      { header: 'KPI', key: 'KPI', width: 25 },
+      { header: 'Current', key: 'Current', width: 20 },
+      { header: '', key: 'empty', width: 5 },
+      { header: 'Launch Snapshot', key: 'LaunchSnapshot', width: 25 },
+      { header: 'Count', key: 'Count', width: 10 }
     ];
-    const wsDashboard = XLSX.utils.json_to_sheet(dashboardData);
-    XLSX.utils.book_append_sheet(workbook, wsDashboard, "Dashboard");
+    wsDashboard.addRows([
+      { 'KPI': 'Total Revenue', 'Current': `$${totalRev.toFixed(2)}`, 'LaunchSnapshot': 'Ready', 'Count': 0 },
+      { 'KPI': 'Total Expenses', 'Current': '$0.00', 'LaunchSnapshot': 'In Progress', 'Count': 0 },
+      { 'KPI': 'Gross Profit', 'Current': `$${totalRev.toFixed(2)}`, 'LaunchSnapshot': 'Not Started', 'Count': 0 },
+      { 'KPI': 'Inventory Units', 'Current': invUnits, 'LaunchSnapshot': 'Blocked', 'Count': 0 },
+      { 'KPI': 'Inventory Cost Value', 'Current': `$${invCost.toFixed(2)}`, 'LaunchSnapshot': 'Total Tasks', 'Count': 0 },
+      { 'KPI': 'Open Customer Orders', 'Current': allOrders ? allOrders.filter(o => o.status === 'Pending' || o.status === 'Processing').length : 0, 'LaunchSnapshot': '', 'Count': '' }
+    ]);
 
     // --- 2. Inventory Tab ---
-    // SKU | Style / Dress Name | Color | S | M | L | XL | XXL | Total Received | Units Sold | Stock Remaining | Unit Cost | Selling Price | Inventory Cost Value | Potential Revenue | Stock Status
-    const { data: productsData } = await fetchData('products');
-    const invRows = (productsData || []).map(p => {
-      const stock = p.stock || 0;
-      const price = parseFloat(p.price || 0);
-      const unitCost = 0; // Not tracked in DB
-      
-      let stockStatus = 'In Stock';
-      if (stock === 0) stockStatus = 'Out of Stock';
-      else if (stock <= (p.low_stock_threshold || 5)) stockStatus = 'Low Stock';
+    const wsInventory = workbook.addWorksheet("Inventory");
+    wsInventory.columns = [
+      { header: 'SKU', key: 'SKU', width: 15 },
+      { header: 'Image', key: 'Image', width: 12 },
+      { header: 'Style / Dress Name', key: 'StyleName', width: 25 },
+      { header: 'Color', key: 'Color', width: 15 },
+      { header: 'S', key: 'S', width: 5 },
+      { header: 'M', key: 'M', width: 5 },
+      { header: 'L', key: 'L', width: 5 },
+      { header: 'XL', key: 'XL', width: 5 },
+      { header: 'XXL', key: 'XXL', width: 5 },
+      { header: 'Total Received', key: 'TotalReceived', width: 15 },
+      { header: 'Units Sold', key: 'UnitsSold', width: 15 },
+      { header: 'Stock Remaining', key: 'StockRemaining', width: 15 },
+      { header: 'Unit Cost', key: 'UnitCost', width: 15 },
+      { header: 'Selling Price', key: 'SellingPrice', width: 15 },
+      { header: 'Inventory Cost Value', key: 'InventoryCostValue', width: 20 },
+      { header: 'Potential Revenue', key: 'PotentialRevenue', width: 20 },
+      { header: 'Stock Status', key: 'StockStatus', width: 15 }
+    ];
 
-      return {
-        'SKU': p.sku || '',
-        'Image Link': p.image_url || '',
-        'Style / Dress Name': p.name || '',
-        'Color': Array.isArray(p.colors) ? p.colors.join(', ') : (p.colors || ''),
-        'S': '', 'M': '', 'L': '', 'XL': '', 'XXL': '', // Specific size stock not tracked
-        'Total Received': 0,
-        'Units Sold': 0, // Would need to calculate from order_items
-        'Stock Remaining': stock,
-        'Unit Cost': unitCost ? `$${unitCost.toFixed(2)}` : '$0.00',
-        'Selling Price': `$${price.toFixed(2)}`,
-        'Inventory Cost Value': `$${(stock * unitCost).toFixed(2)}`,
-        'Potential Revenue': `$${(stock * price).toFixed(2)}`,
-        'Stock Status': stockStatus
-      };
-    });
-    // Add empty rows if no data to match template look
-    if (invRows.length === 0) invRows.push({ 'SKU': '', 'Style / Dress Name': '', 'Color': '', 'S': '', 'M': '', 'L': '', 'XL': '', 'XXL': '', 'Total Received': '', 'Units Sold': '', 'Stock Remaining': '', 'Unit Cost': '', 'Selling Price': '', 'Inventory Cost Value': '', 'Potential Revenue': '', 'Stock Status': '' });
+    const { data: productsData } = await fetchData('products');
     
-    const wsInventory = XLSX.utils.json_to_sheet(invRows);
-    XLSX.utils.book_append_sheet(workbook, wsInventory, "Inventory");
+    if (productsData && productsData.length > 0) {
+      for (const p of productsData) {
+        const stock = p.stock || 0;
+        const price = parseFloat(p.price || 0);
+        const unitCost = 0; 
+        
+        let stockStatus = 'In Stock';
+        if (stock === 0) stockStatus = 'Out of Stock';
+        else if (stock <= (p.low_stock_threshold || 5)) stockStatus = 'Low Stock';
+
+        const row = wsInventory.addRow({
+          'SKU': p.sku || '',
+          'StyleName': p.name || '',
+          'Color': Array.isArray(p.colors) ? p.colors.join(', ') : (p.colors || ''),
+          'S': '', 'M': '', 'L': '', 'XL': '', 'XXL': '',
+          'TotalReceived': 0, 'UnitsSold': 0,
+          'StockRemaining': stock,
+          'UnitCost': `$${unitCost.toFixed(2)}`,
+          'SellingPrice': `$${price.toFixed(2)}`,
+          'InventoryCostValue': `$${(stock * unitCost).toFixed(2)}`,
+          'PotentialRevenue': `$${(stock * price).toFixed(2)}`,
+          'StockStatus': stockStatus
+        });
+        
+        row.height = 60; // Make row taller for image
+        
+        if (p.image_url) {
+          const buffer = await fetchImageBuffer(p.image_url);
+          if (buffer) {
+            const ext = p.image_url.toLowerCase().endsWith('png') ? 'png' : 'jpeg';
+            const imageId = workbook.addImage({ buffer, extension: ext });
+            // addImage col/row is 0-indexed. Col 1 is 'Image' column (B).
+            wsInventory.addImage(imageId, {
+              tl: { col: 1, row: row.number - 1 },
+              ext: { width: 50, height: 60 }
+            });
+          }
+        }
+      }
+    } else {
+      wsInventory.addRow({}); // Empty row
+    }
 
     // --- 3. Orders Tab ---
-    // Order # | Order Date | Customer Name | SKU | Product | Size | Qty | Order Total | COGS | Payment Status | Fulfillment Status | Tracking # | Carrier | Notes
+    const wsOrders = workbook.addWorksheet("Orders");
+    wsOrders.columns = [
+      { header: 'Order #', key: 'OrderID', width: 15 },
+      { header: 'Order Date', key: 'OrderDate', width: 15 },
+      { header: 'Customer Name', key: 'CustomerName', width: 20 },
+      { header: 'SKU', key: 'SKU', width: 15 },
+      { header: 'Image', key: 'Image', width: 12 },
+      { header: 'Product', key: 'Product', width: 25 },
+      { header: 'Size', key: 'Size', width: 10 },
+      { header: 'Qty', key: 'Qty', width: 10 },
+      { header: 'Order Total', key: 'OrderTotal', width: 15 },
+      { header: 'COGS', key: 'COGS', width: 15 },
+      { header: 'Payment Status', key: 'PaymentStatus', width: 15 },
+      { header: 'Fulfillment Status', key: 'FulfillmentStatus', width: 15 },
+      { header: 'Tracking #', key: 'Tracking', width: 20 },
+      { header: 'Carrier', key: 'Carrier', width: 15 },
+      { header: 'Notes', key: 'Notes', width: 20 }
+    ];
+
     const { data: ordersWithItems } = await supabase
       .from('orders')
       .select('*, order_items(quantity, price_at_time, product_id, size, products(sku, name, image_url))')
       .order('created_at', { ascending: false });
 
-    // Date filtering manually since it's a join
     let filteredOrders = ordersWithItems || [];
     if (startDate) {
       filteredOrders = filteredOrders.filter(o => new Date(o.created_at) >= new Date(startDate));
@@ -97,123 +164,136 @@ export const exportDashboardDataToExcel = async (startDate = null, endDate = nul
       filteredOrders = filteredOrders.filter(o => new Date(o.created_at) <= end);
     }
 
-    const orderRows = [];
-    filteredOrders.forEach(order => {
-      const orderDate = new Date(order.created_at).toLocaleDateString();
-      if (order.order_items && order.order_items.length > 0) {
-        order.order_items.forEach(item => {
-          orderRows.push({
-            'Order #': order.id.split('-')[0], // Short ID
-            'Order Date': orderDate,
-            'Customer Name': order.customer_name || '',
-            'SKU': item.products ? item.products.sku : '',
-            'Image Link': item.products ? item.products.image_url : '',
-            'Product': item.products ? item.products.name : '',
-            'Size': item.size || '',
-            'Qty': item.quantity || 1,
-            'Order Total': `$${parseFloat(order.total_amount || 0).toFixed(2)}`,
-            'COGS': '$0.00',
-            'Payment Status': 'Paid', // Assuming paid if it's an order
-            'Fulfillment Status': order.status || 'Pending',
-            'Tracking #': order.tracking_number || '',
-            'Carrier': order.carrier || '',
-            'Notes': ''
+    if (filteredOrders.length > 0) {
+      for (const order of filteredOrders) {
+        const orderDate = new Date(order.created_at).toLocaleDateString();
+        
+        if (order.order_items && order.order_items.length > 0) {
+          for (const item of order.order_items) {
+            const product = item.products;
+            const row = wsOrders.addRow({
+              'OrderID': order.id.split('-')[0],
+              'OrderDate': orderDate,
+              'CustomerName': order.customer_name || '',
+              'SKU': product ? product.sku : '',
+              'Product': product ? product.name : '',
+              'Size': item.size || '',
+              'Qty': item.quantity || 1,
+              'OrderTotal': `$${parseFloat(order.total_amount || 0).toFixed(2)}`,
+              'COGS': '$0.00',
+              'PaymentStatus': 'Paid',
+              'FulfillmentStatus': order.status || 'Pending',
+              'Tracking': order.tracking_number || '',
+              'Carrier': order.carrier || '',
+              'Notes': ''
+            });
+            row.height = 60;
+            
+            if (product && product.image_url) {
+              const buffer = await fetchImageBuffer(product.image_url);
+              if (buffer) {
+                const ext = product.image_url.toLowerCase().endsWith('png') ? 'png' : 'jpeg';
+                const imageId = workbook.addImage({ buffer, extension: ext });
+                // Col 4 is 'Image' (E)
+                wsOrders.addImage(imageId, {
+                  tl: { col: 4, row: row.number - 1 },
+                  ext: { width: 50, height: 60 }
+                });
+              }
+            }
+          }
+        } else {
+          const row = wsOrders.addRow({
+            'OrderID': order.id.split('-')[0], 'OrderDate': orderDate, 'CustomerName': order.customer_name || '',
+            'OrderTotal': `$${parseFloat(order.total_amount || 0).toFixed(2)}`, 'COGS': '$0.00',
+            'PaymentStatus': 'Paid', 'FulfillmentStatus': order.status || 'Pending',
+            'Tracking': order.tracking_number || '', 'Carrier': order.carrier || '', 'Notes': ''
           });
-        });
-      } else {
-        // Fallback if no items found for some reason
-        orderRows.push({
-          'Order #': order.id.split('-')[0],
-          'Order Date': orderDate,
-          'Customer Name': order.customer_name || '',
-          'SKU': '', 'Image Link': '', 'Product': '', 'Size': '', 'Qty': '',
-          'Order Total': `$${parseFloat(order.total_amount || 0).toFixed(2)}`,
-          'COGS': '$0.00',
-          'Payment Status': 'Paid',
-          'Fulfillment Status': order.status || 'Pending',
-          'Tracking #': order.tracking_number || '', 'Carrier': order.carrier || '', 'Notes': ''
-        });
+          row.height = 15;
+        }
       }
-    });
-    if (orderRows.length === 0) orderRows.push({ 'Order #': '', 'Order Date': '', 'Customer Name': '', 'SKU': '', 'Product': '', 'Size': '', 'Qty': '', 'Order Total': '', 'COGS': '', 'Payment Status': '', 'Fulfillment Status': '', 'Tracking #': '', 'Carrier': '', 'Notes': '' });
-    
-    const wsOrders = XLSX.utils.json_to_sheet(orderRows);
-    XLSX.utils.book_append_sheet(workbook, wsOrders, "Orders");
+    } else {
+      wsOrders.addRow({});
+    }
 
     // --- 4. Suppliers & Production ---
-    const supplierHeaders = ['Supplier', 'Contact', 'Style / SKU', 'Qty Ordered', 'Unit Cost', 'Order Value', 'Deposit Paid', 'Balance Due', 'Order Date', 'Expected Completion', 'Production Status', 'QC Status', 'Pickup Address', 'Payment Method', 'Notes'];
-    const wsSuppliers = XLSX.utils.json_to_sheet([supplierHeaders.reduce((acc, h) => ({ ...acc, [h]: '' }), {})]);
-    XLSX.utils.book_append_sheet(workbook, wsSuppliers, "Suppliers & Production");
+    const wsSuppliers = workbook.addWorksheet("Suppliers & Production");
+    wsSuppliers.addRow(['Supplier', 'Contact', 'Style / SKU', 'Qty Ordered', 'Unit Cost', 'Order Value', 'Deposit Paid', 'Balance Due', 'Order Date', 'Expected Completion', 'Production Status', 'QC Status', 'Pickup Address', 'Payment Method', 'Notes']);
 
     // --- 5. Shipping & Logistics ---
-    const shippingHeaders = ['Shipment ID', 'Forwarder', 'Origin', 'Destination', 'Pickup Date', 'Weight (kg)', 'Rate / kg', 'Freight Cost', 'Inspection Cost', 'Other Cost', 'Total Shipping Cost', 'Method', 'ETA', 'Tracking', 'Status', 'Notes'];
-    const wsShipping = XLSX.utils.json_to_sheet([shippingHeaders.reduce((acc, h) => ({ ...acc, [h]: '' }), {})]);
-    XLSX.utils.book_append_sheet(workbook, wsShipping, "Shipping & Logistics");
+    const wsShipping = workbook.addWorksheet("Shipping & Logistics");
+    wsShipping.addRow(['Shipment ID', 'Forwarder', 'Origin', 'Destination', 'Pickup Date', 'Weight (kg)', 'Rate / kg', 'Freight Cost', 'Inspection Cost', 'Other Cost', 'Total Shipping Cost', 'Method', 'ETA', 'Tracking', 'Status', 'Notes']);
 
     // --- 6. Expenses ---
-    const expenseHeaders = ['Date', 'Category', 'Vendor / Payee', 'Description', 'Amount', 'Payment Method', 'Receipt / Reference', 'Notes'];
-    const wsExpenses = XLSX.utils.json_to_sheet([expenseHeaders.reduce((acc, h) => ({ ...acc, [h]: '' }), {})]);
-    XLSX.utils.book_append_sheet(workbook, wsExpenses, "Expenses");
+    const wsExpenses = workbook.addWorksheet("Expenses");
+    wsExpenses.addRow(['Date', 'Category', 'Vendor / Payee', 'Description', 'Amount', 'Payment Method', 'Receipt / Reference', 'Notes']);
 
     // --- 7. Profit & Sales ---
-    const profitHeaders = ['Month', 'Gross Revenue', 'COGS', 'Shipping Costs', 'Operating Expenses', 'Net Profit', 'Profit Margin %'];
-    const wsProfit = XLSX.utils.json_to_sheet([profitHeaders.reduce((acc, h) => ({ ...acc, [h]: '' }), {})]);
-    XLSX.utils.book_append_sheet(workbook, wsProfit, "Profit & Sales");
+    const wsProfit = workbook.addWorksheet("Profit & Sales");
+    wsProfit.addRow(['Month', 'Gross Revenue', 'COGS', 'Shipping Costs', 'Operating Expenses', 'Net Profit', 'Profit Margin %']);
 
     // --- 8. Launch Tracker ---
-    const launchHeaders = ['Task', 'Area', 'Owner', 'Priority', 'Start Date', 'Due Date', 'Status', 'Dependency', 'Link / Reference', 'Notes'];
-    const wsLaunch = XLSX.utils.json_to_sheet([launchHeaders.reduce((acc, h) => ({ ...acc, [h]: '' }), {})]);
-    XLSX.utils.book_append_sheet(workbook, wsLaunch, "Launch Tracker");
+    const wsLaunch = workbook.addWorksheet("Launch Tracker");
+    wsLaunch.addRow(['Task', 'Area', 'Owner', 'Priority', 'Start Date', 'Due Date', 'Status', 'Dependency', 'Link / Reference', 'Notes']);
 
     // --- 9. Content & Influencers ---
-    const contentHeaders = ['Campaign / Creator', 'Platform', 'Product / SKU', 'Content Type', 'Product Sent', 'Draft Due', 'Post Date', 'Status', 'Fee / Cost', 'Views', 'Engagements', 'Sales', 'Revenue', 'Notes'];
-    const wsContent = XLSX.utils.json_to_sheet([contentHeaders.reduce((acc, h) => ({ ...acc, [h]: '' }), {})]);
-    XLSX.utils.book_append_sheet(workbook, wsContent, "Content & Influencers");
+    const wsContent = workbook.addWorksheet("Content & Influencers");
+    wsContent.addRow(['Campaign / Creator', 'Platform', 'Product / SKU', 'Content Type', 'Product Sent', 'Draft Due', 'Post Date', 'Status', 'Fee / Cost', 'Views', 'Engagements', 'Sales', 'Revenue', 'Notes']);
 
     // --- 10. Packaging Inventory ---
-    const packagingHeaders = ['Item', 'Size / Spec', 'Supplier', 'Qty Purchased', 'Qty Used', 'Stock Remaining', 'Unit Cost', 'Stock Value', 'Reorder Level', 'Status'];
-    const wsPackaging = XLSX.utils.json_to_sheet([packagingHeaders.reduce((acc, h) => ({ ...acc, [h]: '' }), {})]);
-    XLSX.utils.book_append_sheet(workbook, wsPackaging, "Packaging Inventory");
+    const wsPackaging = workbook.addWorksheet("Packaging Inventory");
+    wsPackaging.addRow(['Item', 'Size / Spec', 'Supplier', 'Qty Purchased', 'Qty Used', 'Stock Remaining', 'Unit Cost', 'Stock Value', 'Reorder Level', 'Status']);
 
     // --- 11. Start Here (Instructions) ---
-    const startHereData = [
-      { 'HOW TO USE THIS WORKBOOK': '1. Save this Excel file in your Klarelle SharePoint or OneDrive folder.' },
-      { 'HOW TO USE THIS WORKBOOK': '2. Give your team edit access so everyone works from the same file.' },
-      { 'HOW TO USE THIS WORKBOOK': '3. Enter dress quantities and pricing in Inventory.' },
-      { 'HOW TO USE THIS WORKBOOK': '4. Record customer orders, production, shipments and expenses as they happen.' },
-      { 'HOW TO USE THIS WORKBOOK': '5. Use Launch Tracker for pre-launch responsibilities and deadlines.' },
-      { 'HOW TO USE THIS WORKBOOK': '6. Dashboard and Profit & Sales update from the data you enter.' },
-      { 'HOW TO USE THIS WORKBOOK': '' },
-      { 'HOW TO USE THIS WORKBOOK': 'Tip: Do not create separate copies for each person—co-author the SharePoint version.' }
-    ];
-    const wsStartHere = XLSX.utils.json_to_sheet(startHereData);
-    XLSX.utils.book_append_sheet(workbook, wsStartHere, "Start Here");
+    const wsStartHere = workbook.addWorksheet("Start Here");
+    wsStartHere.columns = [{ header: 'HOW TO USE THIS WORKBOOK', key: 'ins', width: 80 }];
+    wsStartHere.addRows([
+      { ins: '1. Save this Excel file in your Klarelle SharePoint or OneDrive folder.' },
+      { ins: '2. Give your team edit access so everyone works from the same file.' },
+      { ins: '3. Enter dress quantities and pricing in Inventory.' },
+      { ins: '4. Record customer orders, production, shipments and expenses as they happen.' },
+      { ins: '5. Use Launch Tracker for pre-launch responsibilities and deadlines.' },
+      { ins: '6. Dashboard and Profit & Sales update from the data you enter.' },
+      { ins: '' },
+      { ins: 'Tip: Do not create separate copies for each person—co-author the SharePoint version.' }
+    ]);
 
     // --- (Optional) 12. System Activity Logs ---
-    // If they still want system logs, we can keep it as an extra tab at the end
     if (isAdmin) {
       const { data: logsData, error: logsError } = await fetchData('activity_logs');
-      if (!logsError && logsData) {
-        const logsSheetData = logsData.map(log => ({
-          'Log ID': log.id,
-          'Action Type': log.action_type,
-          'Description': log.description,
-          'Actor': log.actor,
-          'Date': new Date(log.created_at).toLocaleString()
-        }));
-        if(logsSheetData.length > 0) {
-          const wsLogs = XLSX.utils.json_to_sheet(logsSheetData);
-          XLSX.utils.book_append_sheet(workbook, wsLogs, "System Logs");
-        }
+      if (!logsError && logsData && logsData.length > 0) {
+        const wsLogs = workbook.addWorksheet("System Logs");
+        wsLogs.columns = [
+          { header: 'Log ID', key: 'id', width: 35 },
+          { header: 'Action Type', key: 'type', width: 20 },
+          { header: 'Description', key: 'desc', width: 40 },
+          { header: 'Actor', key: 'actor', width: 25 },
+          { header: 'Date', key: 'date', width: 20 }
+        ];
+        logsData.forEach(log => {
+          wsLogs.addRow({
+            id: log.id, type: log.action_type, desc: log.description,
+            actor: log.actor, date: new Date(log.created_at).toLocaleString()
+          });
+        });
       }
     }
 
-    // Generate filename
+    // Generate blob and download
+    const buffer = await workbook.xlsx.writeBuffer();
+    const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    const url = URL.createObjectURL(blob);
+    
     const dateStr = new Date().toISOString().split('T')[0];
     const fileName = `KLARELLE_Business_Operations_${dateStr}.xlsx`;
-
-    // Download file
-    XLSX.writeFile(workbook, fileName);
+    
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
     
     return true;
   } catch (error) {

@@ -16,6 +16,7 @@
     "@vercel/analytics": "^2.0.1",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
+    "exceljs": "^4.4.0",
     "express": "^5.2.1",
     "i18next": "^26.3.6",
     "lucide-react": "^1.30.0",
@@ -25,8 +26,7 @@
     "react-router-dom": "^7.18.2",
     "recharts": "^3.10.1",
     "shippo": "^2.18.0",
-    "stripe": "^22.5.0",
-    "xlsx": "^0.18.5"
+    "stripe": "^22.5.0"
   },
   "devDependencies": {
     "@types/react": "^19.2.17",
