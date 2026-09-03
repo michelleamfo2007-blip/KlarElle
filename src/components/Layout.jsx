@@ -25,6 +25,11 @@ function Layout() {
   const [analyzingImage, setAnalyzingImage] = useState(false);
   const [categories, setCategories] = useState([]);
   const fileInputRef = React.useRef(null);
+  
+  const [suggestions, setSuggestions] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
+  const searchFormRef = React.useRef(null);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -38,9 +43,52 @@ function Layout() {
     };
     fetchCategories();
   }, []);
+
+  useEffect(() => {
+    const fetchSuggestions = async () => {
+      if (!searchQuery.trim()) {
+        setSuggestions([]);
+        setShowSuggestions(false);
+        return;
+      }
+      
+      setIsSearching(true);
+      const { data, error } = await supabase
+        .from('products')
+        .select('id, name, image_url, price')
+        .or(`name.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%,category.ilike.%${searchQuery}%`)
+        .eq('visibility', true)
+        .eq('status', 'active')
+        .limit(4);
+        
+      if (!error && data) {
+        setSuggestions(data);
+        setShowSuggestions(true);
+      }
+      setIsSearching(false);
+    };
+
+    const debounceTimer = setTimeout(() => {
+      fetchSuggestions();
+    }, 300);
+
+    return () => clearTimeout(debounceTimer);
+  }, [searchQuery]);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (searchFormRef.current && !searchFormRef.current.contains(event.target)) {
+        setShowSuggestions(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   const handleSearch = (e) => {
-    e.preventDefault();
+    if (e) e.preventDefault();
     if (searchQuery.trim()) {
+      setShowSuggestions(false);
       navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
       setSearchQuery('');
     }
@@ -256,7 +304,7 @@ function Layout() {
           <div className="header-main">
             <Link to="/" className="logo">KLARELLE</Link>
             
-            <form className="search-bar" onSubmit={handleSearch} style={{ position: 'relative' }}>
+            <form ref={searchFormRef} className="search-bar" onSubmit={handleSearch} style={{ position: 'relative' }}>
               <input 
                 type="text" 
                 className="search-input" 
@@ -299,6 +347,62 @@ function Layout() {
                 onChange={handleImageUpload}
                 style={{ display: 'none' }}
               />
+              
+              {showSuggestions && (
+                <div style={{
+                  position: 'absolute',
+                  top: '100%',
+                  left: 0,
+                  right: 0,
+                  backgroundColor: 'white',
+                  boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+                  borderRadius: '0 0 8px 8px',
+                  zIndex: 50,
+                  marginTop: '4px',
+                  border: '1px solid #eee',
+                  overflow: 'hidden'
+                }}>
+                  {isSearching ? (
+                    <div style={{ padding: '16px', textAlign: 'center', color: '#666' }}>
+                      <Loader2 size={16} className="spin" style={{ margin: '0 auto' }} />
+                    </div>
+                  ) : suggestions.length > 0 ? (
+                    <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
+                      {suggestions.map((item) => (
+                        <li key={item.id} style={{ borderBottom: '1px solid #f5f5f5' }}>
+                          <Link 
+                            to={`/product/${item.id}`} 
+                            style={{ display: 'flex', alignItems: 'center', padding: '12px', textDecoration: 'none', color: 'inherit' }}
+                            onClick={() => { setShowSuggestions(false); setSearchQuery(''); }}
+                          >
+                            <img 
+                              src={item.image_url || 'https://via.placeholder.com/40'} 
+                              alt={item.name} 
+                              style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '4px', marginRight: '12px' }} 
+                            />
+                            <div style={{ flex: 1, overflow: 'hidden' }}>
+                              <div style={{ fontSize: '14px', fontWeight: '500', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.name}</div>
+                              <div style={{ fontSize: '12px', color: '#666' }}>{formatPrice(item.price)}</div>
+                            </div>
+                          </Link>
+                        </li>
+                      ))}
+                      <li style={{ padding: '12px', textAlign: 'center', backgroundColor: '#f9fafb' }}>
+                        <button 
+                          onClick={(e) => { e.preventDefault(); handleSearch(); }}
+                          style={{ background: 'none', border: 'none', color: '#111', fontSize: '13px', fontWeight: '500', cursor: 'pointer', width: '100%', height: '100%' }}
+                        >
+                          View all results for "{searchQuery}"
+                        </button>
+                      </li>
+                    </ul>
+                  ) : (
+                    <div style={{ padding: '16px', textAlign: 'center', color: '#666', fontSize: '14px' }}>
+                      No products found for "{searchQuery}"
+                    </div>
+                  )}
+                </div>
+              )}
               
               <button type="submit" className="search-btn" disabled={analyzingImage}>SEARCH</button>
             </form>
