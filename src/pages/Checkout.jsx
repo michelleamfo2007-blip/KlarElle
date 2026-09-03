@@ -187,7 +187,6 @@ function Checkout() {
           console.error("Error fetching client secret", err);
           setPaymentError(err.message);
         });
-    }
     } else if (showShippingForm) {
       setClientSecret("");
     }
