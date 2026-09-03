@@ -27,7 +27,8 @@ function Search() {
       .from('products')
       .select('*')
       .or(`name.ilike.%${query}%,description.ilike.%${query}%,category.ilike.%${query}%`)
-      .eq('status', 'Active')
+      .eq('visibility', true)
+      .eq('status', 'active')
       .order('created_at', { ascending: false });
 
     if (error) {
