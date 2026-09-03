@@ -1,12 +1,18 @@
 import { supabase } from '../lib/supabase';
 import ExcelJS from 'exceljs';
 
-// Helper to fetch images and convert to buffer
-const fetchImageBuffer = async (url) => {
+// Helper to fetch images and convert to base64 for browser compatibility
+const fetchImageBase64 = async (url) => {
   try {
     const response = await fetch(url);
     if (!response.ok) return null;
-    return await response.arrayBuffer();
+    const blob = await response.blob();
+    return await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
   } catch (error) {
     console.error("Failed to fetch image", url, error);
     return null;
@@ -113,10 +119,10 @@ export const exportDashboardDataToExcel = async (startDate = null, endDate = nul
         row.height = 60; // Make row taller for image
         
         if (p.image_url) {
-          const buffer = await fetchImageBuffer(p.image_url);
-          if (buffer) {
+          const base64Data = await fetchImageBase64(p.image_url);
+          if (base64Data) {
             const ext = p.image_url.toLowerCase().endsWith('png') ? 'png' : 'jpeg';
-            const imageId = workbook.addImage({ buffer, extension: ext });
+            const imageId = workbook.addImage({ base64: base64Data, extension: ext });
             // addImage col/row is 0-indexed. Col 1 is 'Image' column (B).
             wsInventory.addImage(imageId, {
               tl: { col: 1, row: row.number - 1 },
@@ -190,10 +196,10 @@ export const exportDashboardDataToExcel = async (startDate = null, endDate = nul
             row.height = 60;
             
             if (product && product.image_url) {
-              const buffer = await fetchImageBuffer(product.image_url);
-              if (buffer) {
+              const base64Data = await fetchImageBase64(product.image_url);
+              if (base64Data) {
                 const ext = product.image_url.toLowerCase().endsWith('png') ? 'png' : 'jpeg';
-                const imageId = workbook.addImage({ buffer, extension: ext });
+                const imageId = workbook.addImage({ base64: base64Data, extension: ext });
                 // Col 4 is 'Image' (E)
                 wsOrders.addImage(imageId, {
                   tl: { col: 4, row: row.number - 1 },
