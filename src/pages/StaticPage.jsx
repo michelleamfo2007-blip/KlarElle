@@ -97,7 +97,7 @@ function StaticPage({ title }) {
 
             <h3 style={{ marginTop: '32px', marginBottom: '12px', fontSize: '18px', textTransform: 'uppercase' }}>U.S. Shipping Rates</h3>
             <p style={{ marginBottom: '16px' }}><strong>Standard Shipping — $15.00</strong><br/>Estimated delivery: 3–5 business days after your order has been processed.</p>
-            <p style={{ marginBottom: '16px', fontWeight: 'bold' }}>FREE Standard Shipping on U.S. orders of $150 or more.</p>
+            <p style={{ marginBottom: '16px', fontWeight: 'bold' }}>FREE Standard Shipping on U.S. orders of $100 or more.</p>
             <p style={{ marginBottom: '24px' }}>Shipping times are estimates and are not guaranteed. Carrier delays, weather, holidays, and other circumstances outside of Klarelle’s control may affect delivery times.</p>
 
             <h3 style={{ marginTop: '32px', marginBottom: '12px', fontSize: '18px', textTransform: 'uppercase' }}>International Shipping</h3>

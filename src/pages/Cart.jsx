@@ -37,7 +37,7 @@ function Cart() {
             {shipping === 0 ? (
               <span><strong>Congratulations!</strong> You get free standard shipping.</span>
             ) : (
-              <span>Add <strong>{formatPrice(shippingThreshold - cartTotal)}</strong> more to get free standard shipping!</span>
+              <span>Add <strong>{formatPrice(shippingThreshold - cartTotal)}</strong> more to get free U.S. standard shipping!</span>
             )}
           </div>
           

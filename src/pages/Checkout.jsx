@@ -101,9 +101,9 @@ function Checkout() {
 
   let baseShippingFee = selectedRate ? selectedRate.amount : (shippingRates.length === 0 ? FALLBACK_SHIPPING_RATE : 0.00);
   
-  // Apply free shipping ONLY if they select the cheapest option (Standard)
+  // Apply free shipping ONLY if they select the cheapest option (Standard) AND it's a US order
   let shippingFee = baseShippingFee;
-  if (cartTotal >= shippingThreshold) {
+  if (cartTotal >= shippingThreshold && formData.location === 'United States') {
     if (shippingRates.length === 0 || selectedRateId === cheapestRateId) {
       shippingFee = 0;
     }
@@ -471,7 +471,7 @@ function Checkout() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '8px' }}>
             {shippingRates.map(rate => {
               const isCheapest = cheapestRateId === rate.objectId;
-              const isFreeEligible = cartTotal >= shippingThreshold && isCheapest;
+              const isFreeEligible = cartTotal >= shippingThreshold && isCheapest && formData.location === 'United States';
               const displayAmount = isFreeEligible ? 0 : rate.amount;
               
               return (
@@ -637,7 +637,7 @@ function Checkout() {
             <Truck size={16} /> Shipping & Returns
           </div>
           <div style={{ fontSize: '12px', color: '#666', lineHeight: '1.4' }}>
-            <strong>Shipping:</strong> Standard shipping takes 3-5 business days after fulfillment for U.S. orders and 9-15 days for international orders. Free shipping on orders over $150.<br />
+            <strong>Shipping:</strong> Standard shipping takes 3-5 business days after fulfillment for U.S. orders and 9-15 days for international orders. Free shipping on U.S. orders over ${shippingThreshold}.<br />
             <strong>Returns:</strong> We accept returns within 7 days of delivery. Items must be unworn and in original condition with tags attached.
           </div>
         </div>
