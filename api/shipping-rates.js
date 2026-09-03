@@ -254,6 +254,11 @@ export default async function handler(req, res) {
     totalWeight = 0.5;
   }
 
+  // Determine origin based on cart items (if any item requires CN stock, ship from CN)
+  const isFulfilledFromChina = cartItems.some(item => item.fulfilledFrom === 'CN');
+  const originCountry = isFulfilledFromChina ? 'CN' : 'US';
+  const originZip = isFulfilledFromChina ? '518000' : '10001';
+
   if (isAfrican) {
     let amount = 40.00;
     if (totalWeight > 1.0) {
@@ -291,8 +296,8 @@ export default async function handler(req, res) {
           'Authorization': `Bearer ${apiKey}`
         },
         body: JSON.stringify({
-          origin_country_alpha2: 'US',
-          origin_postal_code: '10001',
+          origin_country_alpha2: originCountry,
+          origin_postal_code: originZip,
           destination_country_alpha2: destCountryCode,
           destination_postal_code: destinationZip,
           taxes_duties_paid_by: 'Receiver',

@@ -45,17 +45,28 @@ function ProductDetails() {
   const [addedToCart, setAddedToCart] = useState(false);
 
   // Compute available stock based on currently selected product and variations
-  let availableStock = product?.stock || 0;
+  let usStock = product?.stock || 0;
+  let intlStock = product?.stock_international || 0;
+  let fulfilledFrom = 'US';
+
   if (product?.variant_images) {
-    const hasVariantInventory = Object.values(product.variant_images).some(v => typeof v === 'object' && v !== null && v.stock);
+    const hasVariantInventory = Object.values(product.variant_images).some(v => typeof v === 'object' && v !== null && (v.stock || v.stock_international));
     if (hasVariantInventory) {
       const colorData = product.variant_images[selectedColor];
-      if (colorData && colorData.stock && colorData.stock[selectedSize] !== undefined) {
-        availableStock = parseInt(colorData.stock[selectedSize], 10);
+      if (colorData) {
+        usStock = parseInt(colorData.stock?.[selectedSize] || 0, 10);
+        intlStock = parseInt(colorData.stock_international?.[selectedSize] || 0, 10);
       } else {
-        availableStock = 0;
+        usStock = 0;
+        intlStock = 0;
       }
     }
+  }
+
+  let availableStock = usStock;
+  if (usStock <= 0 && intlStock > 0) {
+    availableStock = intlStock;
+    fulfilledFrom = 'CN';
   }
 
   const cartItemId = product ? `${product.id}-${selectedSize || 'default'}-${selectedColor || 'default'}` : null;
@@ -77,7 +88,7 @@ function ProductDetails() {
       alert(`You already have ${qtyInCart} in your cart. You can only add ${remainingStock} more.`);
       return;
     }
-    addToCart(product, selectedSize, selectedColor, quantity);
+    addToCart(product, selectedSize, selectedColor, quantity, fulfilledFrom);
     setAddedToCart(true);
     setTimeout(() => setAddedToCart(false), 2500);
   };

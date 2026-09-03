@@ -32,7 +32,9 @@ export default async function handler(req, res) {
     }
 
     // Determine if US or International
-    const isUS = order.shipping_address && (order.shipping_address.includes('United States') || order.shipping_address.includes('US') || order.shipping_address.includes('NY'));
+    const isEasyship = order.shippo_rate_id && (order.shippo_rate_id.includes('easyship') || order.shipping_provider.includes('Easyship') || order.shipping_provider.includes('ePost'));
+    const isAfricanDropship = order.shippo_rate_id && order.shippo_rate_id.includes('african_dropship');
+    const isUS = order.shipping_address && (order.shipping_address.includes('United States') || order.shipping_address.includes('US') || order.shipping_address.includes('NY')) && !isEasyship && !isAfricanDropship;
     
     let trackingNumber = '';
     let labelUrl = '';

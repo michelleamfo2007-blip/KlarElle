@@ -20,14 +20,14 @@ export const CartProvider = ({ children }) => {
     localStorage.setItem('klarelle_cart', JSON.stringify(cartItems));
   }, [cartItems]);
 
-  const addToCart = (product, selectedSize = null, selectedColor = null, quantity = 1) => {
+  const addToCart = (product, selectedSize = null, selectedColor = null, quantity = 1, fulfilledFrom = 'US') => {
     setCartItems(prev => {
       const cartItemId = `${product.id}-${selectedSize || 'default'}-${selectedColor || 'default'}`;
       const existing = prev.find(item => item.cartItemId === cartItemId);
       if (existing) {
-        return prev.map(item => item.cartItemId === cartItemId ? { ...item, quantity: item.quantity + quantity } : item);
+        return prev.map(item => item.cartItemId === cartItemId ? { ...item, quantity: item.quantity + quantity, fulfilledFrom } : item);
       }
-      return [...prev, { ...product, cartItemId, selectedSize, selectedColor, quantity }];
+      return [...prev, { ...product, cartItemId, selectedSize, selectedColor, quantity, fulfilledFrom }];
     });
   };
 
