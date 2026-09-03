@@ -222,7 +222,7 @@ export default async function handler(req, res) {
   let totalWeight = 0; // kg
   const items = cartItems.map(item => {
     // defaults if product data is missing
-    const weight = item.weight ? parseFloat(item.weight) : 0.5;
+    const weight = item.weight ? parseFloat(item.weight) : 1.2;
     totalWeight += weight * item.quantity;
     return {
       description: item.name,
@@ -242,7 +242,7 @@ export default async function handler(req, res) {
     items.push({
       description: "Apparel",
       sku: "DEFAULT",
-      actual_weight: 0.5,
+      actual_weight: 1.2,
       height: 5,
       width: 35,
       length: 45,
@@ -251,7 +251,7 @@ export default async function handler(req, res) {
       declared_customs_value: 50,
       quantity: 1
     });
-    totalWeight = 0.5;
+    totalWeight = 1.2;
   }
 
   // Determine origin based on cart items (if any item requires CN stock, ship from CN)
