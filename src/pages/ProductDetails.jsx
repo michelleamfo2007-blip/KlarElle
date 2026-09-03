@@ -639,10 +639,10 @@ function ProductDetails() {
               </button>
               <button 
                 className="add-to-bag" 
-                onClick={handleAddToCart} 
-                style={{ background: addedToCart ? '#2f9e44' : '#000' }}
+                disabled
+                style={{ background: '#ccc', color: '#666', cursor: 'not-allowed' }}
               >
-                {isPreOrder ? (addedToCart ? '✓ Pre-ordered' : 'Pre-order') : addedToCart ? '✓ Added to Cart' : 'Add to Cart'}
+                Coming Soon
               </button>
             </div>
           </div>
@@ -656,10 +656,10 @@ function ProductDetails() {
          </button>
          <button 
            className="add-to-bag"
-           onClick={handleAddToCart}
-           style={{ background: addedToCart ? '#2f9e44' : '#000' }}
+           disabled
+           style={{ background: '#ccc', color: '#666', cursor: 'not-allowed' }}
          >
-           {isPreOrder ? (addedToCart ? '✓ Pre-ordered' : 'Pre-order') : addedToCart ? '✓ Added to Cart' : 'Add to Cart'}
+           Coming Soon
          </button>
       </div>
       

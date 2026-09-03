@@ -24,7 +24,7 @@ function Home() {
         .eq('visibility', true)
         .eq('status', 'active')
         .order('created_at', { ascending: false })
-        .limit(10);
+        .limit(3);
       
       if (!error && data) {
         setProducts(data);
@@ -394,9 +394,6 @@ function Home() {
                         <Heart size={16} fill={isFavorite(product.id) ? "currentColor" : "none"} />
                       </div>
                       <Link to={`/product/${product.id}`} className="luxury-action-icon" style={{ display: 'flex', color: 'inherit', textDecoration: 'none' }} title="Quick View"><Eye size={16} /></Link>
-                      {product.stock > 0 && (
-                        <div className="luxury-action-icon" title="Add to Bag" onClick={() => { addToCart(product); showToast("Added to your shopping bag!"); }}><ShoppingBag size={16} /></div>
-                      )}
                     </div>
                   </div>
                   
@@ -425,7 +422,7 @@ function Home() {
                       <span>({product.rating || 5.0}) 128 Reviews</span>
                     </div>
                     
-                    <button className="luxury-add-btn" onClick={() => addToCart(product)}>Add To Bag</button>
+                    <button className="luxury-add-btn" disabled style={{ background: '#ccc', color: '#666', cursor: 'not-allowed' }}>Coming Soon</button>
                   </div>
                 </div>
               ))
