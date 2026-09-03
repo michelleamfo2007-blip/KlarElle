@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, Link } from 'react-router-dom';
+import SEO from '../components/SEO';
 import { supabase } from '../lib/supabase';
 import { useCurrency } from '../context/CurrencyContext';
 
@@ -40,6 +41,8 @@ function Search() {
   };
 
   return (
+    <>
+    <SEO title={`Search Results for "${query}"`} />
     <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '40px 20px', fontFamily: 'Inter, sans-serif' }}>
       <h1 style={{ fontSize: '28px', fontWeight: '300', textAlign: 'center', marginBottom: '8px' }}>
         Search Results
@@ -79,6 +82,7 @@ function Search() {
         </div>
       )}
     </div>
+    </>
   );
 }
 

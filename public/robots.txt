@@ -1,0 +1,6 @@
+User-agent: *
+Disallow: /admin/
+Disallow: /super-admin/
+Disallow: /checkout/
+
+Sitemap: https://www.klarelle.store/sitemap.xml

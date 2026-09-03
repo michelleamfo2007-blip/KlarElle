@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import SEO from '../components/SEO';
 import { supabase } from '../lib/supabase';
 import { Heart, Truck, RotateCcw, Share2, Star, ChevronRight, X, Ruler, ThumbsUp, ChevronLeft } from 'lucide-react';
 import { useCart } from '../context/CartContext';
@@ -274,6 +275,8 @@ function ProductDetails() {
 
 
   return (
+    <>
+    <SEO title={product.name} description={product.description?.substring(0, 160)} />
     <div className="product-details-page" style={{ paddingBottom: '90px' }}>
       <div className="container" style={{ padding: '40px 20px' }}>
         
@@ -1218,8 +1221,8 @@ function ProductDetails() {
           </div>
         </div>
       )}
-
     </div>
+    </>
   );
 }
 

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import SEO from '../components/SEO';
 import { supabase } from '../lib/supabase';
 import { Heart, Star, Plus, Minus } from 'lucide-react';
 import { useCart } from '../context/CartContext';
@@ -119,6 +120,8 @@ function Category() {
   const categoryName = id.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase());
 
   return (
+    <>
+    <SEO title={categoryName} description={`Shop the latest ${categoryName.toLowerCase()} at KLARELLE.`} />
     <div className="category-page-container">
       {/* Sidebar */}
       <div className="desktop-filter-sidebar">
@@ -198,12 +201,13 @@ function Category() {
 
       <FilterModal 
         isOpen={isMobileFilterOpen} 
-        onClose={() => setIsMobileFilterOpen(false)} 
+        onClose={() => setIsMobileFilterOpen(false)}
         filterOptions={filterOptions}
         activeFilters={activeFilters}
-        onApplyFilters={setActiveFilters}
+        onFilterChange={setActiveFilters}
       />
     </div>
+    </>
   );
 }
 

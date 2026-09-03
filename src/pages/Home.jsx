@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import SEO from '../components/SEO';
 import { supabase } from '../lib/supabase';
 import { Heart, ArrowRight, Star, Eye, ShoppingBag } from 'lucide-react';
 import { useCart } from '../context/CartContext';
@@ -78,6 +79,7 @@ function Home() {
 
   return (
     <>
+      <SEO title="Home" />
       {toastMessage && (
         <div style={{
           position: 'fixed',
