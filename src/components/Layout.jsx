@@ -293,7 +293,6 @@ function Layout() {
               <input 
                 type="file" 
                 accept="image/*" 
-                capture="environment"
                 ref={fileInputRef}
                 onChange={handleImageUpload}
                 style={{ display: 'none' }}
