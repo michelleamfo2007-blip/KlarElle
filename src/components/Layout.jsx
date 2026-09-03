@@ -245,7 +245,7 @@ function Layout() {
             </div>
           </div>
           <div style={{ color: '#666' }}>
-            {t('Free shipping on orders over')} {formatPrice(100)}
+            {t('Free shipping on orders over')} {formatPrice(150)}
           </div>
         </div>
       </div>
@@ -388,13 +388,15 @@ function Layout() {
                 <Link to="/page/payment-method">Payment Method</Link>
                 <Link to="/page/rewards">Rewards</Link>
                 <a href="mailto:support@klarelle.store">Support</a>
+                <Link to="/page/privacy-policy">Privacy Policy</Link>
+                <Link to="/page/terms-and-conditions">Terms & Conditions</Link>
               </div>
             </div>
             <div className="footer-col">
               <div>
                 <h4 style={{ marginBottom: '12px' }}>Follow Us</h4>
                 <div style={{ display: 'flex', gap: '16px', color: '#666', alignItems: 'center' }}>
-                  <a href="https://www.instagram.com/klarelle_?igsh=d2xiYmloaHhzbThr" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', color: 'inherit' }} title="Instagram">
+                  <a href="https://www.instagram.com/klarelle_store" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', color: 'inherit' }} title="Instagram">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
                       <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>

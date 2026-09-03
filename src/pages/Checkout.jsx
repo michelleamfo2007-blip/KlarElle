@@ -303,18 +303,9 @@ function Checkout() {
           </div>
 
           <div style={{ marginBottom: '16px' }}>
-            <label style={{ display: 'block', fontSize: '12px', color: '#666', marginBottom: '4px' }}>Phone Number *</label>
+            <label style={{ display: 'block', fontSize: '12px', color: '#666', marginBottom: '4px' }}>Phone Number (with Country Code) *</label>
             <div style={{ display: 'flex', border: '1px solid #ddd', borderRadius: '4px' }}>
-              <select name="phoneCode" value={formData.phoneCode} onChange={handleInputChange} style={{ padding: '12px', background: '#f9f9f9', borderRight: '1px solid #ddd', color: '#666', border: 'none', outline: 'none', cursor: 'pointer' }}>
-                <option value="+1">US +1</option>
-                <option value="+44">UK +44</option>
-                <option value="+233">GH +233</option>
-                <option value="+234">NG +234</option>
-                <option value="+27">ZA +27</option>
-                <option value="+61">AU +61</option>
-                <option value="+49">DE +49</option>
-                <option value="+33">FR +33</option>
-              </select>
+              <input type="text" name="phoneCode" value={formData.phoneCode} onChange={handleInputChange} placeholder="+1" style={{ width: '60px', padding: '12px', background: '#f9f9f9', borderRight: '1px solid #ddd', color: '#666', border: 'none', outline: 'none' }} />
               <input type="tel" name="phone" value={formData.phone} onChange={handleInputChange} style={{ width: '100%', padding: '12px', border: 'none', outline: 'none' }} />
             </div>
             <div style={{ fontSize: '11px', color: '#999', marginTop: '4px' }}>Need Correct Phone Number for delivery.</div>
@@ -323,23 +314,40 @@ function Checkout() {
 
         <div style={{ background: '#fff', padding: '16px', marginTop: '8px' }}>
           <div style={{ marginBottom: '16px' }}>
-            <label style={{ display: 'block', fontSize: '12px', color: '#666', marginBottom: '4px' }}>Region *</label>
-            <input type="text" name="region" value={formData.region} onChange={handleInputChange} style={{ width: '100%', padding: '12px', border: '1px solid #ddd', borderRadius: '4px', boxSizing: 'border-box' }} />
+            <label style={{ display: 'block', fontSize: '12px', color: '#666', marginBottom: '4px' }}>Address *</label>
+            <input type="text" name="houseNo" value={formData.houseNo} onChange={handleInputChange} style={{ width: '100%', padding: '12px', border: '1px solid #ddd', borderRadius: '4px', boxSizing: 'border-box' }} />
           </div>
 
           <div style={{ marginBottom: '16px' }}>
-            <label style={{ display: 'block', fontSize: '12px', color: '#666', marginBottom: '4px' }}>City / Town *</label>
+            <label style={{ display: 'block', fontSize: '12px', color: '#666', marginBottom: '4px' }}>Apartment/Suite (Optional)</label>
+            <input type="text" name="apartment" value={formData.apartment || ''} onChange={handleInputChange} style={{ width: '100%', padding: '12px', border: '1px solid #ddd', borderRadius: '4px', boxSizing: 'border-box' }} />
+          </div>
+
+          <div style={{ marginBottom: '16px' }}>
+            <label style={{ display: 'block', fontSize: '12px', color: '#666', marginBottom: '4px' }}>City *</label>
             <input type="text" name="city" value={formData.city} onChange={handleInputChange} style={{ width: '100%', padding: '12px', border: '1px solid #ddd', borderRadius: '4px', boxSizing: 'border-box' }} />
           </div>
 
-          <div style={{ marginBottom: '16px' }}>
-            <label style={{ display: 'block', fontSize: '12px', color: '#666', marginBottom: '4px' }}>Postcode *</label>
-            <input type="text" name="postcode" value={formData.postcode} onChange={handleInputChange} style={{ width: '100%', padding: '12px', border: '1px solid #ddd', borderRadius: '4px', boxSizing: 'border-box' }} />
-          </div>
-
-          <div style={{ marginBottom: '16px' }}>
-            <label style={{ display: 'block', fontSize: '12px', color: '#666', marginBottom: '4px' }}>House No / Street *</label>
-            <input type="text" name="houseNo" value={formData.houseNo} onChange={handleInputChange} style={{ width: '100%', padding: '12px', border: '1px solid #ddd', borderRadius: '4px', boxSizing: 'border-box' }} />
+          <div style={{ display: 'flex', gap: '16px', marginBottom: '16px' }}>
+            <div style={{ flex: 1 }}>
+              <label style={{ display: 'block', fontSize: '12px', color: '#666', marginBottom: '4px' }}>
+                {formData.location === 'United States' ? 'State *' : 'State / Province / Region *'}
+              </label>
+              {formData.location === 'United States' ? (
+                <select name="region" value={formData.region} onChange={handleInputChange} style={{ width: '100%', padding: '12px', border: '1px solid #ddd', borderRadius: '4px', boxSizing: 'border-box', background: '#fff' }}>
+                  <option value="">Select State</option>
+                  <option value="AL">Alabama</option><option value="AK">Alaska</option><option value="AZ">Arizona</option><option value="AR">Arkansas</option><option value="CA">California</option><option value="CO">Colorado</option><option value="CT">Connecticut</option><option value="DE">Delaware</option><option value="FL">Florida</option><option value="GA">Georgia</option><option value="HI">Hawaii</option><option value="ID">Idaho</option><option value="IL">Illinois</option><option value="IN">Indiana</option><option value="IA">Iowa</option><option value="KS">Kansas</option><option value="KY">Kentucky</option><option value="LA">Louisiana</option><option value="ME">Maine</option><option value="MD">Maryland</option><option value="MA">Massachusetts</option><option value="MI">Michigan</option><option value="MN">Minnesota</option><option value="MS">Mississippi</option><option value="MO">Missouri</option><option value="MT">Montana</option><option value="NE">Nebraska</option><option value="NV">Nevada</option><option value="NH">New Hampshire</option><option value="NJ">New Jersey</option><option value="NM">New Mexico</option><option value="NY">New York</option><option value="NC">North Carolina</option><option value="ND">North Dakota</option><option value="OH">Ohio</option><option value="OK">Oklahoma</option><option value="OR">Oregon</option><option value="PA">Pennsylvania</option><option value="RI">Rhode Island</option><option value="SC">South Carolina</option><option value="SD">South Dakota</option><option value="TN">Tennessee</option><option value="TX">Texas</option><option value="UT">Utah</option><option value="VT">Vermont</option><option value="VA">Virginia</option><option value="WA">Washington</option><option value="WV">West Virginia</option><option value="WI">Wisconsin</option><option value="WY">Wyoming</option>
+                </select>
+              ) : (
+                <input type="text" name="region" value={formData.region} onChange={handleInputChange} style={{ width: '100%', padding: '12px', border: '1px solid #ddd', borderRadius: '4px', boxSizing: 'border-box' }} />
+              )}
+            </div>
+            <div style={{ flex: 1 }}>
+              <label style={{ display: 'block', fontSize: '12px', color: '#666', marginBottom: '4px' }}>
+                {formData.location === 'United States' ? 'ZIP Code *' : 'Postcode *'}
+              </label>
+              <input type="text" name="postcode" value={formData.postcode} onChange={handleInputChange} style={{ width: '100%', padding: '12px', border: '1px solid #ddd', borderRadius: '4px', boxSizing: 'border-box' }} />
+            </div>
           </div>
           
           <div style={{ marginBottom: '16px' }}>

@@ -23,26 +23,32 @@ function Category() {
   useEffect(() => {
     const fetchCategoryProducts = async () => {
       setLoading(true);
-      const { data, error } = await supabase
+      
+      let query = supabase
         .from('products')
         .select('*')
         .eq('visibility', true)
         .eq('status', 'active')
-        .eq('category', id)
         .order('created_at', { ascending: false });
+        
+      if (id !== 'new-in' && id !== 'collections' && id !== 'all') {
+        query = query.eq('category', id);
+      }
+      
+      const { data, error } = await query;
       
       if (!error && data) {
         setAllProducts(data);
         
         // Compute available filter options based on the fetched products
         const options = {
-          Type: ['Bodycon', 'A Line', 'Cami', 'Fitted', 'Tank', 'Shirt', 'Tunic', 'Tee', 'Fit and Flare'],
+          Type: ['Bodycon', 'A Line', 'Cami', 'Fitted', 'Shirt', 'Tunic', 'Fit and Flare'],
           Color: ['Multi', 'Black', 'White', 'Pink', 'Blue', 'Grey', 'Red', 'Green'],
           Size: ['XXS', 'XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL'],
           Length: ['Maxi', 'Long', 'Midi', 'Mini', 'Knee Length', 'Short'],
           Style: ['Elegant', 'Sexy', 'Party', 'Casual', 'Boho', 'Modest', 'Vintage', 'Cute'],
           PatternType: ['Plain', 'Plants', 'All Over Print', 'Random Print', 'Colorblock', 'Floral'],
-          Occasion: ['Formal & Evening', 'Wedding', 'Vacation', 'Beach', 'Night Out', 'Stage & Concert', 'Dating', 'Homecoming', 'Daily', 'Holiday', 'Birthday Party', 'Bachelorette Party', 'Home', 'Travel', 'Office', 'Garden', 'Country Concert', 'Tea Party', 'Photoshoot', 'Baby Shower Party', 'Street', 'Airport', 'Babymoon', 'School', 'Brunch', 'Sports & Work out'],
+          Occasion: ['Formal & Evening', 'Wedding', 'Vacation', 'Beach', 'Night Out', 'Stage & Concert', 'Dating', 'Homecoming', 'Daily', 'Holiday', 'Birthday Party', 'Bachelorette Party', 'Home', 'Travel', 'Office', 'Garden', 'Country Concert', 'Tea Party', 'Photoshoot', 'Baby Shower Party', 'Street', 'Airport', 'Brunch'],
           WaistLine: ['High Waist', 'Natural(Mid Waist)', 'Low Waist']
         };
         setFilterOptions(options);

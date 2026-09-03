@@ -449,7 +449,7 @@ function ProductForm() {
                   {errors.name && <div className="error-text"><AlertCircle size={14}/> {errors.name}</div>}
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                <div className="admin-responsive-grid">
                   <div>
                     <label className="input-label">SKU</label>
                     <div style={{ display: 'flex', gap: '8px' }}>
@@ -494,15 +494,29 @@ function ProductForm() {
                   />
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                <div className="admin-responsive-grid">
                   <div>
-                    <label className="input-label">Material (e.g. Knitted Fabric)</label>
-                    <input 
-                      type="text" 
+                    <label className="input-label">Material</label>
+                    <select 
                       className="input-field" 
                       value={formData.material} 
-                      onChange={(e) => setFormData({...formData, material: e.target.value})} 
-                    />
+                      onChange={(e) => setFormData({...formData, material: e.target.value})}
+                    >
+                      <option value="">Select Material</option>
+                      <option value="Cotton">Cotton</option>
+                      <option value="Spandex">Spandex</option>
+                      <option value="Polyester">Polyester</option>
+                      <option value="Silk">Silk</option>
+                      <option value="Linen">Linen</option>
+                      <option value="Wool">Wool</option>
+                      <option value="Denim">Denim</option>
+                      <option value="Leather">Leather</option>
+                      <option value="Velvet">Velvet</option>
+                      <option value="Knitted Fabric">Knitted Fabric</option>
+                      <option value="Chiffon">Chiffon</option>
+                      <option value="Lace">Lace</option>
+                      <option value="Other">Other</option>
+                    </select>
                   </div>
                   <div>
                     <label className="input-label">Composition (e.g. 95% Polyester)</label>
@@ -514,24 +528,46 @@ function ProductForm() {
                     />
                   </div>
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                <div className="admin-responsive-grid">
                   <div>
-                    <label className="input-label">Pattern Type (e.g. Plain)</label>
-                    <input 
-                      type="text" 
+                    <label className="input-label">Pattern Type</label>
+                    <select 
                       className="input-field" 
                       value={formData.pattern_type} 
-                      onChange={(e) => setFormData({...formData, pattern_type: e.target.value})} 
-                    />
+                      onChange={(e) => setFormData({...formData, pattern_type: e.target.value})}
+                    >
+                      <option value="">Select Pattern Type</option>
+                      <option value="Plain">Plain</option>
+                      <option value="Striped">Striped</option>
+                      <option value="Floral">Floral</option>
+                      <option value="Polka Dot">Polka Dot</option>
+                      <option value="Plaid">Plaid</option>
+                      <option value="Checkered">Checkered</option>
+                      <option value="Animal Print">Animal Print</option>
+                      <option value="Geometric">Geometric</option>
+                      <option value="Abstract">Abstract</option>
+                      <option value="Other">Other</option>
+                    </select>
                   </div>
                   <div>
-                    <label className="input-label">Style (e.g. Elegant, Casual)</label>
-                    <input 
-                      type="text" 
+                    <label className="input-label">Style</label>
+                    <select 
                       className="input-field" 
                       value={formData.style} 
-                      onChange={(e) => setFormData({...formData, style: e.target.value})} 
-                    />
+                      onChange={(e) => setFormData({...formData, style: e.target.value})}
+                    >
+                      <option value="">Select Style</option>
+                      <option value="Elegant">Elegant</option>
+                      <option value="Casual">Casual</option>
+                      <option value="Party Wear">Party Wear</option>
+                      <option value="Office Wear">Office Wear</option>
+                      <option value="Streetwear">Streetwear</option>
+                      <option value="Vintage">Vintage</option>
+                      <option value="Bohemian">Bohemian</option>
+                      <option value="Sporty">Sporty</option>
+                      <option value="Loungewear">Loungewear</option>
+                      <option value="Other">Other</option>
+                    </select>
                   </div>
                 </div>
                 <div>
@@ -706,7 +742,7 @@ function ProductForm() {
             <div className="card">
               <div className="card-header"><Box size={18} /> Shipping & Customs</div>
               <div className="card-body" style={{ display: 'grid', gap: '20px' }}>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                <div className="admin-responsive-grid">
                   <div>
                     <label className="input-label">Weight (kg)</label>
                     <input 

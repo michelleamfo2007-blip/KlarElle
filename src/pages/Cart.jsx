@@ -92,15 +92,15 @@ function Cart() {
             <Link to="/checkout" className="btn btn-primary checkout-btn" style={{ display: 'block', textAlign: 'center', textDecoration: 'none' }}>CHECKOUT</Link>
             
             <div className="payment-methods">
-              We accept: Visa, Mastercard, PayPal, Apple Pay
+              We accept: Visa, Mastercard, Klarna
             </div>
             
             <div style={{ marginTop: '20px', fontSize: '12px', color: '#555', borderTop: '1px solid #eee', paddingTop: '15px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px', fontWeight: 'bold' }}>
                 <Truck size={14} /> Shipping & Returns
               </div>
-              <p style={{ margin: '0 0 8px 0', lineHeight: '1.4' }}><strong>Shipping:</strong> Standard shipping takes 3-5 business days. Free shipping on orders over $150.</p>
-              <p style={{ margin: 0, lineHeight: '1.4' }}><strong>Returns:</strong> We accept returns within 30 days of delivery. Items must be unworn and in original condition with tags attached.</p>
+              <p style={{ margin: '0 0 8px 0', lineHeight: '1.4' }}><strong>Shipping:</strong> Standard shipping takes 3-5 business days after fulfillment for U.S. orders and 9-15 days for international orders.</p>
+              <p style={{ margin: 0, lineHeight: '1.4' }}><strong>Returns:</strong> We accept returns within 7 days of delivery. Items must be unworn and in original condition with tags attached.</p>
             </div>
           </div>
         </div>

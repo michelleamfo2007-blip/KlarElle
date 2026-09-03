@@ -287,8 +287,8 @@ function Home() {
       {/* Hero Section */}
       <section className="hero-editorial">
         <div className="hero-text-container">
-          <div className="hero-presents">KlarElle</div>
-          <h1 className="hero-title">Coming Soon</h1>
+          <div className="hero-presents">KLARELLE</div>
+          <h1 className="hero-title">Discover KLARELLE</h1>
           
           {waitlistStatus === 'success' ? (
             <div style={{ color: '#D2C4B3', fontSize: '18px', fontStyle: 'italic', fontFamily: 'Playfair Display', padding: '16px' }}>
@@ -298,7 +298,7 @@ function Home() {
             <form className="waitlist-form" onSubmit={handleJoinWaitlist}>
               <div style={{ width: '100%' }}>
                 <label style={{ display: 'block', fontSize: '12px', color: '#BCA38F', marginBottom: '8px', letterSpacing: '1px', textTransform: 'uppercase', textAlign: 'left', marginLeft: '16px' }}>
-                  Be the first to know when Klarelle launches.
+                  Join our VIP list for exclusive updates.
                 </label>
                 <input 
                   type="email" 
@@ -317,15 +317,15 @@ function Home() {
         </div>
         
         <div className="hero-images-container">
-          <img src="/klarelle-magazine-hero.png" alt="KlarElle Autumn" className="hero-img-main-left" />
-          <img src="/klarelle-magazine-hero.png" alt="KlarElle Detail" className="hero-img-small-overlap" />
+          <img src="/klarelle-magazine-hero.png" alt="KLARELLE Autumn" className="hero-img-main-left" />
+          <img src="/klarelle-magazine-hero.png" alt="KLARELLE Detail" className="hero-img-small-overlap" />
           
           <div className="hero-img-center-wrapper">
-            <img src="/klarelle-magazine-hero.png" alt="KlarElle Lookbook" className="hero-img-center" />
+            <img src="/klarelle-magazine-hero.png" alt="KLARELLE Lookbook" className="hero-img-center" />
           </div>
           
           <div className="hero-img-right-container">
-            <img src="/klarelle-magazine-hero.png" alt="Klarelle Collection" className="hero-img-right" />
+            <img src="/klarelle-magazine-hero.png" alt="KLARELLE Collection" className="hero-img-right" />
           </div>
         </div>
       </section>
@@ -334,7 +334,7 @@ function Home() {
       <section style={{ padding: '80px 20px', backgroundColor: '#fff', textAlign: 'center' }}>
         <div style={{ maxWidth: '800px', margin: '0 auto' }}>
           <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: '32px', color: '#111827', marginBottom: '16px', letterSpacing: '2px', textTransform: 'uppercase' }}>
-            Introducing Klarelle
+            Introducing KLARELLE
           </h2>
           <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '18px', color: '#4b5563', lineHeight: '1.6', maxWidth: '600px', margin: '0 auto' }}>
             Sophisticated, timeless pieces designed to make women feel confident and elegant.
@@ -346,7 +346,7 @@ function Home() {
       <section className="luxury-section" style={{ backgroundColor: '#FAF9F6' }}>
         <div className="container">
           <div className="luxury-header">
-            <h2 className="luxury-title">COMING SOON / A GLIMPSE OF KLARELLE</h2>
+            <h2 className="luxury-title">A GLIMPSE OF KLARELLE</h2>
           </div>
           
           <div className="luxury-grid">
@@ -365,7 +365,7 @@ function Home() {
                     </div>
                     <div className="luxury-info" style={{ textAlign: 'center', marginTop: '16px' }}>
                       <h3 style={{ fontFamily: 'Playfair Display, serif', fontSize: '18px', color: '#111827', margin: '0 0 8px 0' }}>The First Collection</h3>
-                      <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '14px', color: '#BCA38F', margin: 0, textTransform: 'uppercase', letterSpacing: '1px', fontWeight: '600' }}>Coming Soon</p>
+                      <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '14px', color: '#BCA38F', margin: 0, textTransform: 'uppercase', letterSpacing: '1px', fontWeight: '600' }}>Discover More</p>
                     </div>
                   </div>
                 ))}

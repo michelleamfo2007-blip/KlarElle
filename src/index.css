@@ -944,3 +944,15 @@ main {
     scroll-behavior: auto !important;
   }
 }
+
+.admin-responsive-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+@media (min-width: 768px) {
+  .admin-responsive-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}

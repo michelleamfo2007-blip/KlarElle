@@ -146,7 +146,7 @@ function StaticPage({ title }) {
             <h3 style={{ marginTop: '24px', marginBottom: '12px', fontSize: '16px' }}>1. Eligibility for Exchanges or Store Credit</h3>
             <p style={{ marginBottom: '8px' }}>To be eligible, items must:</p>
             <ul style={{ listStyleType: 'disc', paddingLeft: '20px', marginBottom: '16px' }}>
-              <li>Be returned within 14 days of delivery.</li>
+              <li>Be returned within 7 days of delivery.</li>
               <li>Be unworn, unwashed, and unused.</li>
               <li>Have all original tags attached.</li>
               <li>Be free from makeup, deodorant, perfume, stains, odors, pet hair, or any other signs of wear.</li>
@@ -223,7 +223,7 @@ function StaticPage({ title }) {
           <>
             <p style={{ marginBottom: '16px' }}>We're here to help! Whether you have a question about sizing, need help with an order, or just want to say hello, we'd love to hear from you.</p>
             <p style={{ marginBottom: '16px' }}><strong>Email:</strong> support@klarelle.store<br/>(We aim to respond to all emails within 24 hours)</p>
-            <p style={{ marginBottom: '16px' }}><strong>Phone:</strong> +233 55 123 4567<br/>(Monday to Friday, 9:00 AM - 6:00 PM GMT)</p>
+            <p style={{ marginBottom: '16px' }}><strong>Phone:</strong> +233 20 401 1123<br/>(Monday to Friday, 9:00 AM - 6:00 PM GMT)</p>
             <p style={{ marginBottom: '16px' }}><strong>Live Chat:</strong> Click the chat bubble in the bottom right corner of your screen during business hours for immediate assistance.</p>
           </>
         );
@@ -232,8 +232,7 @@ function StaticPage({ title }) {
           <>
             <p style={{ marginBottom: '16px' }}>We offer a variety of secure payment options to make your shopping experience as smooth as possible.</p>
             <p style={{ marginBottom: '16px' }}><strong>Accepted Credit Cards:</strong> Visa, MasterCard, American Express, and Discover.</p>
-            <p style={{ marginBottom: '16px' }}><strong>Digital Wallets:</strong> Apple Pay, Google Pay, and PayPal.</p>
-            <p style={{ marginBottom: '16px' }}><strong>Mobile Money:</strong> We fully support MTN Mobile Money, Vodafone Cash, and AirtelTigo Money via our secure checkout gateway.</p>
+            <p style={{ marginBottom: '16px' }}><strong>Buy Now, Pay Later:</strong> Klarna.</p>
             <p style={{ marginBottom: '16px' }}>All transactions are securely encrypted, ensuring your financial information is always protected.</p>
           </>
         );

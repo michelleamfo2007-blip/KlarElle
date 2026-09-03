@@ -493,7 +493,7 @@ function ProductDetails() {
                 
                 <div style={{ marginTop: '12px', fontSize: '12px', color: '#666', lineHeight: '1.4' }}>
                   <strong>Sizing and Fit</strong><br/>
-                  Compare your body measurements with the product-specific chart. Sizing may vary by fabric, compression, construction, and silhouette. If between sizes, consider the listed stretch and fit recommendation or contact Klarelle.support. A size recommendation is guidance and does not guarantee individual fit.
+                  Compare your body measurements with the product-specific chart. Sizing may vary by fabric, compression, construction, and silhouette. If between sizes, consider the listed stretch and fit recommendation or contact support@klarelle.store. A size recommendation is guidance and does not guarantee individual fit.
                 </div>
               </div>
             )}
@@ -532,8 +532,8 @@ function ProductDetails() {
                 <Truck size={16} /> Shipping & Returns
               </div>
               <div style={{ fontSize: '13px', color: '#333', lineHeight: '1.6' }}>
-                <strong>Shipping:</strong> Standard shipping takes 3-5 business days. Free shipping on orders over $150.<br />
-                <strong>Returns:</strong> We accept returns within 30 days of delivery. Items must be unworn and in original condition with tags attached.
+                <strong>Shipping:</strong> Standard shipping takes 3-5 business days after fulfillment for U.S. orders and 9-15 days for international orders.<br />
+                <strong>Returns:</strong> We accept returns within 7 days of delivery. Items must be unworn and in original condition with tags attached.
               </div>
             </div>
 
@@ -722,20 +722,7 @@ function ProductDetails() {
                       </tr>
                     </thead>
                     <tbody>
-                      <tr>
-                        <td style={{ padding: '16px 8px', borderBottom: '1px solid #eee', fontWeight: 'bold' }}>XXS</td>
-                        <td style={{ padding: '16px 8px', borderBottom: '1px solid #eee' }}>{guideUnit === 'cm' ? '72.5' : '28.5'}</td>
-                        <td style={{ padding: '16px 8px', borderBottom: '1px solid #eee' }}>{guideUnit === 'cm' ? '59.0' : '23.2'}</td>
-                        <td style={{ padding: '16px 8px', borderBottom: '1px solid #eee' }}>{guideUnit === 'cm' ? '90.0' : '35.4'}</td>
-                        <td style={{ padding: '16px 8px', borderBottom: '1px solid #eee' }}>{guideUnit === 'cm' ? '99.7/123.0' : '39.3/48.4'}</td>
-                      </tr>
-                      <tr>
-                        <td style={{ padding: '16px 8px', borderBottom: '1px solid #eee', fontWeight: 'bold' }}>XS</td>
-                        <td style={{ padding: '16px 8px', borderBottom: '1px solid #eee' }}>{guideUnit === 'cm' ? '76.5' : '30.1'}</td>
-                        <td style={{ padding: '16px 8px', borderBottom: '1px solid #eee' }}>{guideUnit === 'cm' ? '63.0' : '24.8'}</td>
-                        <td style={{ padding: '16px 8px', borderBottom: '1px solid #eee' }}>{guideUnit === 'cm' ? '94.0' : '37.0'}</td>
-                        <td style={{ padding: '16px 8px', borderBottom: '1px solid #eee' }}>{guideUnit === 'cm' ? '101.1/125.0' : '39.8/49.2'}</td>
-                      </tr>
+
                       <tr>
                         <td style={{ padding: '16px 8px', borderBottom: '1px solid #eee', fontWeight: 'bold', color: '#b07b1a' }}>👍 S</td>
                         <td style={{ padding: '16px 8px', borderBottom: '1px solid #eee', color: '#b07b1a', fontWeight: 'bold' }}>{guideUnit === 'cm' ? '80.5' : '31.7'}</td>
@@ -763,6 +750,13 @@ function ProductDetails() {
                         <td style={{ padding: '16px 8px', borderBottom: '1px solid #eee' }}>{guideUnit === 'cm' ? '83.0' : '32.7'}</td>
                         <td style={{ padding: '16px 8px', borderBottom: '1px solid #eee' }}>{guideUnit === 'cm' ? '114.0' : '44.9'}</td>
                         <td style={{ padding: '16px 8px', borderBottom: '1px solid #eee' }}>{guideUnit === 'cm' ? '106.5/133.0' : '41.9/52.4'}</td>
+                      </tr>
+                      <tr>
+                        <td style={{ padding: '16px 8px', borderBottom: '1px solid #eee', fontWeight: 'bold' }}>XXL</td>
+                        <td style={{ padding: '16px 8px', borderBottom: '1px solid #eee' }}>{guideUnit === 'cm' ? '102.5' : '40.4'}</td>
+                        <td style={{ padding: '16px 8px', borderBottom: '1px solid #eee' }}>{guideUnit === 'cm' ? '89.0' : '35.0'}</td>
+                        <td style={{ padding: '16px 8px', borderBottom: '1px solid #eee' }}>{guideUnit === 'cm' ? '120.0' : '47.2'}</td>
+                        <td style={{ padding: '16px 8px', borderBottom: '1px solid #eee' }}>{guideUnit === 'cm' ? '107.8/135.0' : '42.4/53.1'}</td>
                       </tr>
                     </tbody>
                   </table>
@@ -813,60 +807,7 @@ function ProductDetails() {
               </>
             )}
 
-              <div style={{ padding: '24px 20px' }}>
-                <h4 style={{ margin: '0 0 16px 0', fontSize: '16px', fontWeight: 'bold' }}>How Buyer's Reviewed The Fit</h4>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '16px', fontSize: '14px', marginBottom: '8px' }}>
-                  <span style={{ color: '#666', fontWeight: 'bold' }}>Small : <span style={{ fontWeight: 'normal' }}>3%</span></span>
-                  <span style={{ fontWeight: 'bold', borderBottom: '2px solid #000', paddingBottom: '4px' }}>True to Size : 94%</span>
-                  <span style={{ color: '#666', fontWeight: 'bold' }}>Large : <span style={{ fontWeight: 'normal' }}>3%</span></span>
-                </div>
-                <div style={{ fontSize: '13px', color: '#666', marginBottom: '20px' }}>
-                  Selected fit data from real user reviews for reference.
-                </div>
 
-                <div style={{ overflowX: 'auto', margin: '0 -20px', padding: '0 20px' }}>
-                  <table style={{ width: '100%', minWidth: '400px', borderCollapse: 'collapse', fontSize: '13px', textAlign: 'center' }}>
-                    <thead>
-                      <tr style={{ background: '#f9f9f9' }}>
-                        <th style={{ padding: '12px 8px', borderBottom: '1px solid #eee', color: '#000', fontWeight: 'bold', textAlign: 'left' }}>
-                          Buyer<br/><span style={{ fontSize: '11px', fontWeight: 'normal' }}>(cm/kg)</span>
-                        </th>
-                        <th style={{ padding: '12px 8px', borderBottom: '1px solid #eee', color: '#000', fontWeight: 'bold' }}>Size</th>
-                        <th style={{ padding: '12px 8px', borderBottom: '1px solid #eee', color: '#000', fontWeight: 'bold' }}>Bust</th>
-                        <th style={{ padding: '12px 8px', borderBottom: '1px solid #eee', color: '#000', fontWeight: 'bold' }}>Waist</th>
-                        <th style={{ padding: '12px 8px', borderBottom: '1px solid #eee', color: '#000', fontWeight: 'bold' }}>Hips</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {[
-                        { buyer: '167/56', size: 'XS', bust: '88', waist: '70', hips: '91' },
-                        { buyer: '160/41', size: 'XS', bust: '73', waist: '64', hips: '80' },
-                        { buyer: '165/53', size: 'XS', bust: '78', waist: '65', hips: '96' },
-                        { buyer: '174/80', size: 'S', bust: '70', waist: '55', hips: '99' },
-                        { buyer: '155/90', size: 'S', bust: '112', waist: '109', hips: '127' },
-                        { buyer: '155/72', size: 'S', bust: '80', waist: '65', hips: '110' },
-                        { buyer: '165/62', size: 'M', bust: '86', waist: '71', hips: '94' },
-                        { buyer: '163/56', size: 'M', bust: '101', waist: '77', hips: '96' },
-                        { buyer: '140/50', size: 'M', bust: '94', waist: '61', hips: '85' },
-                        { buyer: '145/60', size: 'L', bust: '74', waist: '80', hips: '99' },
-                      ].map((row, i) => (
-                        <tr key={i}>
-                          <td style={{ padding: '16px 8px', borderBottom: '1px solid #eee', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                            <div style={{ width: '16px', height: '16px', background: '#eee', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#999" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-                            </div>
-                            {row.buyer}
-                          </td>
-                          <td style={{ padding: '16px 8px', borderBottom: '1px solid #eee', fontWeight: 'bold' }}>{row.size}</td>
-                          <td style={{ padding: '16px 8px', borderBottom: '1px solid #eee' }}>{row.bust}</td>
-                          <td style={{ padding: '16px 8px', borderBottom: '1px solid #eee' }}>{row.waist}</td>
-                          <td style={{ padding: '16px 8px', borderBottom: '1px solid #eee' }}>{row.hips}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
             </div>
           </div>
         </div>

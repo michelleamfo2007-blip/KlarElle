@@ -53,7 +53,7 @@ function RequestReturn() {
       return;
     }
     
-    // Check if order is eligible (must be Delivered, maybe within 14 days)
+    // Check if order is eligible (must be Delivered, within 7 days)
     if (orderData.status !== 'Delivered') {
       setError('Only delivered orders are eligible for return.');
       setLoading(false);
