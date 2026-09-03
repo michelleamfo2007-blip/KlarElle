@@ -279,6 +279,36 @@ export const exportDashboardDataToExcel = async (startDate = null, endDate = nul
       }
     }
 
+    // Auto-fit columns for all worksheets
+    workbook.worksheets.forEach(worksheet => {
+      let maxCols = 0;
+      worksheet.eachRow({ includeEmpty: false }, row => {
+        if (row.cellCount > maxCols) maxCols = row.cellCount;
+      });
+
+      for (let i = 1; i <= maxCols; i++) {
+        const column = worksheet.getColumn(i);
+        let maxLength = 0;
+        column.eachCell({ includeEmpty: true }, cell => {
+          const cellValue = cell.value;
+          let columnLength = 10; // Default minimum
+          if (cellValue) {
+            if (typeof cellValue === 'object' && cellValue.text) {
+               // Hyperlinks or rich text
+               columnLength = cellValue.text.toString().length;
+            } else {
+               columnLength = cellValue.toString().length;
+            }
+          }
+          if (columnLength > maxLength) {
+            maxLength = columnLength;
+          }
+        });
+        // Cap width between 15 and 50 characters, add padding
+        column.width = Math.min(Math.max(maxLength + 4, 15), 50);
+      }
+    });
+
     // Generate blob and download
     const buffer = await workbook.xlsx.writeBuffer();
     const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
