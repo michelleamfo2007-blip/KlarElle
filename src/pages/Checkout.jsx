@@ -637,8 +637,8 @@ function Checkout() {
             <Truck size={16} /> Shipping & Returns
           </div>
           <div style={{ fontSize: '12px', color: '#666', lineHeight: '1.4' }}>
-            <strong>Shipping:</strong> Standard shipping takes 3-5 business days. Free shipping on orders over $150.<br />
-            <strong>Returns:</strong> We accept returns within 30 days of delivery. Items must be unworn and in original condition with tags attached.
+            <strong>Shipping:</strong> Standard shipping takes 3-5 business days after fulfillment for U.S. orders and 9-15 days for international orders. Free shipping on orders over $150.<br />
+            <strong>Returns:</strong> We accept returns within 7 days of delivery. Items must be unworn and in original condition with tags attached.
           </div>
         </div>
 
