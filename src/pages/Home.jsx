@@ -422,7 +422,17 @@ function Home() {
                       <span>({product.rating || 5.0}) 128 Reviews</span>
                     </div>
                     
-                    <button className="luxury-add-btn" disabled style={{ background: '#ccc', color: '#666', cursor: 'not-allowed' }}>Coming Soon</button>
+                    <button 
+                      className="luxury-add-btn" 
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        const defaultColor = Array.isArray(product.colors) ? product.colors[0] : (product.colors || 'Standard');
+                        addToCart(product, 'M', defaultColor);
+                      }}
+                    >
+                      ADD TO BAG
+                    </button>
                   </div>
                 </div>
               ))

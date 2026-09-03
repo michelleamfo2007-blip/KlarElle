@@ -639,10 +639,13 @@ function ProductDetails() {
               </button>
               <button 
                 className="add-to-bag" 
-                disabled
-                style={{ background: '#ccc', color: '#666', cursor: 'not-allowed' }}
+                onClick={() => {
+                  addToCart(product, selectedSize, selectedColor);
+                  setAddedToCart(true);
+                  setTimeout(() => setAddedToCart(false), 2000);
+                }}
               >
-                Coming Soon
+                {addedToCart ? 'ADDED TO BAG' : 'ADD TO BAG'}
               </button>
             </div>
           </div>
@@ -656,10 +659,13 @@ function ProductDetails() {
          </button>
          <button 
            className="add-to-bag"
-           disabled
-           style={{ background: '#ccc', color: '#666', cursor: 'not-allowed' }}
+           onClick={() => {
+             addToCart(product, selectedSize, selectedColor);
+             setAddedToCart(true);
+             setTimeout(() => setAddedToCart(false), 2000);
+           }}
          >
-           Coming Soon
+           {addedToCart ? 'ADDED TO BAG' : 'ADD TO BAG'}
          </button>
       </div>
       
