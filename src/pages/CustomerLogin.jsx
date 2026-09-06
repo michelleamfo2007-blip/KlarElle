@@ -1,14 +1,24 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
+import { useAuth } from '../context/AuthContext';
 import { Loader2 } from 'lucide-react';
 
 function CustomerLogin() {
   const navigate = useNavigate();
+  const { session, signOut } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+
+  const handleSwitchAccount = async () => {
+    try {
+      await signOut();
+    } catch (err) {
+      setError(err.message);
+    }
+  };
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -33,6 +43,20 @@ function CustomerLogin() {
       <div style={{ width: '100%', maxWidth: '400px', background: '#fff', padding: '32px', borderRadius: '8px', boxShadow: '0 4px 6px rgba(0,0,0,0.05)', border: '1px solid #eaeaea' }}>
         <h1 style={{ fontSize: '24px', marginBottom: '8px', textAlign: 'center' }}>Welcome Back</h1>
         <p style={{ color: '#666', textAlign: 'center', marginBottom: '24px' }}>Sign in to your account</p>
+
+        {session?.user && (
+          <div style={{ background: '#f5f5f5', padding: '12px', borderRadius: '4px', marginBottom: '16px', fontSize: '14px' }}>
+            You’re already signed in as <strong>{session.user.email}</strong>.
+            <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
+              <button type="button" onClick={() => navigate('/profile')} style={{ flex: 1, padding: '10px', background: '#000', color: '#fff', border: 'none', borderRadius: '4px', fontWeight: 'bold', cursor: 'pointer' }}>
+                Go to profile
+              </button>
+              <button type="button" onClick={handleSwitchAccount} style={{ flex: 1, padding: '10px', background: '#fff', color: '#000', border: '1px solid #ccc', borderRadius: '4px', fontWeight: 'bold', cursor: 'pointer' }}>
+                Switch account
+              </button>
+            </div>
+          </div>
+        )}
 
         {error && <div style={{ background: '#fee2e2', color: '#b91c1c', padding: '12px', borderRadius: '4px', marginBottom: '16px', fontSize: '14px' }}>{error}</div>}
 

@@ -231,12 +231,6 @@ function Checkout() {
 
       localStorage.setItem('klarelle_saved_address', JSON.stringify(formData));
 
-      fetch('/api/send-order-email', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ order_id: data.order_id })
-      }).catch(err => console.error('Email trigger failed:', err));
-
       clearCart();
       navigate('/order-success');
     } catch (error) {

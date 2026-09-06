@@ -62,7 +62,11 @@ function CustomerProfile() {
   const bestCoupon = coupons.length > 0 ? coupons.reduce((prev, current) => (prev.discount_percent > current.discount_percent) ? prev : current) : null;
 
   const handleLogout = async () => {
-    await signOut();
+    try {
+      await signOut();
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
     navigate('/login');
   };
 
@@ -112,10 +116,13 @@ function CustomerProfile() {
                 </div>
               </div>
             </div>
-            <div style={{ display: 'flex', gap: '16px', color: '#333' }}>
-              <ScanLine size={24} />
-              <Settings size={24} onClick={handleLogout} style={{ cursor: 'pointer' }} />
-            </div>
+            <button
+              type="button"
+              onClick={handleLogout}
+              style={{ background: 'none', border: '1px solid #ddd', borderRadius: '16px', padding: '6px 12px', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}
+            >
+              Logout
+            </button>
           </div>
 
           {/* Assets Bar */}
@@ -220,6 +227,16 @@ function CustomerProfile() {
                 You haven't saved any items yet.
               </div>
             )}
+          </div>
+
+          <div className="profile-card" style={{ display: 'block' }}>
+            <button
+              type="button"
+              onClick={handleLogout}
+              style={{ width: '100%', padding: '14px', background: '#fff', color: '#ff4444', border: '1px solid #eee', borderRadius: '8px', fontWeight: 'bold', fontSize: '14px', cursor: 'pointer' }}
+            >
+              Log out
+            </button>
           </div>
 
           {/* For You Grid */}

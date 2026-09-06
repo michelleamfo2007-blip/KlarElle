@@ -2,11 +2,16 @@ import { createClient } from '@supabase/supabase-js';
 import {
   easyshipRequest,
   getEasyshipOriginAddress,
+  isEasyshipSandbox,
   toEasyshipDestination,
   toEasyshipItems
 } from './_easyship.js';
 
 export default async function handler(req, res) {
+  if (req.method === 'GET') {
+    return res.status(200).json({ sandbox: isEasyshipSandbox() });
+  }
+
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
@@ -130,7 +135,12 @@ export default async function handler(req, res) {
       throw updateError;
     }
 
-    return res.status(200).json({ success: true, trackingNumber, labelUrl });
+    return res.status(200).json({
+      success: true,
+      trackingNumber,
+      labelUrl,
+      sandbox: isEasyshipSandbox(apiKey)
+    });
   } catch (error) {
     console.error('Label API Error:', error);
     return res.status(error.status || 500).json({

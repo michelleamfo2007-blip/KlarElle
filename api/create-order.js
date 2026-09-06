@@ -1,5 +1,6 @@
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
+import { sendOrderEmails } from './_send-order-emails.js';
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Credentials', true);
@@ -126,6 +127,12 @@ export default async function handler(req, res) {
 
     if (coupon_id) {
       await supabase.rpc('increment_coupon_usage', { coupon_id });
+    }
+
+    try {
+      await sendOrderEmails(orderData.id);
+    } catch (emailError) {
+      console.error('Order saved but email failed:', emailError);
     }
 
     return res.status(200).json({ order_id: orderData.id });

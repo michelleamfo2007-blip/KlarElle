@@ -1,8 +1,12 @@
 import { COUNTRIES } from '../src/utils/countries.js';
 import { parseShippingAddress } from '../src/utils/address.js';
 
+export function isEasyshipSandbox(apiKey = process.env.EASYSHIP_API_KEY || '') {
+  return String(apiKey).startsWith('sand_');
+}
+
 export function getEasyshipBaseUrl(apiKey) {
-  return apiKey.startsWith('sand_')
+  return isEasyshipSandbox(apiKey)
     ? 'https://api-sandbox.easyship.com'
     : 'https://api.easyship.com';
 }

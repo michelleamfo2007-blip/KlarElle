@@ -29,9 +29,16 @@ function CustomerRegister() {
     if (error) {
       setError(error.message);
     } else {
-      // Mark as checked off in waitlist
       await supabase.from('waitlist').update({ status: 'Checked Off' }).eq('email', email);
-      // Auto sign in or show success
+      try {
+        await fetch('/api/send-welcome-email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, name })
+        });
+      } catch (emailError) {
+        console.error('Failed to send welcome email:', emailError);
+      }
       navigate('/');
     }
     setLoading(false);

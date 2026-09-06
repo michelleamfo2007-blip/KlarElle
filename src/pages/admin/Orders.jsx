@@ -43,7 +43,20 @@ function Orders() {
       return;
     }
 
-    if (!window.confirm(`Are you sure you want to purchase a shipping label for Order #${order.id.split('-')[0]}? This will charge your Easyship account.`)) {
+    let sandbox = true;
+    try {
+      const envRes = await fetch('/api/create-label');
+      const envData = await envRes.json();
+      sandbox = !!envData.sandbox;
+    } catch {
+      sandbox = true;
+    }
+
+    const chargeWarning = sandbox
+      ? 'This uses the Easyship sandbox (test mode). No real postage will be charged.'
+      : 'This will charge your LIVE Easyship account real money.';
+
+    if (!window.confirm(`Buy a shipping label for Order #${order.id.split('-')[0]}?\n\n${chargeWarning}`)) {
       return;
     }
 
