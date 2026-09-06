@@ -190,60 +190,51 @@ function Checkout() {
     );
   }
 
-  const handlePaymentSuccess = async () => {
+  const handlePaymentSuccess = async (paymentIntent) => {
     try {
       const fullName = `${formData.firstName} ${formData.lastName}`.trim();
-      
-      const { data: orderData, error: orderError } = await supabase
-        .from('orders')
-        .insert([{
+      const res = await fetch('/api/create-order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          payment_intent_id: paymentIntent?.id,
           customer_name: fullName || 'Guest',
           customer_email: formData.email,
           total_amount: finalTotal,
-          status: 'Paid',
-          shipping_address: JSON.stringify({
+          shipping_address: {
             street: formData.houseNo,
             line2: formData.apartment || '',
             city: formData.city,
             state: formData.region,
             zip: formData.postcode,
             country: formData.location
-          }),
+          },
           phone_number: `${formData.phoneCode} ${formData.phone}`,
           shipping_provider: selectedRate ? selectedRate.provider : 'Standard',
           shipping_service: selectedRate ? selectedRate.serviceLevel : 'Shipping',
-          shippo_rate_id: selectedRate ? selectedRate.objectId : null
-        }])
-        .select()
-        .single();
+          shippo_rate_id: selectedRate ? selectedRate.objectId : null,
+          coupon_id: appliedCoupon?.id || null,
+          items: cartItems.map(item => ({
+            product_id: item.id,
+            quantity: item.quantity,
+            price_at_time: item.price || 0,
+            size: item.selectedSize || null,
+            color: item.selectedColor || null
+          }))
+        })
+      });
 
-      if (orderError) throw orderError;
-
-      const orderItems = cartItems.map(item => ({
-        order_id: orderData.id,
-        product_id: item.id,
-        quantity: item.quantity,
-        price_at_time: item.price || 0,
-        size: item.selectedSize || null,
-        color: item.selectedColor || null
-      }));
-
-      const { error: itemsError } = await supabase.from('order_items').insert(orderItems);
-      if (itemsError) throw itemsError;
-
-      if (appliedCoupon) {
-        await supabase.rpc('increment_coupon_usage', { coupon_id: appliedCoupon.id });
+      const data = await res.json();
+      if (!res.ok || data.error) {
+        throw new Error(data.error || 'Failed to save order');
       }
 
-      // Save address to localStorage for future purchases
       localStorage.setItem('klarelle_saved_address', JSON.stringify(formData));
 
-      // Trigger automated receipt and admin notification emails
-      // We don't await this so the user isn't stuck waiting on the checkout screen
       fetch('/api/send-order-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ order_id: orderData.id })
+        body: JSON.stringify({ order_id: data.order_id })
       }).catch(err => console.error('Email trigger failed:', err));
 
       clearCart();

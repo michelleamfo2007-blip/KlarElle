@@ -40,7 +40,7 @@ export default function CheckoutForm({ amount, formattedAmount, onSuccess, onFai
       setIsLoading(false);
     } else if (paymentIntent && paymentIntent.status === 'succeeded') {
       if (onSuccess) {
-        await onSuccess();
+        await onSuccess(paymentIntent);
       }
       // Do not set isLoading to false here, so the spinner remains while the page redirects
     } else {
