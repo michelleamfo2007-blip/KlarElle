@@ -9,7 +9,7 @@ import { Elements } from "@stripe/react-stripe-js";
 import CheckoutForm from '../components/CheckoutForm';
 import { ChevronLeft, MapPin, ChevronRight, CheckCircle2, Truck } from 'lucide-react';
 import { COUNTRIES } from '../utils/countries';
-import { cartShipsFromInternational } from '../utils/stock';
+import { cartShipsFromInternational, getItemDeliveryEstimate } from '../utils/stock';
 import { getVariantSkuFromProduct } from '../utils/sku';
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
@@ -452,6 +452,9 @@ function Checkout() {
             <div style={{ flex: 1 }}>
               <div style={{ fontSize: '13px', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', marginBottom: '4px' }}>{item.name}</div>
               <div style={{ fontSize: '12px', color: '#666', marginBottom: '8px' }}>{item.selectedColor} / {item.selectedSize}</div>
+              <div style={{ fontSize: '12px', color: '#111', marginBottom: '8px' }}>
+                Estimated delivery: {getItemDeliveryEstimate(item)}
+              </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div style={{ fontWeight: 'bold', color: '#ff4444' }}>{formatPrice(item.price)}</div>
                 <div style={{ fontSize: '12px', color: '#666' }}>x {item.quantity}</div>
@@ -464,26 +467,6 @@ function Checkout() {
       {/* Shipping Method */}
       <div style={{ background: '#fff', padding: '16px', marginTop: '8px' }}>
         <h3 style={{ fontSize: '16px', margin: '0 0 16px 0' }}>Shipping Method</h3>
-        <div style={{
-          marginBottom: '16px',
-          padding: '12px',
-          background: fulfillmentSource === 'CN' ? '#fff7ed' : '#f0fdf4',
-          border: `1px solid ${fulfillmentSource === 'CN' ? '#fdba74' : '#86efac'}`,
-          borderRadius: '6px',
-          fontSize: '13px',
-          lineHeight: '1.5',
-          color: '#111'
-        }}>
-          {fulfillmentSource === 'CN' ? (
-            <>
-              <strong>Processing time: 9–15 days.</strong> This order ships from our international warehouse.
-            </>
-          ) : (
-            <>
-              <strong>Processing time: 3–5 business days.</strong> This order ships from our U.S. warehouse to your address.
-            </>
-          )}
-        </div>
         
         {isFetchingRates ? (
           <div style={{ padding: '20px', textAlign: 'center', color: '#666' }}>Fetching live rates...</div>
@@ -645,7 +628,7 @@ function Checkout() {
             <Truck size={16} /> Shipping & Returns
           </div>
           <div style={{ fontSize: '12px', color: '#666', lineHeight: '1.4' }}>
-            <strong>Shipping:</strong> Processing time is shown above with your shipping method. Carrier transit time is listed on the rate you select. Free shipping on U.S. orders over ${shippingThreshold}.<br />
+            <strong>Shipping:</strong> Estimated delivery is listed under each item. Carrier transit time is shown on the rate you select. Free shipping on U.S. orders over ${shippingThreshold}.<br />
             <strong>Returns:</strong> We accept returns within 7 days of delivery. Items must be unworn and in original condition with tags attached.
           </div>
         </div>

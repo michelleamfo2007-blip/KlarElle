@@ -71,6 +71,15 @@ export function getFulfillmentSource(product, color, size) {
   return 'US';
 }
 
+export function getItemDeliveryEstimate(item) {
+  const color = item?.selectedColor || item?.color;
+  const size = item?.selectedSize || item?.size;
+  const { us, intl } = getVariantStock(item, color, size);
+  if (us > 0) return '3–5 business days';
+  if (intl > 0 || item?.fulfilledFrom === 'CN') return '9–15 days';
+  return '3–5 business days';
+}
+
 export function cartShipsFromInternational(cartItems = []) {
   return cartItems.some((item) => {
     const color = item.selectedColor || item.color;
