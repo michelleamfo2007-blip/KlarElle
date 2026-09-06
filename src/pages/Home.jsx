@@ -123,24 +123,19 @@ function Home() {
       <style>{`
         .hero-editorial {
           background-color: #FAF5F0;
-          min-height: 90vh;
           display: flex;
           flex-direction: column;
           position: relative;
-          padding-top: 80px;
           overflow: hidden;
         }
         
         .hero-text-container {
-          width: 100vw;
-          margin-left: calc(-50vw + 50%);
+          width: 100%;
           background-color: #111;
           padding: 40px 20px;
           text-align: center;
           z-index: 10;
           position: relative;
-          margin-bottom: 60px;
-          margin-top: -80px;
         }
         
         .hero-presents {
@@ -213,15 +208,18 @@ function Home() {
         
         .hero-video-wrap {
           width: 100%;
+          margin: 0;
           background: #000;
           overflow: hidden;
+          line-height: 0;
         }
 
         .hero-video {
           width: 100%;
-          height: 70vh;
+          height: min(80vh, 820px);
           min-height: 420px;
           object-fit: cover;
+          object-position: center;
           display: block;
         }
 
@@ -310,7 +308,7 @@ function Home() {
 
         @media (max-width: 900px) {
           .hero-title { font-size: 36px; margin-bottom: 24px; }
-          .hero-text-container { margin-top: 0; padding: 20px 15px; margin-bottom: 30px; }
+          .hero-text-container { margin: 0; padding: 24px 16px; }
           .waitlist-form { flex-direction: column; gap: 10px; }
           .waitlist-input { width: 100%; box-sizing: border-box; text-align: center; }
           .waitlist-btn { width: 100%; box-sizing: border-box; }
@@ -319,12 +317,35 @@ function Home() {
           .hero-img-main-left, .hero-img-small-overlap, .hero-img-right-container { display: none; }
           .hero-img-center-wrapper { width: 90%; margin-left: 0; margin-bottom: 20px; }
           .hero-img-center { aspect-ratio: 4/5; }
-          .hero-video { height: 55vh; min-height: 320px; }
+          .hero-video-wrap {
+            width: 100vw;
+            margin-left: calc(50% - 50vw);
+          }
+          .hero-video {
+            width: 100%;
+            height: calc(100dvh - 148px);
+            min-height: 520px;
+            max-height: none;
+          }
         }
       `}</style>
 
       {/* Hero Section */}
       <section className="hero-editorial">
+        <div className="hero-video-wrap">
+          <video
+            ref={heroVideoRef}
+            className="hero-video"
+            src={heroVideo}
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="auto"
+            aria-label="Klarélle launch film"
+          />
+        </div>
+
         <div className="hero-text-container">
           <div className="hero-presents">KLARELLE</div>
           <h1 className="hero-title">LAUNCHING THIS SEPTEMBER</h1>
@@ -353,20 +374,6 @@ function Home() {
               </button>
             </form>
           )}
-        </div>
-        
-        <div className="hero-video-wrap">
-          <video
-            ref={heroVideoRef}
-            className="hero-video"
-            src={heroVideo}
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="auto"
-            aria-label="Klarélle launch film"
-          />
         </div>
       </section>
 

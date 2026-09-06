@@ -822,7 +822,7 @@ main {
     overflow-x: auto;
     white-space: nowrap;
     padding-bottom: 8px;
-    margin-bottom: 8px;
+    margin-bottom: 0;
     -webkit-overflow-scrolling: touch;
     gap: 16px;
   }
