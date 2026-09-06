@@ -738,7 +738,7 @@ function ProductDetails() {
                 className="add-to-bag" 
                 onClick={handleAddToCart}
               >
-                {addedToCart ? 'ADDED TO BAG' : (isPreOrder ? 'PREORDER' : 'ADD TO BAG')}
+                {addedToCart ? 'ADDED TO CART' : (isPreOrder ? 'PREORDER' : 'ADD TO CART')}
               </button>
             </div>
             {fulfilledFrom === 'CN' && (
@@ -760,7 +760,7 @@ function ProductDetails() {
             className="add-to-bag"
             onClick={handleAddToCart}
           >
-            {addedToCart ? 'ADDED TO BAG' : (isPreOrder ? 'PREORDER' : 'ADD TO BAG')}
+            {addedToCart ? 'ADDED TO CART' : (isPreOrder ? 'PREORDER' : 'ADD TO CART')}
           </button>
         </div>,
         document.body

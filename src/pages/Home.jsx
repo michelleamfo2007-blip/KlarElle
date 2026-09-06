@@ -124,9 +124,8 @@ function Home() {
       <style>{`
         .hero-editorial {
           background-color: #111;
-          display: grid;
-          grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.85fr);
-          align-items: stretch;
+          display: flex;
+          flex-direction: column;
           position: relative;
           overflow: hidden;
         }
@@ -134,22 +133,14 @@ function Home() {
         .hero-text-container {
           width: 100%;
           background-color: #111;
-          padding: 48px 40px;
-          text-align: left;
+          padding: 40px 20px;
+          text-align: center;
           z-index: 10;
           position: relative;
           display: flex;
           flex-direction: column;
           justify-content: center;
-          order: 2;
-        }
-
-        .hero-intro {
-          grid-column: 1 / -1;
-          background: #fff;
-          padding: 48px 24px;
-          text-align: center;
-          order: 3;
+          align-items: center;
         }
         
         .hero-presents {
@@ -170,8 +161,9 @@ function Home() {
         }
 
         .waitlist-form {
-          max-width: 100%;
-          margin: 0;
+          max-width: 560px;
+          width: 100%;
+          margin: 0 auto;
           display: flex;
           gap: 12px;
           align-items: flex-end;
@@ -323,12 +315,8 @@ function Home() {
         }
 
         @media (max-width: 900px) {
-          .hero-editorial { grid-template-columns: 1fr; }
-          .hero-title { font-size: 32px; margin-bottom: 24px; text-align: center; }
-          .hero-presents { text-align: center; }
-          .hero-text-container { margin: 0; padding: 24px 16px; text-align: center; }
-          .hero-intro { padding: 32px 16px; order: 2; }
-          .hero-text-container { order: 3; }
+          .hero-title { font-size: 32px; margin-bottom: 24px; }
+          .hero-text-container { margin: 0; padding: 24px 16px; }
           .waitlist-form { flex-direction: column; gap: 10px; }
           .waitlist-input { width: 100%; box-sizing: border-box; text-align: center; }
           .waitlist-btn { width: 100%; box-sizing: border-box; }
@@ -396,15 +384,6 @@ function Home() {
               </button>
             </form>
           )}
-        </div>
-
-        <div className="hero-intro">
-          <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: '32px', color: '#111827', marginBottom: '16px', letterSpacing: '2px', textTransform: 'uppercase' }}>
-            Introducing KLARELLE
-          </h2>
-          <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '18px', color: '#4b5563', lineHeight: '1.6', maxWidth: '600px', margin: '0 auto' }}>
-            Sophisticated, timeless pieces designed to make women feel confident and elegant.
-          </p>
         </div>
       </section>
 
@@ -490,7 +469,7 @@ function Home() {
                         addToCart(product, 'M', defaultColor);
                       }}
                     >
-                      ADD TO BAG
+                      ADD TO CART
                     </button>
                   </div>
                 </div>

@@ -19,8 +19,8 @@ function Cart() {
   if (cartItems.length === 0) {
     return (
       <div className="container empty-cart">
-        <h2>Your Shopping Bag is Empty</h2>
-        {!session && <p>Sign in to save or access already saved items in your shopping bag.</p>}
+        <h2>Your cart is empty</h2>
+        {!session && <p>Sign in to save or access already saved items in your cart.</p>}
         <Link to="/" className="btn btn-primary" style={{marginTop: '20px'}}>CONTINUE SHOPPING</Link>
       </div>
     );
@@ -28,7 +28,7 @@ function Cart() {
 
   return (
     <div className="container cart-page">
-      <h1 className="cart-title">Shopping Bag ({cartItems.length})</h1>
+      <h1 className="cart-title">Shopping Cart ({cartItems.length})</h1>
       
       <div className="cart-container">
         <div className="cart-items-section">

@@ -89,7 +89,7 @@ function Favorites() {
                   </div>
                   <Link to={`/product/${product.id}`} className="luxury-action-icon" style={{ display: 'flex', color: 'inherit', textDecoration: 'none' }} title="Quick View"><Eye size={16} /></Link>
                   {!isProductSoldOut(product) && (
-                    <div className="luxury-action-icon" title="Add to Bag" onClick={() => addToCart(product)}><ShoppingBag size={16} /></div>
+                    <div className="luxury-action-icon" title="Add to Cart" onClick={() => addToCart(product)}><ShoppingBag size={16} /></div>
                   )}
                 </div>
               </div>
@@ -112,7 +112,7 @@ function Favorites() {
                 
                 <ProductRating count={product.reviewCount} average={product.reviewAvg} className="luxury-rating" />
                 
-                <button className="luxury-add-btn" onClick={() => addToCart(product)}>Add To Bag</button>
+                <button className="luxury-add-btn" onClick={() => addToCart(product)}>Add to Cart</button>
               </div>
             </div>
           ))}

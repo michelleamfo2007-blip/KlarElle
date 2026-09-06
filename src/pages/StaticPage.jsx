@@ -205,8 +205,8 @@ function StaticPage({ title }) {
             <p style={{ marginBottom: '16px' }}>Ordering from KLARELLE is simple and secure!</p>
             <ol style={{ paddingLeft: '20px', marginBottom: '16px' }}>
               <li style={{ marginBottom: '8px' }}>Browse our collections and select the item you love.</li>
-              <li style={{ marginBottom: '8px' }}>Choose your color and size, then click "ADD TO BAG".</li>
-              <li style={{ marginBottom: '8px' }}>Once you're ready, click the Shopping Bag icon at the top right and select "CHECKOUT".</li>
+              <li style={{ marginBottom: '8px' }}>Choose your color and size, then click "ADD TO CART".</li>
+              <li style={{ marginBottom: '8px' }}>Once you're ready, click the cart icon at the top right and select "CHECKOUT".</li>
               <li style={{ marginBottom: '8px' }}>Enter your shipping details, apply any coupon codes, and select your payment method.</li>
               <li style={{ marginBottom: '8px' }}>Review your order and click "PLACE ORDER". You're done!</li>
             </ol>

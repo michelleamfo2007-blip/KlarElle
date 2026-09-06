@@ -14,6 +14,7 @@ export const CartProvider = ({ children }) => {
       return [];
     }
   });
+  const [cartToast, setCartToast] = useState('');
   const { session } = useAuth();
 
   useEffect(() => {
@@ -29,6 +30,10 @@ export const CartProvider = ({ children }) => {
       }
       return [...prev, { ...product, cartItemId, selectedSize, selectedColor, quantity, fulfilledFrom }];
     });
+    const label = product?.name ? `${product.name} added to cart` : 'Added to cart';
+    setCartToast(label);
+    window.clearTimeout(addToCart._toastTimer);
+    addToCart._toastTimer = window.setTimeout(() => setCartToast(''), 3500);
   };
 
   const removeFromCart = (cartItemId) => {
@@ -50,6 +55,29 @@ export const CartProvider = ({ children }) => {
   return (
     <CartContext.Provider value={{ cartItems, addToCart, removeFromCart, updateQuantity, clearCart, cartCount, cartTotal }}>
       {children}
+      {cartToast && (
+        <div style={{
+          position: 'fixed',
+          top: '88px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          zIndex: 5000,
+          background: '#111',
+          color: '#fff',
+          padding: '14px 18px',
+          borderRadius: '8px',
+          boxShadow: '0 10px 30px rgba(0,0,0,0.25)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '16px',
+          maxWidth: 'calc(100% - 32px)',
+          fontSize: '14px',
+          fontWeight: '600'
+        }}>
+          <span>{cartToast}</span>
+          <a href="/cart" style={{ color: '#fff', textDecoration: 'underline', whiteSpace: 'nowrap' }}>View cart</a>
+        </div>
+      )}
     </CartContext.Provider>
   );
 };
