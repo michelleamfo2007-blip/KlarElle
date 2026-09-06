@@ -48,7 +48,7 @@ function Home() {
         .eq('visibility', true)
         .eq('status', 'active')
         .order('created_at', { ascending: false })
-        .limit(3);
+        .limit(4);
       
       if (!error && data) {
         setProducts(await attachReviewStats(supabase, data));
@@ -400,7 +400,7 @@ function Home() {
               <div style={{ padding: '40px', textAlign: 'center', gridColumn: '1 / -1', color: '#666' }}>Loading collection...</div>
             ) : products.length === 0 ? (
               <>
-                {[1, 2, 3].map((i) => (
+                {[1, 2, 3, 4].map((i) => (
                   <div key={i} className="luxury-card" style={{ background: 'none', border: 'none', boxShadow: 'none' }}>
                     <div className="luxury-image-wrap" style={{ borderRadius: '8px', overflow: 'hidden', backgroundColor: '#000' }}>
                       <img 

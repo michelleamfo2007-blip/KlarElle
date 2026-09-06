@@ -96,7 +96,7 @@
   .mobile-filter-btn {
     display: flex !important;
   }
-  .products-grid { grid-template-columns: repeat(3, 1fr); }
+  .products-grid { grid-template-columns: repeat(4, 1fr); }
 }
 
 @media (max-width: 768px) {

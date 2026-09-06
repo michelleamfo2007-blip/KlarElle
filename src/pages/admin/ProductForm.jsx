@@ -47,9 +47,9 @@ function ProductForm() {
     size_guide_url: '',
     video_url: '',
     weight: '',
-    length: '40',
-    width: '5',
-    height: '50',
+    length: '45',
+    width: '35',
+    height: '5',
     country_of_manufacture: 'China',
     hs_code: ''
   });
@@ -108,9 +108,9 @@ function ProductForm() {
         size_guide_url: data.size_guide_url || '',
         video_url: data.video_url || '',
         weight: data.weight || '',
-        length: data.length || '40',
-        width: data.width || '5',
-        height: data.height || '50',
+        length: data.length || '45',
+        width: data.width || '35',
+        height: data.height || '5',
         country_of_manufacture: data.country_of_manufacture || 'China',
         hs_code: data.hs_code || '',
       });
@@ -914,7 +914,7 @@ function ProductForm() {
                   />
                 </div>
                 <div>
-                  <label className="input-label">Package Dimensions (L x W x H in cm)</label>
+                  <label className="input-label">Package Dimensions (L x W x H in cm) — default 45 × 35 × 5</label>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
                     <input 
                       type="number" 
