@@ -132,11 +132,11 @@ function Home() {
         
         .hero-text-container {
           width: 100%;
+          order: 2;
           background-color: #111;
           padding: 40px 20px;
           text-align: center;
-          z-index: 10;
-          position: relative;
+          position: static;
           display: flex;
           flex-direction: column;
           justify-content: center;
@@ -214,11 +214,12 @@ function Home() {
         
         .hero-video-wrap {
           width: 100%;
+          order: 1;
           margin: 0;
           background: #000;
           overflow: hidden;
           line-height: 0;
-          order: 1;
+          position: relative;
         }
 
         .hero-video {
