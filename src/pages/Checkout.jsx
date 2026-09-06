@@ -9,6 +9,8 @@ import { Elements } from "@stripe/react-stripe-js";
 import CheckoutForm from '../components/CheckoutForm';
 import { ChevronLeft, MapPin, ChevronRight, CheckCircle2, Truck } from 'lucide-react';
 import { COUNTRIES } from '../utils/countries';
+import { cartShipsFromInternational } from '../utils/stock';
+import { getVariantSkuFromProduct } from '../utils/sku';
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
@@ -28,6 +30,9 @@ function Checkout() {
   const [selectedRateId, setSelectedRateId] = useState(null);
   const [isFetchingRates, setIsFetchingRates] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
+  const [fulfillmentSource, setFulfillmentSource] = useState(() => (
+    cartShipsFromInternational(cartItems) ? 'CN' : 'US'
+  ));
   
   useEffect(() => {
     const fetchSettings = async () => {
@@ -214,12 +219,14 @@ function Checkout() {
           shipping_service: selectedRate ? selectedRate.serviceLevel : 'Shipping',
           shippo_rate_id: selectedRate ? selectedRate.objectId : null,
           coupon_id: appliedCoupon?.id || null,
+          fulfilled_from: fulfillmentSource,
           items: cartItems.map(item => ({
             product_id: item.id,
             quantity: item.quantity,
             price_at_time: item.price || 0,
             size: item.selectedSize || null,
-            color: item.selectedColor || null
+            color: item.selectedColor || null,
+            sku: item.sku || getVariantSkuFromProduct(item, item.selectedColor, item.selectedSize)
           }))
         })
       });
@@ -241,6 +248,38 @@ function Checkout() {
   const handleInputChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
+
+  const fetchShippingRates = async () => {
+    if (!formData.postcode || !formData.location) return;
+    setIsFetchingRates(true);
+    try {
+      const res = await fetch('/api/shipping-rates', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          destinationZip: formData.postcode,
+          country: formData.location,
+          cartItems
+        })
+      });
+      const data = await res.json();
+      if (data.fulfillmentSource) setFulfillmentSource(data.fulfillmentSource);
+      else setFulfillmentSource(cartShipsFromInternational(cartItems) ? 'CN' : 'US');
+      if (data.success && data.rates && data.rates.length > 0) {
+        setShippingRates(data.rates);
+      }
+    } catch (err) {
+      console.error('Failed to fetch rates', err);
+    } finally {
+      setIsFetchingRates(false);
+    }
+  };
+
+  useEffect(() => {
+    if (!showShippingForm && formData.postcode && formData.location) {
+      fetchShippingRates();
+    }
+  }, [showShippingForm, formData.postcode, formData.location]);
 
   const appearance = { theme: 'stripe' };
   const options = { clientSecret, appearance };
@@ -356,27 +395,7 @@ function Checkout() {
                   return;
                 }
                 setShowShippingForm(false);
-                setIsFetchingRates(true);
-                try {
-                  const res = await fetch('/api/shipping-rates', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                      destinationZip: formData.postcode, 
-                      country: formData.location,
-                      cartItems: cartItems 
-                    })
-                  });
-                  const data = await res.json();
-                  if (data.success && data.rates && data.rates.length > 0) {
-                    setShippingRates(data.rates);
-                    // Do not auto-select the first rate, make them choose
-                  }
-                } catch (err) {
-                  console.error('Failed to fetch rates', err);
-                } finally {
-                  setIsFetchingRates(false);
-                }
+                fetchShippingRates();
               }}
               style={{ width: '100%', padding: '16px', background: '#000', color: '#fff', border: 'none', fontWeight: 'bold', fontSize: '16px', borderRadius: '4px', cursor: 'pointer' }}
             >
@@ -445,6 +464,26 @@ function Checkout() {
       {/* Shipping Method */}
       <div style={{ background: '#fff', padding: '16px', marginTop: '8px' }}>
         <h3 style={{ fontSize: '16px', margin: '0 0 16px 0' }}>Shipping Method</h3>
+        <div style={{
+          marginBottom: '16px',
+          padding: '12px',
+          background: fulfillmentSource === 'CN' ? '#fff7ed' : '#f0fdf4',
+          border: `1px solid ${fulfillmentSource === 'CN' ? '#fdba74' : '#86efac'}`,
+          borderRadius: '6px',
+          fontSize: '13px',
+          lineHeight: '1.5',
+          color: '#111'
+        }}>
+          {fulfillmentSource === 'CN' ? (
+            <>
+              <strong>Processing time: 9–15 days.</strong> This order ships from our international warehouse.
+            </>
+          ) : (
+            <>
+              <strong>Processing time: 3–5 business days.</strong> This order ships from our U.S. warehouse to your address.
+            </>
+          )}
+        </div>
         
         {isFetchingRates ? (
           <div style={{ padding: '20px', textAlign: 'center', color: '#666' }}>Fetching live rates...</div>
@@ -606,7 +645,7 @@ function Checkout() {
             <Truck size={16} /> Shipping & Returns
           </div>
           <div style={{ fontSize: '12px', color: '#666', lineHeight: '1.4' }}>
-            <strong>Shipping:</strong> Standard shipping takes 3-5 business days after fulfillment for U.S. orders and 9-15 days for international orders. Free shipping on U.S. orders over ${shippingThreshold}.<br />
+            <strong>Shipping:</strong> Processing time is shown above with your shipping method. Carrier transit time is listed on the rate you select. Free shipping on U.S. orders over ${shippingThreshold}.<br />
             <strong>Returns:</strong> We accept returns within 7 days of delivery. Items must be unworn and in original condition with tags attached.
           </div>
         </div>

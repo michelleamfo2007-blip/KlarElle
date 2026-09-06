@@ -1,5 +1,7 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { useAuth } from './AuthContext';
+import { getFulfillmentSource } from '../utils/stock';
+import { getVariantSkuFromProduct } from '../utils/sku';
 
 const CartContext = createContext();
 
@@ -21,14 +23,16 @@ export const CartProvider = ({ children }) => {
     localStorage.setItem('klarelle_cart', JSON.stringify(cartItems));
   }, [cartItems]);
 
-  const addToCart = (product, selectedSize = null, selectedColor = null, quantity = 1, fulfilledFrom = 'US') => {
+  const addToCart = (product, selectedSize = null, selectedColor = null, quantity = 1, fulfilledFrom) => {
+    const source = fulfilledFrom || getFulfillmentSource(product, selectedColor, selectedSize);
+    const sku = getVariantSkuFromProduct(product, selectedColor, selectedSize) || product.sku;
     setCartItems(prev => {
       const cartItemId = `${product.id}-${selectedSize || 'default'}-${selectedColor || 'default'}`;
       const existing = prev.find(item => item.cartItemId === cartItemId);
       if (existing) {
-        return prev.map(item => item.cartItemId === cartItemId ? { ...item, quantity: item.quantity + quantity, fulfilledFrom } : item);
+        return prev.map(item => item.cartItemId === cartItemId ? { ...item, quantity: item.quantity + quantity, fulfilledFrom: source, sku } : item);
       }
-      return [...prev, { ...product, cartItemId, selectedSize, selectedColor, quantity, fulfilledFrom }];
+      return [...prev, { ...product, cartItemId, selectedSize, selectedColor, quantity, fulfilledFrom: source, sku }];
     });
     const label = product?.name ? `${product.name} added to cart` : 'Added to cart';
     setCartToast(label);

@@ -1,4 +1,6 @@
 import { getEasyshipBaseUrl } from './_easyship.js';
+import { getVariantSkuFromProduct } from '../src/utils/sku.js';
+import { cartShipsFromInternational } from '../src/utils/stock.js';
 
 const COUNTRY_CODES = {
   "United States": "US",
@@ -208,7 +210,7 @@ export default async function handler(req, res) {
     const weight = item.weight ? parseFloat(item.weight) : 1.2;
     return {
       description: item.name,
-      sku: item.sku || `SKU-${item.id}`,
+      sku: getVariantSkuFromProduct(item, item.selectedColor || item.color, item.selectedSize || item.size) || item.sku || `SKU-${item.id}`,
       actual_weight: weight,
       height: item.height ? parseFloat(item.height) : 5,
       width: item.width ? parseFloat(item.width) : 35,
@@ -235,8 +237,8 @@ export default async function handler(req, res) {
     });
   }
 
-  // US warehouse first. International warehouse only when a cart item has no US stock.
-  const isFulfilledFromChina = cartItems.some(item => item.fulfilledFrom === 'CN');
+  // US stock can ship to any country. International warehouse only when US stock is 0.
+  const isFulfilledFromChina = cartShipsFromInternational(cartItems);
   const originCountry = isFulfilledFromChina ? 'CN' : 'US';
   const originZip = isFulfilledFromChina ? '518000' : '10001';
 
@@ -246,7 +248,7 @@ export default async function handler(req, res) {
       { provider: 'ePost Global', serviceLevel: 'Economy International', amount: 19.99, objectId: 'easyship_mock_1', estimatedDays: '7-16' },
       { provider: 'DHL Express', serviceLevel: 'Express Worldwide', amount: 45.00, objectId: 'easyship_mock_2', estimatedDays: '3-5' }
     ];
-    return res.status(200).json({ success: true, rates: mockRates });
+    return res.status(200).json({ success: true, rates: mockRates, fulfillmentSource: originCountry });
   }
 
   try {
@@ -284,7 +286,7 @@ export default async function handler(req, res) {
       }));
     }
 
-    return res.status(200).json({ success: true, rates });
+    return res.status(200).json({ success: true, rates, fulfillmentSource: originCountry });
   } catch (error) {
     console.error('Easyship API Error:', error);
     return res.status(500).json({ error: 'Internal server error while fetching shipping rates' });

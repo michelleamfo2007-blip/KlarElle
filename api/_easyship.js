@@ -1,5 +1,6 @@
 import { COUNTRIES } from '../src/utils/countries.js';
 import { parseShippingAddress } from '../src/utils/address.js';
+import { getVariantSkuFromProduct } from '../src/utils/sku.js';
 
 export function isEasyshipSandbox(apiKey = process.env.EASYSHIP_API_KEY || '') {
   return String(apiKey).startsWith('sand_');
@@ -38,16 +39,19 @@ export async function easyshipRequest(apiKey, path, options = {}) {
   return data;
 }
 
-export async function getEasyshipOriginAddress(apiKey, order) {
+export async function getEasyshipOriginAddress(apiKey, order, fulfillmentSource = 'US') {
   const data = await easyshipRequest(apiKey, '/2023-01/addresses');
   const addresses = data.addresses || [];
   if (!addresses.length) {
     throw new Error('No pickup address found in Easyship. Add a warehouse/pickup address in your Easyship dashboard.');
   }
 
-  const dest = parseShippingAddress(order.shipping_address);
-  const destCountry = getCountryCode(dest?.country);
-  const match = addresses.find((address) => address.country_alpha2 === destCountry) || addresses[0];
+  const wantCountry = fulfillmentSource === 'CN' ? 'CN' : 'US';
+  const match = addresses.find((address) => address.country_alpha2 === wantCountry)
+    || (fulfillmentSource === 'CN'
+      ? addresses.find((address) => address.country_alpha2 !== 'US')
+      : addresses.find((address) => address.country_alpha2 === 'US'))
+    || addresses[0];
 
   return {
     line_1: match.line_1,
@@ -105,7 +109,7 @@ export function toEasyshipItems(orderItems = []) {
     const product = item.product || {};
     return {
       description: product.name || 'Apparel',
-      sku: product.sku || `SKU-${item.product_id || item.id}`,
+      sku: getVariantSkuFromProduct(product, item.color, item.size) || product.sku || `SKU-${item.product_id || item.id}`,
       category: 'fashion',
       origin_country_alpha2: getCountryCode(product.country_of_manufacture || 'China'),
       hs_code: product.hs_code || undefined,

@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import { ArrowLeft, Package, MapPin, CreditCard, Truck } from 'lucide-react';
 import { parseShippingAddress } from '../../utils/address';
+import { getVariantSkuFromProduct } from '../../utils/sku';
 
 function OrderDetails() {
   const { id } = useParams();
@@ -35,7 +36,9 @@ function OrderDetails() {
           *,
           product:products (
             name,
-            image_url
+            image_url,
+            sku,
+            variant_images
           )
         `)
         .eq('order_id', id);
@@ -146,6 +149,9 @@ function OrderDetails() {
                         {item.size && <span>Size: {item.size} </span>}
                         {item.color && <span>Color: {item.color} </span>}
                       </div>
+                      <div style={{ fontSize: '12px', color: '#111827', marginTop: '6px', fontFamily: 'ui-monospace, monospace' }}>
+                        SKU: {getVariantSkuFromProduct(item.product, item.color, item.size) || item.product?.sku || '—'}
+                      </div>
                     </div>
                   </div>
                   <div style={{ textAlign: 'right' }}>
@@ -182,6 +188,9 @@ function OrderDetails() {
                 <div>
                   <div style={{ fontSize: '12px', color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>Selected Shipping Service</div>
                   <div style={{ fontWeight: '500' }}>{order.shipping_provider || 'Not selected'} {order.shipping_service ? `- ${order.shipping_service}` : ''}</div>
+                  <div style={{ fontSize: '12px', color: '#6b7280', marginTop: '8px' }}>
+                    Ships from {order.fulfilled_from === 'CN' ? 'international warehouse' : 'U.S. warehouse'}
+                  </div>
                 </div>
                 <div>
                   <div style={{ fontSize: '12px', color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>Tracking Number</div>

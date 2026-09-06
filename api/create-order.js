@@ -80,7 +80,8 @@ export default async function handler(req, res) {
       shipping_provider: shipping_provider || 'Standard',
       shipping_service: shipping_service || 'Shipping',
       shippo_rate_id: shippo_rate_id || null,
-      payment_intent_id
+      payment_intent_id,
+      fulfilled_from: req.body.fulfilled_from || null
     };
 
     let orderData;
@@ -91,8 +92,9 @@ export default async function handler(req, res) {
       .select('id')
       .single());
 
-    if (orderError && /payment_intent_id/i.test(orderError.message) && /column/i.test(orderError.message)) {
-      delete orderPayload.payment_intent_id;
+    for (let attempt = 0; attempt < 2 && orderError && /column/i.test(orderError.message); attempt += 1) {
+      if (/payment_intent_id/i.test(orderError.message)) delete orderPayload.payment_intent_id;
+      if (/fulfilled_from/i.test(orderError.message)) delete orderPayload.fulfilled_from;
       ({ data: orderData, error: orderError } = await supabase
         .from('orders')
         .insert([orderPayload])

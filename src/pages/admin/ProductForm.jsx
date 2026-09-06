@@ -3,6 +3,15 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import { Upload, X, CheckCircle2, AlertCircle, RefreshCw, Eye, EyeOff, Tag, Box, Star, Loader2, Image } from 'lucide-react';
 import { formatSizeLabel, normalizeSizeList } from '../../utils/size';
+import { getColorHex } from '../../utils/colors';
+import {
+  collectStyleCodes,
+  isOfficialSku,
+  lookupStyle,
+  nextStyleCode,
+  resolveVariantBin,
+  resolveVariantSku
+} from '../../utils/sku';
 
 function ProductForm() {
   const { id } = useParams();
@@ -16,6 +25,7 @@ function ProductForm() {
   const [formData, setFormData] = useState({
     name: '',
     sku: '',
+    style_code: '',
     description: '',
     price: '',
     old_price: '',
@@ -76,6 +86,7 @@ function ProductForm() {
       setFormData({
         name: data.name || '',
         sku: data.sku || '',
+        style_code: lookupStyle({ productId: id, name: data.name, sku: data.sku })?.styleCode || '',
         description: data.description || '',
         price: data.price || '',
         old_price: data.old_price || '',
@@ -115,10 +126,28 @@ function ProductForm() {
             loadedVariants[color] = { image: value, stock: {} };
           } else {
             const remappedStock = {};
+            const remappedIntl = {};
+            const remappedSkus = {};
+            const remappedBins = {};
             Object.entries(value.stock || {}).forEach(([sizeKey, qty]) => {
               remappedStock[formatSizeLabel(sizeKey)] = qty;
             });
-            loadedVariants[color] = { ...value, stock: remappedStock };
+            Object.entries(value.stock_international || {}).forEach(([sizeKey, qty]) => {
+              remappedIntl[formatSizeLabel(sizeKey)] = qty;
+            });
+            Object.entries(value.skus || {}).forEach(([sizeKey, sku]) => {
+              remappedSkus[formatSizeLabel(sizeKey)] = sku;
+            });
+            Object.entries(value.bins || {}).forEach(([sizeKey, bin]) => {
+              remappedBins[formatSizeLabel(sizeKey)] = bin;
+            });
+            loadedVariants[color] = {
+              ...value,
+              stock: remappedStock,
+              stock_international: remappedIntl,
+              skus: remappedSkus,
+              bins: remappedBins
+            };
           }
         }
       }
@@ -135,10 +164,29 @@ function ProductForm() {
     }
   };
 
-  const generateSKU = () => {
-    const random = Math.floor(100 + Math.random() * 900);
-    const sku = `MFG-PRD-${random}`;
-    setFormData({ ...formData, sku });
+  const resolveStyleCode = async () => {
+    const listed = lookupStyle({ productId: id, name: formData.name, sku: formData.sku });
+    if (listed?.styleCode) return listed.styleCode;
+    if (formData.style_code) return formData.style_code;
+    const { data } = await supabase.from('products').select('sku, variant_images');
+    return nextStyleCode(formData.category, collectStyleCodes(data || []));
+  };
+
+  const generateSKU = async () => {
+    const styleCode = await resolveStyleCode();
+    const colors = colorsInput.split(/[;,]+/).map((c) => c.trim()).filter(Boolean);
+    const sizes = normalizeSizeList(sizesInput.split(/[;,]+/).map((s) => s.trim()).filter(Boolean));
+    const sku = colors[0] && sizes[0]
+      ? resolveVariantSku({
+          productId: id,
+          name: formData.name,
+          color: colors[0],
+          size: sizes[0],
+          existingSku: formData.sku,
+          styleCode
+        })
+      : `KLA-${styleCode}`;
+    setFormData({ ...formData, sku, style_code: styleCode });
   };
 
   const calculateDiscount = () => {
@@ -288,25 +336,47 @@ function ProductForm() {
 
     const activeColors = colorsInput.split(/[;,]+/).map(c => c.trim()).filter(Boolean);
     const activeSizes = normalizeSizeList(sizesInput.split(/[;,]+/).map(s => s.trim()).filter(Boolean));
+    const styleCode = await resolveStyleCode();
     
     const cleanVariantImages = {};
     let totalVariantStock = 0;
+    let firstVariantSku = '';
 
     if (activeColors.length > 0 && activeSizes.length > 0) {
       activeColors.forEach(color => {
-        if (variantImages[color]) {
-          cleanVariantImages[color] = { ...variantImages[color], stock: {} };
-          activeSizes.forEach(size => {
-            const qty = parseInt(variantImages[color].stock?.[size], 10) || 0;
-            cleanVariantImages[color].stock[size] = qty;
-            totalVariantStock += qty;
+        const current = variantImages[color] || { stock: {}, stock_international: {}, skus: {}, bins: {} };
+        cleanVariantImages[color] = {
+          ...current,
+          stock: {},
+          stock_international: {},
+          skus: {},
+          bins: {}
+        };
+        activeSizes.forEach(size => {
+          const qty = parseInt(current.stock?.[size], 10) || 0;
+          const intlQty = parseInt(current.stock_international?.[size], 10) || 0;
+          const sku = resolveVariantSku({
+            productId: id,
+            name: formData.name,
+            color,
+            size,
+            existingSku: current.skus?.[size],
+            styleCode
           });
-        } else {
-          cleanVariantImages[color] = { stock: {} };
-          activeSizes.forEach(size => {
-            cleanVariantImages[color].stock[size] = 0;
+          cleanVariantImages[color].stock[size] = qty;
+          cleanVariantImages[color].stock_international[size] = intlQty;
+          cleanVariantImages[color].skus[size] = sku;
+          cleanVariantImages[color].bins[size] = resolveVariantBin({
+            productId: id,
+            name: formData.name,
+            color,
+            size,
+            existingBin: current.bins?.[size],
+            styleCode
           });
-        }
+          if (!firstVariantSku) firstVariantSku = sku;
+          totalVariantStock += qty + intlQty;
+        });
       });
     }
     
@@ -314,7 +384,9 @@ function ProductForm() {
 
     const productData = {
       name: formData.name,
-      sku: formData.sku,
+      sku: isOfficialSku(formData.sku)
+        ? formData.sku
+        : (firstVariantSku || `KLA-${styleCode}`),
       description: formData.description,
       price: parseFloat(formData.price),
       old_price: formData.old_price ? parseFloat(formData.old_price) : null,
@@ -468,10 +540,15 @@ function ProductForm() {
                         value={formData.sku} 
                         onChange={(e) => setFormData({...formData, sku: e.target.value})} 
                       />
-                      <button type="button" onClick={generateSKU} style={{ padding: '0 16px', background: '#FAF9F6', border: '1px solid #D2C4B3', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: '500', whiteSpace: 'nowrap', color: '#111827' }}>
+                      <button type="button" onClick={generateSKU} style={{ padding: '0 16px', background: '#FAF9F6', border: '1px solid #D2C4B3', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: '500', whiteSpace: 'nowrap', color: '#111827' }} title="Uses the Klarelle SKU Master: KLA-[style]-[color]-[size]">
                         Generate
                       </button>
                     </div>
+                    {formData.style_code && (
+                      <div style={{ fontSize: '12px', color: '#6b7280', marginTop: '6px' }}>
+                        Style code {formData.style_code} stays the same if you change the name or price.
+                      </div>
+                    )}
                   </div>
                   <div>
                     <label className="input-label">Category *</label>
@@ -890,10 +967,11 @@ function ProductForm() {
                   <input 
                     type="text" 
                     className="input-field" 
-                    placeholder="e.g. Black, White, Red"
+                    placeholder="e.g. Navy Blue, Royal Blue, Champagne"
                     value={colorsInput} 
                     onChange={(e) => setColorsInput(e.target.value)} 
                   />
+                  <p style={{ fontSize: '12px', color: '#6b7280', margin: '6px 0 0' }}>Type the shade name, not just “Blue”. Navy Blue and Royal Blue show as different colors.</p>
                 </div>
                 <div>
                   <label className="input-label">Size Guide Image</label>
@@ -947,13 +1025,13 @@ function ProductForm() {
               <div className="card">
                 <div className="card-header"><Box size={18} /> Variant Inventory & Images</div>
                 <div className="card-body" style={{ display: 'grid', gap: '20px' }}>
-                  <p style={{ fontSize: '13px', color: '#666', margin: 0 }}>Set the stock quantity for each combination of color and size. You can also upload a specific image for each color.</p>
+                  <p style={{ fontSize: '13px', color: '#666', margin: 0 }}>Stock is per color and size. SKUs come from the Klarelle SKU Master, for example KLA-D008-BLK-M. Existing SKUs are kept if you change the name or price.</p>
                   
                   {colorsInput.split(/[;,]+/).map(c => c.trim()).filter(Boolean).map(color => (
                     <div key={color} style={{ border: '1px solid #e5e7eb', borderRadius: '8px', padding: '16px', background: '#fafafa' }}>
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
                         <label className="input-label" style={{ display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}>
-                          <div style={{ width: 16, height: 16, borderRadius: '50%', backgroundColor: color.toLowerCase(), border: '1px solid #ddd' }} />
+                          <div style={{ width: 16, height: 16, borderRadius: '50%', backgroundColor: getColorHex(color), border: '1px solid #ddd' }} />
                           <span style={{ fontWeight: 'bold', fontSize: '16px' }}>{color}</span>
                         </label>
                         
@@ -986,6 +1064,17 @@ function ProductForm() {
                         {sizesInput.split(/[;,]+/).map(s => s.trim()).filter(Boolean).map(size => (
                           <div key={size} style={{ border: '1px solid #ddd', padding: '8px', borderRadius: '4px', background: '#fff' }}>
                             <label style={{ fontSize: '13px', fontWeight: 'bold', color: '#111', marginBottom: '8px', display: 'block' }}>Size {formatSizeLabel(size)}</label>
+                            <div style={{ fontSize: '10px', color: '#6b7280', marginBottom: '8px', wordBreak: 'break-all' }}>
+                              {resolveVariantSku({
+                                productId: id,
+                                name: formData.name,
+                                color,
+                                size,
+                                existingSku: variantImages[color]?.skus?.[formatSizeLabel(size)] || variantImages[color]?.skus?.[size],
+                                styleCode: formData.style_code,
+                                sku: formData.sku
+                              }) || 'Save to assign SKU'}
+                            </div>
                             
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -1030,6 +1119,30 @@ function ProductForm() {
                                         ...(prev[color] || { image: null }),
                                         stock_international: {
                                           ...(prev[color]?.stock_international || {}),
+                                          [size]: val
+                                        }
+                                      }
+                                    }));
+                                  }} 
+                                />
+                              </div>
+
+                              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                <span style={{ fontSize: '11px', color: '#666' }}>Bin:</span>
+                                <input 
+                                  type="text" 
+                                  className="input-field" 
+                                  placeholder="A01-M"
+                                  style={{ padding: '4px 6px', width: '72px', height: '24px', fontSize: '12px' }}
+                                  value={(variantImages[color]?.bins?.[size]) || ''} 
+                                  onChange={(e) => {
+                                    const val = e.target.value;
+                                    setVariantImages(prev => ({
+                                      ...prev,
+                                      [color]: {
+                                        ...(prev[color] || { image: null }),
+                                        bins: {
+                                          ...(prev[color]?.bins || {}),
                                           [size]: val
                                         }
                                       }

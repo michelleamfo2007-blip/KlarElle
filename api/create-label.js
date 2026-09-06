@@ -6,6 +6,7 @@ import {
   toEasyshipDestination,
   toEasyshipItems
 } from './_easyship.js';
+import { cartShipsFromInternational } from '../src/utils/stock.js';
 
 export default async function handler(req, res) {
   if (req.method === 'GET') {
@@ -53,9 +54,15 @@ export default async function handler(req, res) {
         quantity,
         price_at_time,
         product_id,
+        size,
+        color,
         product:products (
+          id,
           name,
           sku,
+          variant_images,
+          stock,
+          stock_international,
           weight,
           length,
           width,
@@ -67,7 +74,14 @@ export default async function handler(req, res) {
       `)
       .eq('order_id', order_id);
 
-    const originAddress = await getEasyshipOriginAddress(apiKey, order);
+    const fulfillmentSource = order.fulfilled_from
+      || (cartShipsFromInternational((orderItems || []).map((item) => ({
+        ...item.product,
+        selectedColor: item.color,
+        selectedSize: item.size
+      }))) ? 'CN' : 'US');
+
+    const originAddress = await getEasyshipOriginAddress(apiKey, order, fulfillmentSource);
     const destinationAddress = toEasyshipDestination(order);
     const items = toEasyshipItems(orderItems || []);
 

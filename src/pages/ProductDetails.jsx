@@ -8,6 +8,7 @@ import { useCart } from '../context/CartContext';
 import { useFavorites } from '../context/FavoritesContext';
 import { useCurrency } from '../context/CurrencyContext';
 import { formatSizeLabel } from '../utils/size';
+import { getColorHex } from '../utils/colors';
 
 const collectProductImages = (product) => {
   const urls = [];
@@ -154,15 +155,6 @@ function ProductDetails() {
       ref.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   };
-
-  const colorMap = {
-    'black': '#000000', 'white': '#ffffff', 'red': '#ff0000', 'blue': '#0000ff', 'green': '#008000', 
-    'yellow': '#ffff00', 'pink': '#ffc0cb', 'purple': '#800080', 'orange': '#ffa500', 'grey': '#808080', 
-    'gray': '#808080', 'brown': '#a52a2a', 'beige': '#f5f5dc', 'navy': '#000080', 'maroon': '#800000', 
-    'olive': '#808000', 'cream': '#fffdd0', 'khaki': '#c3b091', 'nude': '#e3bc9a', 'mustard': '#ffdb58', 
-    'burgundy': '#800020', 'teal': '#008080'
-  };
-  const getColorHex = (c) => colorMap[c.toLowerCase().trim()] || c;
 
   useEffect(() => {
     const fetchProductAndMatches = async () => {
@@ -378,7 +370,7 @@ function ProductDetails() {
             .size-btn.active { border-color: #000; background: #000; color: white; }
             
             .color-grid { display: flex; gap: 12px; margin: 12px 0 24px 0; flex-wrap: wrap; }
-            .color-swatch { width: 32px; height: 32px; border-radius: 50%; border: 1px solid #d1d5db; cursor: pointer; padding: 0; position: relative; transition: transform 0.2s; }
+            .color-swatch { width: 36px; height: 36px; border-radius: 50%; border: 1px solid #d1d5db; cursor: pointer; padding: 0; position: relative; transition: transform 0.2s; }
             .color-swatch.active { border: 2px solid #000; box-shadow: 0 0 0 3px #fff inset; }
             
             .section-divider { border-top: 8px solid #f5f5f5; margin: 24px -20px; padding: 24px 20px 0 20px; }
@@ -479,11 +471,11 @@ function ProductDetails() {
                   </>
                 ) : fulfilledFrom === 'CN' ? (
                   <>
-                    <strong>In stock</strong> at our international warehouse. Ships in 9–15 days after fulfillment.
+                    <strong>In stock</strong> at our international warehouse. Processing time is shown at checkout.
                   </>
                 ) : (
                   <>
-                    <strong>In stock.</strong> Ready to ship after payment. U.S. orders typically leave within 3–5 business days.
+                    <strong>In stock</strong> in the U.S. and available to ship worldwide. Processing time is shown at checkout.
                   </>
                 )}
               </div>
@@ -537,19 +529,25 @@ function ProductDetails() {
               <div style={{ marginTop: '8px' }}>
                 <div className="pd-options-title">Color: <span style={{fontWeight:'normal'}}>{selectedColor}</span></div>
                 <div className="color-grid">
-                  {product.parsedColors.map((color, index) => (
-                    <button 
-                      key={color} className={`color-swatch ${selectedColor === color ? 'active' : ''}`}
-                      onClick={() => {
-                        setSelectedColor(color);
-                        if (product.variant_images && product.variant_images[color]) {
-                          const val = product.variant_images[color];
-                          setPreviewImage(typeof val === 'string' ? val : (val.image || null));
-                        }
-                        else setPreviewImage(null);
-                      }}
-                      style={{ backgroundColor: getColorHex(color) }}
-                    />
+                  {product.parsedColors.map((color) => (
+                    <div key={color} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
+                      <button 
+                        type="button"
+                        title={color}
+                        aria-label={color}
+                        className={`color-swatch ${selectedColor === color ? 'active' : ''}`}
+                        onClick={() => {
+                          setSelectedColor(color);
+                          if (product.variant_images && product.variant_images[color]) {
+                            const val = product.variant_images[color];
+                            setPreviewImage(typeof val === 'string' ? val : (val.image || null));
+                          }
+                          else setPreviewImage(null);
+                        }}
+                        style={{ backgroundColor: getColorHex(color) }}
+                      />
+                      <span style={{ fontSize: '10px', color: '#666', maxWidth: '64px', textAlign: 'center', lineHeight: 1.2 }}>{color}</span>
+                    </div>
                   ))}
                 </div>
                 <div style={{ marginTop: '8px', fontSize: '12px', color: '#666', lineHeight: '1.4' }}>
@@ -629,7 +627,7 @@ function ProductDetails() {
                 <Truck size={16} /> Shipping & Returns
               </div>
               <div style={{ fontSize: '13px', color: '#333', lineHeight: '1.6' }}>
-                <strong>Shipping:</strong> Standard shipping takes 3-5 business days after fulfillment for U.S. orders and 9-15 days for international orders.<br />
+                <strong>Shipping:</strong> Processing and delivery times are shown at checkout, based on whether your item ships from the U.S. or international warehouse.<br />
                 <strong>Returns:</strong> Eligible exchanges or store credit are accepted within seven days. Items must be unworn and in original condition with tags attached. Refunds are not available.
               </div>
             </div>
@@ -743,7 +741,7 @@ function ProductDetails() {
             </div>
             {fulfilledFrom === 'CN' && (
               <div style={{ marginTop: '12px', fontSize: '12px', color: '#d97706', display: 'flex', alignItems: 'center', gap: '6px', fontWeight: '500' }}>
-                <Truck size={14} /> Shipping from International Warehouse (9-15 days)
+                <Truck size={14} /> Ships from our international warehouse
               </div>
             )}
           </div>

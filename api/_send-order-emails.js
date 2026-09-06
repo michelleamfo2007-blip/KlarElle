@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { formatShippingAddress } from '../src/utils/address.js';
 import { formatSizeLabel } from '../src/utils/size.js';
+import { getVariantSkuFromProduct } from '../src/utils/sku.js';
 
 function normalizeEmails(values = []) {
   return values
@@ -81,7 +82,10 @@ export async function sendOrderEmails(order_id) {
     .select(`
       *,
       product:products (
-        name
+        id,
+        name,
+        sku,
+        variant_images
       )
     `)
     .eq('order_id', order_id);
@@ -104,6 +108,8 @@ export async function sendOrderEmails(order_id) {
       orderTotal += item.quantity * parseFloat(item.price_at_time);
 
       const details = [];
+      const sku = getVariantSkuFromProduct(item.product, item.color, item.size);
+      if (sku) details.push(`SKU: ${sku}`);
       if (item.size) details.push(`Size: ${formatSizeLabel(item.size)}`);
       if (item.color) details.push(`Color: ${item.color}`);
       const variantText = details.length > 0
