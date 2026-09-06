@@ -31,10 +31,10 @@ function CustomerRegister() {
     } else {
       await supabase.from('waitlist').update({ status: 'Checked Off' }).eq('email', email);
       try {
-        await fetch('/api/send-welcome-email', {
+        await fetch('/api/send-order-email', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, name })
+          body: JSON.stringify({ type: 'welcome', email, name })
         });
       } catch (emailError) {
         console.error('Failed to send welcome email:', emailError);
