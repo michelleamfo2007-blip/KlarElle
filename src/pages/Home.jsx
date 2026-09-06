@@ -8,6 +8,7 @@ import { useFavorites } from '../context/FavoritesContext';
 import { useCurrency } from '../context/CurrencyContext';
 import ProductRating from '../components/ProductRating';
 import { attachReviewStats } from '../utils/reviews';
+import { isProductSoldOut } from '../utils/stock';
 import heroVideo from '../../IMG_2870 klarelle.MP4';
 
 function Home() {
@@ -216,11 +217,12 @@ function Home() {
 
         .hero-video {
           width: 100%;
-          height: min(80vh, 820px);
-          min-height: 420px;
-          object-fit: cover;
+          height: auto;
+          max-height: none;
+          object-fit: contain;
           object-position: center;
           display: block;
+          vertical-align: top;
         }
 
         .hero-images-container {
@@ -319,13 +321,15 @@ function Home() {
           .hero-img-center { aspect-ratio: 4/5; }
           .hero-video-wrap {
             width: 100vw;
+            max-width: 100vw;
             margin-left: calc(50% - 50vw);
+            background: #000;
           }
           .hero-video {
             width: 100%;
-            height: calc(100dvh - 148px);
-            min-height: 520px;
-            max-height: none;
+            height: auto;
+            min-height: 0;
+            object-fit: contain;
           }
         }
       `}</style>
@@ -422,10 +426,10 @@ function Home() {
                 <div className="luxury-card" key={`luxury-${product.id}`}>
                   <div className="luxury-image-wrap">
                     <Link to={`/product/${product.id}`} className="luxury-image-link">
-                      <img src={product.image_url || '/placeholder.png'} alt={product.name} className="luxury-image primary" style={{ opacity: product.stock <= 0 ? 0.6 : 1 }} />
+                      <img src={product.image_url || '/placeholder.png'} alt={product.name} className="luxury-image primary" style={{ opacity: isProductSoldOut(product) ? 0.6 : 1 }} />
                     </Link>
                     
-                    {product.stock <= 0 ? (
+                    {isProductSoldOut(product) ? (
                       <div className="luxury-badge" style={{ background: '#000', color: '#fff', letterSpacing: '1px' }}>SOLD OUT</div>
                     ) : product.old_price && parseFloat(product.old_price) > parseFloat(product.price) && (
                       <div className="luxury-badge">-{Math.round(((product.old_price - product.price) / product.old_price) * 100)}%</div>
