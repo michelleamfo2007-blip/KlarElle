@@ -342,13 +342,13 @@ function ProductDetails() {
         <div className="product-layout">
           <style>{`
             @media (min-width: 900px) {
-              .product-layout { grid-template-columns: 1.15fr 0.85fr; align-items: start; }
+              .product-layout { max-width: 880px; gap: 32px; }
               .gallery-grid { display: block; overflow: hidden; }
               .gallery-grid .main-image-wrap { display: none; width: 100%; flex: none; max-height: 78vh; }
               .gallery-grid .main-image-wrap.is-active { display: flex; }
             }
-            .product-layout { display: grid; gap: 40px; }
-            .gallery-column { min-width: 0; }
+            .product-layout { display: flex; flex-direction: column; gap: 24px; }
+            .gallery-column { min-width: 0; width: 100%; }
             
             .gallery-grid { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 0; scrollbar-width: none; -ms-overflow-style: none; }
             .gallery-grid::-webkit-scrollbar { display: none; }
