@@ -477,6 +477,39 @@ function ProductDetails() {
                 {product.description}
               </div>
             )}
+
+            {/* Colors */}
+            {product.parsedColors && product.parsedColors.length > 0 && (
+              <div style={{ marginTop: '16px' }}>
+                <div className="pd-options-title">Color: <span style={{fontWeight:'normal'}}>{selectedColor}</span></div>
+                <div className="color-grid">
+                  {product.parsedColors.map((color) => (
+                    <div key={color} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
+                      <button 
+                        type="button"
+                        title={color}
+                        aria-label={color}
+                        className={`color-swatch ${selectedColor === color ? 'active' : ''}`}
+                        onClick={() => {
+                          setSelectedColor(color);
+                          if (product.variant_images && product.variant_images[color]) {
+                            const val = product.variant_images[color];
+                            setPreviewImage(typeof val === 'string' ? val : (val.image || null));
+                          }
+                          else setPreviewImage(null);
+                        }}
+                        style={{ backgroundColor: getColorHex(color) }}
+                      />
+                      <span style={{ fontSize: '10px', color: '#666', maxWidth: '64px', textAlign: 'center', lineHeight: 1.2 }}>{color}</span>
+                    </div>
+                  ))}
+                </div>
+                <div style={{ marginTop: '8px', fontSize: '12px', color: '#666', lineHeight: '1.4' }}>
+                  <strong>Color and Appearance</strong><br/>
+                  We use reasonable efforts to present color and details accurately. Device settings, lighting, dye lots, fabric direction, and hand-finished embellishments may cause minor variation.
+                </div>
+              </div>
+            )}
             
             <div style={{ marginTop: '16px', borderTop: '1px solid #eee', paddingTop: '16px', marginBottom: '16px' }}>
               <div className="pd-options-title" style={{ margin: '0 0 12px 0', fontSize: '14px', textTransform: 'uppercase' }}>Fabric & Fit</div>
@@ -513,39 +546,6 @@ function ProductDetails() {
                 </>
               )}
             </div>
-
-            {/* Colors */}
-            {product.parsedColors && product.parsedColors.length > 0 && (
-              <div style={{ marginTop: '8px' }}>
-                <div className="pd-options-title">Color: <span style={{fontWeight:'normal'}}>{selectedColor}</span></div>
-                <div className="color-grid">
-                  {product.parsedColors.map((color) => (
-                    <div key={color} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
-                      <button 
-                        type="button"
-                        title={color}
-                        aria-label={color}
-                        className={`color-swatch ${selectedColor === color ? 'active' : ''}`}
-                        onClick={() => {
-                          setSelectedColor(color);
-                          if (product.variant_images && product.variant_images[color]) {
-                            const val = product.variant_images[color];
-                            setPreviewImage(typeof val === 'string' ? val : (val.image || null));
-                          }
-                          else setPreviewImage(null);
-                        }}
-                        style={{ backgroundColor: getColorHex(color) }}
-                      />
-                      <span style={{ fontSize: '10px', color: '#666', maxWidth: '64px', textAlign: 'center', lineHeight: 1.2 }}>{color}</span>
-                    </div>
-                  ))}
-                </div>
-                <div style={{ marginTop: '8px', fontSize: '12px', color: '#666', lineHeight: '1.4' }}>
-                  <strong>Color and Appearance</strong><br/>
-                  We use reasonable efforts to present color and details accurately. Device settings, lighting, dye lots, fabric direction, and hand-finished embellishments may cause minor variation.
-                </div>
-              </div>
-            )}
 
             {/* Sizes */}
             {product.parsedSizes && product.parsedSizes.length > 0 && (
