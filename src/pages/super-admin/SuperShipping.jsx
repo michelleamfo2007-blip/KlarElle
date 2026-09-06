@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import { Package, Truck, Printer, Search, MapPin, CheckCircle, Save } from 'lucide-react';
 import { useCurrency } from '../../context/CurrencyContext';
+import { formatShippingAddress } from '../../utils/address';
 
 function SuperShipping() {
   const { formatPrice } = useCurrency();
@@ -52,11 +53,7 @@ function SuperShipping() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          orderId: order.id,
-          name: order.customer_name,
-          address: order.shipping_address,
-          destinationZip: order.shipping_address ? order.shipping_address.split(',').pop().trim().split(' ').pop() : '10001',
-          rateObjectId: order.shippo_rate_id
+          order_id: order.id
         })
       });
       
@@ -177,7 +174,7 @@ function SuperShipping() {
                   </td>
                   <td style={{ padding: '20px' }}>
                     <div style={{ fontWeight: '500', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}><MapPin size={14} color="#6b7280" /> {order.customer_name}</div>
-                    <div style={{ fontSize: '13px', color: '#4b5563', lineHeight: '1.4', maxWidth: '250px' }}>{order.shipping_address || 'No address provided'}</div>
+                    <div style={{ fontSize: '13px', color: '#4b5563', lineHeight: '1.4', maxWidth: '250px' }}>{formatShippingAddress(order.shipping_address) || 'No address provided'}</div>
                     {order.phone_number && <div style={{ fontSize: '12px', color: '#6b7280', marginTop: '4px' }}>{order.phone_number}</div>}
                   </td>
                   <td style={{ padding: '20px' }}>

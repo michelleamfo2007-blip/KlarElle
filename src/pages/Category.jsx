@@ -2,11 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import SEO from '../components/SEO';
 import { supabase } from '../lib/supabase';
-import { Heart, Star, Plus, Minus } from 'lucide-react';
+import { Heart, Plus, Minus } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useCurrency } from '../context/CurrencyContext';
 import FilterSidebar from '../components/FilterSidebar';
 import FilterModal from '../components/FilterModal';
+import ProductRating from '../components/ProductRating';
+import { attachReviewStats } from '../utils/reviews';
 import { Filter } from 'lucide-react';
 import './Category.css';
 
@@ -39,7 +41,8 @@ function Category() {
       const { data, error } = await query;
       
       if (!error && data) {
-        setAllProducts(data);
+        const withReviews = await attachReviewStats(supabase, data);
+        setAllProducts(withReviews);
         
         // Compute available filter options based on the fetched products
         const options = {
@@ -184,14 +187,7 @@ function Category() {
                     <span className="product-price sale">{formatPrice(product.price)}</span>
                     {product.old_price && parseFloat(product.old_price) > parseFloat(product.price) && <span className="product-old-price">{formatPrice(product.old_price)}</span>}
                   </div>
-                  <div className="product-rating">
-                    <Star className="star-icon" fill="currentColor" />
-                    <Star className="star-icon" fill="currentColor" />
-                    <Star className="star-icon" fill="currentColor" />
-                    <Star className="star-icon" fill="currentColor" />
-                    <Star className="star-icon" fill="currentColor" />
-                    <span>({product.rating || 5.0})</span>
-                  </div>
+                  <ProductRating count={product.reviewCount} average={product.reviewAvg} />
                 </div>
               </div>
             ))}

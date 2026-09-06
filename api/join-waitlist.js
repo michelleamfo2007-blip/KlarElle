@@ -26,7 +26,7 @@ export default async function handler(req, res) {
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #111;">
             <h1 style="font-family: Georgia, serif; font-weight: normal; margin-bottom: 24px;">Welcome to the list.</h1>
             <p style="font-size: 16px; line-height: 1.6; color: #444;">
-              Thank you for joining the exclusive KlarElle waitlist. You will be the first to know when our new collection drops.
+              Thank you for joining the KlarElle VIP list. You will get first access and exclusive updates as we launch this September.
             </p>
             <br/>
             <p style="font-size: 16px; color: #444;">

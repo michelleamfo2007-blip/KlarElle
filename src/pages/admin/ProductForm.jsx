@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import { Upload, X, CheckCircle2, AlertCircle, RefreshCw, Eye, EyeOff, Tag, Box, Star, Loader2, Image } from 'lucide-react';
+import { formatSizeLabel, normalizeSizeList } from '../../utils/size';
 
 function ProductForm() {
   const { id } = useParams();
@@ -29,6 +30,10 @@ function ProductForm() {
     pattern_type: '',
     care_instructions: '',
     style: '',
+    fit: '',
+    features: '',
+    measurements: '',
+    preorder_lead_time: '14–21 business days',
     size_guide_url: '',
     video_url: '',
     weight: '',
@@ -85,6 +90,10 @@ function ProductForm() {
         pattern_type: data.pattern_type || '',
         care_instructions: data.care_instructions || '',
         style: data.style || '',
+        fit: data.fit || '',
+        features: data.features || '',
+        measurements: data.measurements || '',
+        preorder_lead_time: data.preorder_lead_time || '14–21 business days',
         size_guide_url: data.size_guide_url || '',
         video_url: data.video_url || '',
         weight: data.weight || '',
@@ -95,7 +104,8 @@ function ProductForm() {
         hs_code: data.hs_code || '',
       });
 
-      setSizesInput(Array.isArray(data.sizes) ? data.sizes.join(', ') : (data.sizes || ''));
+      const loadedSizes = Array.isArray(data.sizes) ? data.sizes : (data.sizes || '');
+      setSizesInput(Array.isArray(loadedSizes) ? normalizeSizeList(loadedSizes).join(', ') : loadedSizes);
       setColorsInput(Array.isArray(data.colors) ? data.colors.join(', ') : (data.colors || ''));
       setTagsInput(Array.isArray(data.tags) ? data.tags.join(', ') : (data.tags || ''));
       const loadedVariants = {};
@@ -104,7 +114,11 @@ function ProductForm() {
           if (typeof value === 'string') {
             loadedVariants[color] = { image: value, stock: {} };
           } else {
-            loadedVariants[color] = value;
+            const remappedStock = {};
+            Object.entries(value.stock || {}).forEach(([sizeKey, qty]) => {
+              remappedStock[formatSizeLabel(sizeKey)] = qty;
+            });
+            loadedVariants[color] = { ...value, stock: remappedStock };
           }
         }
       }
@@ -273,7 +287,7 @@ function ProductForm() {
     const hoverImg = imageUrls[1] || '';
 
     const activeColors = colorsInput.split(/[;,]+/).map(c => c.trim()).filter(Boolean);
-    const activeSizes = sizesInput.split(/[;,]+/).map(s => s.trim()).filter(Boolean);
+    const activeSizes = normalizeSizeList(sizesInput.split(/[;,]+/).map(s => s.trim()).filter(Boolean));
     
     const cleanVariantImages = {};
     let totalVariantStock = 0;
@@ -318,6 +332,10 @@ function ProductForm() {
       pattern_type: formData.pattern_type,
       care_instructions: formData.care_instructions,
       style: formData.style,
+      fit: formData.fit,
+      features: formData.features,
+      measurements: formData.measurements,
+      preorder_lead_time: formData.preorder_lead_time,
       size_guide_url: formData.size_guide_url,
       video_url: formData.video_url,
       weight: formData.weight ? parseFloat(formData.weight) : null,
@@ -332,14 +350,20 @@ function ProductForm() {
       variant_images: cleanVariantImages
     };
 
-    try {
+    const saveProduct = async (payload) => {
       if (isEditing) {
-        const { error } = await supabase.from('products').update(productData).eq('id', id);
-        if (error) throw error;
-      } else {
-        const { error } = await supabase.from('products').insert([productData]);
-        if (error) throw error;
+        return supabase.from('products').update(payload).eq('id', id);
       }
+      return supabase.from('products').insert([payload]);
+    };
+
+    try {
+      let { error } = await saveProduct(productData);
+      if (error && /column|schema cache|does not exist/i.test(error.message || '')) {
+        const { fit, features, measurements, preorder_lead_time, ...basePayload } = productData;
+        ({ error } = await saveProduct(basePayload));
+      }
+      if (error) throw error;
       navigate('/admin/products');
     } catch (err) {
       alert('Error saving product: ' + err.message);
@@ -554,14 +578,62 @@ function ProductForm() {
                     </select>
                   </div>
                 </div>
+                <div className="admin-responsive-grid">
+                  <div>
+                    <label className="input-label">Care Instructions</label>
+                    <input 
+                      type="text" 
+                      className="input-field" 
+                      placeholder="e.g. Machine wash or professional dry clean"
+                      value={formData.care_instructions} 
+                      onChange={(e) => setFormData({...formData, care_instructions: e.target.value})} 
+                    />
+                  </div>
+                  <div>
+                    <label className="input-label">Stretch Level</label>
+                    <select
+                      className="input-field"
+                      value={formData.features}
+                      onChange={(e) => setFormData({...formData, features: e.target.value})}
+                    >
+                      <option value="">Select stretch</option>
+                      <option value="No stretch">No stretch</option>
+                      <option value="Slight stretch">Slight stretch</option>
+                      <option value="Moderate stretch">Moderate stretch</option>
+                      <option value="High stretch">High stretch</option>
+                    </select>
+                  </div>
+                </div>
+                <div className="admin-responsive-grid">
+                  <div>
+                    <label className="input-label">Fit Notes</label>
+                    <input 
+                      type="text" 
+                      className="input-field" 
+                      placeholder="e.g. Slim fit, true to size"
+                      value={formData.fit} 
+                      onChange={(e) => setFormData({...formData, fit: e.target.value})} 
+                    />
+                  </div>
+                  <div>
+                    <label className="input-label">Model Measurements</label>
+                    <input 
+                      type="text" 
+                      className="input-field" 
+                      placeholder="e.g. Model is 5'9 / wears size S"
+                      value={formData.measurements} 
+                      onChange={(e) => setFormData({...formData, measurements: e.target.value})} 
+                    />
+                  </div>
+                </div>
                 <div>
-                  <label className="input-label">Care Instructions</label>
+                  <label className="input-label">Preorder Processing Time</label>
                   <input 
                     type="text" 
                     className="input-field" 
-                    placeholder="e.g. Machine wash or professional dry clean"
-                    value={formData.care_instructions} 
-                    onChange={(e) => setFormData({...formData, care_instructions: e.target.value})} 
+                    placeholder="e.g. 14–21 business days"
+                    value={formData.preorder_lead_time} 
+                    onChange={(e) => setFormData({...formData, preorder_lead_time: e.target.value})} 
                   />
                 </div>
                 
@@ -608,7 +680,7 @@ function ProductForm() {
                         <Upload size={24} color="#4b5563" />
                       </div>
                       <h4 style={{ margin: '0 0 8px 0', fontSize: '16px', color: '#111827' }}>Drag & drop images here</h4>
-                      <p style={{ margin: '0 0 16px 0', fontSize: '14px', color: '#6b7280' }}>or click to browse files</p>
+                      <p style={{ margin: '0 0 16px 0', fontSize: '14px', color: '#6b7280' }}>Add several angles plus detailed close-ups of fabric, seams, and hardware.</p>
                       <p style={{ margin: 0, fontSize: '12px', color: '#9ca3af' }}>PNG, JPG or WEBP • Maximum 5MB per image</p>
                     </>
                   )}
@@ -849,7 +921,7 @@ function ProductForm() {
                   <label className="input-label">Product Video (Optional)</label>
                   {formData.video_url ? (
                     <div style={{ position: 'relative', display: 'inline-block', marginBottom: '8px' }}>
-                      <video src={formData.video_url} style={{ width: '100px', height: '100px', objectFit: 'cover', borderRadius: '4px', border: '1px solid #eee' }} controls />
+                      <video src={formData.video_url} muted playsInline style={{ width: '100px', height: '100px', objectFit: 'cover', borderRadius: '4px', border: '1px solid #eee' }} controls />
                       <button type="button" onClick={() => setFormData({...formData, video_url: ''})} style={{ position: 'absolute', top: '-8px', right: '-8px', background: 'red', color: 'white', borderRadius: '50%', border: 'none', cursor: 'pointer', padding: '4px' }}><X size={12} /></button>
                     </div>
                   ) : (
@@ -913,7 +985,7 @@ function ProductForm() {
                       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '12px' }}>
                         {sizesInput.split(/[;,]+/).map(s => s.trim()).filter(Boolean).map(size => (
                           <div key={size} style={{ border: '1px solid #ddd', padding: '8px', borderRadius: '4px', background: '#fff' }}>
-                            <label style={{ fontSize: '13px', fontWeight: 'bold', color: '#111', marginBottom: '8px', display: 'block' }}>Size {size}</label>
+                            <label style={{ fontSize: '13px', fontWeight: 'bold', color: '#111', marginBottom: '8px', display: 'block' }}>Size {formatSizeLabel(size)}</label>
                             
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>

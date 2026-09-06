@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import { ArrowLeft, Package, MapPin, CreditCard, Truck } from 'lucide-react';
+import { parseShippingAddress } from '../../utils/address';
 
 function OrderDetails() {
   const { id } = useParams();
@@ -240,15 +241,18 @@ function OrderDetails() {
               <MapPin size={18} /> Shipping Address
             </div>
             <div style={{ padding: '20px', color: '#4b5563', lineHeight: '1.5' }}>
-              {order.shipping_address ? (
-                <>
-                  {order.shipping_address.street}<br/>
-                  {order.shipping_address.city}, {order.shipping_address.state} {order.shipping_address.zip}<br/>
-                  {order.shipping_address.country}
-                </>
-              ) : (
-                'No address provided.'
-              )}
+              {(() => {
+                const address = parseShippingAddress(order.shipping_address);
+                return address ? (
+                  <>
+                    {address.street}{address.line2 ? `, ${address.line2}` : ''}<br/>
+                    {[address.city, address.state, address.zip].filter(Boolean).join(', ')}<br/>
+                    {address.country}
+                  </>
+                ) : (
+                  'No address provided.'
+                );
+              })()}
             </div>
           </div>
 

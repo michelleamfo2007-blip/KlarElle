@@ -1,4 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
+import { formatShippingAddress } from '../src/utils/address.js';
+import { formatSizeLabel } from '../src/utils/size.js';
 
 export default async function handler(req, res) {
   try {
@@ -62,7 +64,7 @@ export default async function handler(req, res) {
         orderTotal += (item.quantity * parseFloat(item.price_at_time));
         
         let details = [];
-        if (item.size) details.push(`Size: ${item.size}`);
+        if (item.size) details.push(`Size: ${formatSizeLabel(item.size)}`);
         if (item.color) details.push(`Color: ${item.color}`);
         const variantText = details.length > 0 ? `<br/><span style="font-size: 12px; color: #666;">${details.join(' | ')}</span>` : '';
 
@@ -79,57 +81,44 @@ export default async function handler(req, res) {
       });
     }
 
-    // Include shipping dynamically if the DB order total is higher than the items total
-    const grandTotal = parseFloat(order.total_amount).toFixed(2);
-    const shippingCost = (parseFloat(order.total_amount) - orderTotal).toFixed(2);
-    
-    if (shippingCost > 0) {
-      itemsHtml += `
-        <tr>
-          <td colspan="2" style="text-align: right; padding: 15px 0; font-weight: bold;">Shipping:</td>
-          <td style="text-align: right; padding: 15px 0;">$${shippingCost}</td>
-        </tr>
-      `;
-    }
+    itemsHtml += `</table>`;
 
-    itemsHtml += `
-        <tr>
-          <td colspan="2" style="text-align: right; padding: 15px 0; font-weight: bold; font-size: 18px;">Total:</td>
-          <td style="text-align: right; padding: 15px 0; font-weight: bold; font-size: 18px;">$${grandTotal}</td>
-        </tr>
-      </table>
-    `;
+    const grandTotal = parseFloat(order.total_amount).toFixed(2);
+    const shippingCost = Math.max(0, parseFloat(order.total_amount) - orderTotal).toFixed(2);
 
     const shortOrderId = order_id.split('-')[0].toUpperCase();
+    const firstName = (order.customer_name || 'there').split(' ')[0];
+    const orderDate = new Date(order.created_at).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+    const formattedAddress = formatShippingAddress(order.shipping_address) || order.shipping_address || '';
+    const supportEmail = 'support@klarelle.store';
 
     // 1. Email to Customer (Receipt)
     const customerHtml = `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #111;">
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #111; line-height: 1.6;">
         <div style="text-align: center; padding: 20px 0;">
           <h1 style="margin: 0; color: #000; font-size: 28px; letter-spacing: 2px;">KLARELLE</h1>
         </div>
-        <div style="background: #f9f9f9; padding: 30px; border-radius: 8px;">
-          <h2 style="margin-top: 0;">Thank you for your purchase!</h2>
-          <p>Hi ${order.customer_name.split(' ')[0] || 'there'},</p>
-          <p>We're getting your order ready to be shipped. We will notify you when it has been sent.</p>
-          
-          <div style="margin-top: 30px; background: #fff; padding: 20px; border-radius: 4px; border: 1px solid #eee;">
-            <h3 style="margin-top: 0; margin-bottom: 15px;">Order Summary (#${shortOrderId})</h3>
-            ${itemsHtml}
-          </div>
-
-          <div style="margin-top: 30px;">
-            <h3 style="margin-bottom: 10px;">Shipping Address</h3>
-            <p style="margin: 0; color: #555; line-height: 1.6;">
-              ${order.customer_name}<br/>
-              ${order.shipping_address}
-            </p>
-          </div>
-        </div>
-        <div style="text-align: center; padding: 20px 0; color: #888; font-size: 12px;">
-          <p>If you have any questions, reply to this email or contact us at orders@klarelle.store</p>
-          <p>&copy; ${new Date().getFullYear()} KlarElle Store</p>
-        </div>
+        <p>Hi ${firstName},</p>
+        <p>Thank you for shopping with Klarelle! We’re pleased to confirm that we have received your order and payment.</p>
+        <p><strong>Order Number:</strong> #${shortOrderId}<br/>
+        <strong>Order Date:</strong> ${orderDate}</p>
+        <h3 style="margin-bottom: 8px;">Order Summary:</h3>
+        ${itemsHtml}
+        <p><strong>Subtotal:</strong> $${orderTotal.toFixed(2)}<br/>
+        <strong>Shipping:</strong> $${Math.max(0, parseFloat(shippingCost) || 0).toFixed(2)}<br/>
+        <strong>Total:</strong> $${grandTotal}</p>
+        <h3 style="margin-bottom: 8px;">Shipping Address:</h3>
+        <p style="margin-top: 0; color: #555;">
+          ${order.customer_name}<br/>
+          ${formattedAddress}
+        </p>
+        <p>We’re now preparing your order. Once it has shipped, you’ll receive another email containing your tracking information.</p>
+        <p>If you notice an error or experience any issue with your order, please contact us at <a href="mailto:${supportEmail}">${supportEmail}</a> and include your order number. We kindly ask that you contact our team before initiating a payment dispute or chargeback. Bank disputes can take several weeks or longer to investigate and may limit our ability to resolve the issue directly. Contacting us first allows our team to review your concern and provide a faster resolution whenever possible.</p>
+        <p>With love,<br/>The Klarelle Team<br/><a href="https://www.klarelle.store">www.klarelle.store</a></p>
       </div>
     `;
 
@@ -145,7 +134,7 @@ export default async function handler(req, res) {
         ${itemsHtml}
 
         <h3>Shipping Address:</h3>
-        <p>${order.shipping_address}</p>
+        <p>${formattedAddress}</p>
         
         <p style="margin-top: 30px;">
           <a href="https://klarelle.store/admin/orders/${order_id}" style="background: #000; color: #fff; padding: 12px 20px; text-decoration: none; border-radius: 4px; font-weight: bold;">View Order in Dashboard</a>

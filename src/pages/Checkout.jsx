@@ -12,17 +12,6 @@ import { COUNTRIES } from '../utils/countries';
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
-const AFRICAN_COUNTRIES = [
-  "Algeria", "Angola", "Benin", "Botswana", "Burkina Faso", "Burundi", "Cabo Verde", "Cameroon",
-  "Central African Republic", "Chad", "Comoros", "Democratic Republic of the Congo",
-  "Congo (Congo-Brazzaville)", "Djibouti", "Egypt", "Equatorial Guinea", "Eritrea", "Eswatini",
-  "Ethiopia", "Gabon", "Gambia", "Ghana", "Guinea", "Guinea-Bissau", "Ivory Coast (Côte d'Ivoire)",
-  "Kenya", "Lesotho", "Liberia", "Libya", "Madagascar", "Malawi", "Mali", "Mauritania", "Mauritius",
-  "Morocco", "Mozambique", "Namibia", "Niger", "Nigeria", "Rwanda", "Sao Tome and Principe",
-  "Senegal", "Seychelles", "Sierra Leone", "Somalia", "South Africa", "South Sudan", "Sudan",
-  "Tanzania", "Togo", "Tunisia", "Uganda", "Zambia", "Zimbabwe"
-];
-
 function Checkout() {
   const navigate = useNavigate();
   const { cartItems, cartTotal, clearCart } = useCart();
@@ -212,7 +201,14 @@ function Checkout() {
           customer_email: formData.email,
           total_amount: finalTotal,
           status: 'Paid',
-          shipping_address: `${formData.houseNo}, ${formData.city}, ${formData.region}, ${formData.location}`,
+          shipping_address: JSON.stringify({
+            street: formData.houseNo,
+            line2: formData.apartment || '',
+            city: formData.city,
+            state: formData.region,
+            zip: formData.postcode,
+            country: formData.location
+          }),
           phone_number: `${formData.phoneCode} ${formData.phone}`,
           shipping_provider: selectedRate ? selectedRate.provider : 'Standard',
           shipping_service: selectedRate ? selectedRate.serviceLevel : 'Shipping',
@@ -266,8 +262,8 @@ function Checkout() {
 
   if (showShippingForm) {
     return (
-      <div style={{ background: '#f5f5f5', minHeight: '100vh', fontFamily: '-apple-system, sans-serif' }}>
-        <div style={{ maxWidth: '600px', margin: '0 auto', background: '#f5f5f5', minHeight: '100vh', position: 'relative' }}>
+      <div style={{ background: '#f5f5f5', minHeight: '100vh', fontFamily: '-apple-system, sans-serif', paddingBottom: '140px' }}>
+        <div style={{ maxWidth: '600px', margin: '0 auto', background: '#f5f5f5', minHeight: '100vh', position: 'relative', paddingBottom: '24px' }}>
           <div style={{ background: '#fff', padding: '16px', display: 'flex', alignItems: 'center', position: 'sticky', top: 0, zIndex: 10, borderBottom: '1px solid #eee' }}>
             <ChevronLeft size={24} onClick={() => {
               if (!formData.firstName || !formData.postcode || !formData.houseNo) {
@@ -328,8 +324,8 @@ function Checkout() {
             <input type="text" name="city" value={formData.city} onChange={handleInputChange} style={{ width: '100%', padding: '12px', border: '1px solid #ddd', borderRadius: '4px', boxSizing: 'border-box' }} />
           </div>
 
-          <div style={{ display: 'flex', gap: '16px', marginBottom: '16px' }}>
-            <div style={{ flex: 1 }}>
+          <div style={{ display: 'flex', gap: '16px', marginBottom: '16px', flexWrap: 'wrap' }}>
+            <div style={{ flex: '1 1 160px', minWidth: '140px' }}>
               <label style={{ display: 'block', fontSize: '12px', color: '#666', marginBottom: '4px' }}>
                 {formData.location === 'United States' ? 'State *' : 'State / Province / Region *'}
               </label>
@@ -342,7 +338,7 @@ function Checkout() {
                 <input type="text" name="region" value={formData.region} onChange={handleInputChange} style={{ width: '100%', padding: '12px', border: '1px solid #ddd', borderRadius: '4px', boxSizing: 'border-box' }} />
               )}
             </div>
-            <div style={{ flex: 1 }}>
+            <div style={{ flex: '1 1 160px', minWidth: '140px' }}>
               <label style={{ display: 'block', fontSize: '12px', color: '#666', marginBottom: '4px' }}>
                 {formData.location === 'United States' ? 'ZIP Code *' : 'Postcode *'}
               </label>
@@ -525,18 +521,6 @@ function Checkout() {
         </div>
       </div>
 
-      {AFRICAN_COUNTRIES.includes(formData.location) && formData.firstName && !showShippingForm && (
-        <div style={{ background: '#fff', padding: '16px', marginTop: '8px', borderLeft: '4px solid #000' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-            <Truck size={20} />
-            <h3 style={{ fontSize: '14px', margin: 0, fontWeight: 'bold' }}>International Warehouse Fulfillment</h3>
-          </div>
-          <p style={{ fontSize: '13px', color: '#444', lineHeight: '1.5', margin: 0 }}>
-            This order will be shipped directly from our international warehouse using door-to-door delivery. Customs clearance and duties are included in the shipping fee, so no additional payment will be required upon delivery.
-          </p>
-        </div>
-      )}
-
       {/* Payment Method */}
       <div style={{ background: '#fff', padding: '16px', marginTop: '8px' }}>
         <h3 style={{ fontSize: '16px', margin: '0 0 16px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>Payment Method <CheckCircle2 size={16} fill="#00cf6e" color="#fff" /></h3>
@@ -652,7 +636,7 @@ function Checkout() {
             style={{ marginTop: '3px', cursor: 'pointer' }}
           />
           <label htmlFor="terms" style={{ fontSize: '13px', color: '#333', cursor: 'pointer', lineHeight: '1.4' }}>
-            I agree to the <Link to="/terms" target="_blank" style={{ color: '#000', textDecoration: 'underline' }}>Terms of Sale</Link> and acknowledge the <Link to="/privacy" target="_blank" style={{ color: '#000', textDecoration: 'underline' }}>Privacy Policy</Link>. *
+            I agree to the <Link to="/page/terms-and-conditions" target="_blank" style={{ color: '#000', textDecoration: 'underline' }}>Terms of Sale</Link> and acknowledge the <Link to="/page/privacy-policy" target="_blank" style={{ color: '#000', textDecoration: 'underline' }}>Privacy Policy</Link>. *
           </label>
         </div>
       </div>

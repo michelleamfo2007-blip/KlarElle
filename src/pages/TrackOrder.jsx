@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { Search, Package, CheckCircle, Truck, Info } from 'lucide-react';
 import { useCurrency } from '../context/CurrencyContext';
+import { formatShippingAddress } from '../utils/address';
 
 export default function TrackOrder() {
   const { formatPrice } = useCurrency();
@@ -98,7 +99,7 @@ export default function TrackOrder() {
               <p style={{ fontSize: '15px', lineHeight: '1.5', color: '#333' }}>
                 {order.customer_name}<br/>
                 {order.shipping_address ? (
-                  order.shipping_address.split(',').map((line, i) => <span key={i}>{line}<br/></span>)
+                  formatShippingAddress(order.shipping_address).split(', ').map((line, i) => <span key={i}>{line}<br/></span>)
                 ) : 'Address pending'}<br/>
                 {order.phone_number || ''}
               </p>

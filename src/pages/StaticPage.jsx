@@ -355,6 +355,83 @@ function StaticPage({ title }) {
             <p style={{ marginBottom: '16px' }}>Please contact our customer-care team through the Contact Us page or the customer-care email listed on our website. Include your full name and order number for order-related questions. Please allow the stated response time for a reply.</p>
           </div>
         );
+      case 'Privacy Policy':
+        return (
+          <div style={{ lineHeight: '1.6' }}>
+            <h2 style={{ marginBottom: '16px', fontSize: '20px', textTransform: 'uppercase' }}>Privacy Policy</h2>
+            <p style={{ marginBottom: '16px' }}>Effective Date: September 1, 2026</p>
+            <p style={{ marginBottom: '16px' }}>Klarelle (“we,” “us,” or “our”) respects your privacy. This policy explains how we collect, use, and protect information when you visit <strong>www.klarelle.store</strong> or place an order.</p>
+
+            <h3 style={{ marginTop: '24px', marginBottom: '12px', fontSize: '16px' }}>Information We Collect</h3>
+            <p style={{ marginBottom: '8px' }}>We may collect:</p>
+            <ul style={{ listStyleType: 'disc', paddingLeft: '20px', marginBottom: '16px' }}>
+              <li>Name, email address, phone number, and shipping address</li>
+              <li>Order and payment details processed by our payment provider (we do not store full card numbers)</li>
+              <li>Account information if you create a customer profile</li>
+              <li>Device and usage information, such as pages viewed and items added to your bag</li>
+            </ul>
+
+            <h3 style={{ marginTop: '24px', marginBottom: '12px', fontSize: '16px' }}>How We Use Your Information</h3>
+            <p style={{ marginBottom: '8px' }}>We use your information to:</p>
+            <ul style={{ listStyleType: 'disc', paddingLeft: '20px', marginBottom: '16px' }}>
+              <li>Process, fulfill, and ship orders</li>
+              <li>Send order confirmations, shipping updates, and customer-care replies</li>
+              <li>Provide VIP list and launch updates if you join our mailing list</li>
+              <li>Improve our website, products, and customer experience</li>
+              <li>Prevent fraud and protect our store</li>
+            </ul>
+
+            <h3 style={{ marginTop: '24px', marginBottom: '12px', fontSize: '16px' }}>Sharing</h3>
+            <p style={{ marginBottom: '16px' }}>We share information only with trusted service providers who help us operate the store, including payment processing, shipping, email delivery, and website hosting. We do not sell your personal information.</p>
+
+            <h3 style={{ marginTop: '24px', marginBottom: '12px', fontSize: '16px' }}>Cookies</h3>
+            <p style={{ marginBottom: '16px' }}>We use cookies and similar tools to keep items in your bag, remember preferences, and understand how the site is used. You can control cookies through your browser settings.</p>
+
+            <h3 style={{ marginTop: '24px', marginBottom: '12px', fontSize: '16px' }}>Your Choices</h3>
+            <p style={{ marginBottom: '16px' }}>You may request access to, correction of, or deletion of your personal information by emailing <strong>support@klarelle.store</strong>. You can unsubscribe from marketing emails at any time. Transactional order emails will still be sent when needed to complete a purchase.</p>
+
+            <h3 style={{ marginTop: '24px', marginBottom: '12px', fontSize: '16px' }}>Data Security</h3>
+            <p style={{ marginBottom: '16px' }}>We use reasonable administrative and technical measures to protect your information. No website transmission is completely secure, so please use a strong password and keep your account details private.</p>
+
+            <h3 style={{ marginTop: '24px', marginBottom: '12px', fontSize: '16px' }}>Contact</h3>
+            <p style={{ marginBottom: '16px' }}>For privacy questions, contact <strong>support@klarelle.store</strong>.</p>
+          </div>
+        );
+      case 'Terms & Conditions':
+        return (
+          <div style={{ lineHeight: '1.6' }}>
+            <h2 style={{ marginBottom: '16px', fontSize: '20px', textTransform: 'uppercase' }}>Terms & Conditions</h2>
+            <p style={{ marginBottom: '16px' }}>Effective Date: September 1, 2026</p>
+            <p style={{ marginBottom: '16px' }}>By shopping at <strong>www.klarelle.store</strong>, you agree to these terms. If you do not agree, please do not use the site or place an order.</p>
+
+            <h3 style={{ marginTop: '24px', marginBottom: '12px', fontSize: '16px' }}>Orders and Payment</h3>
+            <p style={{ marginBottom: '16px' }}>Placing an order is an offer to purchase. We may accept or decline an order if an item is unavailable, a price is listed incorrectly, or we suspect fraud. Payment is collected at checkout through our payment provider. Prices are shown in the selected currency and may exclude duties or local taxes for international orders.</p>
+
+            <h3 style={{ marginTop: '24px', marginBottom: '12px', fontSize: '16px' }}>Shipping</h3>
+            <p style={{ marginBottom: '16px' }}>Delivery estimates are provided at checkout and may change after an order is placed. Once a package is handed to the carrier, transit times are outside our control. You are responsible for providing a complete and accurate shipping address.</p>
+
+            <h3 style={{ marginTop: '24px', marginBottom: '12px', fontSize: '16px' }}>Returns and Exchanges</h3>
+            <p style={{ marginBottom: '16px' }}>Eligible exchanges or store credit are accepted within seven days of delivery. Items must be unworn, unwashed, unused, and returned with original tags. Klarelle does not offer refunds to the original form of payment except where required by law or when an item arrives damaged, defective, or incorrect due to our error. See our Returns page for full details.</p>
+
+            <h3 style={{ marginTop: '24px', marginBottom: '12px', fontSize: '16px' }}>Product Information</h3>
+            <p style={{ marginBottom: '16px' }}>We try to show colors, fabrics, and measurements accurately. Device screens, lighting, and dye lots can cause slight differences. Size recommendations are guidance only and do not guarantee fit.</p>
+
+            <h3 style={{ marginTop: '24px', marginBottom: '12px', fontSize: '16px' }}>Preorders</h3>
+            <p style={{ marginBottom: '16px' }}>If an item is offered as a preorder, payment is taken at checkout and the item ships after production. Processing times are shown on the product page.</p>
+
+            <h3 style={{ marginTop: '24px', marginBottom: '12px', fontSize: '16px' }}>Intellectual Property</h3>
+            <p style={{ marginBottom: '16px' }}>All website content, branding, product images, and designs belong to Klarelle and may not be copied or used without our written permission.</p>
+
+            <h3 style={{ marginTop: '24px', marginBottom: '12px', fontSize: '16px' }}>Limitation of Liability</h3>
+            <p style={{ marginBottom: '16px' }}>To the fullest extent permitted by law, Klarelle is not liable for indirect or consequential losses arising from use of the site or delay in delivery. Our total liability for any order is limited to the amount you paid for that order.</p>
+
+            <h3 style={{ marginTop: '24px', marginBottom: '12px', fontSize: '16px' }}>Contact Before Disputes</h3>
+            <p style={{ marginBottom: '16px' }}>If you have a problem with an order, please contact <strong>support@klarelle.store</strong> and include your order number before starting a payment dispute or chargeback. Direct contact usually allows a faster resolution.</p>
+
+            <h3 style={{ marginTop: '24px', marginBottom: '12px', fontSize: '16px' }}>Contact</h3>
+            <p style={{ marginBottom: '16px' }}>Klarelle<br />www.klarelle.store<br />support@klarelle.store</p>
+          </div>
+        );
       default:
         return <p style={{ marginBottom: '16px' }}>Content for {title} will be available soon.</p>;
     }

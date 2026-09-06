@@ -1,11 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import SEO from '../components/SEO';
 import { supabase } from '../lib/supabase';
-import { Heart, ArrowRight, Star, Eye, ShoppingBag } from 'lucide-react';
+import { Heart, ArrowRight, Eye, ShoppingBag } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useFavorites } from '../context/FavoritesContext';
 import { useCurrency } from '../context/CurrencyContext';
+import ProductRating from '../components/ProductRating';
+import { attachReviewStats } from '../utils/reviews';
+import heroVideo from '../../IMG_2870 klarelle.MP4';
 
 function Home() {
   const [products, setProducts] = useState([]);
@@ -16,6 +19,25 @@ function Home() {
   const { addToCart } = useCart();
   const { toggleFavorite, isFavorite } = useFavorites();
   const { formatPrice } = useCurrency();
+  const heroVideoRef = useRef(null);
+
+  useEffect(() => {
+    const video = heroVideoRef.current;
+    if (!video) return;
+    video.muted = true;
+    video.defaultMuted = true;
+    video.volume = 0;
+    const keepMuted = () => {
+      video.muted = true;
+      video.volume = 0;
+    };
+    video.addEventListener('play', keepMuted);
+    video.addEventListener('volumechange', keepMuted);
+    return () => {
+      video.removeEventListener('play', keepMuted);
+      video.removeEventListener('volumechange', keepMuted);
+    };
+  }, []);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -28,7 +50,7 @@ function Home() {
         .limit(3);
       
       if (!error && data) {
-        setProducts(data);
+        setProducts(await attachReviewStats(supabase, data));
       }
       setLoading(false);
     };
@@ -189,6 +211,20 @@ function Home() {
           margin-top: 16px;
         }
         
+        .hero-video-wrap {
+          width: 100%;
+          background: #000;
+          overflow: hidden;
+        }
+
+        .hero-video {
+          width: 100%;
+          height: 70vh;
+          min-height: 420px;
+          object-fit: cover;
+          display: block;
+        }
+
         .hero-images-container {
           position: relative;
           width: 100%;
@@ -283,6 +319,7 @@ function Home() {
           .hero-img-main-left, .hero-img-small-overlap, .hero-img-right-container { display: none; }
           .hero-img-center-wrapper { width: 90%; margin-left: 0; margin-bottom: 20px; }
           .hero-img-center { aspect-ratio: 4/5; }
+          .hero-video { height: 55vh; min-height: 320px; }
         }
       `}</style>
 
@@ -290,7 +327,7 @@ function Home() {
       <section className="hero-editorial">
         <div className="hero-text-container">
           <div className="hero-presents">KLARELLE</div>
-          <h1 className="hero-title">Discover KLARELLE</h1>
+          <h1 className="hero-title">LAUNCHING THIS SEPTEMBER</h1>
           
           {waitlistStatus === 'success' ? (
             <div style={{ color: '#D2C4B3', fontSize: '18px', fontStyle: 'italic', fontFamily: 'Playfair Display', padding: '16px' }}>
@@ -300,7 +337,7 @@ function Home() {
             <form className="waitlist-form" onSubmit={handleJoinWaitlist}>
               <div style={{ width: '100%' }}>
                 <label style={{ display: 'block', fontSize: '12px', color: '#BCA38F', marginBottom: '8px', letterSpacing: '1px', textTransform: 'uppercase', textAlign: 'left', marginLeft: '16px' }}>
-                  Join our VIP list for exclusive updates.
+                  Join our VIP list for first access and exclusive launch updates.
                 </label>
                 <input 
                   type="email" 
@@ -318,17 +355,18 @@ function Home() {
           )}
         </div>
         
-        <div className="hero-images-container">
-          <img src="/klarelle-magazine-hero.png" alt="KLARELLE Autumn" className="hero-img-main-left" />
-          <img src="/klarelle-magazine-hero.png" alt="KLARELLE Detail" className="hero-img-small-overlap" />
-          
-          <div className="hero-img-center-wrapper">
-            <img src="/klarelle-magazine-hero.png" alt="KLARELLE Lookbook" className="hero-img-center" />
-          </div>
-          
-          <div className="hero-img-right-container">
-            <img src="/klarelle-magazine-hero.png" alt="KLARELLE Collection" className="hero-img-right" />
-          </div>
+        <div className="hero-video-wrap">
+          <video
+            ref={heroVideoRef}
+            className="hero-video"
+            src={heroVideo}
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="auto"
+            aria-label="Klarélle launch film"
+          />
         </div>
       </section>
 
@@ -361,13 +399,13 @@ function Home() {
                     <div className="luxury-image-wrap" style={{ borderRadius: '8px', overflow: 'hidden', backgroundColor: '#000' }}>
                       <img 
                         src={`/silhouette${i}.png`} 
-                        alt="Coming Soon Silhouette" 
+                        alt="Launching this September" 
                         style={{ width: '100%', aspectRatio: '3/4', objectFit: 'cover', opacity: 0.8 }} 
                       />
                     </div>
                     <div className="luxury-info" style={{ textAlign: 'center', marginTop: '16px' }}>
                       <h3 style={{ fontFamily: 'Playfair Display, serif', fontSize: '18px', color: '#111827', margin: '0 0 8px 0' }}>The First Collection</h3>
-                      <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '14px', color: '#BCA38F', margin: 0, textTransform: 'uppercase', letterSpacing: '1px', fontWeight: '600' }}>Discover More</p>
+                      <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '14px', color: '#BCA38F', margin: 0, textTransform: 'uppercase', letterSpacing: '1px', fontWeight: '600' }}>Launching this September</p>
                     </div>
                   </div>
                 ))}
@@ -415,14 +453,7 @@ function Home() {
                       )}
                     </div>
                     
-                    <div className="luxury-rating">
-                      <Star className="luxury-star" fill="currentColor" />
-                      <Star className="luxury-star" fill="currentColor" />
-                      <Star className="luxury-star" fill="currentColor" />
-                      <Star className="luxury-star" fill="currentColor" />
-                      <Star className="luxury-star" fill="currentColor" />
-                      <span>({product.rating || 5.0}) 128 Reviews</span>
-                    </div>
+                    <ProductRating count={product.reviewCount} average={product.reviewAvg} className="luxury-rating" />
                     
                     <button 
                       className="luxury-add-btn" 

@@ -101,6 +101,10 @@ function App() {
               <Route path="page/contact-us" element={<ContactUs />} />
               <Route path="page/payment-method" element={<StaticPage title="Payment Method" />} />
               <Route path="page/rewards" element={<StaticPage title="Rewards" />} />
+              <Route path="page/privacy-policy" element={<StaticPage title="Privacy Policy" />} />
+              <Route path="page/terms-and-conditions" element={<StaticPage title="Terms & Conditions" />} />
+              <Route path="privacy" element={<StaticPage title="Privacy Policy" />} />
+              <Route path="terms" element={<StaticPage title="Terms & Conditions" />} />
             </Route>
 
             {/* Admin Routes */}

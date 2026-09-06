@@ -43,7 +43,7 @@ function Orders() {
       return;
     }
 
-    if (!window.confirm(`Are you sure you want to purchase a shipping label for Order #${order.id.split('-')[0]}? This will charge your Shippo account.`)) {
+    if (!window.confirm(`Are you sure you want to purchase a shipping label for Order #${order.id.split('-')[0]}? This will charge your Easyship account.`)) {
       return;
     }
 
@@ -52,10 +52,7 @@ function Orders() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
-          orderId: order.id,
-          name: order.customer_name,
-          destinationZip: '10001', // Ideally fetch from order.shipping_address
-          rateObjectId: order.shippo_rate_id 
+          order_id: order.id
         })
       });
       const data = await res.json();
@@ -80,7 +77,7 @@ function Orders() {
       }
     } catch (err) {
       console.error(err);
-      alert('Failed to connect to Shippo API');
+      alert('Failed to connect to Easyship API');
     }
   };
 

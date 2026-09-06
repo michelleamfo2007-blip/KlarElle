@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
-import { Heart, ShoppingBag, Star, Eye } from 'lucide-react';
+import { Heart, ShoppingBag, Eye } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useFavorites } from '../context/FavoritesContext';
 import { useCurrency } from '../context/CurrencyContext';
+import ProductRating from '../components/ProductRating';
+import { attachReviewStats } from '../utils/reviews';
 
 function Favorites() {
   const { favorites, toggleFavorite, isFavorite } = useFavorites();
@@ -28,7 +30,7 @@ function Favorites() {
         .eq('status', 'active');
         
       if (!error && data) {
-        setProducts(data);
+        setProducts(await attachReviewStats(supabase, data));
       }
       setLoading(false);
     };
@@ -107,14 +109,7 @@ function Favorites() {
                   )}
                 </div>
                 
-                <div className="luxury-rating">
-                  <Star className="luxury-star" fill="currentColor" />
-                  <Star className="luxury-star" fill="currentColor" />
-                  <Star className="luxury-star" fill="currentColor" />
-                  <Star className="luxury-star" fill="currentColor" />
-                  <Star className="luxury-star" fill="currentColor" />
-                  <span>({product.rating || 5.0}) 128 Reviews</span>
-                </div>
+                <ProductRating count={product.reviewCount} average={product.reviewAvg} className="luxury-rating" />
                 
                 <button className="luxury-add-btn" onClick={() => addToCart(product)}>Add To Bag</button>
               </div>

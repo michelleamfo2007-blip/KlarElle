@@ -1,12 +1,17 @@
 import { createClient } from '@supabase/supabase-js';
-import { Shippo } from 'shippo';
+import {
+  easyshipRequest,
+  getEasyshipOriginAddress,
+  toEasyshipDestination,
+  toEasyshipItems
+} from './_easyship.js';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { order_id } = req.body;
+  const order_id = req.body.order_id || req.body.orderId;
   if (!order_id) {
     return res.status(400).json({ error: 'Missing order_id' });
   }
@@ -20,7 +25,6 @@ export default async function handler(req, res) {
   const supabase = createClient(supabaseUrl, supabaseKey);
 
   try {
-    // Fetch order details
     const { data: order, error } = await supabase
       .from('orders')
       .select('*')
@@ -31,64 +35,93 @@ export default async function handler(req, res) {
       return res.status(404).json({ error: 'Order not found' });
     }
 
-    // Determine if US or International
-    const isEasyship = order.shippo_rate_id && (order.shippo_rate_id.includes('easyship') || order.shipping_provider.includes('Easyship') || order.shipping_provider.includes('ePost'));
-    const isAfricanDropship = order.shippo_rate_id && order.shippo_rate_id.includes('african_dropship');
-    const isUS = order.shipping_address && (order.shipping_address.includes('United States') || order.shipping_address.includes('US') || order.shipping_address.includes('NY')) && !isEasyship && !isAfricanDropship;
-    
-    let trackingNumber = '';
-    let labelUrl = '';
+    const rateId = order.shippo_rate_id || '';
 
-    if (isUS) {
-      // Shippo Label Generation
-      const apiKey = process.env.SHIPPO_API_KEY;
-      if (!apiKey) {
-        // Mock if no key
-        trackingNumber = `EZ-US-${Math.floor(Math.random() * 100000)}`;
-        labelUrl = 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf';
-      } else {
-        const shippo = new Shippo({ apiKeyHeader: `ShippoToken ${apiKey}` });
-        
-        // In a full implementation, we would create a transaction using order.shippo_rate_id
-        // For simplicity in this integration, we mock the final transaction generation if rate ID is missing
-        if (order.shippo_rate_id && !order.shippo_rate_id.includes('mock')) {
-          const transaction = await shippo.transactions.create({
-            rate: order.shippo_rate_id,
-            labelFileType: "PDF",
-            async: false
-          });
-          if (transaction.status === 'SUCCESS') {
-            trackingNumber = transaction.trackingNumber;
-            labelUrl = transaction.labelUrl;
-          } else {
-            throw new Error(transaction.messages[0]?.text || 'Shippo transaction failed');
-          }
-        } else {
-          trackingNumber = `SHP-${Math.floor(Math.random() * 100000)}`;
-          labelUrl = 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf';
-        }
+    const apiKey = process.env.EASYSHIP_API_KEY;
+    if (!apiKey) {
+      return res.status(500).json({ error: 'Easyship API key is not configured' });
+    }
+
+    const { data: orderItems } = await supabase
+      .from('order_items')
+      .select(`
+        quantity,
+        price_at_time,
+        product_id,
+        product:products (
+          name,
+          sku,
+          weight,
+          length,
+          width,
+          height,
+          country_of_manufacture,
+          hs_code,
+          price
+        )
+      `)
+      .eq('order_id', order_id);
+
+    const originAddress = await getEasyshipOriginAddress(apiKey, order);
+    const destinationAddress = toEasyshipDestination(order);
+    const items = toEasyshipItems(orderItems || []);
+
+    const shipmentPayload = {
+      origin_address: originAddress,
+      destination_address: destinationAddress,
+      incoterms: 'DDU',
+      insurance: { is_insured: false },
+      parcels: [{ items }],
+      shipping_settings: {
+        buy_label: true,
+        buy_label_synchronous: true
       }
-    } else {
-      // Easyship Label Generation
-      const apiKey = process.env.EASYSHIP_API_KEY;
-      if (!apiKey) {
-        // Mock if no key
-        trackingNumber = `ES-INT-${Math.floor(Math.random() * 100000)}`;
-        labelUrl = 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf';
-      } else {
-        // Easyship API logic to create shipment and purchase label
-        // Requires passing the rate_id and creating a shipment.
-        // For MVP, we simulate a successful Easyship generation:
-        trackingNumber = `ES-LIVE-${Math.floor(Math.random() * 100000)}`;
-        labelUrl = 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf';
+    };
+
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(rateId);
+    if (isUuid) {
+      shipmentPayload.courier_selection = {
+        selected_courier_id: rateId,
+        allow_courier_fallback: true
+      };
+    }
+
+    const shipmentData = await easyshipRequest(apiKey, '/2023-01/shipments', {
+      method: 'POST',
+      body: JSON.stringify(shipmentPayload)
+    });
+
+    const shipment = shipmentData.shipment || shipmentData.shipments?.[0] || {};
+    let trackingNumber = shipment.tracking_number || shipment.easyship_shipment_id || '';
+    let labelUrl = shipment.label_url || shipment.label?.label_url || '';
+
+    if (shipment.easyship_shipment_id && (!trackingNumber || !labelUrl)) {
+      try {
+        const labelData = await easyshipRequest(apiKey, '/2023-01/labels', {
+          method: 'POST',
+          body: JSON.stringify({
+            shipments: [{ easyship_shipment_id: shipment.easyship_shipment_id }]
+          })
+        });
+        const label = labelData.labels?.[0] || {};
+        trackingNumber = label.tracking_number || trackingNumber;
+        labelUrl = label.label_url || labelUrl;
+      } catch (labelError) {
+        if (!trackingNumber) {
+          throw labelError;
+        }
       }
     }
 
-    // Update the order in the database with the new tracking number
+    if (!trackingNumber) {
+      throw new Error('Easyship created the shipment but did not return a tracking number yet. Try again in a moment.');
+    }
+
     const { error: updateError } = await supabase
       .from('orders')
-      .update({ 
+      .update({
         tracking_number: trackingNumber,
+        shipping_label_url: labelUrl || null,
         status: 'Shipped'
       })
       .eq('id', order_id);
@@ -98,9 +131,10 @@ export default async function handler(req, res) {
     }
 
     return res.status(200).json({ success: true, trackingNumber, labelUrl });
-
   } catch (error) {
     console.error('Label API Error:', error);
-    return res.status(500).json({ error: error.message || 'Internal server error while creating label' });
+    return res.status(error.status || 500).json({
+      error: error.message || 'Internal server error while creating label'
+    });
   }
 }

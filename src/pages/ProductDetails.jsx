@@ -6,6 +6,24 @@ import { Heart, Truck, RotateCcw, Share2, Star, ChevronRight, X, Ruler, ThumbsUp
 import { useCart } from '../context/CartContext';
 import { useFavorites } from '../context/FavoritesContext';
 import { useCurrency } from '../context/CurrencyContext';
+import { formatSizeLabel } from '../utils/size';
+
+const collectProductImages = (product) => {
+  const urls = [];
+  const add = (url) => {
+    if (url && typeof url === 'string' && !urls.includes(url)) urls.push(url);
+  };
+  if (Array.isArray(product.images)) product.images.forEach(add);
+  add(product.image_url);
+  add(product.hover_image_url);
+  if (product.variant_images && typeof product.variant_images === 'object') {
+    Object.values(product.variant_images).forEach((value) => {
+      if (typeof value === 'string') add(value);
+      else if (value?.image) add(value.image);
+    });
+  }
+  return urls.length > 0 ? urls : ['/placeholder.png'];
+};
 
 const CustomSlider = ({ value, min, max, onChange, marks }) => {
   const percentage = ((value - min) / (max - min)) * 100;
@@ -113,7 +131,7 @@ function ProductDetails() {
   const [imageModalReady, setImageModalReady] = useState(false);
   const [modalImageIndex, setModalImageIndex] = useState(0);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
-  const [detailsExpanded, setDetailsExpanded] = useState(false);
+  const [detailsExpanded, setDetailsExpanded] = useState(true);
   const [showSizeRequestModal, setShowSizeRequestModal] = useState(false);
   
   // Write Review State
@@ -127,6 +145,7 @@ function ProductDetails() {
   const goodsRef = useRef(null);
   const reviewsRef = useRef(null);
   const recommendRef = useRef(null);
+  const productVideoRef = useRef(null);
 
   const scrollToSection = (ref) => {
     if (ref.current) {
@@ -264,6 +283,24 @@ function ProductDetails() {
   };
 
   useEffect(() => {
+    const video = productVideoRef.current;
+    if (!video) return;
+    video.muted = true;
+    video.defaultMuted = true;
+    video.volume = 0;
+    const keepMuted = () => {
+      video.muted = true;
+      video.volume = 0;
+    };
+    video.addEventListener('play', keepMuted);
+    video.addEventListener('volumechange', keepMuted);
+    return () => {
+      video.removeEventListener('play', keepMuted);
+      video.removeEventListener('volumechange', keepMuted);
+    };
+  }, [product?.video_url]);
+
+  useEffect(() => {
     if (showSizeModal || showGuideModal || showGuideTypeSelector || showReviewsModal || showDetailsModal || showSizeRequestModal || showWriteReviewModal || showImageModal) {
       document.body.style.overflow = 'hidden';
     } else {
@@ -275,14 +312,8 @@ function ProductDetails() {
   if (loading) return <div style={{ minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '100px 20px', fontSize: '18px', color: '#666' }}>Loading product details...</div>;
   if (!product) return <div style={{ padding: '100px 20px', textAlign: 'center', fontSize: '18px', color: '#666' }}>Product not found.</div>;
 
-  const images = [];
-  if (product.images && Array.isArray(product.images) && product.images.length > 0) {
-    images.push(...product.images);
-  } else {
-    if (product.image_url) images.push(product.image_url);
-    if (product.hover_image_url) images.push(product.hover_image_url);
-  }
-  if (images.length === 0) images.push('/placeholder.png');
+  const images = collectProductImages(product);
+  const preorderLeadTime = product.preorder_lead_time || '14–21 business days';
 
 
   return (
@@ -335,7 +366,7 @@ function ProductDetails() {
             .sticky-bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; padding: 12px 20px calc(12px + env(safe-area-inset-bottom)); border-top: 1px solid #eee; display: flex; gap: 16px; align-items: center; z-index: 50; }
             .add-to-bag { flex: 1; padding: 16px; background: #000; color: white; border: none; font-size: 16px; font-weight: bold; cursor: pointer; transition: background 0.3s; border-radius: 4px; }
             
-            .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; display: flex; align-items: flex-end; justify-content: center; overflow: hidden; }
+            .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 3000; display: flex; align-items: flex-end; justify-content: center; overflow: hidden; }
             .modal-content { background: #fff; width: 100%; max-width: 500px; border-radius: 16px 16px 0 0; min-height: 60vh; max-height: 90vh; position: relative; padding-bottom: 80px; display: flex; flex-direction: column; }
             
             @media (max-width: 900px) {
@@ -360,22 +391,75 @@ function ProductDetails() {
             {product.video_url && (
               <div className="main-image-wrap">
                 <video 
+                  ref={productVideoRef}
                   src={product.video_url} 
                   className="main-image" 
                   autoPlay 
                   muted 
                   loop 
                   playsInline 
+                  controls={false}
                 />
               </div>
             )}
           </div>
+          {images.length > 1 && (
+            <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', marginTop: '12px', paddingBottom: '4px' }}>
+              {images.map((img, i) => (
+                <button
+                  key={`thumb-${i}`}
+                  type="button"
+                  onClick={() => {
+                    const wrap = document.querySelector('.gallery-grid');
+                    const slide = wrap?.children?.[i];
+                    if (slide) slide.scrollIntoView({ behavior: 'smooth', inline: 'start', block: 'nearest' });
+                    setActiveImage(i);
+                  }}
+                  style={{
+                    flex: '0 0 64px',
+                    width: '64px',
+                    height: '80px',
+                    padding: 0,
+                    border: activeImage === i ? '2px solid #000' : '1px solid #e5e7eb',
+                    background: '#f5f5f5',
+                    cursor: 'pointer'
+                  }}
+                >
+                  <img src={img} alt={`Close-up ${i + 1}`} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                </button>
+              ))}
+            </div>
+          )}
 
           <div className="info-section">
             <div ref={goodsRef}>
               <h1 className="pd-title" style={{ fontSize: '16px' }}>{product.name}</h1>
               <div className="pd-price-row">
                 <span className="pd-price" style={{ color: '#000' }}>{formatPrice(product.price)}</span>
+              </div>
+              <div style={{
+                marginTop: '12px',
+                padding: '10px 12px',
+                background: isPreOrder ? '#fff7ed' : '#f0fdf4',
+                border: `1px solid ${isPreOrder ? '#fdba74' : '#86efac'}`,
+                borderRadius: '4px',
+                fontSize: '13px',
+                lineHeight: '1.5',
+                color: '#111'
+              }}>
+                {isPreOrder ? (
+                  <>
+                    <strong>Preorder.</strong> This size is not in stock. Preorders are processed within {preorderLeadTime}. Payment is taken now and the item ships after production.
+                  </>
+                ) : fulfilledFrom === 'CN' ? (
+                  <>
+                    <strong>In stock</strong> at our international warehouse. Ships in 9–15 days after fulfillment.
+                  </>
+                ) : (
+                  <>
+                    <strong>In stock.</strong> Ready to ship after payment. U.S. orders typically leave within 3–5 business days.
+                  </>
+                )}
               </div>
             </div>
 
@@ -387,75 +471,38 @@ function ProductDetails() {
             )}
             
             <div style={{ marginTop: '16px', borderTop: '1px solid #eee', paddingTop: '16px', marginBottom: '16px' }}>
-              <div 
-                style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', paddingBottom: detailsExpanded ? '12px' : '0' }} 
-                onClick={() => setDetailsExpanded(!detailsExpanded)}
-              >
-                <div className="pd-options-title" style={{ margin: 0, fontSize: '14px', textTransform: 'uppercase' }}>Product Details</div>
-                <div style={{ transform: detailsExpanded ? 'rotate(-90deg)' : 'rotate(90deg)', transition: 'transform 0.2s', display: 'flex' }}>
-                  <ChevronRight size={16} />
-                </div>
+              <div className="pd-options-title" style={{ margin: '0 0 12px 0', fontSize: '14px', textTransform: 'uppercase' }}>Fabric & Fit</div>
+              <div style={{ display: 'grid', gridTemplateColumns: '140px 1fr', gap: '8px', fontSize: '13px', lineHeight: '1.6', color: '#333' }}>
+                <span style={{ color: '#666' }}>Fabric composition</span>
+                <span>{product.composition || product.material || 'See product description'}</span>
+                <span style={{ color: '#666' }}>Stretch</span>
+                <span>{product.features || 'See product description'}</span>
+                <span style={{ color: '#666' }}>Care instructions</span>
+                <span>{product.care_instructions || 'Follow the care label attached to the garment'}</span>
+                <span style={{ color: '#666' }}>Fit notes</span>
+                <span>{product.fit || 'Compare your measurements with the size guide'}</span>
+                <span style={{ color: '#666' }}>Model measurements</span>
+                <span>{product.measurements || 'See size guide for garment measurements'}</span>
               </div>
-              
-              {detailsExpanded && (
-                <div style={{ fontSize: '13px', lineHeight: '1.6', color: '#333' }}>
-                  <div style={{ display: 'grid', gridTemplateColumns: '120px 1fr', gap: '8px', fontWeight: '500' }}>
-                    {product.material && (
-                      <>
-                        <span style={{ color: '#666', fontWeight: 'normal' }}>Material:</span>
-                        <span>{product.material}</span>
-                      </>
-                    )}
-                    {product.composition && (
-                      <>
-                        <span style={{ color: '#666', fontWeight: 'normal' }}>Composition:</span>
-                        <span>{product.composition}</span>
-                      </>
-                    )}
-                    {product.style && (
-                      <>
-                        <span style={{ color: '#666', fontWeight: 'normal' }}>Style:</span>
-                        <span>{product.style}</span>
-                      </>
-                    )}
-                    {product.fit && (
-                      <>
-                        <span style={{ color: '#666', fontWeight: 'normal' }}>Fit:</span>
-                        <span>{product.fit}</span>
-                      </>
-                    )}
-                    {product.occasion && (
-                      <>
-                        <span style={{ color: '#666', fontWeight: 'normal' }}>Occasion:</span>
-                        <span>{product.occasion}</span>
-                      </>
-                    )}
-                    {product.pattern_type && (
-                      <>
-                        <span style={{ color: '#666', fontWeight: 'normal' }}>Pattern Type:</span>
-                        <span>{product.pattern_type}</span>
-                      </>
-                    )}
-                    {product.features && (
-                      <>
-                        <span style={{ color: '#666', fontWeight: 'normal' }}>Features:</span>
-                        <span>{product.features}</span>
-                      </>
-                    )}
-                    {product.care_instructions && (
-                      <>
-                        <span style={{ color: '#666', fontWeight: 'normal' }}>Care:</span>
-                        <span>{product.care_instructions}</span>
-                      </>
-                    )}
-                    {product.measurements && (
-                      <>
-                        <span style={{ color: '#666', fontWeight: 'normal' }}>Measurements:</span>
-                        <span>{product.measurements}</span>
-                      </>
-                    )}
+              {(product.style || product.occasion || product.pattern_type) && (
+                <>
+                  <div 
+                    style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', padding: '12px 0 0' }} 
+                    onClick={() => setDetailsExpanded(!detailsExpanded)}
+                  >
+                    <div className="pd-options-title" style={{ margin: 0, fontSize: '13px' }}>More details</div>
+                    <div style={{ transform: detailsExpanded ? 'rotate(-90deg)' : 'rotate(90deg)', transition: 'transform 0.2s', display: 'flex' }}>
+                      <ChevronRight size={16} />
+                    </div>
                   </div>
-                </div>
+                  {detailsExpanded && (
+                    <div style={{ display: 'grid', gridTemplateColumns: '140px 1fr', gap: '8px', fontSize: '13px', marginTop: '8px' }}>
+                      {product.style && (<><span style={{ color: '#666' }}>Style</span><span>{product.style}</span></>)}
+                      {product.occasion && (<><span style={{ color: '#666' }}>Occasion</span><span>{product.occasion}</span></>)}
+                      {product.pattern_type && (<><span style={{ color: '#666' }}>Pattern</span><span>{product.pattern_type}</span></>)}
+                    </div>
+                  )}
+                </>
               )}
             </div>
 
@@ -490,19 +537,29 @@ function ProductDetails() {
             {product.parsedSizes && product.parsedSizes.length > 0 && (
               <div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <div className="pd-options-title">Size <span style={{fontWeight:'normal', color:'#666', fontSize:'12px'}}>Default <ChevronRight size={12}/></span></div>
+                  <div className="pd-options-title">Select Size</div>
                 </div>
                 
                 <div className="size-grid">
                   {product.parsedSizes.map(size => (
                     <button key={size} className={`size-btn ${selectedSize === size ? 'active' : ''}`} onClick={() => setSelectedSize(size)}>
-                      {size}
+                      {formatSizeLabel(size)}
                     </button>
                   ))}
                 </div>
                 
                 <div style={{ display: 'flex', gap: '16px', fontSize: '12px', fontWeight: 'bold', marginTop: '12px' }}>
-                  <span style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }} onClick={() => setShowGuideModal(true)}><Ruler size={14} style={{marginRight:'4px'}}/> Size Guide <ChevronRight size={14} /></span>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setShowGuideModal(true);
+                    }}
+                    style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', background: 'none', border: 'none', padding: 0, fontSize: '12px', fontWeight: 'bold', color: '#000' }}
+                  >
+                    <Ruler size={14} style={{marginRight:'4px'}}/> Size Guide <ChevronRight size={14} />
+                  </button>
                 </div>
                 
                 <div style={{ marginTop: '12px', fontSize: '12px', color: '#666', lineHeight: '1.4' }}>
@@ -514,7 +571,7 @@ function ProductDetails() {
 
             {/* Quantity Selector */}
             <div style={{ marginTop: '24px' }}>
-              <div className="pd-options-title">Quantity <span style={{fontSize: '12px', color: '#666', fontWeight: 'normal'}}>{isPreOrder ? '(Pre-order Available)' : `(Available: ${availableStock})`}</span></div>
+              <div className="pd-options-title">Quantity <span style={{fontSize: '12px', color: '#666', fontWeight: 'normal'}}>{isPreOrder ? `(Preorder · ${preorderLeadTime})` : `(In stock: ${availableStock})`}</span></div>
               <div style={{ display: 'flex', alignItems: 'center', marginTop: '12px', border: '1px solid #e0e0e0', width: 'fit-content', borderRadius: '4px' }}>
                 <button onClick={() => setQuantity(Math.max(1, quantity - 1))} style={{ padding: '8px 16px', fontSize: '18px', cursor: 'pointer', background: '#f9f9f9', borderRight: '1px solid #e0e0e0', borderTopLeftRadius: '4px', borderBottomLeftRadius: '4px' }}>-</button>
                 <div style={{ padding: '0 24px', fontSize: '16px', fontWeight: 'bold' }}>{quantity}</div>
@@ -547,15 +604,15 @@ function ProductDetails() {
               </div>
               <div style={{ fontSize: '13px', color: '#333', lineHeight: '1.6' }}>
                 <strong>Shipping:</strong> Standard shipping takes 3-5 business days after fulfillment for U.S. orders and 9-15 days for international orders.<br />
-                <strong>Returns:</strong> We accept returns within 7 days of delivery. Items must be unworn and in original condition with tags attached.
+                <strong>Returns:</strong> Eligible exchanges or store credit are accepted within seven days. Items must be unworn and in original condition with tags attached. Refunds are not available.
               </div>
             </div>
 
             {/* Sticky Navigation Tabs */}
             <div style={{ display: 'flex', gap: '24px', borderBottom: '1px solid #eee', marginTop: '24px', marginBottom: '16px', paddingBottom: '12px', fontSize: '14px', fontWeight: 'bold', position: 'sticky', top: '0px', background: '#fff', zIndex: 10 }}>
-              <span style={{ borderBottom: '2px solid #000', paddingBottom: '12px', marginBottom: '-13px', cursor: 'pointer' }} onClick={() => scrollToSection(goodsRef)}>Goods</span>
+              <span style={{ borderBottom: '2px solid #000', paddingBottom: '12px', marginBottom: '-13px', cursor: 'pointer' }} onClick={() => scrollToSection(goodsRef)}>Details</span>
               <span style={{ color: '#666', cursor: 'pointer' }} onClick={() => scrollToSection(reviewsRef)}>Reviews</span>
-              <span style={{ color: '#666', cursor: 'pointer' }} onClick={() => scrollToSection(recommendRef)}>Recommend</span>
+              <span style={{ color: '#666', cursor: 'pointer' }} onClick={() => scrollToSection(recommendRef)}>You May Also Like</span>
             </div>
 
             {/* Reviews Section */}
@@ -616,7 +673,7 @@ function ProductDetails() {
                           {[1, 2, 3, 4, 5].map(s => <Star key={s} size={10} fill={s <= review.rating ? "currentColor" : "none"} stroke="currentColor" />)}
                         </div>
                       </div>
-                      <div style={{ color: '#999' }}>Color: {review.color_bought || 'N/A'} / Size: {review.size_bought || 'N/A'}</div>
+                      <div style={{ color: '#999' }}>Color: {review.color_bought || 'N/A'} / Size: {formatSizeLabel(review.size_bought || 'N/A')}</div>
                    </div>
                    <p style={{ fontSize: '13px', margin: '0 0 12px 0', fontWeight: '600' }}>{review.text}</p>
                    <div style={{ display: 'flex', justifyContent: 'flex-end', fontSize: '12px', color: '#000', fontWeight: 'bold', gap: '16px', alignItems: 'center' }}>
@@ -655,7 +712,7 @@ function ProductDetails() {
                 className="add-to-bag" 
                 onClick={handleAddToCart}
               >
-                {addedToCart ? 'ADDED TO BAG' : 'ADD TO BAG'}
+                {addedToCart ? 'ADDED TO BAG' : (isPreOrder ? 'PREORDER' : 'ADD TO BAG')}
               </button>
             </div>
             {fulfilledFrom === 'CN' && (
@@ -676,7 +733,7 @@ function ProductDetails() {
            className="add-to-bag"
            onClick={handleAddToCart}
          >
-           {addedToCart ? 'ADDED TO BAG' : 'ADD TO BAG'}
+           {addedToCart ? 'ADDED TO BAG' : (isPreOrder ? 'PREORDER' : 'ADD TO BAG')}
          </button>
       </div>
       
@@ -1165,7 +1222,7 @@ function ProductDetails() {
                           {[1, 2, 3, 4, 5].map(s => <Star key={s} size={10} fill={s <= review.rating ? "currentColor" : "none"} stroke="currentColor" />)}
                         </div>
                       </div>
-                      <div style={{ color: '#999' }}>Color: {review.color_bought || 'N/A'} / Size: {review.size_bought || 'N/A'}</div>
+                      <div style={{ color: '#999' }}>Color: {review.color_bought || 'N/A'} / Size: {formatSizeLabel(review.size_bought || 'N/A')}</div>
                    </div>
                    <p style={{ fontSize: '13px', margin: '0 0 12px 0', fontWeight: '600' }}>{review.text}</p>
                    <div style={{ display: 'flex', justifyContent: 'flex-end', fontSize: '12px', color: '#000', fontWeight: 'bold', gap: '16px', alignItems: 'center' }}>
