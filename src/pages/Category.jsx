@@ -9,6 +9,7 @@ import FilterSidebar from '../components/FilterSidebar';
 import FilterModal from '../components/FilterModal';
 import ProductRating from '../components/ProductRating';
 import { attachReviewStats } from '../utils/reviews';
+import { isProductSoldOut } from '../utils/stock';
 import { Filter } from 'lucide-react';
 import './Category.css';
 
@@ -162,18 +163,18 @@ function Category() {
           <div className="products-grid">
             {products.map(product => (
               <div className="product-card" key={product.id}>
-                {product.stock <= 0 ? (
+                {isProductSoldOut(product) ? (
                     <div className="product-badge" style={{ background: '#000', color: '#fff' }}>SOLD OUT</div>
                 ) : product.old_price && parseFloat(product.old_price) > parseFloat(product.price) && (
                     <div className="product-badge">-{Math.round(((product.old_price - product.price) / product.old_price) * 100)}%</div>
                 )}
                 <div className="product-image-wrap">
                   <Link to={`/product/${product.id}`}>
-                    <img src={product.image_url || '/placeholder.png'} alt={product.name} className="product-image primary" style={{ opacity: product.stock <= 0 ? 0.6 : 1 }} />
+                    <img src={product.image_url || '/placeholder.png'} alt={product.name} className="product-image primary" style={{ opacity: isProductSoldOut(product) ? 0.6 : 1 }} />
                     {product.hover_image_url && <img src={product.hover_image_url} alt={product.name} className="product-image secondary" />}
                   </Link>
                   <div className="product-actions">
-                    {product.stock > 0 ? (
+                    {!isProductSoldOut(product) ? (
                       <button className="action-btn add-cart" onClick={() => addToCart(product)}>ADD TO CART</button>
                     ) : (
                       <button className="action-btn add-cart" disabled style={{ background: '#ddd', color: '#666', cursor: 'not-allowed' }}>SOLD OUT</button>
