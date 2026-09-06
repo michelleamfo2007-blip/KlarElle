@@ -455,26 +455,20 @@ function ProductDetails() {
               <div className="pd-price-row">
                 <span className="pd-price" style={{ color: '#000' }}>{formatPrice(product.price)}</span>
               </div>
-              <div style={{
-                marginTop: '12px',
-                padding: '10px 12px',
-                background: isPreOrder ? '#fff7ed' : '#f0fdf4',
-                border: `1px solid ${isPreOrder ? '#fdba74' : '#86efac'}`,
-                borderRadius: '4px',
-                fontSize: '13px',
-                lineHeight: '1.5',
-                color: '#111'
-              }}>
-                {isPreOrder ? (
-                  <>
-                    <strong>Preorder.</strong> This size is not in stock. Preorders are processed within {preorderLeadTime}. Payment is taken now and the item ships after production.
-                  </>
-                ) : (
-                  <>
-                    <strong>In stock.</strong> Estimated delivery will be shown at checkout.
-                  </>
-                )}
-              </div>
+              {isPreOrder && (
+                <div style={{
+                  marginTop: '12px',
+                  padding: '10px 12px',
+                  background: '#fff7ed',
+                  border: '1px solid #fdba74',
+                  borderRadius: '4px',
+                  fontSize: '13px',
+                  lineHeight: '1.5',
+                  color: '#111'
+                }}>
+                  <strong>Preorder.</strong> This size is not in stock. Preorders are processed within {preorderLeadTime}. Payment is taken now and the item ships after production.
+                </div>
+              )}
             </div>
 
             {/* Description & Product Details (Expandable) */}
@@ -623,7 +617,6 @@ function ProductDetails() {
                 <Truck size={16} /> Shipping & Returns
               </div>
               <div style={{ fontSize: '13px', color: '#333', lineHeight: '1.6' }}>
-                <strong>Shipping:</strong> Estimated delivery is shown at checkout.<br />
                 <strong>Returns:</strong> Eligible exchanges or store credit are accepted within seven days. Items must be unworn and in original condition with tags attached. Refunds are not available.
               </div>
             </div>
