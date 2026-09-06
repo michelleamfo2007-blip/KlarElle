@@ -7,7 +7,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { 
   Settings, ScanLine, Ticket, Coins, Wallet, Gift, 
   CreditCard, Package, Truck, MessageSquare, Undo2, 
-  HeadphonesIcon, CalendarCheck, ShieldCheck, ChevronRight, Heart
+  HeadphonesIcon, ShieldCheck, ChevronRight, Heart
 } from 'lucide-react';
 import MobileTabBar from '../components/MobileTabBar';
 import './Profile.css';
@@ -199,10 +199,6 @@ function CustomerProfile() {
             <Link to="/page/contact-us" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', cursor: 'pointer', textDecoration: 'none', color: 'inherit' }}>
               <HeadphonesIcon size={24} strokeWidth={1.5} />
               <span style={{ fontSize: '12px', textAlign: 'center', lineHeight: '1.2' }}>Customer<br/>Service</span>
-            </Link>
-            <Link to="/check-in" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', cursor: 'pointer', textDecoration: 'none', color: 'inherit' }}>
-              <CalendarCheck size={24} strokeWidth={1.5} />
-              <span style={{ fontSize: '12px', textAlign: 'center', lineHeight: '1.2' }}>Check In</span>
             </Link>
             <Link to="/page/returns" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', cursor: 'pointer', textDecoration: 'none', color: 'inherit' }}>
               <ShieldCheck size={24} strokeWidth={1.5} />

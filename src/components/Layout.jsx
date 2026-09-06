@@ -490,7 +490,6 @@ function Layout() {
               <div className="footer-links">
                 <a href="mailto:support@klarelle.store">Contact Us</a>
                 <Link to="/page/payment-method">Payment Method</Link>
-                <Link to="/page/rewards">Rewards</Link>
                 <a href="mailto:support@klarelle.store">Support</a>
                 <Link to="/page/privacy-policy">Privacy Policy</Link>
                 <Link to="/page/terms-and-conditions">Terms & Conditions</Link>

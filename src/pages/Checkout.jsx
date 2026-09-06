@@ -589,13 +589,6 @@ function Checkout() {
           </div>
         )}
 
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '16px', borderBottom: '1px solid #eee', marginBottom: '16px' }}>
-          <span style={{ fontWeight: 'bold', fontSize: '14px' }}>Points</span>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#666', fontSize: '14px' }}>
-            Total: 100 <ChevronRight size={16} color="#999" />
-          </div>
-        </div>
-
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px', fontSize: '13px' }}>
           <span style={{ color: '#666' }}>Retail Price: {cartItems.length} Items</span>
           <span style={{ fontWeight: 'bold' }}>{formatPrice(cartTotal)}</span>

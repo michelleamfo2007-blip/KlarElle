@@ -234,14 +234,7 @@ function StaticPage({ title }) {
       case 'Rewards':
         return (
           <>
-            <p style={{ marginBottom: '16px' }}>Welcome to KLARELLE Rewards! Earn points every time you shop and redeem them for exclusive discounts.</p>
-            <p style={{ marginBottom: '16px' }}><strong>How to Earn:</strong></p>
-            <ul style={{ listStyleType: 'disc', paddingLeft: '20px', marginBottom: '16px' }}>
-              <li style={{ marginBottom: '8px' }}>Create an account: 100 Points</li>
-              <li style={{ marginBottom: '8px' }}>Make a purchase: 10 Points for every {formatPrice(100)} spent</li>
-              <li style={{ marginBottom: '8px' }}>Leave a photo review: 50 Points</li>
-            </ul>
-            <p style={{ marginBottom: '16px' }}><strong>How to Redeem:</strong> 100 Points = {formatPrice(10)} off. You can apply your points directly at checkout to save on your next favorite outfit!</p>
+            <p style={{ marginBottom: '16px' }}>Klarelle does not currently offer a shopping points or rewards program. Discounts are applied with voucher codes at checkout when available.</p>
           </>
         );
       case 'FAQ':
