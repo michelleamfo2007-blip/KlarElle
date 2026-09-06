@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { useParams, Link } from 'react-router-dom';
 import SEO from '../components/SEO';
 import { supabase } from '../lib/supabase';
@@ -146,6 +147,7 @@ function ProductDetails() {
   const reviewsRef = useRef(null);
   const recommendRef = useRef(null);
   const productVideoRef = useRef(null);
+  const modalScrollerRef = useRef(null);
 
   const scrollToSection = (ref) => {
     if (ref.current) {
@@ -309,6 +311,23 @@ function ProductDetails() {
     return () => { document.body.style.overflow = 'unset'; };
   }, [showSizeModal, showGuideModal, showGuideTypeSelector, showReviewsModal, showDetailsModal, showSizeRequestModal, showWriteReviewModal, showImageModal]);
 
+  useEffect(() => {
+    if (!showImageModal || !product) return;
+    const count = collectProductImages(product).length || 1;
+    const onKey = (e) => {
+      if (e.key === 'ArrowRight') setModalImageIndex((i) => (i + 1) % count);
+      if (e.key === 'ArrowLeft') setModalImageIndex((i) => (i - 1 + count) % count);
+      if (e.key === 'Escape') setShowImageModal(false);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [showImageModal, product]);
+
+  useEffect(() => {
+    if (!showImageModal || !modalScrollerRef.current) return;
+    modalScrollerRef.current.scrollTo({ left: window.innerWidth * modalImageIndex, behavior: 'smooth' });
+  }, [modalImageIndex, showImageModal]);
+
   if (loading) return <div style={{ minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '100px 20px', fontSize: '18px', color: '#666' }}>Loading product details...</div>;
   if (!product) return <div style={{ padding: '100px 20px', textAlign: 'center', fontSize: '18px', color: '#666' }}>Product not found.</div>;
 
@@ -331,10 +350,13 @@ function ProductDetails() {
         <div className="product-layout">
           <style>{`
             @media (min-width: 900px) {
-              .product-layout { grid-template-columns: 1.2fr 1fr; }
-              .sticky-bottom-bar { display: none !important; }
+              .product-layout { grid-template-columns: 1.15fr 0.85fr; align-items: start; }
+              .gallery-grid { display: block; overflow: hidden; }
+              .gallery-grid .main-image-wrap { display: none; width: 100%; flex: none; max-height: 78vh; }
+              .gallery-grid .main-image-wrap.is-active { display: flex; }
             }
             .product-layout { display: grid; gap: 40px; }
+            .gallery-column { min-width: 0; }
             
             .gallery-grid { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 0; scrollbar-width: none; -ms-overflow-style: none; }
             .gallery-grid::-webkit-scrollbar { display: none; }
@@ -364,12 +386,13 @@ function ProductDetails() {
             .review-card { border-bottom: 1px solid #eee; padding-bottom: 16px; margin-bottom: 16px; }
             .review-card:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
 
-            .sticky-bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; padding: 12px 20px calc(12px + env(safe-area-inset-bottom)); border-top: 1px solid #eee; display: flex; gap: 16px; align-items: center; z-index: 50; }
+            .sticky-bottom-bar { position: fixed !important; bottom: 0; left: 0; right: 0; width: 100%; background: #fff; padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); border-top: 1px solid #eee; display: flex; gap: 12px; align-items: center; z-index: 400; box-sizing: border-box; }
             .add-to-bag { flex: 1; padding: 16px; background: #000; color: white; border: none; font-size: 16px; font-weight: bold; cursor: pointer; transition: background 0.3s; border-radius: 4px; }
             
             .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 3000; display: flex; align-items: flex-end; justify-content: center; overflow: hidden; }
             .modal-content { background: #fff; width: 100%; max-width: 500px; border-radius: 16px 16px 0 0; min-height: 60vh; max-height: 90vh; position: relative; padding-bottom: 80px; display: flex; flex-direction: column; }
             
+            .desktop-add-cart { display: none; }
             @media (max-width: 900px) {
               .desktop-add-cart { display: none !important; }
               .product-layout { gap: 24px; }
@@ -378,9 +401,10 @@ function ProductDetails() {
             }
           `}</style>
           
+          <div className="gallery-column">
           <div className="gallery-grid">
             {images.map((img, i) => (
-              <div key={i} className="main-image-wrap" onClick={() => { setModalImageIndex(i); setImageModalReady(false); setShowImageModal(true); }} style={{ cursor: 'zoom-in' }}>
+              <div key={i} className={`main-image-wrap${activeImage === i ? ' is-active' : ''}`} onClick={() => { setModalImageIndex(i); setImageModalReady(false); setShowImageModal(true); }} style={{ cursor: 'zoom-in' }}>
                 <img src={i === 0 && previewImage ? previewImage : img} alt={`View ${i+1}`} className="main-image" />
                 {i === 0 && product.old_price && parseFloat(product.old_price) > parseFloat(product.price) && (
                   <div style={{ position: 'absolute', top: 16, right: 16, background: '#000', color: 'white', padding: '4px 8px', fontSize: '14px', fontWeight: 'bold' }}>
@@ -411,10 +435,10 @@ function ProductDetails() {
                   key={`thumb-${i}`}
                   type="button"
                   onClick={() => {
+                    setActiveImage(i);
                     const wrap = document.querySelector('.gallery-grid');
                     const slide = wrap?.children?.[i];
                     if (slide) slide.scrollIntoView({ behavior: 'smooth', inline: 'start', block: 'nearest' });
-                    setActiveImage(i);
                   }}
                   style={{
                     flex: '0 0 64px',
@@ -431,6 +455,7 @@ function ProductDetails() {
               ))}
             </div>
           )}
+          </div>
 
           <div className="info-section">
             <div ref={goodsRef}>
@@ -725,18 +750,21 @@ function ProductDetails() {
         </div>
       </div>
 
-      {/* Sticky Bottom Bar (Mobile Only via CSS) */}
-      <div className="sticky-bottom-bar">
-         <button onClick={() => toggleFavorite(product.id)} style={{ background: 'none', border: 'none', padding: '0 16px', cursor: 'pointer' }}>
-           <Heart size={28} fill={isFavorite(product.id) ? '#000' : 'none'} />
-         </button>
-         <button 
-           className="add-to-bag"
-           onClick={handleAddToCart}
-         >
-           {addedToCart ? 'ADDED TO BAG' : (isPreOrder ? 'PREORDER' : 'ADD TO BAG')}
-         </button>
-      </div>
+      {createPortal(
+        <div className="sticky-bottom-bar" style={{ position: 'fixed', bottom: 0, left: 0, right: 0, width: '100%', zIndex: 400 }}>
+          <button type="button" onClick={() => toggleFavorite(product.id)} style={{ background: 'none', border: 'none', padding: '0 8px', cursor: 'pointer' }}>
+            <Heart size={28} fill={isFavorite(product.id) ? '#000' : 'none'} />
+          </button>
+          <button
+            type="button"
+            className="add-to-bag"
+            onClick={handleAddToCart}
+          >
+            {addedToCart ? 'ADDED TO BAG' : (isPreOrder ? 'PREORDER' : 'ADD TO BAG')}
+          </button>
+        </div>,
+        document.body
+      )}
       
       {/* Size Guide Modal */}
       {showGuideModal && (
@@ -1268,17 +1296,41 @@ function ProductDetails() {
           <div style={{ position: 'absolute', top: '24px', right: '24px', zIndex: 100000, cursor: 'pointer', background: 'rgba(0,0,0,0.5)', borderRadius: '50%', padding: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={() => setShowImageModal(false)}>
             <X size={24} color="#fff" />
           </div>
+
+          {images.length > 1 && (
+            <>
+              <button
+                type="button"
+                aria-label="Previous photo"
+                onClick={() => setModalImageIndex((i) => (i - 1 + images.length) % images.length)}
+                style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', zIndex: 100000, width: '48px', height: '48px', borderRadius: '50%', border: 'none', background: 'rgba(255,255,255,0.18)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+              >
+                <ChevronLeft size={28} />
+              </button>
+              <button
+                type="button"
+                aria-label="Next photo"
+                onClick={() => setModalImageIndex((i) => (i + 1) % images.length)}
+                style={{ position: 'absolute', right: '16px', top: '50%', transform: 'translateY(-50%)', zIndex: 100000, width: '48px', height: '48px', borderRadius: '50%', border: 'none', background: 'rgba(255,255,255,0.18)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+              >
+                <ChevronRight size={28} />
+              </button>
+            </>
+          )}
           
-          <div style={{ display: 'flex', overflowX: 'auto', scrollSnapType: 'x mandatory', flex: 1, WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none' }} 
-               ref={el => {
-                 if (el && el.dataset.initialized !== 'true') {
-                   setTimeout(() => { 
-                     el.scrollLeft = window.innerWidth * modalImageIndex; 
-                     setImageModalReady(true);
-                   }, 20);
-                   el.dataset.initialized = 'true';
-                 }
-               }}>
+          <div
+            ref={(el) => {
+              modalScrollerRef.current = el;
+              if (el && el.dataset.initialized !== 'true') {
+                setTimeout(() => {
+                  el.scrollLeft = window.innerWidth * modalImageIndex;
+                  setImageModalReady(true);
+                }, 20);
+                el.dataset.initialized = 'true';
+              }
+            }}
+            style={{ display: 'flex', overflowX: 'auto', scrollSnapType: 'x mandatory', flex: 1, WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none' }}
+          >
             {images.map((img, i) => (
               <div key={i} style={{ flex: '0 0 100vw', scrollSnapAlign: 'start', display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
                 <img src={img} alt={`Zoomed ${i+1}`} style={{ width: '100%', maxHeight: '100vh', objectFit: 'contain' }} />

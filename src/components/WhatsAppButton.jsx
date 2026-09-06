@@ -9,6 +9,8 @@ function WhatsAppButton() {
     return null;
   }
 
+  const onProductPage = location.pathname.startsWith('/product/');
+
   // Replace this with your actual WhatsApp business number (include country code, no + or spaces)
   const phoneNumber = "233204011123"; 
   const defaultMessage = "Hello, I would love to inquire about a KLARELLE piece.";
@@ -23,7 +25,7 @@ function WhatsAppButton() {
       rel="noopener noreferrer"
       style={{
         position: 'fixed',
-        bottom: '24px',
+        bottom: onProductPage ? '92px' : '24px',
         right: '24px',
         backgroundColor: '#25D366',
         color: 'white',

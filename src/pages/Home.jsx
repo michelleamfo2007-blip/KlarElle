@@ -123,9 +123,10 @@ function Home() {
 
       <style>{`
         .hero-editorial {
-          background-color: #FAF5F0;
-          display: flex;
-          flex-direction: column;
+          background-color: #111;
+          display: grid;
+          grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.85fr);
+          align-items: stretch;
           position: relative;
           overflow: hidden;
         }
@@ -133,10 +134,22 @@ function Home() {
         .hero-text-container {
           width: 100%;
           background-color: #111;
-          padding: 40px 20px;
-          text-align: center;
+          padding: 48px 40px;
+          text-align: left;
           z-index: 10;
           position: relative;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          order: 2;
+        }
+
+        .hero-intro {
+          grid-column: 1 / -1;
+          background: #fff;
+          padding: 48px 24px;
+          text-align: center;
+          order: 3;
         }
         
         .hero-presents {
@@ -149,7 +162,7 @@ function Home() {
         
         .hero-title {
           font-family: 'Playfair Display', serif;
-          font-size: 64px;
+          font-size: 48px;
           color: #fff;
           line-height: 1.1;
           margin: 0 0 32px 0;
@@ -157,8 +170,8 @@ function Home() {
         }
 
         .waitlist-form {
-          max-width: 500px;
-          margin: 0 auto;
+          max-width: 100%;
+          margin: 0;
           display: flex;
           gap: 12px;
           align-items: flex-end;
@@ -213,6 +226,7 @@ function Home() {
           background: #000;
           overflow: hidden;
           line-height: 0;
+          order: 1;
         }
 
         .hero-video {
@@ -309,8 +323,12 @@ function Home() {
         }
 
         @media (max-width: 900px) {
-          .hero-title { font-size: 36px; margin-bottom: 24px; }
-          .hero-text-container { margin: 0; padding: 24px 16px; }
+          .hero-editorial { grid-template-columns: 1fr; }
+          .hero-title { font-size: 32px; margin-bottom: 24px; text-align: center; }
+          .hero-presents { text-align: center; }
+          .hero-text-container { margin: 0; padding: 24px 16px; text-align: center; }
+          .hero-intro { padding: 32px 16px; order: 2; }
+          .hero-text-container { order: 3; }
           .waitlist-form { flex-direction: column; gap: 10px; }
           .waitlist-input { width: 100%; box-sizing: border-box; text-align: center; }
           .waitlist-btn { width: 100%; box-sizing: border-box; }
@@ -355,13 +373,13 @@ function Home() {
           <h1 className="hero-title">LAUNCHING THIS SEPTEMBER</h1>
           
           {waitlistStatus === 'success' ? (
-            <div style={{ color: '#D2C4B3', fontSize: '18px', fontStyle: 'italic', fontFamily: 'Playfair Display', padding: '16px' }}>
+            <div style={{ color: '#D2C4B3', fontSize: '18px', fontStyle: 'italic', fontFamily: 'Playfair Display', padding: '16px 0' }}>
               Thank you. You are on the exclusive list.
             </div>
           ) : (
             <form className="waitlist-form" onSubmit={handleJoinWaitlist}>
               <div style={{ width: '100%' }}>
-                <label style={{ display: 'block', fontSize: '12px', color: '#BCA38F', marginBottom: '8px', letterSpacing: '1px', textTransform: 'uppercase', textAlign: 'left', marginLeft: '16px' }}>
+                <label style={{ display: 'block', fontSize: '12px', color: '#BCA38F', marginBottom: '8px', letterSpacing: '1px', textTransform: 'uppercase' }}>
                   Join our VIP list for first access and exclusive launch updates.
                 </label>
                 <input 
@@ -379,11 +397,8 @@ function Home() {
             </form>
           )}
         </div>
-      </section>
 
-      {/* Introducing Section */}
-      <section style={{ padding: '80px 20px', backgroundColor: '#fff', textAlign: 'center' }}>
-        <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+        <div className="hero-intro">
           <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: '32px', color: '#111827', marginBottom: '16px', letterSpacing: '2px', textTransform: 'uppercase' }}>
             Introducing KLARELLE
           </h2>
