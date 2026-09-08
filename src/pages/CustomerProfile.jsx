@@ -3,6 +3,7 @@ import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 import { useFavorites } from '../context/FavoritesContext';
 import { useCurrency } from '../context/CurrencyContext';
+import { useCart } from '../context/CartContext';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   Settings, Ticket, Wallet, Gift,
@@ -32,6 +33,7 @@ function CustomerProfile() {
   const { session, signOut } = useAuth();
   const { favorites } = useFavorites();
   const { formatPrice } = useCurrency();
+  const { cartCount } = useCart();
   const navigate = useNavigate();
 
   const [orders, setOrders] = useState([]);
@@ -116,7 +118,6 @@ function CustomerProfile() {
     setRecommended(published.slice(0, 4));
   };
 
-  const unpaidCount = orders.filter((order) => statusBucket(order.status) === 'unpaid').length;
   const processingCount = orders.filter((order) => statusBucket(order.status) === 'processing').length;
   const shippedCount = orders.filter((order) => statusBucket(order.status) === 'shipped').length;
   const reviewCount = orders.filter((order) => statusBucket(order.status) === 'delivered').length;
@@ -267,9 +268,9 @@ function CustomerProfile() {
               <Link to="/profile/orders" style={{ fontSize: '12px', color: '#666', display: 'flex', alignItems: 'center', textDecoration: 'none' }}>View all <ChevronRight size={14} /></Link>
             </div>
             <div className="orders-grid">
-              <Link to="/profile/orders?status=unpaid">
+              <Link to="/cart">
                 <CreditCard size={24} strokeWidth={1.5} />
-                {unpaidCount > 0 && <div style={{ position: 'absolute', top: '-4px', right: '4px', background: '#fff', border: '1px solid #ddd', borderRadius: '10px', fontSize: '10px', padding: '0 4px', fontWeight: 'bold' }}>{unpaidCount}</div>}
+                {cartCount > 0 && <div style={{ position: 'absolute', top: '-4px', right: '4px', background: '#fff', border: '1px solid #ddd', borderRadius: '10px', fontSize: '10px', padding: '0 4px', fontWeight: 'bold' }}>{cartCount}</div>}
                 <span>Unpaid</span>
               </Link>
               <Link to="/profile/orders?status=processing">

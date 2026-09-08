@@ -3,11 +3,13 @@ import { useLocation, Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 import { useCurrency } from '../context/CurrencyContext';
+import { useCart } from '../context/CartContext';
 import { ChevronLeft, Package, Clock, CheckCircle, Truck, RefreshCcw } from 'lucide-react';
 
 function MyOrders() {
   const { session } = useAuth();
   const { formatPrice } = useCurrency();
+  const { cartItems, cartCount, cartTotal } = useCart();
   const location = useLocation();
   const [orders, setOrders] = useState([]);
   const [returnsMap, setReturnsMap] = useState({});
@@ -17,6 +19,11 @@ function MyOrders() {
   const searchParams = new URLSearchParams(location.search);
   const initialStatus = searchParams.get('status') || 'all';
   const [activeTab, setActiveTab] = useState(initialStatus);
+
+  useEffect(() => {
+    const next = new URLSearchParams(location.search).get('status') || 'all';
+    setActiveTab(next);
+  }, [location.search]);
 
   useEffect(() => {
     if (session?.user?.email) {
@@ -136,14 +143,49 @@ function MyOrders() {
                 transition: 'all 0.2s'
               }}
             >
-              {tab.label}
+              {tab.label}{tab.id === 'unpaid' && cartCount > 0 ? ` (${cartCount})` : ''}
             </div>
           ))}
         </div>
 
         {/* Orders List */}
         <div style={{ padding: '16px' }}>
-          {loading ? (
+          {activeTab === 'unpaid' ? (
+            cartItems.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '60px 20px', color: '#666', background: '#fff', borderRadius: '12px' }}>
+                <Package size={48} style={{ opacity: 0.2, marginBottom: '16px' }} />
+                <p>Your cart is empty.</p>
+                <Link to="/" style={{ display: 'inline-block', marginTop: '16px', padding: '10px 24px', background: '#000', color: '#fff', textDecoration: 'none', borderRadius: '24px', fontWeight: 'bold' }}>
+                  Start Shopping
+                </Link>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {cartItems.map((item) => (
+                  <Link key={item.cartItemId} to={`/product/${item.id}`} style={{ background: '#fff', borderRadius: '12px', padding: '12px', display: 'flex', gap: '12px', textDecoration: 'none', color: 'inherit' }}>
+                    <img src={item.image_url || item.image || '/placeholder.png'} alt={item.name} style={{ width: '72px', height: '96px', objectFit: 'cover', borderRadius: '8px', flexShrink: 0 }} />
+                    <div style={{ minWidth: 0, flex: 1 }}>
+                      <div style={{ fontWeight: 'bold', fontSize: '14px' }}>{item.name}</div>
+                      <div style={{ fontSize: '12px', color: '#666', marginTop: '4px' }}>
+                        {[item.selectedColor, item.selectedSize].filter(Boolean).join(' · ')}
+                        {item.quantity > 1 ? ` · Qty ${item.quantity}` : ''}
+                      </div>
+                      <div style={{ fontWeight: 'bold', marginTop: '8px' }}>{formatPrice((item.price || 0) * (item.quantity || 1))}</div>
+                    </div>
+                  </Link>
+                ))}
+                <div style={{ background: '#fff', borderRadius: '12px', padding: '16px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px', fontWeight: 'bold' }}>
+                    <span>{cartCount} in cart</span>
+                    <span>{formatPrice(cartTotal)}</span>
+                  </div>
+                  <Link to="/cart" style={{ display: 'block', textAlign: 'center', padding: '12px', background: '#000', color: '#fff', textDecoration: 'none', borderRadius: '8px', fontWeight: 'bold' }}>
+                    Go to cart
+                  </Link>
+                </div>
+              </div>
+            )
+          ) : loading ? (
             <div style={{ textAlign: 'center', padding: '40px' }}>Loading orders...</div>
           ) : filteredOrders.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '60px 20px', color: '#666', background: '#fff', borderRadius: '12px' }}>
