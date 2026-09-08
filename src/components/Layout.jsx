@@ -440,10 +440,10 @@ function Layout() {
           
           <nav className="nav-menu">
             <Link to="/" className={`nav-link ${isActive('/')}`}>HOME</Link>
-            <Link to="/category/new-in" className={`nav-link ${isActive('/category/new-in')}`}>The New Edit</Link>
+            <Link to="/category/new-in" className={`nav-link ${isActive('/category/new-in')}`}>New Edit</Link>
             <Link to="/category/coming-soon" className={`nav-link ${isActive('/category/coming-soon')}`}>Coming Next</Link>
             <div className="nav-dropdown">
-              <Link to="/category/all" className={`nav-link ${isActive('/category/all')}`}>COLLECTIONS</Link>
+              <Link to="/category/all" className={`nav-link ${isActive('/category/all')}`}>Collections</Link>
               <div className="dropdown-menu">
                 {STORE_COLLECTIONS.filter((collection) => !['new-in', 'coming-soon'].includes(collection.slug)).map((collection) => (
                   <Link key={collection.slug} to={`/category/${collection.slug}`} className={`nav-link ${isActive(`/category/${collection.slug}`)}`}>

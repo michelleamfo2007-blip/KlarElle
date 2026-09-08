@@ -298,6 +298,7 @@ main {
   display: flex;
   gap: 32px;
   padding-bottom: 16px;
+  align-items: center;
 }
 
 .nav-link {
@@ -307,6 +308,8 @@ main {
   color: var(--text-header);
   position: relative;
   padding-bottom: 8px;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .nav-link:hover, .nav-link.active {
@@ -335,6 +338,7 @@ main {
 .nav-dropdown {
   position: relative;
   display: inline-block;
+  flex-shrink: 0;
 }
 
 .dropdown-menu {
@@ -821,13 +825,18 @@ main {
     display: flex;
     overflow-x: auto;
     white-space: nowrap;
-    padding-bottom: 8px;
+    padding: 0 16px 10px;
     margin-bottom: 0;
     -webkit-overflow-scrolling: touch;
-    gap: 16px;
+    gap: 22px;
   }
   .nav-menu::-webkit-scrollbar {
     display: none;
+  }
+  .nav-link {
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    padding-bottom: 10px;
   }
   /* Mobile Header Fixes */
   .header-main {
