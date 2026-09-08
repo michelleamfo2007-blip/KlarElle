@@ -11,6 +11,7 @@ import { ChevronLeft, MapPin, ChevronRight, CheckCircle2, Truck } from 'lucide-r
 import { COUNTRIES } from '../utils/countries';
 import { cartShipsFromInternational, getItemDeliveryEstimate } from '../utils/stock';
 import { getVariantSkuFromProduct } from '../utils/sku';
+import { STORE_LAUNCHED } from '../utils/launch';
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
@@ -186,6 +187,16 @@ function Checkout() {
     }
   }, [finalTotal, currency, EXCHANGE_RATES, showShippingForm]);
 
+  if (!STORE_LAUNCHED) {
+    return (
+      <div style={{ padding: '100px 20px', textAlign: 'center', background: '#f5f5f5', minHeight: '100vh' }}>
+        <h2 style={{ marginBottom: '16px' }}>Shopping opens at launch</h2>
+        <p style={{ color: '#666', marginBottom: '16px' }}>Checkout is paused until Klarelle launches. Join the VIP list for first access.</p>
+        <Link to="/" style={{ color: '#000', textDecoration: 'underline' }}>Return Home</Link>
+      </div>
+    );
+  }
+
   if (cartItems.length === 0) {
     return (
       <div style={{ padding: '100px 20px', textAlign: 'center', background: '#f5f5f5', minHeight: '100vh' }}>
@@ -328,7 +339,7 @@ function Checkout() {
               <input type="text" name="phoneCode" value={formData.phoneCode} onChange={handleInputChange} placeholder="+1" style={{ width: '60px', padding: '12px', background: '#f9f9f9', borderRight: '1px solid #ddd', color: '#666', border: 'none', outline: 'none' }} />
               <input type="tel" name="phone" value={formData.phone} onChange={handleInputChange} style={{ width: '100%', padding: '12px', border: 'none', outline: 'none' }} />
             </div>
-            <div style={{ fontSize: '11px', color: '#999', marginTop: '4px' }}>Need Correct Phone Number for delivery.</div>
+            <div style={{ fontSize: '11px', color: '#999', marginTop: '4px' }}>Please enter a valid phone number so the carrier can contact you regarding delivery.</div>
           </div>
         </div>
 
@@ -387,7 +398,7 @@ function Checkout() {
                 const phoneRegex = /^[0-9]{7,15}$/;
                 const postcodeRegex = /^[a-zA-Z0-9\s-]{3,10}$/;
                 if (!phoneRegex.test(formData.phone.replace(/[\s-]/g, ''))) {
-                  alert("Please enter a valid phone number.");
+                  alert("Please enter a valid phone number so the carrier can contact you regarding delivery.");
                   return;
                 }
                 if (!postcodeRegex.test(formData.postcode)) {
@@ -622,7 +633,7 @@ function Checkout() {
           </div>
           <div style={{ fontSize: '12px', color: '#666', lineHeight: '1.4' }}>
             <strong>Shipping:</strong> Estimated delivery is listed under each item. Carrier transit time is shown on the rate you select. Free shipping on U.S. orders over ${shippingThreshold}.<br />
-            <strong>Returns:</strong> We accept returns within 7 days of delivery. Items must be unworn and in original condition with tags attached.
+            <strong>Exchanges:</strong> Eligible exchanges or store credit are accepted within 7 days of delivery. Items must be unworn and in original condition with tags attached. Refunds to the original payment method are not available.
           </div>
         </div>
 

@@ -38,10 +38,10 @@ function Waitlist() {
 
     if (newStatus === 'Invited') {
       try {
-        await fetch('/api/send-waitlist-invite', {
+        await fetch('/api/join-waitlist', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email })
+          body: JSON.stringify({ action: 'invite', email })
         });
         alert(`Invitation email sent to ${email}`);
       } catch (err) {

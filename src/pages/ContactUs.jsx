@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { supabase } from '../lib/supabase';
-import { Mail, Phone, MapPin, Send } from 'lucide-react';
+import { Mail, MessageCircle, MapPin, Send } from 'lucide-react';
 
 function ContactUs() {
   const [formData, setFormData] = useState({
@@ -75,10 +75,12 @@ function ContactUs() {
           </div>
 
           <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
-            <Phone size={24} color="#000" />
+            <MessageCircle size={24} color="#000" />
             <div>
-              <h3 style={{ fontSize: '16px', fontWeight: 'bold', margin: '0 0 4px 0' }}>Call Us</h3>
-              <p style={{ color: '#666', margin: 0 }}>+1 (555) 123-4567</p>
+              <h3 style={{ fontSize: '16px', fontWeight: 'bold', margin: '0 0 4px 0' }}>WhatsApp</h3>
+              <p style={{ color: '#666', margin: 0 }}>
+                <a href="https://wa.me/233204011123" target="_blank" rel="noopener noreferrer" style={{ color: '#000' }}>Chat with Klarelle on WhatsApp</a>
+              </p>
             </div>
           </div>
         </div>

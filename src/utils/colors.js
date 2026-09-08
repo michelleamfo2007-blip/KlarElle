@@ -211,3 +211,26 @@ export function generateVariantSku(productName, color, size) {
   const sizeCode = String(size || '').replace(/\s+/g, '').toUpperCase() || 'OS';
   return `KLA-${style}-${colorCode}-${sizeCode}`;
 }
+
+export function findVariantEntry(variantImages, color) {
+  if (!variantImages || typeof variantImages !== 'object' || !color) return null;
+  if (variantImages[color]) return variantImages[color];
+  const needle = String(color).trim().toLowerCase();
+  const keys = Object.keys(variantImages);
+  const exact = keys.find((key) => key.trim().toLowerCase() === needle);
+  if (exact) return variantImages[exact];
+  const partial = keys.find((key) => {
+    const normalized = key.trim().toLowerCase();
+    return normalized.includes(needle) || needle.includes(normalized);
+  });
+  return partial ? variantImages[partial] : null;
+}
+
+export function getVariantImage(variantImages, color) {
+  const entry = findVariantEntry(variantImages, color);
+  if (!entry) return null;
+  if (typeof entry === 'string') return entry;
+  if (entry.image) return entry.image;
+  if (Array.isArray(entry.images) && entry.images[0]) return entry.images[0];
+  return null;
+}

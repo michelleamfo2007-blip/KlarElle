@@ -3,7 +3,8 @@ import { Star } from 'lucide-react';
 
 function ProductRating({ count = 0, average = null, className = 'product-rating' }) {
   const hasReviews = count > 0 && average;
-  const filled = hasReviews ? Math.round(Number(average)) : 0;
+  if (!hasReviews) return null;
+  const filled = Math.round(Number(average));
 
   return (
     <div className={className} style={{ display: 'flex', alignItems: 'center', gap: '4px', flexWrap: 'wrap' }}>
@@ -17,9 +18,7 @@ function ProductRating({ count = 0, average = null, className = 'product-rating'
         />
       ))}
       <span>
-        {hasReviews
-          ? `(${average}) ${count} ${count === 1 ? 'review' : 'reviews'}`
-          : 'No reviews yet'}
+        {`(${average}) ${count} ${count === 1 ? 'review' : 'reviews'}`}
       </span>
     </div>
   );

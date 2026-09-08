@@ -10,16 +10,16 @@ function StaticPage({ title }) {
         return (
           <div style={{ lineHeight: '1.6' }}>
             <h2 style={{ marginBottom: '16px', fontSize: '20px', textTransform: 'uppercase' }}>About Klarelle</h2>
-            <p style={{ marginBottom: '24px', fontStyle: 'italic', color: '#555' }}>Designed by women, for women.</p>
+            <p style={{ marginBottom: '24px', fontStyle: 'italic', color: '#555' }}>Curated by Klarelle, for women.</p>
             
-            <p style={{ marginBottom: '16px' }}>Klarelle was created with one simple belief: women deserve clothing designed with them, for them, and with the beauty of the feminine silhouette at the center.</p>
-            <p style={{ marginBottom: '16px' }}>We create thoughtfully designed pieces that celebrate femininity, confidence, and individuality. Every silhouette is considered with the modern woman in mind—from the way a garment fits and moves to the way it makes her feel when she puts it on.</p>
-            <p style={{ marginBottom: '24px' }}>At Klarelle, we believe clothing should feel as beautiful as it looks. Our designs blend timeless elegance with modern femininity, creating pieces that allow women to feel confident, sophisticated, and effortlessly beautiful.</p>
+            <p style={{ marginBottom: '16px' }}>Klarelle was created with one simple belief: women deserve clothing chosen with them, for them, and with the beauty of the feminine silhouette at the center.</p>
+            <p style={{ marginBottom: '16px' }}>Klarelle thoughtfully curates elevated pieces selected for their quality, fit, elegance and ability to celebrate the feminine silhouette.</p>
+            <p style={{ marginBottom: '24px' }}>At Klarelle, we believe clothing should feel as beautiful as it looks. Our curated collection blends timeless elegance with modern femininity, so women can feel confident, sophisticated, and effortlessly beautiful.</p>
             
             <h3 style={{ marginTop: '32px', marginBottom: '16px', fontSize: '18px', textTransform: 'uppercase' }}>Our Approach</h3>
-            <p style={{ marginBottom: '24px', fontStyle: 'italic', color: '#555' }}>Designed by women. For women.</p>
+            <p style={{ marginBottom: '24px', fontStyle: 'italic', color: '#555' }}>Curated by Klarelle, for women.</p>
             
-            <p style={{ marginBottom: '16px' }}>We pay attention to the details that matter: flattering silhouettes, intentional design, quality, comfort, and versatility. We want every Klarelle piece to make you feel like the most elevated version of yourself.</p>
+            <p style={{ marginBottom: '16px' }}>We pay attention to the details that matter: flattering silhouettes, quality, comfort, and versatility. We want every Klarelle piece to make you feel like the most elevated version of yourself.</p>
             <p style={{ marginBottom: '16px' }}>Because luxury isn’t about being loud.</p>
             <p style={{ marginBottom: '24px' }}>It’s about how you feel when you wear it.</p>
             
@@ -27,7 +27,7 @@ function StaticPage({ title }) {
             <p style={{ marginBottom: '16px' }}>Klarelle is more than a clothing brand. It is a celebration of the woman who knows her worth, embraces her femininity, and moves through life with confidence.</p>
             <p style={{ marginBottom: '16px' }}>We are building a brand where every woman can find pieces that make her feel seen, confident, and unforgettable.</p>
             <p style={{ marginBottom: '16px' }}>Welcome to Klarelle.</p>
-            <p style={{ marginBottom: '16px', fontStyle: 'italic', color: '#555', fontWeight: 'bold' }}>Designed by women. For women.</p>
+            <p style={{ marginBottom: '16px', fontStyle: 'italic', color: '#555', fontWeight: 'bold' }}>Curated by Klarelle, for women.</p>
           </div>
         );
       case 'Influencer Collaboration':
@@ -65,12 +65,12 @@ function StaticPage({ title }) {
         return (
           <div style={{ lineHeight: '1.6' }}>
             <h2 style={{ marginBottom: '16px', fontSize: '20px', textTransform: 'uppercase' }}>Social Responsibility</h2>
-            <p style={{ marginBottom: '24px', fontStyle: 'italic', color: '#555' }}>Designed by women. For women.</p>
+            <p style={{ marginBottom: '24px', fontStyle: 'italic', color: '#555' }}>Curated by Klarelle, for women.</p>
             
-            <p style={{ marginBottom: '24px' }}>At Klarelle, we believe our responsibility extends beyond the clothes we create.</p>
+            <p style={{ marginBottom: '24px' }}>At Klarelle, we believe our responsibility extends beyond the clothes we curate.</p>
             
             <h3 style={{ marginTop: '32px', marginBottom: '12px', fontSize: '18px', textTransform: 'uppercase' }}>Our Planet</h3>
-            <p style={{ marginBottom: '24px' }}>We are committed to thoughtful design, reducing unnecessary waste, and making more responsible choices in our materials, packaging, and production as we grow.</p>
+            <p style={{ marginBottom: '24px' }}>We are committed to thoughtful curation, reducing unnecessary waste, and making more responsible choices in our materials, packaging, and production as we grow.</p>
             
             <h3 style={{ marginTop: '32px', marginBottom: '12px', fontSize: '18px', textTransform: 'uppercase' }}>Our People</h3>
             <p style={{ marginBottom: '24px' }}>We aim to build strong, respectful relationships with the people and partners behind our collections and continuously improve the transparency of our production.</p>
@@ -81,7 +81,7 @@ function StaticPage({ title }) {
             <h3 style={{ marginTop: '32px', marginBottom: '12px', fontSize: '18px', textTransform: 'uppercase' }}>Our Promise</h3>
             <p style={{ marginBottom: '24px' }}>We don’t believe in claiming perfection. We believe in progress, accountability, and doing better with every collection.</p>
             
-            <p style={{ marginBottom: '16px', fontStyle: 'italic', color: '#555', fontWeight: 'bold' }}>Thoughtfully designed. Responsibly growing. Purposefully given.</p>
+            <p style={{ marginBottom: '16px', fontStyle: 'italic', color: '#555', fontWeight: 'bold' }}>Thoughtfully curated. Responsibly growing. Purposefully given.</p>
           </div>
         );
       case 'Shipping Info':
@@ -413,7 +413,7 @@ function StaticPage({ title }) {
             <p style={{ marginBottom: '16px' }}>If an item is offered as a preorder, payment is taken at checkout and the item ships after production. Processing times are shown on the product page.</p>
 
             <h3 style={{ marginTop: '24px', marginBottom: '12px', fontSize: '16px' }}>Intellectual Property</h3>
-            <p style={{ marginBottom: '16px' }}>All website content, branding, product images, and designs belong to Klarelle and may not be copied or used without our written permission.</p>
+            <p style={{ marginBottom: '16px' }}>Klarelle branding, website copy, original photography, graphics and other content created by or for Klarelle are owned by or licensed to Klarelle. Product designs supplied by third-party manufacturers remain the property of their respective rights holders.</p>
 
             <h3 style={{ marginTop: '24px', marginBottom: '12px', fontSize: '16px' }}>Limitation of Liability</h3>
             <p style={{ marginBottom: '16px' }}>To the fullest extent permitted by law, Klarelle is not liable for indirect or consequential losses arising from use of the site or delay in delivery. Our total liability for any order is limited to the amount you paid for that order.</p>

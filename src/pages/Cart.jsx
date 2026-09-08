@@ -4,6 +4,7 @@ import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { useCurrency } from '../context/CurrencyContext';
 import { Trash2, Minus, Plus, ShieldCheck, Truck } from 'lucide-react';
+import { STORE_LAUNCHED } from '../utils/launch';
 import './Cart.css';
 
 function Cart() {
@@ -89,7 +90,13 @@ function Cart() {
               <span>{formatPrice(finalTotal)}</span>
             </div>
             
-            <Link to="/checkout" className="btn btn-primary checkout-btn" style={{ display: 'block', textAlign: 'center', textDecoration: 'none' }}>CHECKOUT</Link>
+            {STORE_LAUNCHED ? (
+              <Link to="/checkout" className="btn btn-primary checkout-btn" style={{ display: 'block', textAlign: 'center', textDecoration: 'none' }}>CHECKOUT</Link>
+            ) : (
+              <div className="btn btn-primary checkout-btn" style={{ display: 'block', textAlign: 'center', background: '#ddd', color: '#666', cursor: 'not-allowed' }}>
+                CHECKOUT OPENS AT LAUNCH
+              </div>
+            )}
             
             <div className="payment-methods">
               We accept: Visa, Mastercard, Klarna
@@ -100,7 +107,7 @@ function Cart() {
                 <Truck size={14} /> Shipping & Returns
               </div>
               <p style={{ margin: '0 0 8px 0', lineHeight: '1.4' }}><strong>Shipping:</strong> Estimated delivery is shown at checkout.</p>
-              <p style={{ margin: 0, lineHeight: '1.4' }}><strong>Returns:</strong> We accept returns within 7 days of delivery. Items must be unworn and in original condition with tags attached.</p>
+              <p style={{ margin: 0, lineHeight: '1.4' }}><strong>Exchanges:</strong> Eligible exchanges or store credit are accepted within 7 days of delivery. Items must be unworn and in original condition with tags attached. Refunds to the original payment method are not available.</p>
             </div>
           </div>
         </div>

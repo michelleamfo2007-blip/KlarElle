@@ -3,6 +3,7 @@ import { useLocation, Link } from 'react-router-dom';
 import SEO from '../components/SEO';
 import { supabase } from '../lib/supabase';
 import { useCurrency } from '../context/CurrencyContext';
+import { isComingSoon, getReleaseLabel } from '../utils/storefront';
 
 function Search() {
   const [products, setProducts] = useState([]);
@@ -75,6 +76,9 @@ function Search() {
               </Link>
               <div className="product-info">
                 <Link to={`/product/${product.id}`} className="product-title">{product.name}</Link>
+                {isComingSoon(product) && (
+                  <div style={{ fontSize: '12px', color: '#666', marginTop: '4px' }}>Coming Soon · {getReleaseLabel(product)}</div>
+                )}
                 <div className="product-price">{formatPrice(product.price)}</div>
               </div>
             </div>

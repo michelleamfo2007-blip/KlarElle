@@ -9,10 +9,15 @@ import { useCurrency } from '../context/CurrencyContext';
 import ProductRating from '../components/ProductRating';
 import { attachReviewStats } from '../utils/reviews';
 import { isProductSoldOut } from '../utils/stock';
+import { getColorHex } from '../utils/colors';
+import NotifyMeForm from '../components/NotifyMeForm';
+import { getReleaseLabel, isComingSoon, maybeLaunchProduct } from '../utils/storefront';
 import heroVideo from '../../IMG_2870 klarelle.MP4';
 
 function Home() {
   const [products, setProducts] = useState([]);
+  const [comingSoonProducts, setComingSoonProducts] = useState([]);
+  const [notifyProduct, setNotifyProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [toastMessage, setToastMessage] = useState('');
   const [waitlistEmail, setWaitlistEmail] = useState('');
@@ -48,10 +53,18 @@ function Home() {
         .eq('visibility', true)
         .eq('status', 'active')
         .order('created_at', { ascending: false })
-        .limit(4);
+        .limit(40);
       
       if (!error && data) {
-        setProducts(await attachReviewStats(supabase, data));
+        for (const product of data) {
+          if (product.coming_soon && await maybeLaunchProduct(product)) {
+            product.coming_soon = false;
+          }
+        }
+        const available = data.filter((product) => !isComingSoon(product));
+        const upcoming = data.filter((product) => isComingSoon(product));
+        setProducts(await attachReviewStats(supabase, available.slice(0, 4)));
+        setComingSoonProducts(await attachReviewStats(supabase, upcoming.slice(0, 8)));
       }
       setLoading(false);
     };
@@ -479,6 +492,55 @@ function Home() {
           </div>
         </div>
       </section>
+
+      {comingSoonProducts.length > 0 && (
+        <section className="luxury-section" style={{ backgroundColor: '#fff' }}>
+          <div className="container">
+            <div className="luxury-header">
+              <h2 className="luxury-title">Coming Next</h2>
+              <div className="luxury-subtitle">Next week's release</div>
+            </div>
+            <div className="luxury-grid">
+              {comingSoonProducts.map((product) => (
+                <div className="luxury-card" key={`soon-${product.id}`}>
+                  <div className="luxury-image-wrap">
+                    <Link to={`/product/${product.id}`} className="luxury-image-link">
+                      <img src={product.image_url || '/placeholder.png'} alt={product.name} className="luxury-image primary" />
+                    </Link>
+                    <div className="luxury-badge" style={{ background: '#111', color: '#fff', letterSpacing: '1px' }}>COMING SOON</div>
+                  </div>
+                  <div className="luxury-info">
+                    <Link to={`/product/${product.id}`} style={{ textDecoration: 'none' }}>
+                      <h3 className="luxury-title">{product.name}</h3>
+                    </Link>
+                    <div className="luxury-price-row">
+                      <span className="luxury-price">{formatPrice(product.price)}</span>
+                    </div>
+                    {Array.isArray(product.colors) && product.colors.length > 0 && (
+                      <div style={{ display: 'flex', gap: '6px', margin: '8px 0', flexWrap: 'wrap' }}>
+                        {product.colors.slice(0, 6).map((color) => (
+                          <span key={color} title={color} style={{ width: '12px', height: '12px', borderRadius: '50%', border: '1px solid #ddd', background: getColorHex(color) }} />
+                        ))}
+                      </div>
+                    )}
+                    <div style={{ fontSize: '12px', color: '#666', marginBottom: '12px' }}>{getReleaseLabel(product)}</div>
+                    <button className="luxury-add-btn" onClick={() => setNotifyProduct(product)}>NOTIFY ME WHEN AVAILABLE</button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {notifyProduct && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 4000, display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }} onClick={() => setNotifyProduct(null)}>
+          <div style={{ background: '#fff', width: '100%', maxWidth: '480px', padding: '24px', borderRadius: '16px 16px 0 0' }} onClick={(e) => e.stopPropagation()}>
+            <h3 style={{ marginTop: 0 }}>{notifyProduct.name}</h3>
+            <NotifyMeForm product={notifyProduct} onClose={() => setNotifyProduct(null)} />
+          </div>
+        </div>
+      )}
     </>
   );
 }

@@ -6,6 +6,7 @@ import { useAuth } from '../context/AuthContext';
 import { useCurrency } from '../context/CurrencyContext';
 import { supabase } from '../lib/supabase';
 import { useTranslation } from 'react-i18next';
+import { STORE_COLLECTIONS } from '../data/collections';
 
 function Layout() {
   const { t, i18n } = useTranslation();
@@ -439,20 +440,25 @@ function Layout() {
           
           <nav className="nav-menu">
             <Link to="/" className={`nav-link ${isActive('/')}`}>HOME</Link>
-            <Link to="/category/new-in" className={`nav-link ${isActive('/category/new-in')}`}>NEW IN</Link>
+            <Link to="/category/new-in" className={`nav-link ${isActive('/category/new-in')}`}>The New Edit</Link>
+            <Link to="/category/coming-soon" className={`nav-link ${isActive('/category/coming-soon')}`}>Coming Next</Link>
             <div className="nav-dropdown">
               <Link to="/category/all" className={`nav-link ${isActive('/category/all')}`}>COLLECTIONS</Link>
-              {categories.length > 0 && (
-                <div className="dropdown-menu">
-                  {categories.map((cat) => (
-                    <Link key={cat.id} to={`/category/${cat.slug}`} className={`nav-link ${isActive(`/category/${cat.slug}`)}`}>
-                      {cat.name}
-                    </Link>
-                  ))}
-                  <Link to="/category/all" className={`nav-link ${isActive('/category/all')}`}>All Collections</Link>
-                </div>
-              )}
+              <div className="dropdown-menu">
+                {STORE_COLLECTIONS.filter((collection) => !['new-in', 'coming-soon'].includes(collection.slug)).map((collection) => (
+                  <Link key={collection.slug} to={`/category/${collection.slug}`} className={`nav-link ${isActive(`/category/${collection.slug}`)}`}>
+                    {collection.title}
+                  </Link>
+                ))}
+                {categories.filter((cat) => !STORE_COLLECTIONS.some((collection) => collection.slug === cat.slug)).map((cat) => (
+                  <Link key={cat.id} to={`/category/${cat.slug}`} className={`nav-link ${isActive(`/category/${cat.slug}`)}`}>
+                    {cat.name}
+                  </Link>
+                ))}
+                <Link to="/category/all" className={`nav-link ${isActive('/category/all')}`}>All Collections</Link>
+              </div>
             </div>
+            <Link to="/find-my-size" className={`nav-link ${isActive('/find-my-size')}`}>Find My Size</Link>
             <Link to="/page/about-us" className={`nav-link ${isActive('/page/about-us')}`}>ABOUT</Link>
             <Link to="/page/faq" className={`nav-link ${isActive('/page/faq')}`}>FAQ</Link>
           </nav>

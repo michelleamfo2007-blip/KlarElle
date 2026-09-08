@@ -5,6 +5,17 @@
       "destination": "/api/$1"
     },
     {
+      "source": "/product/:id",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": "(?i).*(whatsapp|facebookexternalhit|facebot|twitterbot|linkedinbot|slackbot|telegrambot|discordbot|pinterest|googlebot|bingbot|embedly|showyoubot|outbrain|vkshare).*"
+        }
+      ],
+      "destination": "/api/product-share?id=:id"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }

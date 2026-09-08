@@ -11,6 +11,10 @@ import ProductRating from '../components/ProductRating';
 import { attachReviewStats } from '../utils/reviews';
 import { isProductSoldOut } from '../utils/stock';
 import { Filter } from 'lucide-react';
+import { getColorHex } from '../utils/colors';
+import NotifyMeForm from '../components/NotifyMeForm';
+import { getCollectionBySlug } from '../data/collections';
+import { getReleaseLabel, isComingSoon, matchesCollection, maybeLaunchProduct } from '../utils/storefront';
 import './Category.css';
 
 function Category() {
@@ -22,6 +26,7 @@ function Category() {
   const [loading, setLoading] = useState(true);
   const [activeFilters, setActiveFilters] = useState({});
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
+  const [notifyProduct, setNotifyProduct] = useState(null);
   const [filterOptions, setFilterOptions] = useState({});
 
   useEffect(() => {
@@ -35,13 +40,14 @@ function Category() {
         .eq('status', 'active')
         .order('created_at', { ascending: false });
         
-      if (id !== 'new-in' && id !== 'collections' && id !== 'all') {
-        query = query.eq('category', id);
-      }
-      
       const { data, error } = await query;
       
       if (!error && data) {
+        for (const product of data) {
+          if (isComingSoon(product) && product.coming_soon) {
+            if (await maybeLaunchProduct(product)) product.coming_soon = false;
+          }
+        }
         const withReviews = await attachReviewStats(supabase, data);
         setAllProducts(withReviews);
         
@@ -66,7 +72,7 @@ function Category() {
 
   useEffect(() => {
     // Apply filters client-side
-    let result = [...allProducts];
+    let result = [...allProducts].filter((product) => matchesCollection(product, id));
 
     // Simple matching for categories that exist directly on the product (or tags)
     // Assuming product schema has some of these or they are in tags
@@ -121,7 +127,8 @@ function Category() {
     setProducts(result);
   }, [activeFilters, allProducts]);
 
-  const categoryName = id.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase());
+  const collection = getCollectionBySlug(id);
+  const categoryName = collection?.title || id.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase());
 
   return (
     <>
@@ -140,8 +147,8 @@ function Category() {
       <div className="category-content">
         <div className="category-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
           <div>
-            <h1 style={{ fontSize: '28px', marginBottom: '8px', textTransform: 'capitalize' }}>{categoryName}</h1>
-            <p style={{ color: '#666' }}>Explore our collection of {categoryName.toLowerCase()}.</p>
+            <h1 style={{ fontSize: '28px', marginBottom: '8px', textTransform: collection ? 'none' : 'capitalize' }}>{categoryName}</h1>
+            <p style={{ color: '#666' }}>{collection?.tagline || 'Explore all Klarelle styles.'}</p>
           </div>
           <button 
             className="mobile-filter-btn" 
@@ -163,18 +170,22 @@ function Category() {
           <div className="products-grid">
             {products.map(product => (
               <div className="product-card" key={product.id}>
-                {isProductSoldOut(product) ? (
+                {isComingSoon(product) ? (
+                    <div className="product-badge" style={{ background: '#111', color: '#fff', letterSpacing: '1px' }}>COMING SOON</div>
+                ) : isProductSoldOut(product) ? (
                     <div className="product-badge" style={{ background: '#000', color: '#fff' }}>SOLD OUT</div>
                 ) : product.old_price && parseFloat(product.old_price) > parseFloat(product.price) && (
                     <div className="product-badge">-{Math.round(((product.old_price - product.price) / product.old_price) * 100)}%</div>
                 )}
                 <div className="product-image-wrap">
                   <Link to={`/product/${product.id}`}>
-                    <img src={product.image_url || '/placeholder.png'} alt={product.name} className="product-image primary" style={{ opacity: isProductSoldOut(product) ? 0.6 : 1 }} />
+                    <img src={product.image_url || '/placeholder.png'} alt={product.name} className="product-image primary" style={{ opacity: isProductSoldOut(product) && !isComingSoon(product) ? 0.6 : 1 }} />
                     {product.hover_image_url && <img src={product.hover_image_url} alt={product.name} className="product-image secondary" />}
                   </Link>
                   <div className="product-actions">
-                    {!isProductSoldOut(product) ? (
+                    {isComingSoon(product) ? (
+                      <button className="action-btn add-cart" onClick={() => setNotifyProduct(product)}>NOTIFY ME</button>
+                    ) : !isProductSoldOut(product) ? (
                       <button className="action-btn add-cart" onClick={() => addToCart(product)}>ADD TO CART</button>
                     ) : (
                       <button className="action-btn add-cart" disabled style={{ background: '#ddd', color: '#666', cursor: 'not-allowed' }}>SOLD OUT</button>
@@ -188,6 +199,16 @@ function Category() {
                     <span className="product-price sale">{formatPrice(product.price)}</span>
                     {product.old_price && parseFloat(product.old_price) > parseFloat(product.price) && <span className="product-old-price">{formatPrice(product.old_price)}</span>}
                   </div>
+                  {isComingSoon(product) && (
+                    <div style={{ fontSize: '12px', color: '#666', marginTop: '4px' }}>{getReleaseLabel(product)}</div>
+                  )}
+                  {Array.isArray(product.colors) && product.colors.length > 0 && (
+                    <div style={{ display: 'flex', gap: '6px', marginTop: '8px', flexWrap: 'wrap' }}>
+                      {product.colors.slice(0, 6).map((color) => (
+                        <span key={color} title={color} style={{ width: '12px', height: '12px', borderRadius: '50%', border: '1px solid #ddd', background: getColorHex(color) }} />
+                      ))}
+                    </div>
+                  )}
                   <ProductRating count={product.reviewCount} average={product.reviewAvg} />
                 </div>
               </div>
@@ -203,6 +224,14 @@ function Category() {
         activeFilters={activeFilters}
         onFilterChange={setActiveFilters}
       />
+      {notifyProduct && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 2000, display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }} onClick={() => setNotifyProduct(null)}>
+          <div style={{ background: '#fff', width: '100%', maxWidth: '480px', padding: '24px', borderRadius: '16px 16px 0 0' }} onClick={(e) => e.stopPropagation()}>
+            <h3 style={{ marginTop: 0 }}>{notifyProduct.name}</h3>
+            <NotifyMeForm product={notifyProduct} onClose={() => setNotifyProduct(null)} />
+          </div>
+        </div>
+      )}
     </div>
     </>
   );

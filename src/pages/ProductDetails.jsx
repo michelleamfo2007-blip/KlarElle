@@ -8,7 +8,15 @@ import { useCart } from '../context/CartContext';
 import { useFavorites } from '../context/FavoritesContext';
 import { useCurrency } from '../context/CurrencyContext';
 import { formatSizeLabel } from '../utils/size';
-import { getColorHex } from '../utils/colors';
+import { getColorHex, getVariantImage, findVariantEntry } from '../utils/colors';
+import NotifyMeForm from '../components/NotifyMeForm';
+import NotFound from './NotFound';
+import {
+  getReleaseLabel,
+  isComingSoon,
+  isPublishedOnStorefront,
+  maybeLaunchProduct
+} from '../utils/storefront';
 
 const collectProductImages = (product) => {
   const urls = [];
@@ -72,7 +80,7 @@ function ProductDetails() {
   if (product?.variant_images) {
     const hasVariantInventory = Object.values(product.variant_images).some(v => typeof v === 'object' && v !== null && (v.stock || v.stock_international));
     if (hasVariantInventory) {
-      const colorData = product.variant_images[selectedColor];
+      const colorData = findVariantEntry(product.variant_images, selectedColor);
       if (colorData) {
         usStock = parseInt(colorData.stock?.[selectedSize] || 0, 10);
         intlStock = parseInt(colorData.stock_international?.[selectedSize] || 0, 10);
@@ -134,6 +142,7 @@ function ProductDetails() {
   const [modalImageIndex, setModalImageIndex] = useState(0);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [detailsExpanded, setDetailsExpanded] = useState(true);
+  const [showNotifyModal, setShowNotifyModal] = useState(false);
   const [showSizeRequestModal, setShowSizeRequestModal] = useState(false);
   
   // Write Review State
@@ -147,6 +156,7 @@ function ProductDetails() {
   const goodsRef = useRef(null);
   const reviewsRef = useRef(null);
   const recommendRef = useRef(null);
+  const galleryRef = useRef(null);
   const productVideoRef = useRef(null);
   const modalScrollerRef = useRef(null);
 
@@ -175,24 +185,48 @@ function ProductDetails() {
         data.parsedSizes = pSizes;
         data.parsedColors = pColors;
 
+        if (!isPublishedOnStorefront(data)) {
+          setProduct(null);
+          setLoading(false);
+          return;
+        }
+
+        if (await maybeLaunchProduct(data)) {
+          data.coming_soon = false;
+        }
+
         setProduct(data);
         if (pSizes.length > 0) setSelectedSize(pSizes[0]);
-        if (pColors.length > 0) setSelectedColor(pColors[0]);
+        if (pColors.length > 0) {
+          setSelectedColor(pColors[0]);
+          setPreviewImage(getVariantImage(data.variant_images, pColors[0]));
+          setActiveImage(0);
+        }
 
-        // Fetch matching styles (random products from same category)
+        // Fetch matching styles (published products from same category)
         let { data: matches } = await supabase
           .from('products')
           .select('*')
           .eq('category', data.category)
+          .eq('visibility', true)
+          .eq('status', 'active')
           .neq('id', data.id)
-          .limit(5);
+          .limit(8);
           
         if (!matches || matches.length === 0) {
-          const { data: anyMatches } = await supabase.from('products').select('*').neq('id', data.id).limit(5);
+          const { data: anyMatches } = await supabase
+            .from('products')
+            .select('*')
+            .eq('visibility', true)
+            .eq('status', 'active')
+            .neq('id', data.id)
+            .limit(8);
           matches = anyMatches;
         }
         
-        if (matches) setMatchingStyles(matches);
+        if (matches) {
+          setMatchingStyles(matches.filter((item) => isPublishedOnStorefront(item) && !isComingSoon(item)).slice(0, 5));
+        }
         
         // Fetch reviews
         const { data: revs } = await supabase
@@ -295,13 +329,13 @@ function ProductDetails() {
   }, [product?.video_url]);
 
   useEffect(() => {
-    if (showSizeModal || showGuideModal || showGuideTypeSelector || showReviewsModal || showDetailsModal || showSizeRequestModal || showWriteReviewModal || showImageModal) {
+    if (showSizeModal || showGuideModal || showGuideTypeSelector || showReviewsModal || showDetailsModal || showSizeRequestModal || showWriteReviewModal || showImageModal || showNotifyModal) {
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = 'unset';
     }
     return () => { document.body.style.overflow = 'unset'; };
-  }, [showSizeModal, showGuideModal, showGuideTypeSelector, showReviewsModal, showDetailsModal, showSizeRequestModal, showWriteReviewModal, showImageModal]);
+  }, [showSizeModal, showGuideModal, showGuideTypeSelector, showReviewsModal, showDetailsModal, showSizeRequestModal, showWriteReviewModal, showImageModal, showNotifyModal]);
 
   useEffect(() => {
     if (!showImageModal || !product) return;
@@ -321,15 +355,18 @@ function ProductDetails() {
   }, [modalImageIndex, showImageModal]);
 
   if (loading) return <div style={{ minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '100px 20px', fontSize: '18px', color: '#666' }}>Loading product details...</div>;
-  if (!product) return <div style={{ padding: '100px 20px', textAlign: 'center', fontSize: '18px', color: '#666' }}>Product not found.</div>;
+  if (!product) return <NotFound />;
 
   const images = collectProductImages(product);
   const preorderLeadTime = product.preorder_lead_time || '14–21 business days';
+  const comingSoon = isComingSoon(product);
+  const releaseLabel = getReleaseLabel(product);
+  const productImage = product.image_url?.startsWith('http') ? product.image_url : (product.image_url ? `https://www.klarelle.store${product.image_url}` : '');
 
 
   return (
     <>
-    <SEO title={product.name} description={product.description?.substring(0, 160)} />
+    <SEO title={product.name} description={product.description?.substring(0, 160)} image={productImage} />
     <div className="product-details-page" style={{ paddingBottom: '90px' }}>
       <div className="container" style={{ padding: '40px 20px' }}>
         
@@ -342,10 +379,12 @@ function ProductDetails() {
         <div className="product-layout">
           <style>{`
             @media (min-width: 900px) {
-              .product-layout { max-width: 880px; gap: 32px; }
+              .product-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, 360px); gap: 28px; align-items: start; max-width: 1000px; }
               .gallery-grid { display: block; overflow: hidden; }
-              .gallery-grid .main-image-wrap { display: none; width: 100%; flex: none; max-height: 78vh; }
+              .gallery-grid .main-image-wrap { display: none; width: 100%; flex: none; max-height: 52vh; }
               .gallery-grid .main-image-wrap.is-active { display: flex; }
+              .desktop-add-cart { display: flex !important; }
+              .sticky-bottom-bar { display: none !important; }
             }
             .product-layout { display: flex; flex-direction: column; gap: 24px; }
             .gallery-column { min-width: 0; width: 100%; }
@@ -394,10 +433,10 @@ function ProductDetails() {
           `}</style>
           
           <div className="gallery-column">
-          <div className="gallery-grid">
+          <div className="gallery-grid" ref={galleryRef}>
             {images.map((img, i) => (
               <div key={i} className={`main-image-wrap${activeImage === i ? ' is-active' : ''}`} onClick={() => { setModalImageIndex(i); setImageModalReady(false); setShowImageModal(true); }} style={{ cursor: 'zoom-in' }}>
-                <img src={i === 0 && previewImage ? previewImage : img} alt={`View ${i+1}`} className="main-image" />
+                <img src={(previewImage && (i === activeImage || i === 0)) ? previewImage : img} alt={`View ${i+1}`} className="main-image" />
                 {i === 0 && product.old_price && parseFloat(product.old_price) > parseFloat(product.price) && (
                   <div style={{ position: 'absolute', top: 16, right: 16, background: '#000', color: 'white', padding: '4px 8px', fontSize: '14px', fontWeight: 'bold' }}>
                     -{Math.round(((product.old_price - product.price) / product.old_price) * 100)}%
@@ -452,6 +491,12 @@ function ProductDetails() {
           <div className="info-section">
             <div ref={goodsRef}>
               <h1 className="pd-title" style={{ fontSize: '16px' }}>{product.name}</h1>
+              {comingSoon && (
+                <div style={{ margin: '0 0 12px', display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
+                  <span style={{ background: '#111', color: '#fff', fontSize: '11px', letterSpacing: '1px', padding: '4px 8px', textTransform: 'uppercase', fontWeight: 700 }}>Coming Soon</span>
+                  <span style={{ fontSize: '13px', color: '#666' }}>{releaseLabel}</span>
+                </div>
+              )}
               <div className="pd-price-row">
                 <span className="pd-price" style={{ color: '#000' }}>{formatPrice(product.price)}</span>
               </div>
@@ -492,11 +537,10 @@ function ProductDetails() {
                         className={`color-swatch ${selectedColor === color ? 'active' : ''}`}
                         onClick={() => {
                           setSelectedColor(color);
-                          if (product.variant_images && product.variant_images[color]) {
-                            const val = product.variant_images[color];
-                            setPreviewImage(typeof val === 'string' ? val : (val.image || null));
-                          }
-                          else setPreviewImage(null);
+                          setPreviewImage(getVariantImage(product.variant_images, color));
+                          setActiveImage(0);
+                          const firstSlide = galleryRef.current?.children?.[0];
+                          if (firstSlide) firstSlide.scrollIntoView({ behavior: 'smooth', inline: 'start', block: 'nearest' });
                         }}
                         style={{ backgroundColor: getColorHex(color) }}
                       />
@@ -584,6 +628,7 @@ function ProductDetails() {
             )}
 
             {/* Quantity Selector */}
+            {!comingSoon && (
             <div style={{ marginTop: '24px' }}>
               <div className="pd-options-title">Quantity <span style={{fontSize: '12px', color: '#666', fontWeight: 'normal'}}>{isPreOrder ? `(Preorder · ${preorderLeadTime})` : `(In stock: ${availableStock})`}</span></div>
               <div style={{ display: 'flex', alignItems: 'center', marginTop: '12px', border: '1px solid #e0e0e0', width: 'fit-content', borderRadius: '4px' }}>
@@ -598,6 +643,13 @@ function ProductDetails() {
                 }} style={{ padding: '8px 16px', fontSize: '18px', cursor: 'pointer', background: '#f9f9f9', borderLeft: '1px solid #e0e0e0', borderTopRightRadius: '4px', borderBottomRightRadius: '4px' }}>+</button>
               </div>
             </div>
+            )}
+
+            {comingSoon && (
+              <div style={{ marginTop: '24px' }}>
+                <NotifyMeForm product={product} selectedSize={selectedSize} />
+              </div>
+            )}
 
             {/* More Options */}
             <div style={{ marginTop: '24px', borderTop: '1px solid #eee', paddingTop: '16px' }}>
@@ -624,11 +676,14 @@ function ProductDetails() {
             {/* Sticky Navigation Tabs */}
             <div style={{ display: 'flex', gap: '24px', borderBottom: '1px solid #eee', marginTop: '24px', marginBottom: '16px', paddingBottom: '12px', fontSize: '14px', fontWeight: 'bold', position: 'sticky', top: '0px', background: '#fff', zIndex: 10 }}>
               <span style={{ borderBottom: '2px solid #000', paddingBottom: '12px', marginBottom: '-13px', cursor: 'pointer' }} onClick={() => scrollToSection(goodsRef)}>Details</span>
-              <span style={{ color: '#666', cursor: 'pointer' }} onClick={() => scrollToSection(reviewsRef)}>Reviews</span>
+              {reviewStats.count > 0 && (
+                <span style={{ color: '#666', cursor: 'pointer' }} onClick={() => scrollToSection(reviewsRef)}>Reviews</span>
+              )}
               <span style={{ color: '#666', cursor: 'pointer' }} onClick={() => scrollToSection(recommendRef)}>You May Also Like</span>
             </div>
 
             {/* Reviews Section */}
+            {reviewStats.count > 0 && (
             <div className="section-divider" ref={reviewsRef}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
@@ -673,8 +728,8 @@ function ProductDetails() {
               )}
               
               <div style={{ display: 'flex', gap: '8px', marginBottom: '24px' }}>
-                <span style={{ padding: '6px 12px', background: '#f5f5f5', borderRadius: '4px', fontSize: '11px', fontWeight: 'bold' }}>Fast Logistics</span>
-                <span style={{ padding: '6px 12px', background: '#f5f5f5', borderRadius: '4px', fontSize: '11px', fontWeight: 'bold' }}>Great Service</span>
+                <span style={{ padding: '6px 12px', background: '#f5f5f5', borderRadius: '4px', fontSize: '11px', fontWeight: 'bold' }}>Tracked Shipping</span>
+                <span style={{ padding: '6px 12px', background: '#f5f5f5', borderRadius: '4px', fontSize: '11px', fontWeight: 'bold' }}>Customer Support</span>
               </div>
 
               {reviews.map(review => (
@@ -695,8 +750,8 @@ function ProductDetails() {
                    </div>
                 </div>
               ))}
-              {reviews.length === 0 && <p style={{ fontSize: '13px', color: '#666' }}>No reviews yet.</p>}
             </div>
+            )}
 
 
             
@@ -721,12 +776,13 @@ function ProductDetails() {
               <button style={{ width: '50px', height: '50px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #000', background: 'transparent', cursor: 'pointer', borderRadius: '4px' }} onClick={() => toggleFavorite(product.id)}>
                 <Heart size={24} fill={isFavorite(product.id) ? '#000' : 'none'} />
               </button>
-              <button 
-                className="add-to-bag" 
-                onClick={handleAddToCart}
-              >
-                {addedToCart ? 'ADDED TO CART' : (isPreOrder ? 'PREORDER' : 'ADD TO CART')}
-              </button>
+              {comingSoon ? (
+                <button className="add-to-bag" onClick={() => setShowNotifyModal(true)}>NOTIFY ME WHEN AVAILABLE</button>
+              ) : (
+                <button className="add-to-bag" onClick={handleAddToCart}>
+                  {addedToCart ? 'ADDED TO CART' : (isPreOrder ? 'PREORDER' : 'ADD TO CART')}
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -740,10 +796,23 @@ function ProductDetails() {
           <button
             type="button"
             className="add-to-bag"
-            onClick={handleAddToCart}
+            onClick={comingSoon ? () => setShowNotifyModal(true) : handleAddToCart}
           >
-            {addedToCart ? 'ADDED TO CART' : (isPreOrder ? 'PREORDER' : 'ADD TO CART')}
+            {comingSoon ? 'NOTIFY ME WHEN AVAILABLE' : (addedToCart ? 'ADDED TO CART' : (isPreOrder ? 'PREORDER' : 'ADD TO CART'))}
           </button>
+        </div>,
+        document.body
+      )}
+
+      {showNotifyModal && createPortal(
+        <div className="modal-overlay" onClick={() => setShowNotifyModal(false)}>
+          <div className="modal-content" style={{ padding: '24px', maxHeight: '80vh' }} onClick={(e) => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+              <h3 style={{ margin: 0, fontSize: '16px' }}>Notify Me When Available</h3>
+              <X size={22} onClick={() => setShowNotifyModal(false)} style={{ cursor: 'pointer' }} />
+            </div>
+            <NotifyMeForm product={product} selectedSize={selectedSize} onClose={() => setShowNotifyModal(false)} />
+          </div>
         </div>,
         document.body
       )}
@@ -1098,7 +1167,7 @@ function ProductDetails() {
                   if (sizeModalStep < 4) setSizeModalStep(sizeModalStep + 1);
                   else {
                     setShowSizeModal(false);
-                    addToCart(product, 'S', selectedColor); // Dummy add 'S' to cart since recommendation is 'S'
+                    addToCart(product, 'S', selectedColor);
                   }
                 }}
                 style={{ width: '100%', padding: '16px', background: '#000', color: '#fff', border: 'none', borderRadius: '4px', fontWeight: 'bold', fontSize: '16px', cursor: 'pointer' }}
@@ -1241,7 +1310,6 @@ function ProductDetails() {
                    </div>
                 </div>
               ))}
-              {reviews.length === 0 && <p style={{ fontSize: '13px', color: '#666' }}>No reviews yet.</p>}
             </div>
           </div>
         </div>

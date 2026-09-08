@@ -4,6 +4,7 @@ import { supabase } from '../../lib/supabase';
 import { Upload, X, CheckCircle2, AlertCircle, RefreshCw, Eye, EyeOff, Tag, Box, Star, Loader2, Image } from 'lucide-react';
 import { formatSizeLabel, normalizeSizeList } from '../../utils/size';
 import { getColorHex } from '../../utils/colors';
+import { ASSIGNABLE_CATEGORIES } from '../../data/collections';
 import {
   collectStyleCodes,
   isOfficialSku,
@@ -30,6 +31,7 @@ function ProductForm() {
     price: '',
     old_price: '',
     category: 'new-in',
+    categories: ['new-in'],
     stock: '',
     stock_international: '',
     low_stock_threshold: '5',
@@ -44,6 +46,8 @@ function ProductForm() {
     features: '',
     measurements: '',
     preorder_lead_time: '14–21 business days',
+    coming_soon: false,
+    release_date: '',
     size_guide_url: '',
     video_url: '',
     weight: '',
@@ -61,6 +65,7 @@ function ProductForm() {
 
   const [images, setImages] = useState([]);
   const [errors, setErrors] = useState({});
+  const [notifyCounts, setNotifyCounts] = useState([]);
   const [categories, setCategories] = useState([]);
 
   useEffect(() => {
@@ -91,6 +96,15 @@ function ProductForm() {
         price: data.price || '',
         old_price: data.old_price || '',
         category: data.category || 'new-in',
+        categories: (() => {
+          const fromColumn = Array.isArray(data.categories) ? data.categories : [];
+          const fromTags = (Array.isArray(data.tags) ? data.tags : [])
+            .map((tag) => String(tag))
+            .filter((tag) => tag.toLowerCase().startsWith('cat:'))
+            .map((tag) => tag.slice(4));
+          const merged = [...fromColumn, ...fromTags, data.category].filter(Boolean);
+          return [...new Set(merged)];
+        })(),
         stock: data.stock !== null ? data.stock.toString() : '',
         stock_international: data.stock_international !== null ? data.stock_international.toString() : '',
         low_stock_threshold: data.low_stock_threshold !== null ? data.low_stock_threshold.toString() : '5',
@@ -105,6 +119,8 @@ function ProductForm() {
         features: data.features || '',
         measurements: data.measurements || '',
         preorder_lead_time: data.preorder_lead_time || '14–21 business days',
+        coming_soon: data.coming_soon === true,
+        release_date: data.release_date || '',
         size_guide_url: data.size_guide_url || '',
         video_url: data.video_url || '',
         weight: data.weight || '',
@@ -118,7 +134,12 @@ function ProductForm() {
       const loadedSizes = Array.isArray(data.sizes) ? data.sizes : (data.sizes || '');
       setSizesInput(Array.isArray(loadedSizes) ? normalizeSizeList(loadedSizes).join(', ') : loadedSizes);
       setColorsInput(Array.isArray(data.colors) ? data.colors.join(', ') : (data.colors || ''));
-      setTagsInput(Array.isArray(data.tags) ? data.tags.join(', ') : (data.tags || ''));
+      setTagsInput(Array.isArray(data.tags)
+        ? data.tags.filter((tag) => {
+            const lower = String(tag).toLowerCase();
+            return lower !== 'coming-soon' && !lower.startsWith('cat:');
+          }).join(', ')
+        : (data.tags || ''));
       const loadedVariants = {};
       if (data.variant_images) {
         for (const [color, value] of Object.entries(data.variant_images)) {
@@ -161,6 +182,19 @@ function ProductForm() {
         if (data.hover_image_url) loadedImages.push({ url: data.hover_image_url, isMain: false });
       }
       setImages(loadedImages);
+
+      const { data: requests } = await supabase
+        .from('product_notify_requests')
+        .select('size')
+        .eq('product_id', id);
+      if (requests) {
+        const counts = {};
+        requests.forEach((row) => {
+          const size = row.size || 'Unspecified';
+          counts[size] = (counts[size] || 0) + 1;
+        });
+        setNotifyCounts(Object.entries(counts).map(([size, count]) => ({ size, count })));
+      }
     }
   };
 
@@ -313,7 +347,7 @@ function ProductForm() {
     const newErrors = {};
     if (!formData.name.trim()) newErrors.name = 'Product name is required';
     if (!formData.price || parseFloat(formData.price) <= 0) newErrors.price = 'Please enter a valid price';
-    if (!formData.category) newErrors.category = 'Category is required';
+    if (!formData.categories?.length && !formData.category) newErrors.category = 'Select at least one category';
     if (images.length === 0) newErrors.images = 'Please upload at least one product image';
     
     setErrors(newErrors);
@@ -382,6 +416,8 @@ function ProductForm() {
     
     const finalStock = (activeSizes.length > 0 && activeColors.length > 0) ? totalVariantStock : parseInt(formData.stock, 10);
 
+    const selectedCategories = (formData.categories?.length ? formData.categories : [formData.category]).filter(Boolean);
+
     const productData = {
       name: formData.name,
       sku: isOfficialSku(formData.sku)
@@ -390,7 +426,8 @@ function ProductForm() {
       description: formData.description,
       price: parseFloat(formData.price),
       old_price: formData.old_price ? parseFloat(formData.old_price) : null,
-      category: formData.category,
+      category: (formData.categories?.length ? formData.categories[0] : formData.category) || 'new-in',
+      categories: (formData.categories?.length ? formData.categories : [formData.category]).filter(Boolean),
       stock: finalStock,
       stock_international: formData.stock_international ? parseInt(formData.stock_international, 10) : 0,
       low_stock_threshold: formData.low_stock_threshold ? parseInt(formData.low_stock_threshold, 10) : 5,
@@ -408,6 +445,8 @@ function ProductForm() {
       features: formData.features,
       measurements: formData.measurements,
       preorder_lead_time: formData.preorder_lead_time,
+      coming_soon: formData.coming_soon === true,
+      release_date: formData.release_date || null,
       size_guide_url: formData.size_guide_url,
       video_url: formData.video_url,
       weight: formData.weight ? parseFloat(formData.weight) : null,
@@ -418,7 +457,20 @@ function ProductForm() {
       hs_code: formData.hs_code,
       sizes: activeSizes,
       colors: activeColors,
-      tags: tagsInput.split(/[;,]+/).map(t => t.trim()).filter(Boolean),
+      tags: (() => {
+        const tags = tagsInput.split(/[;,]+/).map(t => t.trim()).filter(Boolean);
+        const withoutMeta = tags.filter((tag) => {
+          const lower = tag.toLowerCase();
+          return lower !== 'coming-soon' && !lower.startsWith('cat:');
+        });
+        const categoryTags = ((formData.categories?.length ? formData.categories : [formData.category]).filter(Boolean))
+          .map((slug) => `cat:${slug}`);
+        return [
+          ...withoutMeta,
+          ...categoryTags,
+          ...(formData.coming_soon ? ['coming-soon'] : [])
+        ];
+      })(),
       variant_images: cleanVariantImages
     };
 
@@ -432,7 +484,7 @@ function ProductForm() {
     try {
       let { error } = await saveProduct(productData);
       if (error && /column|schema cache|does not exist/i.test(error.message || '')) {
-        const { fit, features, measurements, preorder_lead_time, ...basePayload } = productData;
+        const { fit, features, measurements, preorder_lead_time, coming_soon, release_date, categories, ...basePayload } = productData;
         ({ error } = await saveProduct(basePayload));
       }
       if (error) throw error;
@@ -551,15 +603,37 @@ function ProductForm() {
                     )}
                   </div>
                   <div>
-                    <label className="input-label">Category *</label>
-                    <select 
-                      className="input-field"
-                      value={formData.category} 
-                      onChange={(e) => setFormData({...formData, category: e.target.value})}
-                    >
-                      <option value="" disabled>Select a category...</option>
-                      {categories.map(cat => <option key={cat.value} value={cat.value}>{cat.label}</option>)}
-                    </select>
+                    <label className="input-label">Categories *</label>
+                    <p style={{ fontSize: '12px', color: '#6b7280', margin: '0 0 10px' }}>Select every collection this dress belongs to. One dress can be dinner wear, a birthday dress, and a wedding guest look.</p>
+                    <div style={{ display: 'grid', gap: '8px', maxHeight: '220px', overflowY: 'auto', border: '1px solid #e5e7eb', borderRadius: '6px', padding: '12px' }}>
+                      {[
+                        ...ASSIGNABLE_CATEGORIES.map((collection) => ({ value: collection.slug, label: collection.title })),
+                        ...categories.filter((cat) => !ASSIGNABLE_CATEGORIES.some((collection) => collection.slug === cat.value))
+                      ].map((cat) => {
+                        const checked = (formData.categories || []).includes(cat.value);
+                        return (
+                          <label key={cat.value} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '14px' }}>
+                            <input
+                              type="checkbox"
+                              checked={checked}
+                              onChange={() => {
+                                const current = formData.categories || [];
+                                const next = checked
+                                  ? current.filter((slug) => slug !== cat.value)
+                                  : [...current, cat.value];
+                                setFormData({
+                                  ...formData,
+                                  categories: next,
+                                  category: next[0] || ''
+                                });
+                              }}
+                              style={{ width: '16px', height: '16px', accentColor: '#000' }}
+                            />
+                            {cat.label}
+                          </label>
+                        );
+                      })}
+                    </div>
                     {errors.category && <div className="error-text"><AlertCircle size={14}/> {errors.category}</div>}
                   </div>
                 </div>
@@ -1230,6 +1304,36 @@ function ProductForm() {
                     <option value="active">Active</option>
                     <option value="archived">Archived</option>
                   </select>
+                </div>
+
+                <div style={{ borderTop: '1px solid #e5e7eb', paddingTop: '16px' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', marginBottom: '12px' }}>
+                    <input
+                      type="checkbox"
+                      checked={formData.coming_soon === true}
+                      onChange={(e) => setFormData({ ...formData, coming_soon: e.target.checked })}
+                      style={{ width: '16px', height: '16px', accentColor: '#000' }}
+                    />
+                    <span style={{ fontSize: '14px', color: '#111827' }}>Coming Soon — hide Add to Cart until launch</span>
+                  </label>
+                  <label className="input-label">Expected release date</label>
+                  <input
+                    type="date"
+                    className="input-field"
+                    value={formData.release_date || ''}
+                    onChange={(e) => setFormData({ ...formData, release_date: e.target.value })}
+                  />
+                  <p style={{ fontSize: '12px', color: '#6b7280', margin: '8px 0 0' }}>Leave blank to show “Releasing next week”. On this date the product becomes buyable and notify-me customers are emailed.</p>
+                  {notifyCounts.length > 0 && (
+                    <div style={{ marginTop: '12px', fontSize: '13px' }}>
+                      <strong>Notify requests by size</strong>
+                      <ul style={{ margin: '8px 0 0', paddingLeft: '18px' }}>
+                        {notifyCounts.map((row) => (
+                          <li key={row.size}>{row.size}: {row.count}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
                 </div>
                 
                 <div style={{ borderTop: '1px solid #e5e7eb', paddingTop: '16px' }}>

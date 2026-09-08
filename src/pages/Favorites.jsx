@@ -8,6 +8,7 @@ import { useCurrency } from '../context/CurrencyContext';
 import ProductRating from '../components/ProductRating';
 import { attachReviewStats } from '../utils/reviews';
 import { isProductSoldOut } from '../utils/stock';
+import { isComingSoon } from '../utils/storefront';
 
 function Favorites() {
   const { favorites, toggleFavorite, isFavorite } = useFavorites();
@@ -28,6 +29,7 @@ function Favorites() {
         .from('products')
         .select('*')
         .in('id', favorites)
+        .eq('visibility', true)
         .eq('status', 'active');
         
       if (!error && data) {
@@ -72,7 +74,9 @@ function Favorites() {
                   <img src={product.image_url || '/placeholder.png'} alt={product.name} className="luxury-image primary" style={{ opacity: isProductSoldOut(product) ? 0.6 : 1 }} />
                 </Link>
                 
-                {isProductSoldOut(product) ? (
+                {isComingSoon(product) ? (
+                  <div className="luxury-badge" style={{ background: '#111', color: '#fff', letterSpacing: '1px' }}>COMING SOON</div>
+                ) : isProductSoldOut(product) ? (
                   <div className="luxury-badge" style={{ background: '#000', color: '#fff', letterSpacing: '1px' }}>SOLD OUT</div>
                 ) : product.old_price && parseFloat(product.old_price) > parseFloat(product.price) && (
                   <div className="luxury-badge">-{Math.round(((product.old_price - product.price) / product.old_price) * 100)}%</div>
@@ -88,7 +92,7 @@ function Favorites() {
                     <Heart size={16} fill={isFavorite(product.id) ? "currentColor" : "none"} />
                   </div>
                   <Link to={`/product/${product.id}`} className="luxury-action-icon" style={{ display: 'flex', color: 'inherit', textDecoration: 'none' }} title="Quick View"><Eye size={16} /></Link>
-                  {!isProductSoldOut(product) && (
+                  {!isComingSoon(product) && !isProductSoldOut(product) && (
                     <div className="luxury-action-icon" title="Add to Cart" onClick={() => addToCart(product)}><ShoppingBag size={16} /></div>
                   )}
                 </div>
@@ -111,8 +115,11 @@ function Favorites() {
                 </div>
                 
                 <ProductRating count={product.reviewCount} average={product.reviewAvg} className="luxury-rating" />
-                
-                <button className="luxury-add-btn" onClick={() => addToCart(product)}>Add to Cart</button>
+                {isComingSoon(product) ? (
+                  <Link to={`/product/${product.id}`} className="luxury-add-btn" style={{ textDecoration: 'none', display: 'block', textAlign: 'center' }}>Notify Me When Available</Link>
+                ) : (
+                  <button className="luxury-add-btn" onClick={() => addToCart(product)}>Add to Cart</button>
+                )}
               </div>
             </div>
           ))}

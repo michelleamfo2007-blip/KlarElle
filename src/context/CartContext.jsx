@@ -2,6 +2,8 @@ import React, { createContext, useState, useContext, useEffect } from 'react';
 import { useAuth } from './AuthContext';
 import { getFulfillmentSource } from '../utils/stock';
 import { getVariantSkuFromProduct } from '../utils/sku';
+import { isComingSoon } from '../utils/storefront';
+import { logCartActivity, saveCartSnapshot } from '../utils/cartTracking';
 
 const CartContext = createContext();
 
@@ -21,9 +23,16 @@ export const CartProvider = ({ children }) => {
 
   useEffect(() => {
     localStorage.setItem('klarelle_cart', JSON.stringify(cartItems));
-  }, [cartItems]);
+    saveCartSnapshot(cartItems, session?.user?.email);
+  }, [cartItems, session?.user?.email]);
 
   const addToCart = (product, selectedSize = null, selectedColor = null, quantity = 1, fulfilledFrom) => {
+    if (isComingSoon(product)) {
+      setCartToast('This style is coming soon. Use Notify Me When Available.');
+      window.clearTimeout(addToCart._toastTimer);
+      addToCart._toastTimer = window.setTimeout(() => setCartToast(''), 3500);
+      return;
+    }
     const source = fulfilledFrom || getFulfillmentSource(product, selectedColor, selectedSize);
     const sku = getVariantSkuFromProduct(product, selectedColor, selectedSize) || product.sku;
     setCartItems(prev => {
@@ -34,6 +43,15 @@ export const CartProvider = ({ children }) => {
       }
       return [...prev, { ...product, cartItemId, selectedSize, selectedColor, quantity, fulfilledFrom: source, sku }];
     });
+    logCartActivity({
+      action: 'add',
+      product,
+      size: selectedSize,
+      color: selectedColor,
+      quantity,
+      sku,
+      email: session?.user?.email
+    });
     const label = product?.name ? `${product.name} added to cart` : 'Added to cart';
     setCartToast(label);
     window.clearTimeout(addToCart._toastTimer);
@@ -41,7 +59,19 @@ export const CartProvider = ({ children }) => {
   };
 
   const removeFromCart = (cartItemId) => {
-    setCartItems(prev => prev.filter(item => item.cartItemId !== cartItemId));
+    const item = cartItems.find((entry) => entry.cartItemId === cartItemId);
+    setCartItems(prev => prev.filter(entry => entry.cartItemId !== cartItemId));
+    if (item) {
+      logCartActivity({
+        action: 'remove',
+        product: item,
+        size: item.selectedSize,
+        color: item.selectedColor,
+        quantity: item.quantity,
+        sku: item.sku,
+        email: session?.user?.email
+      });
+    }
   };
 
   const updateQuantity = (cartItemId, quantity) => {

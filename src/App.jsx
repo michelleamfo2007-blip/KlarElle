@@ -23,6 +23,7 @@ import Coupons from './pages/admin/Coupons';
 import AdminReturns from './pages/admin/AdminReturns';
 import Orders from './pages/admin/Orders';
 import Waitlist from './pages/admin/Waitlist';
+import AdminCarts from './pages/admin/AdminCarts';
 import OrderDetails from './pages/admin/OrderDetails';
 import SuperAdminLayout from './pages/super-admin/SuperAdminLayout';
 import SuperDashboard from './pages/super-admin/SuperDashboard';
@@ -55,6 +56,8 @@ import ReturnDetails from './pages/ReturnDetails';
 import CheckIn from './pages/CheckIn';
 import StaticPage from './pages/StaticPage';
 import ContactUs from './pages/ContactUs';
+import FindMySize from './pages/FindMySize';
+import NotFound from './pages/NotFound';
 import { AuthProvider } from './context/AuthContext';
 import { CurrencyProvider } from './context/CurrencyContext';
 import './index.css';
@@ -91,6 +94,7 @@ function App() {
               <Route path="profile/vouchers" element={<Vouchers />} />
               <Route path="profile/wallet" element={<Wallet />} />
               <Route path="check-in" element={<CheckIn />} />
+              <Route path="find-my-size" element={<FindMySize />} />
               <Route path="page/about-us" element={<StaticPage title="About Us" />} />
               <Route path="page/faq" element={<StaticPage title="FAQ" />} />
               <Route path="page/influencer-collaboration" element={<StaticPage title="Influencer Collaboration" />} />
@@ -105,6 +109,7 @@ function App() {
               <Route path="page/terms-and-conditions" element={<StaticPage title="Terms & Conditions" />} />
               <Route path="privacy" element={<StaticPage title="Privacy Policy" />} />
               <Route path="terms" element={<StaticPage title="Terms & Conditions" />} />
+              <Route path="*" element={<NotFound />} />
             </Route>
 
             {/* Admin Routes */}
@@ -124,6 +129,7 @@ function App() {
               <Route path="payments" element={<SuperPayments />} />
               <Route path="shipping" element={<SuperShipping />} />
               <Route path="waitlist" element={<Waitlist />} />
+              <Route path="carts" element={<AdminCarts />} />
               <Route path="reviews" element={<SuperReviews />} />
               <Route path="support" element={<SuperSupport />} />
               <Route path="reports" element={<SuperReports />} />
