@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import { Upload, X, CheckCircle2, AlertCircle, RefreshCw, Eye, EyeOff, Tag, Box, Star, Loader2, Image } from 'lucide-react';
-import { formatSizeLabel, normalizeSizeList } from '../../utils/size';
+import { formatSizeLabel, normalizeSizeList, parseSizeChart, cmToDisplay, displayToCm } from '../../utils/size';
 import { getColorHex } from '../../utils/colors';
 import { ASSIGNABLE_CATEGORIES } from '../../data/collections';
 import {
@@ -59,6 +59,8 @@ function ProductForm() {
   });
 
   const [sizesInput, setSizesInput] = useState('');
+  const [sizeChart, setSizeChart] = useState([]);
+  const [chartUnit, setChartUnit] = useState('cm');
   const [colorsInput, setColorsInput] = useState('');
   const [tagsInput, setTagsInput] = useState('');
   const [variantImages, setVariantImages] = useState({});
@@ -74,6 +76,15 @@ function ProductForm() {
       fetchProduct();
     }
   }, [id]);
+
+  useEffect(() => {
+    const sizes = normalizeSizeList(sizesInput.split(/[;,]+/).map((s) => s.trim()).filter(Boolean));
+    if (!sizes.length) {
+      setSizeChart([]);
+      return;
+    }
+    setSizeChart((prev) => parseSizeChart(prev, sizes));
+  }, [sizesInput]);
 
   const fetchCategories = async () => {
     const { data, error } = await supabase
@@ -132,7 +143,11 @@ function ProductForm() {
       });
 
       const loadedSizes = Array.isArray(data.sizes) ? data.sizes : (data.sizes || '');
-      setSizesInput(Array.isArray(loadedSizes) ? normalizeSizeList(loadedSizes).join(', ') : loadedSizes);
+      const sizeList = Array.isArray(loadedSizes)
+        ? normalizeSizeList(loadedSizes)
+        : normalizeSizeList(String(loadedSizes).split(/[;,]+/).map((s) => s.trim()).filter(Boolean));
+      setSizesInput(sizeList.join(', '));
+      setSizeChart(parseSizeChart(data.size_chart, sizeList));
       setColorsInput(Array.isArray(data.colors) ? data.colors.join(', ') : (data.colors || ''));
       setTagsInput(Array.isArray(data.tags)
         ? data.tags.filter((tag) => {
@@ -456,6 +471,7 @@ function ProductForm() {
       country_of_manufacture: formData.country_of_manufacture,
       hs_code: formData.hs_code,
       sizes: activeSizes,
+      size_chart: sizeChart,
       colors: activeColors,
       tags: (() => {
         const tags = tagsInput.split(/[;,]+/).map(t => t.trim()).filter(Boolean);
@@ -484,7 +500,7 @@ function ProductForm() {
     try {
       let { error } = await saveProduct(productData);
       if (error && /column|schema cache|does not exist/i.test(error.message || '')) {
-        const { fit, features, measurements, preorder_lead_time, coming_soon, release_date, categories, ...basePayload } = productData;
+        const { fit, features, measurements, preorder_lead_time, coming_soon, release_date, categories, size_chart, ...basePayload } = productData;
         ({ error } = await saveProduct(basePayload));
       }
       if (error) throw error;
@@ -1031,11 +1047,64 @@ function ProductForm() {
                   <input 
                     type="text" 
                     className="input-field" 
-                    placeholder="e.g. 8, 10, 12, 14"
+                    placeholder="e.g. S, M, L, XL"
                     value={sizesInput} 
                     onChange={(e) => setSizesInput(e.target.value)} 
                   />
+                  <p style={{ fontSize: '12px', color: '#6b7280', margin: '6px 0 0' }}>The Klarelle size guide on the product page is built from the chart below. Shoppers can switch cm / in themselves.</p>
                 </div>
+                {sizeChart.length > 0 && (
+                  <div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                      <label className="input-label" style={{ margin: 0 }}>Klarelle Size Guide</label>
+                      <div style={{ display: 'flex', background: '#f3f4f6', borderRadius: '16px', overflow: 'hidden' }}>
+                        <button
+                          type="button"
+                          onClick={() => setChartUnit('cm')}
+                          style={{ padding: '4px 12px', border: 'none', background: chartUnit === 'cm' ? '#111' : 'transparent', color: chartUnit === 'cm' ? '#fff' : '#111', fontSize: '12px', fontWeight: 700, cursor: 'pointer' }}
+                        >cm</button>
+                        <button
+                          type="button"
+                          onClick={() => setChartUnit('in')}
+                          style={{ padding: '4px 12px', border: 'none', background: chartUnit === 'in' ? '#111' : 'transparent', color: chartUnit === 'in' ? '#fff' : '#111', fontSize: '12px', fontWeight: 700, cursor: 'pointer' }}
+                        >in</button>
+                      </div>
+                    </div>
+                    <div style={{ overflowX: 'auto' }}>
+                      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
+                        <thead>
+                          <tr>
+                            {['Size', 'Bust', 'Waist', 'Hip', 'Length'].map((heading) => (
+                              <th key={heading} style={{ textAlign: 'left', padding: '8px 6px', borderBottom: '1px solid #e5e7eb', fontSize: '11px', letterSpacing: '0.06em', textTransform: 'uppercase', color: '#6b7280' }}>{heading}</th>
+                            ))}
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {sizeChart.map((row) => (
+                            <tr key={row.size}>
+                              <td style={{ padding: '8px 6px', fontWeight: 700 }}>{row.size}</td>
+                              {['bust', 'waist', 'hip', 'length'].map((field) => (
+                                <td key={field} style={{ padding: '8px 6px' }}>
+                                  <input
+                                    type="number"
+                                    step="0.1"
+                                    className="input-field"
+                                    value={row[field] == null ? '' : cmToDisplay(row[field], chartUnit)}
+                                    onChange={(e) => {
+                                      const next = displayToCm(e.target.value, chartUnit);
+                                      setSizeChart((prev) => prev.map((item) => item.size === row.size ? { ...item, [field]: next } : item));
+                                    }}
+                                  />
+                                </td>
+                              ))}
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                    <p style={{ fontSize: '12px', color: '#6b7280', margin: '8px 0 0' }}>Enter this dress’s garment measurements. Check My Size uses the same numbers.</p>
+                  </div>
+                )}
                 <div>
                   <label className="input-label">Available Colors (comma separated)</label>
                   <input 
@@ -1046,28 +1115,6 @@ function ProductForm() {
                     onChange={(e) => setColorsInput(e.target.value)} 
                   />
                   <p style={{ fontSize: '12px', color: '#6b7280', margin: '6px 0 0' }}>Type the shade name, not just “Blue”. Navy Blue and Royal Blue show as different colors.</p>
-                </div>
-                <div>
-                  <label className="input-label">Size Guide Image</label>
-                  {formData.size_guide_url ? (
-                    <div style={{ position: 'relative', display: 'inline-block', marginBottom: '8px' }}>
-                      <img src={formData.size_guide_url} alt="Size Guide" style={{ width: '100px', height: '100px', objectFit: 'cover', borderRadius: '4px', border: '1px solid #eee' }} />
-                      <button type="button" onClick={() => setFormData({...formData, size_guide_url: ''})} style={{ position: 'absolute', top: '-8px', right: '-8px', background: 'red', color: 'white', borderRadius: '50%', border: 'none', cursor: 'pointer', padding: '4px' }}><X size={12} /></button>
-                    </div>
-                  ) : (
-                    <div>
-                      <input 
-                        type="file" 
-                        accept="image/*"
-                        onChange={(e) => processSingleFile(e, 'size_guide_url')} 
-                        style={{ display: 'none' }}
-                        id="size-guide-upload"
-                      />
-                      <label htmlFor="size-guide-upload" style={{ display: 'inline-block', padding: '8px 16px', border: '1px solid #d1d5db', borderRadius: '4px', cursor: 'pointer', fontSize: '13px', background: '#f9fafb' }}>
-                        {uploading ? 'Uploading...' : 'Upload Image'}
-                      </label>
-                    </div>
-                  )}
                 </div>
                 <div>
                   <label className="input-label">Product Video (Optional)</label>

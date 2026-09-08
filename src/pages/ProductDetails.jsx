@@ -7,7 +7,8 @@ import { Heart, Truck, RotateCcw, Share2, Star, ChevronRight, X, Ruler, ThumbsUp
 import { useCart } from '../context/CartContext';
 import { useFavorites } from '../context/FavoritesContext';
 import { useCurrency } from '../context/CurrencyContext';
-import { formatSizeLabel, recommendDressSize, getSizeChartRows, cmToDisplay } from '../utils/size';
+import { formatSizeLabel, recommendDressSize, getSizeChartRows } from '../utils/size';
+import KlarelleSizeGuide from '../components/KlarelleSizeGuide';
 import { createSizeProfile, loadSizeProfiles, saveSizeProfiles } from '../utils/sizeProfile';
 import { getColorHex, collectImagesForColor, parseProductColors } from '../utils/colors';
 import { getFulfillmentSource, getVariantStock, pickAvailableSize } from '../utils/stock';
@@ -113,7 +114,8 @@ function ProductDetails() {
         bust: profile.bust,
         waist: profile.waist,
         hips: profile.hips,
-        sizes: product.parsedSizes
+        sizes: product.parsedSizes,
+        chart: product.size_chart
       }));
       setSizeModalStep(4);
     } else {
@@ -128,7 +130,8 @@ function ProductDetails() {
       bust: userBust,
       waist: userWaist,
       hips: userHips,
-      sizes: product.parsedSizes
+      sizes: product.parsedSizes,
+      chart: product.size_chart
     });
     setRecommendedSize(fit);
     const fields = {
@@ -918,63 +921,20 @@ function ProductDetails() {
             </div>
             
             <div style={{ overflowY: 'auto', flex: 1, paddingBottom: '40px' }}>
-              {product.size_guide_url && (
-                <div style={{ padding: '20px', textAlign: 'center' }}>
-                  <img src={product.size_guide_url} alt="Size Guide" style={{ maxWidth: '100%', height: 'auto', borderRadius: '8px' }} />
-                </div>
-              )}
               <>
+                  <KlarelleSizeGuide
+                    rows={getSizeChartRows(product.parsedSizes, product.size_chart)}
+                    unit={guideUnit}
+                    onUnitChange={setGuideUnit}
+                    recommendedSize={recommendedSize}
+                    selectedSize={selectedSize}
+                  />
                   <div style={{ padding: '16px 20px', borderBottom: '8px solid #f5f5f5' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                  <span style={{ fontWeight: 'bold', fontSize: '15px' }}>Body measurements</span>
-                  <div style={{ display: 'flex', background: '#f5f5f5', borderRadius: '16px', overflow: 'hidden' }}>
-                    <button 
-                      onClick={() => setGuideUnit('cm')}
-                      style={{ padding: '6px 16px', border: 'none', background: guideUnit === 'cm' ? '#222' : 'transparent', color: guideUnit === 'cm' ? '#fff' : '#222', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer', borderRadius: '16px' }}
-                    >cm</button>
-                    <button 
-                      onClick={() => setGuideUnit('in')}
-                      style={{ padding: '6px 16px', border: 'none', background: guideUnit === 'in' ? '#222' : 'transparent', color: guideUnit === 'in' ? '#fff' : '#222', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer', borderRadius: '16px' }}
-                    >in</button>
-                  </div>
-                </div>
-
                 {product.measurements && (
                   <p style={{ fontSize: '13px', color: '#555', lineHeight: 1.5, margin: '0 0 16px' }}>{product.measurements}</p>
                 )}
-
-                <h4 style={{ margin: '0 0 16px 0', fontSize: '16px', fontWeight: 'bold' }}>Chart for this dress</h4>
-                <div style={{ overflowX: 'auto', margin: '0 -20px', padding: '0 20px' }}>
-                  <table style={{ width: '100%', minWidth: '320px', borderCollapse: 'collapse', fontSize: '13px', textAlign: 'center' }}>
-                    <thead>
-                      <tr>
-                        <th style={{ padding: '12px 8px', borderBottom: '1px solid #eee' }}>Size</th>
-                        <th style={{ padding: '12px 8px', borderBottom: '1px solid #eee' }}>Bust</th>
-                        <th style={{ padding: '12px 8px', borderBottom: '1px solid #eee' }}>Waist</th>
-                        <th style={{ padding: '12px 8px', borderBottom: '1px solid #eee' }}>Hip</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {getSizeChartRows(product.parsedSizes).map((row) => {
-                        const isBest = recommendedSize && formatSizeLabel(recommendedSize) === row.size;
-                        const isSelected = formatSizeLabel(selectedSize) === row.size;
-                        const highlight = isBest || isSelected;
-                        return (
-                          <tr key={row.size}>
-                            <td style={{ padding: '16px 8px', borderBottom: '1px solid #eee', fontWeight: 'bold', color: highlight ? '#b07b1a' : '#000' }}>
-                              {isBest ? '👍 ' : ''}{row.size}
-                            </td>
-                            <td style={{ padding: '16px 8px', borderBottom: '1px solid #eee', color: highlight ? '#b07b1a' : '#000', fontWeight: highlight ? 'bold' : 'normal' }}>{cmToDisplay(row.bust, guideUnit)}</td>
-                            <td style={{ padding: '16px 8px', borderBottom: '1px solid #eee', color: highlight ? '#b07b1a' : '#000', fontWeight: highlight ? 'bold' : 'normal' }}>{cmToDisplay(row.waist, guideUnit)}</td>
-                            <td style={{ padding: '16px 8px', borderBottom: '1px solid #eee', color: highlight ? '#b07b1a' : '#000', fontWeight: highlight ? 'bold' : 'normal' }}>{cmToDisplay(row.hip, guideUnit)}</td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
-                <div style={{ marginTop: '16px', fontSize: '13px', color: '#999' }}>
-                  *Body measurements in {guideUnit}. If you have used Check My Size, your best match is highlighted. A recommendation is guidance only.
+                <div style={{ fontSize: '13px', color: '#999' }}>
+                  *Same chart as this dress. If you have used Check My Size, your best match is highlighted. A recommendation is guidance only.
                 </div>
               </div>
 
@@ -1187,7 +1147,8 @@ function ProductDetails() {
                               bust: profile.bust,
                               waist: profile.waist,
                               hips: profile.hips,
-                              sizes: product.parsedSizes
+                              sizes: product.parsedSizes,
+                              chart: product.size_chart
                             }));
                           }}
                           style={{ padding: '8px 20px', background: activeProfileId === profile.id ? '#000' : '#f5f5f5', color: activeProfileId === profile.id ? '#fff' : '#000', border: 'none', fontWeight: 'bold', fontSize: '14px' }}
@@ -1267,7 +1228,8 @@ function ProductDetails() {
                               bust: next[0].bust,
                               waist: next[0].waist,
                               hips: next[0].hips,
-                              sizes: product.parsedSizes
+                              sizes: product.parsedSizes,
+                              chart: product.size_chart
                             }));
                           } else {
                             setSizeModalStep(1);
