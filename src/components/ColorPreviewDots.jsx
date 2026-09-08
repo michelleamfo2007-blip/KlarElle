@@ -15,7 +15,7 @@ function ColorPreviewDots({ colors, selectedColor, onSelect }) {
       return (
         <div
           className="color-preview-dots"
-          style={{ display: 'flex', gap: '8px', marginTop: '10px', flexWrap: 'wrap', position: 'relative', zIndex: 3 }}
+          style={{ display: 'flex', gap: '5px', marginTop: '8px', flexWrap: 'wrap', position: 'relative', zIndex: 3 }}
           onClick={(event) => event.stopPropagation()}
         >
           {colors.slice(0, 6).map((color) => (
@@ -30,8 +30,8 @@ function ColorPreviewDots({ colors, selectedColor, onSelect }) {
                 onSelect(color);
               }}
               style={{
-                width: '22px',
-                height: '22px',
+                width: '12px',
+                height: '12px',
                 borderRadius: '50%',
                 padding: 0,
                 cursor: 'pointer',

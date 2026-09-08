@@ -20,6 +20,23 @@ const SIZE_CHART = [
   { size: 'XXXL', bust: 108.5, waist: 95, hip: 126 }
 ];
 
+export function getSizeChartRows(sizes = []) {
+  const available = normalizeSizeList(sizes);
+  if (!available.length) return SIZE_CHART;
+  const matched = SIZE_CHART.filter((row) => available.includes(row.size));
+  if (matched.length) return matched;
+  return available.map((size) => (
+    SIZE_CHART.find((row) => row.size === size) || { size, bust: null, waist: null, hip: null }
+  ));
+}
+
+export function cmToDisplay(cm, unit) {
+  if (cm == null || Number.isNaN(Number(cm))) return '—';
+  const value = Number(cm);
+  if (unit === 'in') return (value / 2.54).toFixed(1);
+  return value.toFixed(1);
+}
+
 export function recommendDressSize({ bust, waist, hips, sizes = [] }) {
   const scored = SIZE_CHART
     .map((row) => ({

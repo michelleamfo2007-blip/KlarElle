@@ -3,11 +3,12 @@ import { createPortal } from 'react-dom';
 import { useParams, Link } from 'react-router-dom';
 import SEO from '../components/SEO';
 import { supabase } from '../lib/supabase';
-import { Heart, Truck, RotateCcw, Share2, Star, ChevronRight, X, Ruler, ThumbsUp, ChevronLeft, LayoutGrid } from 'lucide-react';
+import { Heart, Truck, RotateCcw, Share2, Star, ChevronRight, X, Ruler, ThumbsUp, ChevronLeft, LayoutGrid, Pencil, Trash2 } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useFavorites } from '../context/FavoritesContext';
 import { useCurrency } from '../context/CurrencyContext';
-import { formatSizeLabel, recommendDressSize } from '../utils/size';
+import { formatSizeLabel, recommendDressSize, getSizeChartRows, cmToDisplay } from '../utils/size';
+import { createSizeProfile, loadSizeProfiles, saveSizeProfiles } from '../utils/sizeProfile';
 import { getColorHex, collectImagesForColor, parseProductColors } from '../utils/colors';
 import { getFulfillmentSource, getVariantStock, pickAvailableSize } from '../utils/stock';
 import NotifyMeForm from '../components/NotifyMeForm';
@@ -85,12 +86,86 @@ function ProductDetails() {
     setTimeout(() => setAddedToCart(false), 2500);
   };
 
+  const applyProfile = (profile) => {
+    if (!profile) return;
+    setUserHeight(profile.height);
+    setUserWeight(profile.weight);
+    setUserBust(profile.bust);
+    setUserWaist(profile.waist);
+    setUserHips(profile.hips);
+    setUserUnderbust(profile.underbust || 75);
+    setBodyShape(profile.bodyShape || 'Rounded');
+    setFitPreference(profile.fitPreference || '');
+    setAgeRange(profile.ageRange || '');
+    setMeasurementUnit(profile.unit || 'cm, kg');
+  };
+
+  const openCheckMySize = () => {
+    const stored = loadSizeProfiles();
+    setSizeProfiles(stored.profiles);
+    setActiveProfileId(stored.activeId);
+    setSizePrivacyAgreed(stored.profiles.length > 0);
+    const profile = stored.profiles.find((item) => item.id === stored.activeId) || stored.profiles[0];
+    if (profile) {
+      applyProfile(profile);
+      setEditingProfileId(profile.id);
+      setRecommendedSize(recommendDressSize({
+        bust: profile.bust,
+        waist: profile.waist,
+        hips: profile.hips,
+        sizes: product.parsedSizes
+      }));
+      setSizeModalStep(4);
+    } else {
+      setEditingProfileId(null);
+      setSizeModalStep(1);
+    }
+    setShowSizeModal(true);
+  };
+
+  const persistCurrentProfile = () => {
+    const fit = recommendDressSize({
+      bust: userBust,
+      waist: userWaist,
+      hips: userHips,
+      sizes: product.parsedSizes
+    });
+    setRecommendedSize(fit);
+    const fields = {
+      height: userHeight,
+      weight: userWeight,
+      bust: userBust,
+      waist: userWaist,
+      hips: userHips,
+      underbust: userUnderbust,
+      bodyShape: bodyShape || 'Rounded',
+      fitPreference,
+      ageRange,
+      unit: measurementUnit
+    };
+    let next = [...sizeProfiles];
+    let activeId = editingProfileId;
+    if (editingProfileId && next.some((item) => item.id === editingProfileId)) {
+      next = next.map((item) => item.id === editingProfileId ? { ...item, ...fields } : item);
+    } else {
+      const created = createSizeProfile({
+        ...fields,
+        name: next.length === 0 ? 'Me' : `Profile ${next.length + 1}`
+      });
+      next = [...next, created];
+      activeId = created.id;
+      setEditingProfileId(created.id);
+    }
+    saveSizeProfiles(next, activeId);
+    setSizeProfiles(next);
+    setActiveProfileId(activeId);
+    return fit;
+  };
+
   // Modal State
   const [showSizeModal, setShowSizeModal] = useState(false);
   const [showGuideModal, setShowGuideModal] = useState(false);
   const [guideUnit, setGuideUnit] = useState('cm');
-  const [guideType, setGuideType] = useState('Default');
-  const [showGuideTypeSelector, setShowGuideTypeSelector] = useState(false);
   const [sizeModalStep, setSizeModalStep] = useState(1);
   const [measurementUnit, setMeasurementUnit] = useState('cm, kg');
   const [bodyShape, setBodyShape] = useState(null);
@@ -99,6 +174,12 @@ function ProductDetails() {
   const [userBust, setUserBust] = useState(90);
   const [userWaist, setUserWaist] = useState(70);
   const [userHips, setUserHips] = useState(100);
+  const [userUnderbust, setUserUnderbust] = useState(75);
+  const [fitPreference, setFitPreference] = useState('');
+  const [ageRange, setAgeRange] = useState('');
+  const [sizeProfiles, setSizeProfiles] = useState([]);
+  const [activeProfileId, setActiveProfileId] = useState(null);
+  const [editingProfileId, setEditingProfileId] = useState(null);
   
   const [showReviewsModal, setShowReviewsModal] = useState(false);
   const [showImageModal, setShowImageModal] = useState(false);
@@ -133,6 +214,14 @@ function ProductDetails() {
       ref.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   };
+
+  useEffect(() => {
+    const stored = loadSizeProfiles();
+    setSizeProfiles(stored.profiles);
+    setActiveProfileId(stored.activeId);
+    const profile = stored.profiles.find((item) => item.id === stored.activeId) || stored.profiles[0];
+    if (profile) applyProfile(profile);
+  }, []);
 
   useEffect(() => {
     const fetchProductAndMatches = async () => {
@@ -298,13 +387,13 @@ function ProductDetails() {
   }, [product?.video_url]);
 
   useEffect(() => {
-    if (showSizeModal || showGuideModal || showGuideTypeSelector || showReviewsModal || showDetailsModal || showSizeRequestModal || showWriteReviewModal || showImageModal || showNotifyModal || showPrivacyModal) {
+    if (showSizeModal || showGuideModal || showReviewsModal || showDetailsModal || showSizeRequestModal || showWriteReviewModal || showImageModal || showNotifyModal || showPrivacyModal) {
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = 'unset';
     }
     return () => { document.body.style.overflow = 'unset'; };
-  }, [showSizeModal, showGuideModal, showGuideTypeSelector, showReviewsModal, showDetailsModal, showSizeRequestModal, showWriteReviewModal, showImageModal, showNotifyModal, showPrivacyModal]);
+  }, [showSizeModal, showGuideModal, showReviewsModal, showDetailsModal, showSizeRequestModal, showWriteReviewModal, showImageModal, showNotifyModal, showPrivacyModal]);
 
   useEffect(() => {
     if (!showImageModal || !product) return;
@@ -383,8 +472,8 @@ function ProductDetails() {
             .size-btn:hover { border-color: #999; }
             .size-btn.active { border-color: #000; background: #000; color: white; }
             
-            .color-grid { display: flex; gap: 12px; margin: 12px 0 24px 0; flex-wrap: wrap; }
-            .color-swatch { width: 36px; height: 36px; border-radius: 50%; border: 1px solid #d1d5db; cursor: pointer; padding: 0; position: relative; transition: transform 0.2s; }
+            .color-grid { display: flex; gap: 8px; margin: 8px 0 16px 0; flex-wrap: wrap; }
+            .color-swatch { width: 22px; height: 22px; border-radius: 50%; border: 1px solid #d1d5db; cursor: pointer; padding: 0; position: relative; }
             .color-swatch.active { border: 2px solid #000; box-shadow: 0 0 0 3px #fff inset; }
             
             .section-divider { border-top: 8px solid #f5f5f5; margin: 24px -20px; padding: 24px 20px 0 20px; }
@@ -520,7 +609,7 @@ function ProductDetails() {
                         }}
                         style={{ backgroundColor: getColorHex(color) }}
                       />
-                      <span style={{ fontSize: '10px', color: '#666', maxWidth: '64px', textAlign: 'center', lineHeight: 1.2 }}>{color}</span>
+                      <span style={{ fontSize: '9px', color: '#666', maxWidth: '48px', textAlign: 'center', lineHeight: 1.2 }}>{color}</span>
                     </div>
                   ))}
                 </div>
@@ -606,9 +695,7 @@ function ProductDetails() {
                     type="button"
                     onClick={(e) => {
                       e.preventDefault();
-                      setSizeModalStep(1);
-                      setShowPrivacyModal(false);
-                      setShowSizeModal(true);
+                      openCheckMySize();
                     }}
                     style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', background: 'none', border: 'none', padding: 0, fontSize: '12px', fontWeight: 'bold', color: '#000' }}
                   >
@@ -831,89 +918,63 @@ function ProductDetails() {
             </div>
             
             <div style={{ overflowY: 'auto', flex: 1, paddingBottom: '40px' }}>
-              {product.size_guide_url ? (
+              {product.size_guide_url && (
                 <div style={{ padding: '20px', textAlign: 'center' }}>
                   <img src={product.size_guide_url} alt="Size Guide" style={{ maxWidth: '100%', height: 'auto', borderRadius: '8px' }} />
                 </div>
-              ) : (
-                <>
+              )}
+              <>
                   <div style={{ padding: '16px 20px', borderBottom: '8px solid #f5f5f5' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                  <span style={{ fontWeight: 'bold', fontSize: '15px' }}>Switch to</span>
-                  <div style={{ display: 'flex', gap: '12px' }}>
+                  <span style={{ fontWeight: 'bold', fontSize: '15px' }}>Body measurements</span>
+                  <div style={{ display: 'flex', background: '#f5f5f5', borderRadius: '16px', overflow: 'hidden' }}>
                     <button 
-                      onClick={() => setShowGuideTypeSelector(true)}
-                      style={{ padding: '6px 12px', borderRadius: '16px', border: '1px solid #ddd', background: '#fff', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer' }}
-                    >
-                      Type <ChevronRight size={12} style={{ transform: 'rotate(90deg)' }} />
-                    </button>
-                    <div style={{ display: 'flex', background: '#f5f5f5', borderRadius: '16px', overflow: 'hidden' }}>
-                      <button 
-                        onClick={() => setGuideUnit('cm')}
-                        style={{ padding: '6px 16px', border: 'none', background: guideUnit === 'cm' ? '#222' : 'transparent', color: guideUnit === 'cm' ? '#fff' : '#222', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer', borderRadius: '16px' }}
-                      >cm</button>
-                      <button 
-                        onClick={() => setGuideUnit('in')}
-                        style={{ padding: '6px 16px', border: 'none', background: guideUnit === 'in' ? '#222' : 'transparent', color: guideUnit === 'in' ? '#fff' : '#222', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer', borderRadius: '16px' }}
-                      >in</button>
-                    </div>
+                      onClick={() => setGuideUnit('cm')}
+                      style={{ padding: '6px 16px', border: 'none', background: guideUnit === 'cm' ? '#222' : 'transparent', color: guideUnit === 'cm' ? '#fff' : '#222', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer', borderRadius: '16px' }}
+                    >cm</button>
+                    <button 
+                      onClick={() => setGuideUnit('in')}
+                      style={{ padding: '6px 16px', border: 'none', background: guideUnit === 'in' ? '#222' : 'transparent', color: guideUnit === 'in' ? '#fff' : '#222', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer', borderRadius: '16px' }}
+                    >in</button>
                   </div>
                 </div>
 
-                <h4 style={{ margin: '0 0 16px 0', fontSize: '16px', fontWeight: 'bold' }}>Product Chart</h4>
+                {product.measurements && (
+                  <p style={{ fontSize: '13px', color: '#555', lineHeight: 1.5, margin: '0 0 16px' }}>{product.measurements}</p>
+                )}
+
+                <h4 style={{ margin: '0 0 16px 0', fontSize: '16px', fontWeight: 'bold' }}>Chart for this dress</h4>
                 <div style={{ overflowX: 'auto', margin: '0 -20px', padding: '0 20px' }}>
-                  <table style={{ width: '100%', minWidth: '400px', borderCollapse: 'collapse', fontSize: '13px', textAlign: 'center' }}>
+                  <table style={{ width: '100%', minWidth: '320px', borderCollapse: 'collapse', fontSize: '13px', textAlign: 'center' }}>
                     <thead>
                       <tr>
-                        <th style={{ padding: '12px 8px', borderBottom: '1px solid #eee', color: '#000', fontWeight: 'bold' }}>Size</th>
-                        <th style={{ padding: '12px 8px', borderBottom: '1px solid #eee', color: '#000', fontWeight: 'bold' }}>Bust</th>
-                        <th style={{ padding: '12px 8px', borderBottom: '1px solid #eee', color: '#000', fontWeight: 'bold' }}>Waist Size</th>
-                        <th style={{ padding: '12px 8px', borderBottom: '1px solid #eee', color: '#000', fontWeight: 'bold' }}>Hip Size</th>
-                        <th style={{ padding: '12px 8px', borderBottom: '1px solid #eee', color: '#000', fontWeight: 'bold' }}>Length</th>
+                        <th style={{ padding: '12px 8px', borderBottom: '1px solid #eee' }}>Size</th>
+                        <th style={{ padding: '12px 8px', borderBottom: '1px solid #eee' }}>Bust</th>
+                        <th style={{ padding: '12px 8px', borderBottom: '1px solid #eee' }}>Waist</th>
+                        <th style={{ padding: '12px 8px', borderBottom: '1px solid #eee' }}>Hip</th>
                       </tr>
                     </thead>
                     <tbody>
-
-                      <tr>
-                        <td style={{ padding: '16px 8px', borderBottom: '1px solid #eee', fontWeight: 'bold', color: '#b07b1a' }}>👍 S</td>
-                        <td style={{ padding: '16px 8px', borderBottom: '1px solid #eee', color: '#b07b1a', fontWeight: 'bold' }}>{guideUnit === 'cm' ? '80.5' : '31.7'}</td>
-                        <td style={{ padding: '16px 8px', borderBottom: '1px solid #eee', color: '#b07b1a', fontWeight: 'bold' }}>{guideUnit === 'cm' ? '67.0' : '26.4'}</td>
-                        <td style={{ padding: '16px 8px', borderBottom: '1px solid #eee', color: '#b07b1a', fontWeight: 'bold' }}>{guideUnit === 'cm' ? '98.0' : '38.6'}</td>
-                        <td style={{ padding: '16px 8px', borderBottom: '1px solid #eee', color: '#b07b1a', fontWeight: 'bold' }}>{guideUnit === 'cm' ? '102.5/127.0' : '40.4/50.0'}</td>
-                      </tr>
-                      <tr>
-                        <td style={{ padding: '16px 8px', borderBottom: '1px solid #eee', fontWeight: 'bold' }}>M</td>
-                        <td style={{ padding: '16px 8px', borderBottom: '1px solid #eee' }}>{guideUnit === 'cm' ? '84.5' : '33.3'}</td>
-                        <td style={{ padding: '16px 8px', borderBottom: '1px solid #eee' }}>{guideUnit === 'cm' ? '71.0' : '28.0'}</td>
-                        <td style={{ padding: '16px 8px', borderBottom: '1px solid #eee' }}>{guideUnit === 'cm' ? '102.0' : '40.2'}</td>
-                        <td style={{ padding: '16px 8px', borderBottom: '1px solid #eee' }}>{guideUnit === 'cm' ? '103.9/129.0' : '40.9/50.8'}</td>
-                      </tr>
-                      <tr>
-                        <td style={{ padding: '16px 8px', borderBottom: '1px solid #eee', fontWeight: 'bold' }}>L</td>
-                        <td style={{ padding: '16px 8px', borderBottom: '1px solid #eee' }}>{guideUnit === 'cm' ? '90.5' : '35.6'}</td>
-                        <td style={{ padding: '16px 8px', borderBottom: '1px solid #eee' }}>{guideUnit === 'cm' ? '77.0' : '30.3'}</td>
-                        <td style={{ padding: '16px 8px', borderBottom: '1px solid #eee' }}>{guideUnit === 'cm' ? '108.0' : '42.5'}</td>
-                        <td style={{ padding: '16px 8px', borderBottom: '1px solid #eee' }}>{guideUnit === 'cm' ? '105.2/131.0' : '41.4/51.6'}</td>
-                      </tr>
-                      <tr>
-                        <td style={{ padding: '16px 8px', borderBottom: '1px solid #eee', fontWeight: 'bold' }}>XL</td>
-                        <td style={{ padding: '16px 8px', borderBottom: '1px solid #eee' }}>{guideUnit === 'cm' ? '96.5' : '38.0'}</td>
-                        <td style={{ padding: '16px 8px', borderBottom: '1px solid #eee' }}>{guideUnit === 'cm' ? '83.0' : '32.7'}</td>
-                        <td style={{ padding: '16px 8px', borderBottom: '1px solid #eee' }}>{guideUnit === 'cm' ? '114.0' : '44.9'}</td>
-                        <td style={{ padding: '16px 8px', borderBottom: '1px solid #eee' }}>{guideUnit === 'cm' ? '106.5/133.0' : '41.9/52.4'}</td>
-                      </tr>
-                      <tr>
-                        <td style={{ padding: '16px 8px', borderBottom: '1px solid #eee', fontWeight: 'bold' }}>XXL</td>
-                        <td style={{ padding: '16px 8px', borderBottom: '1px solid #eee' }}>{guideUnit === 'cm' ? '102.5' : '40.4'}</td>
-                        <td style={{ padding: '16px 8px', borderBottom: '1px solid #eee' }}>{guideUnit === 'cm' ? '89.0' : '35.0'}</td>
-                        <td style={{ padding: '16px 8px', borderBottom: '1px solid #eee' }}>{guideUnit === 'cm' ? '120.0' : '47.2'}</td>
-                        <td style={{ padding: '16px 8px', borderBottom: '1px solid #eee' }}>{guideUnit === 'cm' ? '107.8/135.0' : '42.4/53.1'}</td>
-                      </tr>
+                      {getSizeChartRows(product.parsedSizes).map((row) => {
+                        const isBest = recommendedSize && formatSizeLabel(recommendedSize) === row.size;
+                        const isSelected = formatSizeLabel(selectedSize) === row.size;
+                        const highlight = isBest || isSelected;
+                        return (
+                          <tr key={row.size}>
+                            <td style={{ padding: '16px 8px', borderBottom: '1px solid #eee', fontWeight: 'bold', color: highlight ? '#b07b1a' : '#000' }}>
+                              {isBest ? '👍 ' : ''}{row.size}
+                            </td>
+                            <td style={{ padding: '16px 8px', borderBottom: '1px solid #eee', color: highlight ? '#b07b1a' : '#000', fontWeight: highlight ? 'bold' : 'normal' }}>{cmToDisplay(row.bust, guideUnit)}</td>
+                            <td style={{ padding: '16px 8px', borderBottom: '1px solid #eee', color: highlight ? '#b07b1a' : '#000', fontWeight: highlight ? 'bold' : 'normal' }}>{cmToDisplay(row.waist, guideUnit)}</td>
+                            <td style={{ padding: '16px 8px', borderBottom: '1px solid #eee', color: highlight ? '#b07b1a' : '#000', fontWeight: highlight ? 'bold' : 'normal' }}>{cmToDisplay(row.hip, guideUnit)}</td>
+                          </tr>
+                        );
+                      })}
                     </tbody>
                   </table>
                 </div>
                 <div style={{ marginTop: '16px', fontSize: '13px', color: '#999' }}>
-                  *This data was obtained from manually measuring the product, it may be off by 1-2 {guideUnit.toUpperCase()}.
+                  *Body measurements in {guideUnit}. If you have used Check My Size, your best match is highlighted. A recommendation is guidance only.
                 </div>
               </div>
 
@@ -956,40 +1017,6 @@ function ProductDetails() {
                 </div>
               </div>
               </>
-            )}
-
-
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Type Selector Modal */}
-      {showGuideTypeSelector && (
-        <div className="modal-overlay" onClick={() => setShowGuideTypeSelector(false)} style={{ zIndex: 1100 }}>
-          <div className="modal-content" style={{ minHeight: '60vh', paddingBottom: '0', display: 'flex', flexDirection: 'column' }} onClick={e => e.stopPropagation()}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px', borderBottom: '1px solid #eee' }}>
-              <div style={{ width: '24px' }}></div>
-              <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 'bold', fontFamily: 'system-ui, -apple-system, sans-serif' }}>Please Select</h3>
-              <X size={24} onClick={() => setShowGuideTypeSelector(false)} style={{ cursor: 'pointer' }} />
-            </div>
-            <div style={{ overflowY: 'auto', flex: 1, padding: '0 20px' }}>
-              {['Default (SHEIN Default Sizing)', 'DE', 'JP', 'MX', 'IT', 'FR', 'ES', 'EU', 'BR', 'AU', 'SG', 'UK', 'US', 'CA'].map(type => (
-                <div 
-                  key={type}
-                  onClick={() => {
-                    setGuideType(type.split(' ')[0]);
-                    setShowGuideTypeSelector(false);
-                  }}
-                  style={{ padding: '16px 0', borderBottom: '1px solid #eee', display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', fontWeight: guideType === type.split(' ')[0] ? 'bold' : 'normal' }}
-                >
-                  {type}
-                  {guideType === type.split(' ')[0] && <span style={{ color: '#000', fontWeight: 'bold' }}>✓</span>}
-                </div>
-              ))}
-            </div>
-            <div style={{ padding: '16px 20px', borderTop: '1px solid #eee', textAlign: 'center', fontWeight: 'bold', cursor: 'pointer' }} onClick={() => setShowGuideTypeSelector(false)}>
-              Cancel
             </div>
           </div>
         </div>
@@ -1071,6 +1098,13 @@ function ProductDetails() {
                     </div>
                     <CustomSlider value={userHips} min={70} max={140} marks={['90', '100', '110']} onChange={setUserHips} />
                   </div>
+                  <div style={{ marginBottom: '32px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '12px' }}>
+                      <span style={{ fontWeight: 'bold', fontSize: '14px' }}>Underbust</span>
+                      <span style={{ fontWeight: '900', fontSize: '20px' }}>{measurementUnit === 'cm, kg' ? userUnderbust : Math.round(userUnderbust * 0.393701)} <span style={{ fontSize: '13px', fontWeight: 'bold' }}>{measurementUnit === 'cm, kg' ? 'cm' : 'in'}</span></span>
+                    </div>
+                    <CustomSlider value={userUnderbust} min={60} max={110} marks={['66', '76', '86']} onChange={setUserUnderbust} />
+                  </div>
                 </>
               )}
               
@@ -1095,6 +1129,36 @@ function ProductDetails() {
                     </div>
                   ))}
                 </div>
+                <div style={{ marginTop: '24px' }}>
+                  <div style={{ fontWeight: 'bold', fontSize: '14px', marginBottom: '8px' }}>Fit preference</div>
+                  <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                    {['Slim Fit', 'Normal Fit', 'Relaxed Fit'].map((option) => (
+                      <button
+                        key={option}
+                        type="button"
+                        onClick={() => setFitPreference(option)}
+                        style={{ padding: '8px 12px', border: '1px solid #111', background: fitPreference === option ? '#111' : '#fff', color: fitPreference === option ? '#fff' : '#111', fontSize: '12px', fontWeight: 600 }}
+                      >
+                        {option}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div style={{ marginTop: '16px' }}>
+                  <div style={{ fontWeight: 'bold', fontSize: '14px', marginBottom: '8px' }}>Age range</div>
+                  <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                    {['18-24', '25-34', '35-44', '45-54', '55-64', '65+'].map((option) => (
+                      <button
+                        key={option}
+                        type="button"
+                        onClick={() => setAgeRange(option)}
+                        style={{ padding: '8px 12px', border: '1px solid #111', background: ageRange === option ? '#111' : '#fff', color: ageRange === option ? '#fff' : '#111', fontSize: '12px', fontWeight: 600 }}
+                      >
+                        {option}
+                      </button>
+                    ))}
+                  </div>
+                </div>
               )}
 
               {sizeModalStep === 4 && (
@@ -1103,13 +1167,45 @@ function ProductDetails() {
                     <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#b07b1a', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
                       <span>👍</span> <span style={{ fontSize: '24px' }}>{formatSizeLabel(recommendedSize || selectedSize || 'M')}</span>
                     </div>
-                    <div style={{ fontWeight: 'bold', fontSize: '16px', marginTop: '8px' }}>Best fit for "Me"</div>
+                    <div style={{ fontWeight: 'bold', fontSize: '16px', marginTop: '8px' }}>Best fit for "{sizeProfiles.find((item) => item.id === activeProfileId)?.name || 'Me'}"</div>
                   </div>
                   
                   <div style={{ padding: '16px', background: '#fff', marginTop: '8px' }}>
-                    <div style={{ display: 'flex', gap: '8px', marginBottom: '24px' }}>
-                      <button style={{ padding: '8px 24px', background: '#000', color: '#fff', border: 'none', fontWeight: 'bold', fontSize: '14px' }}>Me</button>
-                      <button style={{ padding: '8px 24px', background: '#f5f5f5', color: '#000', border: 'none', fontWeight: 'bold', fontSize: '14px' }}>+ Add Profile</button>
+                    <div style={{ display: 'flex', gap: '8px', marginBottom: '24px', flexWrap: 'wrap' }}>
+                      {sizeProfiles.map((profile) => (
+                        <button
+                          key={profile.id}
+                          type="button"
+                          onClick={() => {
+                            applyProfile(profile);
+                            setActiveProfileId(profile.id);
+                            setEditingProfileId(profile.id);
+                            saveSizeProfiles(sizeProfiles, profile.id);
+                            setRecommendedSize(recommendDressSize({
+                              bust: profile.bust,
+                              waist: profile.waist,
+                              hips: profile.hips,
+                              sizes: product.parsedSizes
+                            }));
+                          }}
+                          style={{ padding: '8px 20px', background: activeProfileId === profile.id ? '#000' : '#f5f5f5', color: activeProfileId === profile.id ? '#fff' : '#000', border: 'none', fontWeight: 'bold', fontSize: '14px' }}
+                        >
+                          {profile.name}
+                        </button>
+                      ))}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setEditingProfileId(null);
+                          setBodyShape(null);
+                          setFitPreference('');
+                          setAgeRange('');
+                          setSizeModalStep(1);
+                        }}
+                        style={{ padding: '8px 20px', background: '#fff', color: '#000', border: '1px solid #111', fontWeight: 'bold', fontSize: '14px' }}
+                      >
+                        + Add Profile
+                      </button>
                     </div>
 
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '24px 16px', textAlign: 'center' }}>
@@ -1138,17 +1234,48 @@ function ProductDetails() {
                         <div style={{ color: '#666', fontSize: '12px', fontWeight: 'bold', marginTop: '4px' }}>Body Shape</div>
                       </div>
                       <div>
-                        <div style={{ fontWeight: '900', fontSize: '16px' }}>--</div>
+                        <div style={{ fontWeight: '900', fontSize: '16px' }}>{fitPreference || '--'}</div>
                         <div style={{ color: '#666', fontSize: '12px', fontWeight: 'bold', marginTop: '4px' }}>Consumer Preference</div>
                       </div>
                       <div>
-                        <div style={{ fontWeight: '900', fontSize: '16px' }}>--</div>
+                        <div style={{ fontWeight: '900', fontSize: '16px' }}>{ageRange || '--'}</div>
                         <div style={{ color: '#666', fontSize: '12px', fontWeight: 'bold', marginTop: '4px' }}>Age Range</div>
                       </div>
                       <div>
-                        <div style={{ fontWeight: '900', fontSize: '16px' }}>75 cm</div>
+                        <div style={{ fontWeight: '900', fontSize: '16px' }}>{measurementUnit === 'cm, kg' ? userUnderbust : Math.round(userUnderbust * 0.393701)} {measurementUnit === 'cm, kg' ? 'cm' : 'in'}</div>
                         <div style={{ color: '#666', fontSize: '12px', fontWeight: 'bold', marginTop: '4px' }}>Underbust</div>
                       </div>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '16px', marginTop: '20px' }}>
+                      <button type="button" onClick={() => setSizeModalStep(1)} style={{ background: 'none', border: 'none', cursor: 'pointer' }} aria-label="Edit profile">
+                        <Pencil size={18} />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const next = sizeProfiles.filter((item) => item.id !== activeProfileId);
+                          const nextActive = next[0]?.id || null;
+                          saveSizeProfiles(next, nextActive);
+                          setSizeProfiles(next);
+                          setActiveProfileId(nextActive);
+                          setEditingProfileId(nextActive);
+                          if (next[0]) {
+                            applyProfile(next[0]);
+                            setRecommendedSize(recommendDressSize({
+                              bust: next[0].bust,
+                              waist: next[0].waist,
+                              hips: next[0].hips,
+                              sizes: product.parsedSizes
+                            }));
+                          } else {
+                            setSizeModalStep(1);
+                          }
+                        }}
+                        style={{ background: 'none', border: 'none', cursor: 'pointer' }}
+                        aria-label="Delete profile"
+                      >
+                        <Trash2 size={18} />
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -1173,13 +1300,7 @@ function ProductDetails() {
                     return;
                   }
                   if (sizeModalStep === 3) {
-                    const fit = recommendDressSize({
-                      bust: userBust,
-                      waist: userWaist,
-                      hips: userHips,
-                      sizes: product.parsedSizes
-                    });
-                    setRecommendedSize(fit);
+                    persistCurrentProfile();
                     setSizeModalStep(4);
                     return;
                   }
