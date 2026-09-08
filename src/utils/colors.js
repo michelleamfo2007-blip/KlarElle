@@ -266,25 +266,85 @@ export function getColorGallery(product) {
   ]);
 }
 
+function urlLooksLikeColor(url, color) {
+  const path = decodeURIComponent(String(url || '')).toLowerCase();
+  const name = normalizeColorName(color);
+  if (!path || !name) return false;
+  const tokens = name.split(' ').filter((token) => token.length >= 4);
+  const slug = name.replace(/\s+/g, '-');
+  const compact = name.replace(/\s+/g, '');
+  const code = getColorCode(color).toLowerCase();
+  if (path.includes(slug) || path.includes(compact) || path.includes(name)) return true;
+  if (code.length >= 3 && new RegExp(`(?:^|[^a-z0-9])${code}(?:[^a-z0-9]|$)`, 'i').test(path)) return true;
+  return tokens.some((token) => path.includes(token));
+}
+
+function matchColorKey(keys, color) {
+  if (!keys?.length || !color) return '';
+  const needle = normalizeColorName(color);
+  return keys.find((key) => normalizeColorName(key) === needle)
+    || keys.find((key) => {
+      const name = normalizeColorName(key);
+      return name.includes(needle) || needle.includes(name);
+    })
+    || '';
+}
+
+function splitEvenly(list, bucketCount) {
+  const buckets = Array.from({ length: bucketCount }, () => []);
+  if (!list.length || bucketCount < 1) return buckets;
+  const base = Math.floor(list.length / bucketCount);
+  const extra = list.length % bucketCount;
+  let index = 0;
+  for (let i = 0; i < bucketCount; i += 1) {
+    const count = base + (i < extra ? 1 : 0);
+    buckets[i] = list.slice(index, index + count);
+    index += count;
+  }
+  return buckets;
+}
+
+export function galleryByColor(product) {
+  const colors = parseProductColors(product?.colors);
+  const gallery = getColorGallery(product);
+  const groups = {};
+  colors.forEach((color) => {
+    groups[color] = urlsFromVariantEntry(findVariantEntry(product?.variant_images, color));
+  });
+
+  gallery.forEach((url) => {
+    const named = colors.find((color) => urlLooksLikeColor(url, color));
+    if (named && !groups[named].includes(url)) groups[named].push(url);
+  });
+
+  const used = new Set(Object.values(groups).flat());
+  const leftover = gallery.filter((url) => !used.has(url));
+  const empty = colors.filter((color) => !groups[color].length);
+
+  if (leftover.length && empty.length) {
+    const buckets = splitEvenly(leftover, empty.length);
+    empty.forEach((color, index) => {
+      groups[color] = buckets[index] || [];
+    });
+  }
+
+  return groups;
+}
+
+function imagesForColor(product, color) {
+  const groups = galleryByColor(product);
+  const key = matchColorKey(Object.keys(groups), color) || parseProductColors(product?.colors)[0];
+  const grouped = (key && groups[key]) || [];
+  if (grouped.length) return grouped;
+  return getColorGallery(product);
+}
+
 export function collectImagesForColor(product, color) {
-  const lead = getDisplayImageForColor(product, color);
-  const variantRest = urlsFromVariantEntry(findVariantEntry(product?.variant_images, color));
-  const rest = getColorGallery(product);
-  const urls = uniqueImageUrls([lead, ...variantRest, ...rest]);
+  const urls = uniqueImageUrls(imagesForColor(product, color));
   return urls.length ? urls : ['/placeholder.png'];
 }
 
 export function getDisplayImageForColor(product, color) {
   if (!product) return '/placeholder.png';
-  const variant = getVariantImage(product.variant_images, color);
-  if (variant) return variant;
-
-  const colors = parseProductColors(product.colors);
-  const needle = String(color || '').trim().toLowerCase();
-  const colorIndex = colors.findIndex((item) => item.trim().toLowerCase() === needle);
-  const gallery = getColorGallery(product);
-
-  if (colorIndex === 1 && product.hover_image_url) return product.hover_image_url;
-  if (colorIndex >= 0 && gallery[colorIndex]) return gallery[colorIndex];
-  return gallery[0] || '/placeholder.png';
+  return imagesForColor(product, color)[0] || '/placeholder.png';
 }
