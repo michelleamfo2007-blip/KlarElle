@@ -33,7 +33,7 @@ function CategoryProductCard({ product, formatPrice, addToCart, onNotify }) {
       )}
       <div className="product-image-wrap">
         <Link to={`/product/${product.id}`}>
-          <img src={image || '/placeholder.png'} alt={product.name} className="product-image primary" style={{ opacity: soldOut && !comingSoon ? 0.6 : 1 }} />
+          <img key={selectedColor} src={image || '/placeholder.png'} alt={product.name} className="product-image primary" style={{ opacity: soldOut && !comingSoon ? 0.6 : 1 }} />
         </Link>
         <div className="product-actions">
           {comingSoon ? (

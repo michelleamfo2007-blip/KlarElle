@@ -246,28 +246,45 @@ export function findVariantEntry(variantImages, color) {
   const needle = String(color).trim().toLowerCase();
   const keys = Object.keys(variantImages);
   const exact = keys.find((key) => key.trim().toLowerCase() === needle);
-  return exact ? variantImages[exact] : null;
+  if (exact) return variantImages[exact];
+  const partial = keys.find((key) => {
+    const normalized = key.trim().toLowerCase();
+    return normalized.includes(needle) || needle.includes(normalized);
+  });
+  return partial ? variantImages[partial] : null;
 }
 
 export function getVariantImage(variantImages, color) {
   return urlsFromVariantEntry(findVariantEntry(variantImages, color))[0] || null;
 }
 
+export function getColorGallery(product) {
+  return uniqueImageUrls([
+    product?.image_url,
+    product?.hover_image_url,
+    ...(Array.isArray(product?.images) ? product.images : [])
+  ]);
+}
+
 export function collectImagesForColor(product, color) {
-  const fallback = ['/placeholder.png'];
-  if (!product) return fallback;
-  const colorUrls = urlsFromVariantEntry(findVariantEntry(product.variant_images, color));
-  const general = [];
-  if (Array.isArray(product.images)) general.push(...product.images);
-  if (product.image_url) general.push(product.image_url);
-  if (product.hover_image_url) general.push(product.hover_image_url);
-  const colors = parseProductColors(product.colors);
-  const colorIndex = colors.findIndex((item) => item.trim().toLowerCase() === String(color || '').trim().toLowerCase());
-  const indexed = colorIndex >= 0 ? general[colorIndex] : null;
-  const urls = uniqueImageUrls([...colorUrls, indexed, ...general]);
-  return urls.length ? urls : fallback;
+  const lead = getDisplayImageForColor(product, color);
+  const variantRest = urlsFromVariantEntry(findVariantEntry(product?.variant_images, color));
+  const rest = getColorGallery(product);
+  const urls = uniqueImageUrls([lead, ...variantRest, ...rest]);
+  return urls.length ? urls : ['/placeholder.png'];
 }
 
 export function getDisplayImageForColor(product, color) {
-  return collectImagesForColor(product, color)[0];
+  if (!product) return '/placeholder.png';
+  const variant = getVariantImage(product.variant_images, color);
+  if (variant) return variant;
+
+  const colors = parseProductColors(product.colors);
+  const needle = String(color || '').trim().toLowerCase();
+  const colorIndex = colors.findIndex((item) => item.trim().toLowerCase() === needle);
+  const gallery = getColorGallery(product);
+
+  if (colorIndex === 1 && product.hover_image_url) return product.hover_image_url;
+  if (colorIndex >= 0 && gallery[colorIndex]) return gallery[colorIndex];
+  return gallery[0] || '/placeholder.png';
 }

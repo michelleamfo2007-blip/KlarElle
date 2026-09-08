@@ -22,7 +22,7 @@ function HomeProductCard({ product, formatPrice, addToCart, toggleFavorite, isFa
     <div className="luxury-card">
       <div className="luxury-image-wrap">
         <Link to={`/product/${product.id}`} className="luxury-image-link">
-          <img src={image || '/placeholder.png'} alt={product.name} className="luxury-image primary" style={{ opacity: soldOut && !comingSoon ? 0.6 : 1 }} />
+          <img key={selectedColor} src={image || '/placeholder.png'} alt={product.name} className="luxury-image primary" style={{ opacity: soldOut && !comingSoon ? 0.6 : 1 }} />
         </Link>
         {comingSoon ? (
           <div className="luxury-badge" style={{ background: '#111', color: '#fff', letterSpacing: '1px' }}>COMING SOON</div>
