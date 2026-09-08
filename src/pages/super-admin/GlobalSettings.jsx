@@ -10,7 +10,7 @@ function GlobalSettings() {
     maintenanceMode: false,
     taxRate: 7.5,
     defaultCurrency: 'USD',
-    storeAddress: '123 Fashion Ave, Suite 400, New York, NY 10001',
+    storeAddress: '',
     instagramUrl: 'https://www.instagram.com/klarelle.store?utm_source=qr',
     tiktokUrl: 'https://www.tiktok.com/@klarelle_store?_r=1&_t=ZT-98rGC422fzK',
     facebookUrl: 'https://www.facebook.com/share/18vRTfzg9V/?mibextid=wwXIfr'

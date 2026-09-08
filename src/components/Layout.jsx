@@ -7,6 +7,7 @@ import { useCurrency } from '../context/CurrencyContext';
 import { supabase } from '../lib/supabase';
 import { useTranslation } from 'react-i18next';
 import { STORE_COLLECTIONS } from '../data/collections';
+import { DEFAULT_WEBSITE_CONTENT, normalizeWebsiteContent } from '../data/websiteContent';
 
 function Layout() {
   const { t, i18n } = useTranslation();
@@ -25,6 +26,7 @@ function Layout() {
   const [checkingMaintenance, setCheckingMaintenance] = useState(true);
   const [analyzingImage, setAnalyzingImage] = useState(false);
   const [categories, setCategories] = useState([]);
+  const [websiteContent, setWebsiteContent] = useState(DEFAULT_WEBSITE_CONTENT);
   const fileInputRef = React.useRef(null);
   
   const [suggestions, setSuggestions] = useState([]);
@@ -44,6 +46,14 @@ function Layout() {
       }
     };
     fetchCategories();
+    supabase
+      .from('website_content')
+      .select('*')
+      .eq('id', 1)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data) setWebsiteContent(normalizeWebsiteContent(data));
+      });
   }, []);
 
   useEffect(() => {
@@ -303,7 +313,7 @@ function Layout() {
             </div>
           </div>
           <div style={{ color: '#666' }}>
-            {t('Free U.S. shipping on orders over')} {formatPrice(100)}
+            {websiteContent.announcementText}
           </div>
         </div>
       </div>
@@ -500,6 +510,9 @@ function Layout() {
           <div className="footer-top">
             <div className="footer-col">
               <h4>Company Info</h4>
+              {websiteContent.aboutText && (
+                <p style={{ color: '#666', fontSize: '13px', lineHeight: 1.6, margin: '0 0 16px' }}>{websiteContent.aboutText}</p>
+              )}
               <div className="footer-links">
                 <Link to="/page/about-us">About Us</Link>
                 <Link to="/page/influencer-collaboration">Influencer Collaboration</Link>

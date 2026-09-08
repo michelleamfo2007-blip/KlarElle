@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { supabase } from '../lib/supabase';
-import { Mail, MessageCircle, MapPin, Send } from 'lucide-react';
+import { Mail, MessageCircle, Globe, Send } from 'lucide-react';
 
 function ContactUs() {
   const [formData, setFormData] = useState({
@@ -59,10 +59,10 @@ function ContactUs() {
           <h2 style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '24px' }}>Get in Touch</h2>
           
           <div style={{ display: 'flex', gap: '16px', marginBottom: '24px', alignItems: 'flex-start' }}>
-            <MapPin size={24} color="#000" />
+            <Globe size={24} color="#000" />
             <div>
-              <h3 style={{ fontSize: '16px', fontWeight: 'bold', margin: '0 0 4px 0' }}>Our Office</h3>
-              <p style={{ color: '#666', margin: 0, lineHeight: '1.5' }}>123 Fashion Ave<br/>Suite 400<br/>New York, NY 10001</p>
+              <h3 style={{ fontSize: '16px', fontWeight: 'bold', margin: '0 0 4px 0' }}>Online Store</h3>
+              <p style={{ color: '#666', margin: 0, lineHeight: '1.5' }}>Klarelle is an online store. We ship to the United States and selected international destinations. There is no walk-in location.</p>
             </div>
           </div>
 

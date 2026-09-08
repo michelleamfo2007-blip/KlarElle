@@ -2,14 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Save, Image as ImageIcon, Layout, Type, Bell } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 
+import { DEFAULT_WEBSITE_CONTENT } from '../../data/websiteContent';
+
 function SuperWebsite() {
-  const [formData, setFormData] = useState({
-    announcementText: 'Free shipping on all orders over $100!',
-    heroTitle: 'New Arrival Collection',
-    heroSubtitle: 'Discover the latest trends in fashion and accessories.',
-    featuredCollection: 'Summer 2026',
-    aboutText: 'KlarElle is a premium brand dedicated to bringing you the finest clothing and accessories.'
-  });
+  const [formData, setFormData] = useState({ ...DEFAULT_WEBSITE_CONTENT });
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [toast, setToast] = useState('');
@@ -23,11 +19,11 @@ function SuperWebsite() {
     const { data, error } = await supabase.from('website_content').select('*').eq('id', 1).single();
     if (data && !error) {
       setFormData({
-        announcementText: data.announcement_text || '',
-        heroTitle: data.hero_title || '',
-        heroSubtitle: data.hero_subtitle || '',
-        featuredCollection: data.featured_collection || '',
-        aboutText: data.about_text || ''
+        announcementText: data.announcement_text || DEFAULT_WEBSITE_CONTENT.announcementText,
+        heroTitle: data.hero_title || DEFAULT_WEBSITE_CONTENT.heroTitle,
+        heroSubtitle: data.hero_subtitle || DEFAULT_WEBSITE_CONTENT.heroSubtitle,
+        featuredCollection: data.featured_collection || DEFAULT_WEBSITE_CONTENT.featuredCollection,
+        aboutText: data.about_text || DEFAULT_WEBSITE_CONTENT.aboutText
       });
     }
     setIsLoading(false);
@@ -79,7 +75,7 @@ function SuperWebsite() {
 
       <div style={{ marginBottom: '32px' }}>
         <h1 style={{ fontSize: '24px', fontWeight: 'bold', margin: '0 0 8px 0', fontFamily: 'Playfair Display, serif' }}>Website Content Manager</h1>
-        <p style={{ color: '#6b7280', margin: 0, fontSize: '15px' }}>Manage the copy and content displayed on the storefront.</p>
+        <p style={{ color: '#6b7280', margin: 0, fontSize: '15px' }}>These fields update the live homepage and footer. Save, then refresh klarelle.store.</p>
       </div>
 
       <form onSubmit={handleSave} style={{ background: '#fff', borderRadius: '16px', border: '1px solid #eaeaea', overflow: 'hidden', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
@@ -91,7 +87,7 @@ function SuperWebsite() {
             <h2 style={{ fontSize: '18px', fontWeight: '600', margin: 0 }}>Announcement Bar</h2>
           </div>
           <div style={{ marginBottom: '16px' }}>
-            <label style={{ display: 'block', fontSize: '13px', fontWeight: '500', color: '#374151', marginBottom: '8px' }}>Announcement Text</label>
+            <label style={{ display: 'block', fontSize: '13px', fontWeight: '500', color: '#374151', marginBottom: '8px' }}>Announcement Text (top bar)</label>
             <input 
               type="text" 
               name="announcementText"
@@ -112,7 +108,7 @@ function SuperWebsite() {
           
           <div className="flex-column-mobile" style={{ display: 'flex', gap: '24px', marginBottom: '24px' }}>
             <div style={{ flex: 1 }}>
-              <label style={{ display: 'block', fontSize: '13px', fontWeight: '500', color: '#374151', marginBottom: '8px' }}>Hero Title</label>
+              <label style={{ display: 'block', fontSize: '13px', fontWeight: '500', color: '#374151', marginBottom: '8px' }}>Hero Title (homepage headline)</label>
               <input 
                 type="text" 
                 name="heroTitle"
@@ -122,7 +118,7 @@ function SuperWebsite() {
               />
             </div>
             <div style={{ flex: 1 }}>
-              <label style={{ display: 'block', fontSize: '13px', fontWeight: '500', color: '#374151', marginBottom: '8px' }}>Featured Collection Name</label>
+              <label style={{ display: 'block', fontSize: '13px', fontWeight: '500', color: '#374151', marginBottom: '8px' }}>Featured Collection (homepage section heading)</label>
               <input 
                 type="text" 
                 name="featuredCollection"
@@ -134,7 +130,7 @@ function SuperWebsite() {
           </div>
           
           <div>
-            <label style={{ display: 'block', fontSize: '13px', fontWeight: '500', color: '#374151', marginBottom: '8px' }}>Hero Subtitle</label>
+            <label style={{ display: 'block', fontSize: '13px', fontWeight: '500', color: '#374151', marginBottom: '8px' }}>Hero Subtitle (VIP list line)</label>
             <textarea 
               name="heroSubtitle"
               value={formData.heroSubtitle}
@@ -149,7 +145,7 @@ function SuperWebsite() {
         <div style={{ padding: '32px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
             <div style={{ background: '#f3f4f6', padding: '8px', borderRadius: '8px' }}><Type size={20} color="#4b5563" /></div>
-            <h2 style={{ fontSize: '18px', fontWeight: '600', margin: 0 }}>About Text (Footer)</h2>
+            <h2 style={{ fontSize: '18px', fontWeight: '600', margin: 0 }}>About Text (footer)</h2>
           </div>
           <div>
             <textarea 

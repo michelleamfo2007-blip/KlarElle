@@ -12,6 +12,7 @@ import { isProductSoldOut } from '../utils/stock';
 import ColorPreviewDots, { useProductColorImage } from '../components/ColorPreviewDots';
 import NotifyMeForm from '../components/NotifyMeForm';
 import { getReleaseLabel, isComingSoon, maybeLaunchProduct } from '../utils/storefront';
+import { DEFAULT_WEBSITE_CONTENT, normalizeWebsiteContent } from '../data/websiteContent';
 import heroVideo from '../../IMG_2870 klarelle.MP4';
 
 function HomeProductCard({ product, formatPrice, addToCart, toggleFavorite, isFavorite, showToast, comingSoon, onNotify }) {
@@ -93,6 +94,7 @@ function Home() {
   const [toastMessage, setToastMessage] = useState('');
   const [waitlistEmail, setWaitlistEmail] = useState('');
   const [waitlistStatus, setWaitlistStatus] = useState(''); // 'idle', 'loading', 'success', 'error'
+  const [websiteContent, setWebsiteContent] = useState(DEFAULT_WEBSITE_CONTENT);
   const { addToCart } = useCart();
   const { toggleFavorite, isFavorite } = useFavorites();
   const { formatPrice } = useCurrency();
@@ -141,6 +143,14 @@ function Home() {
     };
 
     fetchProducts();
+    supabase
+      .from('website_content')
+      .select('*')
+      .eq('id', 1)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data) setWebsiteContent(normalizeWebsiteContent(data));
+      });
   }, []);
 
   const showToast = (message) => {
@@ -444,7 +454,7 @@ function Home() {
 
         <div className="hero-text-container">
           <div className="hero-presents">KLARELLE</div>
-          <h1 className="hero-title">LAUNCHING THIS SEPTEMBER</h1>
+          <h1 className="hero-title">{websiteContent.heroTitle}</h1>
           
           {waitlistStatus === 'success' ? (
             <div style={{ color: '#D2C4B3', fontSize: '18px', fontStyle: 'italic', fontFamily: 'Playfair Display', padding: '16px 0' }}>
@@ -454,7 +464,7 @@ function Home() {
             <form className="waitlist-form" onSubmit={handleJoinWaitlist}>
               <div style={{ width: '100%' }}>
                 <label style={{ display: 'block', fontSize: '12px', color: '#BCA38F', marginBottom: '8px', letterSpacing: '1px', textTransform: 'uppercase' }}>
-                  Join our VIP list for first access and exclusive launch updates.
+                  {websiteContent.heroSubtitle}
                 </label>
                 <input 
                   type="email" 
@@ -477,7 +487,7 @@ function Home() {
       <section className="luxury-section" style={{ backgroundColor: '#FAF9F6' }}>
         <div className="container">
           <div className="luxury-header">
-            <h2 className="luxury-title">A GLIMPSE OF KLARELLE</h2>
+            <h2 className="luxury-title">{websiteContent.featuredCollection}</h2>
           </div>
           
           <div className="luxury-grid">
