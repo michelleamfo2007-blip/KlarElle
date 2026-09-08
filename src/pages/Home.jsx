@@ -9,10 +9,81 @@ import { useCurrency } from '../context/CurrencyContext';
 import ProductRating from '../components/ProductRating';
 import { attachReviewStats } from '../utils/reviews';
 import { isProductSoldOut } from '../utils/stock';
-import { getColorHex } from '../utils/colors';
+import ColorPreviewDots, { useProductColorImage } from '../components/ColorPreviewDots';
 import NotifyMeForm from '../components/NotifyMeForm';
 import { getReleaseLabel, isComingSoon, maybeLaunchProduct } from '../utils/storefront';
 import heroVideo from '../../IMG_2870 klarelle.MP4';
+
+function HomeProductCard({ product, formatPrice, addToCart, toggleFavorite, isFavorite, showToast, comingSoon, onNotify }) {
+  const { colors, selectedColor, setSelectedColor, image } = useProductColorImage(product);
+  const soldOut = isProductSoldOut(product);
+
+  return (
+    <div className="luxury-card">
+      <div className="luxury-image-wrap">
+        <Link to={`/product/${product.id}`} className="luxury-image-link">
+          <img src={image || '/placeholder.png'} alt={product.name} className="luxury-image primary" style={{ opacity: soldOut && !comingSoon ? 0.6 : 1 }} />
+        </Link>
+        {comingSoon ? (
+          <div className="luxury-badge" style={{ background: '#111', color: '#fff', letterSpacing: '1px' }}>COMING SOON</div>
+        ) : soldOut ? (
+          <div className="luxury-badge" style={{ background: '#000', color: '#fff', letterSpacing: '1px' }}>SOLD OUT</div>
+        ) : product.old_price && parseFloat(product.old_price) > parseFloat(product.price) && (
+          <div className="luxury-badge">-{Math.round(((product.old_price - product.price) / product.old_price) * 100)}%</div>
+        )}
+        {!comingSoon && (
+          <div className="luxury-actions">
+            <div
+              className="luxury-action-icon"
+              title="Wishlist"
+              onClick={() => { toggleFavorite(product.id); showToast(isFavorite(product.id) ? 'Removed from Wishlist' : 'Added to your Wishlist!'); }}
+              style={{ background: isFavorite(product.id) ? '#000' : '#fff', color: isFavorite(product.id) ? '#fff' : '#000' }}
+            >
+              <Heart size={16} fill={isFavorite(product.id) ? 'currentColor' : 'none'} />
+            </div>
+            <Link to={`/product/${product.id}`} className="luxury-action-icon" style={{ display: 'flex', color: 'inherit', textDecoration: 'none' }} title="Quick View"><Eye size={16} /></Link>
+          </div>
+        )}
+      </div>
+      <div className="luxury-info">
+        {!comingSoon && <div className="luxury-category">{product.category || 'Clothing'}</div>}
+        <Link to={`/product/${product.id}`} style={{ textDecoration: 'none' }}>
+          <h3 className="luxury-title">{product.name}</h3>
+        </Link>
+        <div className="luxury-price-row">
+          <span className="luxury-price">{formatPrice(product.price)}</span>
+          {!comingSoon && product.old_price && parseFloat(product.old_price) > parseFloat(product.price) && (
+            <>
+              <span className="luxury-old-price">{formatPrice(product.old_price)}</span>
+              <span className="luxury-saved">Save {Math.round(((product.old_price - product.price) / product.old_price) * 100)}%</span>
+            </>
+          )}
+        </div>
+        <ColorPreviewDots colors={colors} selectedColor={selectedColor} onSelect={setSelectedColor} />
+        {comingSoon ? (
+          <>
+            <div style={{ fontSize: '12px', color: '#666', marginBottom: '12px' }}>{getReleaseLabel(product)}</div>
+            <button className="luxury-add-btn" onClick={() => onNotify(product)}>NOTIFY ME WHEN AVAILABLE</button>
+          </>
+        ) : (
+          <>
+            <ProductRating count={product.reviewCount} average={product.reviewAvg} className="luxury-rating" />
+            <button
+              className="luxury-add-btn"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                addToCart(product, 'M', selectedColor || 'Standard');
+              }}
+            >
+              ADD TO CART
+            </button>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
 
 function Home() {
   const [products, setProducts] = useState([]);
@@ -431,62 +502,15 @@ function Home() {
               </>
             ) : (
               products.map((product) => (
-                <div className="luxury-card" key={`luxury-${product.id}`}>
-                  <div className="luxury-image-wrap">
-                    <Link to={`/product/${product.id}`} className="luxury-image-link">
-                      <img src={product.image_url || '/placeholder.png'} alt={product.name} className="luxury-image primary" style={{ opacity: isProductSoldOut(product) ? 0.6 : 1 }} />
-                    </Link>
-                    
-                    {isProductSoldOut(product) ? (
-                      <div className="luxury-badge" style={{ background: '#000', color: '#fff', letterSpacing: '1px' }}>SOLD OUT</div>
-                    ) : product.old_price && parseFloat(product.old_price) > parseFloat(product.price) && (
-                      <div className="luxury-badge">-{Math.round(((product.old_price - product.price) / product.old_price) * 100)}%</div>
-                    )}
-                    
-                    <div className="luxury-actions">
-                      <div 
-                        className="luxury-action-icon" 
-                        title="Wishlist" 
-                        onClick={() => { toggleFavorite(product.id); showToast(isFavorite(product.id) ? "Removed from Wishlist" : "Added to your Wishlist!"); }}
-                        style={{ background: isFavorite(product.id) ? '#000' : '#fff', color: isFavorite(product.id) ? '#fff' : '#000' }}
-                      >
-                        <Heart size={16} fill={isFavorite(product.id) ? "currentColor" : "none"} />
-                      </div>
-                      <Link to={`/product/${product.id}`} className="luxury-action-icon" style={{ display: 'flex', color: 'inherit', textDecoration: 'none' }} title="Quick View"><Eye size={16} /></Link>
-                    </div>
-                  </div>
-                  
-                  <div className="luxury-info">
-                    <div className="luxury-category">{product.category || 'Clothing'}</div>
-                    <Link to={`/product/${product.id}`} style={{ textDecoration: 'none' }}>
-                      <h3 className="luxury-title">{product.name}</h3>
-                    </Link>
-                    
-                    <div className="luxury-price-row">
-                      <span className="luxury-price">{formatPrice(product.price)}</span>
-                      {product.old_price && parseFloat(product.old_price) > parseFloat(product.price) && (
-                        <>
-                          <span className="luxury-old-price">{formatPrice(product.old_price)}</span>
-                          <span className="luxury-saved">Save {Math.round(((product.old_price - product.price) / product.old_price) * 100)}%</span>
-                        </>
-                      )}
-                    </div>
-                    
-                    <ProductRating count={product.reviewCount} average={product.reviewAvg} className="luxury-rating" />
-                    
-                    <button 
-                      className="luxury-add-btn" 
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        const defaultColor = Array.isArray(product.colors) ? product.colors[0] : (product.colors || 'Standard');
-                        addToCart(product, 'M', defaultColor);
-                      }}
-                    >
-                      ADD TO CART
-                    </button>
-                  </div>
-                </div>
+                <HomeProductCard
+                  key={`luxury-${product.id}`}
+                  product={product}
+                  formatPrice={formatPrice}
+                  addToCart={addToCart}
+                  toggleFavorite={toggleFavorite}
+                  isFavorite={isFavorite}
+                  showToast={showToast}
+                />
               ))
             )}
           </div>
@@ -502,31 +526,13 @@ function Home() {
             </div>
             <div className="luxury-grid">
               {comingSoonProducts.map((product) => (
-                <div className="luxury-card" key={`soon-${product.id}`}>
-                  <div className="luxury-image-wrap">
-                    <Link to={`/product/${product.id}`} className="luxury-image-link">
-                      <img src={product.image_url || '/placeholder.png'} alt={product.name} className="luxury-image primary" />
-                    </Link>
-                    <div className="luxury-badge" style={{ background: '#111', color: '#fff', letterSpacing: '1px' }}>COMING SOON</div>
-                  </div>
-                  <div className="luxury-info">
-                    <Link to={`/product/${product.id}`} style={{ textDecoration: 'none' }}>
-                      <h3 className="luxury-title">{product.name}</h3>
-                    </Link>
-                    <div className="luxury-price-row">
-                      <span className="luxury-price">{formatPrice(product.price)}</span>
-                    </div>
-                    {Array.isArray(product.colors) && product.colors.length > 0 && (
-                      <div style={{ display: 'flex', gap: '6px', margin: '8px 0', flexWrap: 'wrap' }}>
-                        {product.colors.slice(0, 6).map((color) => (
-                          <span key={color} title={color} style={{ width: '12px', height: '12px', borderRadius: '50%', border: '1px solid #ddd', background: getColorHex(color) }} />
-                        ))}
-                      </div>
-                    )}
-                    <div style={{ fontSize: '12px', color: '#666', marginBottom: '12px' }}>{getReleaseLabel(product)}</div>
-                    <button className="luxury-add-btn" onClick={() => setNotifyProduct(product)}>NOTIFY ME WHEN AVAILABLE</button>
-                  </div>
-                </div>
+                <HomeProductCard
+                  key={`soon-${product.id}`}
+                  product={product}
+                  formatPrice={formatPrice}
+                  comingSoon
+                  onNotify={setNotifyProduct}
+                />
               ))}
             </div>
           </div>

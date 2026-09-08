@@ -212,25 +212,62 @@ export function generateVariantSku(productName, color, size) {
   return `KLA-${style}-${colorCode}-${sizeCode}`;
 }
 
+export function parseProductColors(colors) {
+  if (!colors) return [];
+  const raw = Array.isArray(colors) ? colors : [colors];
+  return raw
+    .flatMap((value) => String(value).split(/[;,]+/))
+    .map((value) => value.trim())
+    .filter(Boolean);
+}
+
+function uniqueImageUrls(urls) {
+  const out = [];
+  urls.forEach((url) => {
+    if (url && typeof url === 'string' && !out.includes(url)) out.push(url);
+  });
+  return out;
+}
+
+function urlsFromVariantEntry(entry) {
+  if (!entry) return [];
+  if (typeof entry === 'string') return [entry];
+  const urls = [];
+  [entry.image, entry.url, entry.src].forEach((url) => {
+    if (url) urls.push(url);
+  });
+  if (Array.isArray(entry.images)) urls.push(...entry.images);
+  return uniqueImageUrls(urls);
+}
+
 export function findVariantEntry(variantImages, color) {
   if (!variantImages || typeof variantImages !== 'object' || !color) return null;
   if (variantImages[color]) return variantImages[color];
   const needle = String(color).trim().toLowerCase();
   const keys = Object.keys(variantImages);
   const exact = keys.find((key) => key.trim().toLowerCase() === needle);
-  if (exact) return variantImages[exact];
-  const partial = keys.find((key) => {
-    const normalized = key.trim().toLowerCase();
-    return normalized.includes(needle) || needle.includes(normalized);
-  });
-  return partial ? variantImages[partial] : null;
+  return exact ? variantImages[exact] : null;
 }
 
 export function getVariantImage(variantImages, color) {
-  const entry = findVariantEntry(variantImages, color);
-  if (!entry) return null;
-  if (typeof entry === 'string') return entry;
-  if (entry.image) return entry.image;
-  if (Array.isArray(entry.images) && entry.images[0]) return entry.images[0];
-  return null;
+  return urlsFromVariantEntry(findVariantEntry(variantImages, color))[0] || null;
+}
+
+export function collectImagesForColor(product, color) {
+  const fallback = ['/placeholder.png'];
+  if (!product) return fallback;
+  const colorUrls = urlsFromVariantEntry(findVariantEntry(product.variant_images, color));
+  const general = [];
+  if (Array.isArray(product.images)) general.push(...product.images);
+  if (product.image_url) general.push(product.image_url);
+  if (product.hover_image_url) general.push(product.hover_image_url);
+  const colors = parseProductColors(product.colors);
+  const colorIndex = colors.findIndex((item) => item.trim().toLowerCase() === String(color || '').trim().toLowerCase());
+  const indexed = colorIndex >= 0 ? general[colorIndex] : null;
+  const urls = uniqueImageUrls([...colorUrls, indexed, ...general]);
+  return urls.length ? urls : fallback;
+}
+
+export function getDisplayImageForColor(product, color) {
+  return collectImagesForColor(product, color)[0];
 }

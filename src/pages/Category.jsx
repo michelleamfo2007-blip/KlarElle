@@ -11,11 +11,56 @@ import ProductRating from '../components/ProductRating';
 import { attachReviewStats } from '../utils/reviews';
 import { isProductSoldOut } from '../utils/stock';
 import { Filter } from 'lucide-react';
-import { getColorHex } from '../utils/colors';
+import ColorPreviewDots, { useProductColorImage } from '../components/ColorPreviewDots';
 import NotifyMeForm from '../components/NotifyMeForm';
 import { getCollectionBySlug } from '../data/collections';
 import { getReleaseLabel, isComingSoon, matchesCollection, maybeLaunchProduct } from '../utils/storefront';
 import './Category.css';
+
+function CategoryProductCard({ product, formatPrice, addToCart, onNotify }) {
+  const { colors, selectedColor, setSelectedColor, image } = useProductColorImage(product);
+  const comingSoon = isComingSoon(product);
+  const soldOut = isProductSoldOut(product);
+
+  return (
+    <div className="product-card">
+      {comingSoon ? (
+        <div className="product-badge" style={{ background: '#111', color: '#fff', letterSpacing: '1px' }}>COMING SOON</div>
+      ) : soldOut ? (
+        <div className="product-badge" style={{ background: '#000', color: '#fff' }}>SOLD OUT</div>
+      ) : product.old_price && parseFloat(product.old_price) > parseFloat(product.price) && (
+        <div className="product-badge">-{Math.round(((product.old_price - product.price) / product.old_price) * 100)}%</div>
+      )}
+      <div className="product-image-wrap">
+        <Link to={`/product/${product.id}`}>
+          <img src={image || '/placeholder.png'} alt={product.name} className="product-image primary" style={{ opacity: soldOut && !comingSoon ? 0.6 : 1 }} />
+        </Link>
+        <div className="product-actions">
+          {comingSoon ? (
+            <button className="action-btn add-cart" onClick={() => onNotify(product)}>NOTIFY ME</button>
+          ) : !soldOut ? (
+            <button className="action-btn add-cart" onClick={() => addToCart(product, null, selectedColor || null)}>ADD TO CART</button>
+          ) : (
+            <button className="action-btn add-cart" disabled style={{ background: '#ddd', color: '#666', cursor: 'not-allowed' }}>SOLD OUT</button>
+          )}
+          <button className="action-btn"><Heart size={18} /></button>
+        </div>
+      </div>
+      <div className="product-info">
+        <Link to={`/product/${product.id}`}><h3 className="product-title">{product.name}</h3></Link>
+        <div className="product-price-wrap">
+          <span className="product-price sale">{formatPrice(product.price)}</span>
+          {product.old_price && parseFloat(product.old_price) > parseFloat(product.price) && <span className="product-old-price">{formatPrice(product.old_price)}</span>}
+        </div>
+        {comingSoon && (
+          <div style={{ fontSize: '12px', color: '#666', marginTop: '4px' }}>{getReleaseLabel(product)}</div>
+        )}
+        <ColorPreviewDots colors={colors} selectedColor={selectedColor} onSelect={setSelectedColor} />
+        <ProductRating count={product.reviewCount} average={product.reviewAvg} />
+      </div>
+    </div>
+  );
+}
 
 function Category() {
   const { id } = useParams(); // gets 'dresses', 'tops', etc. from URL
@@ -169,49 +214,13 @@ function Category() {
         ) : (
           <div className="products-grid">
             {products.map(product => (
-              <div className="product-card" key={product.id}>
-                {isComingSoon(product) ? (
-                    <div className="product-badge" style={{ background: '#111', color: '#fff', letterSpacing: '1px' }}>COMING SOON</div>
-                ) : isProductSoldOut(product) ? (
-                    <div className="product-badge" style={{ background: '#000', color: '#fff' }}>SOLD OUT</div>
-                ) : product.old_price && parseFloat(product.old_price) > parseFloat(product.price) && (
-                    <div className="product-badge">-{Math.round(((product.old_price - product.price) / product.old_price) * 100)}%</div>
-                )}
-                <div className="product-image-wrap">
-                  <Link to={`/product/${product.id}`}>
-                    <img src={product.image_url || '/placeholder.png'} alt={product.name} className="product-image primary" style={{ opacity: isProductSoldOut(product) && !isComingSoon(product) ? 0.6 : 1 }} />
-                    {product.hover_image_url && <img src={product.hover_image_url} alt={product.name} className="product-image secondary" />}
-                  </Link>
-                  <div className="product-actions">
-                    {isComingSoon(product) ? (
-                      <button className="action-btn add-cart" onClick={() => setNotifyProduct(product)}>NOTIFY ME</button>
-                    ) : !isProductSoldOut(product) ? (
-                      <button className="action-btn add-cart" onClick={() => addToCart(product)}>ADD TO CART</button>
-                    ) : (
-                      <button className="action-btn add-cart" disabled style={{ background: '#ddd', color: '#666', cursor: 'not-allowed' }}>SOLD OUT</button>
-                    )}
-                    <button className="action-btn"><Heart size={18} /></button>
-                  </div>
-                </div>
-                <div className="product-info">
-                  <Link to={`/product/${product.id}`}><h3 className="product-title">{product.name}</h3></Link>
-                  <div className="product-price-wrap">
-                    <span className="product-price sale">{formatPrice(product.price)}</span>
-                    {product.old_price && parseFloat(product.old_price) > parseFloat(product.price) && <span className="product-old-price">{formatPrice(product.old_price)}</span>}
-                  </div>
-                  {isComingSoon(product) && (
-                    <div style={{ fontSize: '12px', color: '#666', marginTop: '4px' }}>{getReleaseLabel(product)}</div>
-                  )}
-                  {Array.isArray(product.colors) && product.colors.length > 0 && (
-                    <div style={{ display: 'flex', gap: '6px', marginTop: '8px', flexWrap: 'wrap' }}>
-                      {product.colors.slice(0, 6).map((color) => (
-                        <span key={color} title={color} style={{ width: '12px', height: '12px', borderRadius: '50%', border: '1px solid #ddd', background: getColorHex(color) }} />
-                      ))}
-                    </div>
-                  )}
-                  <ProductRating count={product.reviewCount} average={product.reviewAvg} />
-                </div>
-              </div>
+              <CategoryProductCard
+                key={product.id}
+                product={product}
+                formatPrice={formatPrice}
+                addToCart={addToCart}
+                onNotify={setNotifyProduct}
+              />
             ))}
           </div>
         )}

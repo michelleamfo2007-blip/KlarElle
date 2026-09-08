@@ -8,7 +8,7 @@ import { useCart } from '../context/CartContext';
 import { useFavorites } from '../context/FavoritesContext';
 import { useCurrency } from '../context/CurrencyContext';
 import { formatSizeLabel } from '../utils/size';
-import { getColorHex, getVariantImage, findVariantEntry } from '../utils/colors';
+import { getColorHex, collectImagesForColor, findVariantEntry, parseProductColors } from '../utils/colors';
 import NotifyMeForm from '../components/NotifyMeForm';
 import NotFound from './NotFound';
 import {
@@ -18,22 +18,7 @@ import {
   maybeLaunchProduct
 } from '../utils/storefront';
 
-const collectProductImages = (product) => {
-  const urls = [];
-  const add = (url) => {
-    if (url && typeof url === 'string' && !urls.includes(url)) urls.push(url);
-  };
-  if (Array.isArray(product.images)) product.images.forEach(add);
-  add(product.image_url);
-  add(product.hover_image_url);
-  if (product.variant_images && typeof product.variant_images === 'object') {
-    Object.values(product.variant_images).forEach((value) => {
-      if (typeof value === 'string') add(value);
-      else if (value?.image) add(value.image);
-    });
-  }
-  return urls.length > 0 ? urls : ['/placeholder.png'];
-};
+const collectProductImages = (product, color) => collectImagesForColor(product, color);
 
 const CustomSlider = ({ value, min, max, onChange, marks }) => {
   const percentage = ((value - min) / (max - min)) * 100;
@@ -68,7 +53,6 @@ function ProductDetails() {
   const [selectedColor, setSelectedColor] = useState('Black');
   const [selectedSize, setSelectedSize] = useState('M');
   const [activeImage, setActiveImage] = useState(0);
-  const [previewImage, setPreviewImage] = useState(null);
   const [quantity, setQuantity] = useState(1);
   const [addedToCart, setAddedToCart] = useState(false);
 
@@ -179,8 +163,7 @@ function ProductDetails() {
         const rawSizes = Array.isArray(data.sizes) ? data.sizes : (typeof data.sizes === 'string' ? [data.sizes] : []);
         const pSizes = rawSizes.flatMap(s => typeof s === 'string' ? s.split(/[;,]+/) : s).map(s => String(s).trim()).filter(Boolean);
         
-        const rawColors = Array.isArray(data.colors) ? data.colors : (typeof data.colors === 'string' ? [data.colors] : []);
-        const pColors = rawColors.flatMap(c => typeof c === 'string' ? c.split(/[;,]+/) : c).map(c => String(c).trim()).filter(Boolean);
+        const pColors = parseProductColors(data.colors);
         
         data.parsedSizes = pSizes;
         data.parsedColors = pColors;
@@ -199,7 +182,6 @@ function ProductDetails() {
         if (pSizes.length > 0) setSelectedSize(pSizes[0]);
         if (pColors.length > 0) {
           setSelectedColor(pColors[0]);
-          setPreviewImage(getVariantImage(data.variant_images, pColors[0]));
           setActiveImage(0);
         }
 
@@ -339,7 +321,7 @@ function ProductDetails() {
 
   useEffect(() => {
     if (!showImageModal || !product) return;
-    const count = collectProductImages(product).length || 1;
+    const count = collectProductImages(product, selectedColor).length || 1;
     const onKey = (e) => {
       if (e.key === 'ArrowRight') setModalImageIndex((i) => (i + 1) % count);
       if (e.key === 'ArrowLeft') setModalImageIndex((i) => (i - 1 + count) % count);
@@ -347,7 +329,13 @@ function ProductDetails() {
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [showImageModal, product]);
+  }, [showImageModal, product, selectedColor]);
+
+  useEffect(() => {
+    setActiveImage(0);
+    const firstSlide = galleryRef.current?.children?.[0];
+    if (firstSlide) firstSlide.scrollIntoView({ behavior: 'auto', inline: 'start', block: 'nearest' });
+  }, [selectedColor]);
 
   useEffect(() => {
     if (!showImageModal || !modalScrollerRef.current) return;
@@ -357,7 +345,7 @@ function ProductDetails() {
   if (loading) return <div style={{ minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '100px 20px', fontSize: '18px', color: '#666' }}>Loading product details...</div>;
   if (!product) return <NotFound />;
 
-  const images = collectProductImages(product);
+  const images = collectProductImages(product, selectedColor);
   const preorderLeadTime = product.preorder_lead_time || '14–21 business days';
   const comingSoon = isComingSoon(product);
   const releaseLabel = getReleaseLabel(product);
@@ -435,8 +423,8 @@ function ProductDetails() {
           <div className="gallery-column">
           <div className="gallery-grid" ref={galleryRef}>
             {images.map((img, i) => (
-              <div key={i} className={`main-image-wrap${activeImage === i ? ' is-active' : ''}`} onClick={() => { setModalImageIndex(i); setImageModalReady(false); setShowImageModal(true); }} style={{ cursor: 'zoom-in' }}>
-                <img src={(previewImage && (i === activeImage || i === 0)) ? previewImage : img} alt={`View ${i+1}`} className="main-image" />
+              <div key={`${selectedColor}-${img}-${i}`} className={`main-image-wrap${activeImage === i ? ' is-active' : ''}`} onClick={() => { setModalImageIndex(i); setImageModalReady(false); setShowImageModal(true); }} style={{ cursor: 'zoom-in' }}>
+                <img src={img} alt={`View ${i+1}`} className="main-image" />
                 {i === 0 && product.old_price && parseFloat(product.old_price) > parseFloat(product.price) && (
                   <div style={{ position: 'absolute', top: 16, right: 16, background: '#000', color: 'white', padding: '4px 8px', fontSize: '14px', fontWeight: 'bold' }}>
                     -{Math.round(((product.old_price - product.price) / product.old_price) * 100)}%
@@ -537,8 +525,8 @@ function ProductDetails() {
                         className={`color-swatch ${selectedColor === color ? 'active' : ''}`}
                         onClick={() => {
                           setSelectedColor(color);
-                          setPreviewImage(getVariantImage(product.variant_images, color));
                           setActiveImage(0);
+                          setModalImageIndex(0);
                           const firstSlide = galleryRef.current?.children?.[0];
                           if (firstSlide) firstSlide.scrollIntoView({ behavior: 'smooth', inline: 'start', block: 'nearest' });
                         }}
