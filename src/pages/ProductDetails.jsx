@@ -8,7 +8,8 @@ import { useCart } from '../context/CartContext';
 import { useFavorites } from '../context/FavoritesContext';
 import { useCurrency } from '../context/CurrencyContext';
 import { formatSizeLabel } from '../utils/size';
-import { getColorHex, collectImagesForColor, findVariantEntry, parseProductColors } from '../utils/colors';
+import { getColorHex, collectImagesForColor, parseProductColors } from '../utils/colors';
+import { getFulfillmentSource, getVariantStock, pickAvailableSize } from '../utils/stock';
 import NotifyMeForm from '../components/NotifyMeForm';
 import NotFound from './NotFound';
 import {
@@ -50,36 +51,15 @@ function ProductDetails() {
   const [reviewStats, setReviewStats] = useState({ avg: 0, count: 0, fitSmall: 0, fitTrue: 0, fitLarge: 0 });
   const [loading, setLoading] = useState(true);
   
-  const [selectedColor, setSelectedColor] = useState('Black');
-  const [selectedSize, setSelectedSize] = useState('M');
+  const [selectedColor, setSelectedColor] = useState('');
+  const [selectedSize, setSelectedSize] = useState('');
   const [activeImage, setActiveImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [addedToCart, setAddedToCart] = useState(false);
 
-  // Compute available stock based on currently selected product and variations
-  let usStock = product?.stock || 0;
-  let intlStock = product?.stock_international || 0;
-  let fulfilledFrom = 'US';
-
-  if (product?.variant_images) {
-    const hasVariantInventory = Object.values(product.variant_images).some(v => typeof v === 'object' && v !== null && (v.stock || v.stock_international));
-    if (hasVariantInventory) {
-      const colorData = findVariantEntry(product.variant_images, selectedColor);
-      if (colorData) {
-        usStock = parseInt(colorData.stock?.[selectedSize] || 0, 10);
-        intlStock = parseInt(colorData.stock_international?.[selectedSize] || 0, 10);
-      } else {
-        usStock = 0;
-        intlStock = 0;
-      }
-    }
-  }
-
-  let availableStock = usStock;
-  if (usStock <= 0 && intlStock > 0) {
-    availableStock = intlStock;
-    fulfilledFrom = 'CN';
-  }
+  const { us: usStock, intl: intlStock } = getVariantStock(product, selectedColor, selectedSize);
+  const fulfilledFrom = getFulfillmentSource(product, selectedColor, selectedSize);
+  const availableStock = usStock > 0 ? usStock : intlStock;
 
   const cartItemId = product ? `${product.id}-${selectedSize || 'default'}-${selectedColor || 'default'}` : null;
   const qtyInCart = cartItems?.find(item => item.cartItemId === cartItemId)?.quantity || 0;
@@ -179,10 +159,13 @@ function ProductDetails() {
         }
 
         setProduct(data);
-        if (pSizes.length > 0) setSelectedSize(pSizes[0]);
+        const initialColor = pColors[0] || '';
         if (pColors.length > 0) {
-          setSelectedColor(pColors[0]);
+          setSelectedColor(initialColor);
           setActiveImage(0);
+        }
+        if (pSizes.length > 0) {
+          setSelectedSize(pickAvailableSize(data, initialColor, pSizes));
         }
 
         // Fetch matching styles (published products from same category)
@@ -525,6 +508,7 @@ function ProductDetails() {
                         className={`color-swatch ${selectedColor === color ? 'active' : ''}`}
                         onClick={() => {
                           setSelectedColor(color);
+                          setSelectedSize(pickAvailableSize(product, color, product.parsedSizes, selectedSize));
                           setActiveImage(0);
                           setModalImageIndex(0);
                           const firstSlide = galleryRef.current?.children?.[0];
@@ -587,11 +571,20 @@ function ProductDetails() {
                 </div>
                 
                 <div className="size-grid">
-                  {product.parsedSizes.map(size => (
-                    <button key={size} className={`size-btn ${selectedSize === size ? 'active' : ''}`} onClick={() => setSelectedSize(size)}>
+                  {product.parsedSizes.map(size => {
+                    const sizeStock = getVariantStock(product, selectedColor, size);
+                    const sizeInStock = (sizeStock.us + sizeStock.intl) > 0;
+                    return (
+                    <button
+                      key={size}
+                      className={`size-btn ${selectedSize === size ? 'active' : ''}`}
+                      onClick={() => setSelectedSize(size)}
+                      style={sizeInStock ? undefined : { opacity: 0.45, textDecoration: 'line-through' }}
+                    >
                       {formatSizeLabel(size)}
                     </button>
-                  ))}
+                    );
+                  })}
                 </div>
                 
                 <div style={{ display: 'flex', gap: '16px', fontSize: '12px', fontWeight: 'bold', marginTop: '12px' }}>
@@ -1155,7 +1148,7 @@ function ProductDetails() {
                   if (sizeModalStep < 4) setSizeModalStep(sizeModalStep + 1);
                   else {
                     setShowSizeModal(false);
-                    addToCart(product, 'S', selectedColor);
+                    addToCart(product, selectedSize || pickAvailableSize(product, selectedColor, product.parsedSizes), selectedColor);
                   }
                 }}
                 style={{ width: '100%', padding: '16px', background: '#000', color: '#fff', border: 'none', borderRadius: '4px', fontWeight: 'bold', fontSize: '16px', cursor: 'pointer' }}
