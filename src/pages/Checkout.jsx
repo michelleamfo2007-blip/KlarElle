@@ -31,6 +31,7 @@ function Checkout() {
   const [selectedRateId, setSelectedRateId] = useState(null);
   const [isFetchingRates, setIsFetchingRates] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
+  const [taxAmount, setTaxAmount] = useState(0);
   const [fulfillmentSource, setFulfillmentSource] = useState(() => (
     cartShipsFromInternational(cartItems) ? 'CN' : 'US'
   ));
@@ -107,7 +108,10 @@ function Checkout() {
   const shippingGuarantee = 1.50;
   
   const discountAmount = appliedCoupon ? (cartTotal * (appliedCoupon.discount_percent / 100)) : 0;
-  const finalTotal = cartTotal - discountAmount + shippingFee + shippingGuarantee;
+  const merchandiseTotal = Math.max(0, cartTotal - discountAmount);
+  const shippingTotal = shippingFee + shippingGuarantee;
+  const preTaxTotal = merchandiseTotal + shippingTotal;
+  const finalTotal = preTaxTotal + taxAmount;
 
   const handleApplyCoupon = async (e) => {
     e.preventDefault();
@@ -147,28 +151,34 @@ function Checkout() {
   };
 
   useEffect(() => {
-    if (finalTotal > 0 && !showShippingForm) {
-      // Comprehensive list of Stripe-supported currencies
+    if (preTaxTotal > 0 && !showShippingForm) {
       const STRIPE_SUPPORTED_CURRENCIES = [
         "usd", "aed", "afn", "all", "amd", "ang", "aoa", "ars", "aud", "awg", "azn", "bam", "bbd", "bdt", "bgn", "bif", "bmd", "bnd", "bob", "brl", "bsd", "bwp", "byn", "bzd", "cad", "cdf", "chf", "clp", "cny", "cop", "crc", "cve", "czk", "djf", "dkk", "dop", "dzd", "egp", "etb", "eur", "fjd", "fkp", "gbp", "gel", "gip", "gmd", "gnf", "gtq", "gyd", "hkd", "hnl", "hrk", "htg", "huf", "idr", "ils", "inr", "isk", "jmd", "jpy", "kes", "kgs", "khr", "kmf", "krw", "kyd", "kzt", "lak", "lbp", "lkr", "lrd", "lsl", "mad", "mdl", "mga", "mkd", "mmk", "mnt", "mop", "mur", "mvr", "mwk", "mxn", "myr", "mzn", "nad", "ngn", "nio", "nok", "npr", "nzd", "pab", "pen", "pgk", "php", "pkr", "pln", "pyg", "qar", "ron", "rsd", "rub", "rwf", "sar", "sbd", "scr", "sek", "sgd", "shp", "sle", "sos", "srd", "std", "szl", "thb", "tjs", "top", "try", "ttd", "twd", "tzs", "uah", "ugx", "uyu", "uzs", "vnd", "vuv", "wst", "xaf", "xcd", "xcg", "xof", "xpf", "yer", "zar", "zmw"
       ];
       
       const isStripeSupported = STRIPE_SUPPORTED_CURRENCIES.includes((currency || 'USD').toLowerCase());
       const stripeCurrency = isStripeSupported ? currency : 'USD';
-      
-      let convertedAmount;
-      if (stripeCurrency === 'USD') {
-        convertedAmount = finalTotal; // Base amount is already USD
-      } else {
-        const rate = EXCHANGE_RATES[currency]?.rate || 1;
-        convertedAmount = finalTotal * rate;
-      }
+      const rate = stripeCurrency === 'USD' ? 1 : (EXCHANGE_RATES[currency]?.rate || 1);
+      const convertedAmount = preTaxTotal * rate;
+      const convertedShipping = shippingTotal * rate;
 
       setPaymentError("");
       fetch("/api/create-payment-intent", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amount: convertedAmount, currency: stripeCurrency }),
+        body: JSON.stringify({
+          amount: convertedAmount,
+          currency: stripeCurrency,
+          shipping_amount: convertedShipping,
+          shipping_address: {
+            line1: formData.houseNo,
+            line2: formData.apartment || '',
+            city: formData.city,
+            state: formData.region,
+            postal_code: formData.postcode,
+            country: COUNTRIES[formData.location] || formData.location || 'US'
+          }
+        }),
       })
         .then(async (res) => {
           const data = await res.json();
@@ -177,15 +187,21 @@ function Checkout() {
           }
           return data;
         })
-        .then((data) => setClientSecret(data.clientSecret))
+        .then((data) => {
+          setClientSecret(data.clientSecret);
+          const taxInChargeCurrency = Number(data.taxAmount || 0);
+          setTaxAmount(rate ? taxInChargeCurrency / rate : taxInChargeCurrency);
+        })
         .catch((err) => {
           console.error("Error fetching client secret", err);
           setPaymentError(err.message);
+          setTaxAmount(0);
         });
     } else if (showShippingForm) {
       setClientSecret("");
+      setTaxAmount(0);
     }
-  }, [finalTotal, currency, EXCHANGE_RATES, showShippingForm]);
+  }, [preTaxTotal, shippingTotal, currency, EXCHANGE_RATES, showShippingForm, formData.houseNo, formData.apartment, formData.city, formData.region, formData.postcode, formData.location]);
 
   if (!STORE_LAUNCHED) {
     return (
@@ -611,6 +627,10 @@ function Checkout() {
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px', fontSize: '13px' }}>
           <span style={{ color: '#666' }}>Shipping Guarantee:</span>
           <span style={{ fontWeight: 'bold' }}>{formatPrice(shippingGuarantee)}</span>
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px', fontSize: '13px' }}>
+          <span style={{ color: '#666' }}>Tax:</span>
+          <span style={{ fontWeight: 'bold' }}>{formatPrice(taxAmount)}</span>
         </div>
         {appliedCoupon && (
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px', fontSize: '13px', color: '#ff4444' }}>

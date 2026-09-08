@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Save, Image as ImageIcon, Layout, Type, Bell } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 
-import { DEFAULT_WEBSITE_CONTENT } from '../../data/websiteContent';
+import { DEFAULT_WEBSITE_CONTENT, normalizeWebsiteContent } from '../../data/websiteContent';
 
 function SuperWebsite() {
   const [formData, setFormData] = useState({ ...DEFAULT_WEBSITE_CONTENT });
@@ -18,13 +18,7 @@ function SuperWebsite() {
     setIsLoading(true);
     const { data, error } = await supabase.from('website_content').select('*').eq('id', 1).single();
     if (data && !error) {
-      setFormData({
-        announcementText: data.announcement_text || DEFAULT_WEBSITE_CONTENT.announcementText,
-        heroTitle: data.hero_title || DEFAULT_WEBSITE_CONTENT.heroTitle,
-        heroSubtitle: data.hero_subtitle || DEFAULT_WEBSITE_CONTENT.heroSubtitle,
-        featuredCollection: data.featured_collection || DEFAULT_WEBSITE_CONTENT.featuredCollection,
-        aboutText: data.about_text || DEFAULT_WEBSITE_CONTENT.aboutText
-      });
+      setFormData(normalizeWebsiteContent(data));
     }
     setIsLoading(false);
   };
