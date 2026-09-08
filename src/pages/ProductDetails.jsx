@@ -402,8 +402,8 @@ function ProductDetails() {
             @media (max-width: 900px) {
               .desktop-add-cart { display: none !important; }
               .product-layout { gap: 24px; }
-              .gallery-grid { margin: -40px -20px 0 -20px; width: 100vw; }
-              .main-image-wrap { flex: 0 0 100vw; max-height: none; width: 100vw; aspect-ratio: 4/5; }
+              .gallery-grid { margin: 0; width: 100%; max-width: 100%; }
+              .main-image-wrap { flex: 0 0 100%; max-height: none; width: 100%; aspect-ratio: 4/5; }
             }
           `}</style>
           
@@ -1456,7 +1456,7 @@ function ProductDetails() {
             style={{ display: 'flex', overflowX: 'auto', scrollSnapType: 'x mandatory', flex: 1, WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none' }}
           >
             {images.map((img, i) => (
-              <div key={i} style={{ flex: '0 0 100vw', scrollSnapAlign: 'start', display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+              <div key={i} style={{ flex: '0 0 100%', scrollSnapAlign: 'start', display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
                 <img src={img} alt={`Zoomed ${i+1}`} style={{ width: '100%', maxHeight: '100vh', objectFit: 'contain' }} />
               </div>
             ))}

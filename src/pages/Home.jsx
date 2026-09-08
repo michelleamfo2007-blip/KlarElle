@@ -411,10 +411,11 @@ function Home() {
           .hero-img-center-wrapper { width: 90%; margin-left: 0; margin-bottom: 20px; }
           .hero-img-center { aspect-ratio: 4/5; }
           .hero-video-wrap {
-            width: 100vw;
-            max-width: 100vw;
-            margin-left: calc(50% - 50vw);
+            width: 100%;
+            max-width: 100%;
+            margin-left: 0;
             background: #000;
+            overflow: hidden;
           }
           .hero-video {
             width: 100%;

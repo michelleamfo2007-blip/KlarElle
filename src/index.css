@@ -47,6 +47,13 @@ body {
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+  max-width: 100%;
+}
+
+html {
+  overflow-x: hidden;
+  max-width: 100%;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -80,6 +87,7 @@ ul {
   max-width: var(--container-width);
   margin: 0 auto;
   padding: 0 16px;
+  width: 100%;
 }
 
 /* Typography */
@@ -203,6 +211,8 @@ main {
   position: sticky;
   top: 0;
   z-index: 100;
+  overflow-x: hidden;
+  width: 100%;
 }
 
 .header-main {
@@ -823,20 +833,30 @@ main {
   .header-actions > a > span:not(.badge) { display: none; }
   .nav-menu {
     display: flex;
-    overflow-x: auto;
-    white-space: nowrap;
-    padding: 0 16px 10px;
-    margin-bottom: 0;
-    -webkit-overflow-scrolling: touch;
-    gap: 22px;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    overflow: visible;
+    white-space: normal;
+    padding: 0 8px 12px;
+    margin: 0;
+    gap: 2px 14px;
+    width: 100%;
+    max-width: 100%;
   }
   .nav-menu::-webkit-scrollbar {
     display: none;
   }
   .nav-link {
-    font-size: 12px;
-    letter-spacing: 0.06em;
-    padding-bottom: 10px;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    padding: 8px 2px;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    line-height: 1.2;
+  }
+  .nav-dropdown .dropdown-menu {
+    display: none !important;
   }
   /* Mobile Header Fixes */
   .header-main {
@@ -933,9 +953,29 @@ main {
 
 /* Ensure sufficiently large touch targets on mobile */
 @media screen and (max-width: 768px) {
-  button, .btn, a.nav-link, select, input[type="submit"] {
+  button:not(.color-swatch):not(.size-btn), .btn, input[type="submit"] {
     min-height: 44px;
-    min-width: 44px;
+  }
+  a.nav-link {
+    min-width: 0;
+    min-height: 36px;
+  }
+  .color-preview-dots button,
+  .color-swatch,
+  .size-btn {
+    min-height: 0 !important;
+    min-width: 0 !important;
+  }
+  .top-bar {
+    overflow: hidden;
+  }
+  .top-bar .container {
+    gap: 8px;
+    min-width: 0;
+  }
+  .header .container {
+    overflow-x: hidden;
+    max-width: 100%;
   }
 }
 
