@@ -519,7 +519,7 @@ function Layout() {
             <div className="footer-col">
               <h4>Customer Care</h4>
               <div className="footer-links">
-                <a href="mailto:support@klarelle.store">Contact Us</a>
+                <Link to="/page/contact-us">Contact Us</Link>
                 <Link to="/page/payment-method">Payment Method</Link>
                 <a href="mailto:support@klarelle.store">Support</a>
                 <Link to="/page/privacy-policy">Privacy Policy</Link>
