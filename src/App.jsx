@@ -53,7 +53,6 @@ import Vouchers from './pages/Vouchers';
 import Wallet from './pages/Wallet';
 import RequestReturn from './pages/RequestReturn';
 import ReturnDetails from './pages/ReturnDetails';
-import CheckIn from './pages/CheckIn';
 import StaticPage from './pages/StaticPage';
 import ContactUs from './pages/ContactUs';
 import NotFound from './pages/NotFound';
@@ -92,7 +91,7 @@ function App() {
               <Route path="profile/returns/:id" element={<ReturnDetails />} />
               <Route path="profile/vouchers" element={<Vouchers />} />
               <Route path="profile/wallet" element={<Wallet />} />
-              <Route path="check-in" element={<CheckIn />} />
+              <Route path="check-in" element={<Navigate to="/profile" replace />} />
               <Route path="find-my-size" element={<Navigate to="/" replace />} />
               <Route path="page/about-us" element={<StaticPage title="About Us" />} />
               <Route path="page/faq" element={<StaticPage title="FAQ" />} />

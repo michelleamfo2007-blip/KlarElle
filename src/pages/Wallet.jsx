@@ -182,7 +182,7 @@ function Wallet() {
           <form onSubmit={handleRedeem} style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
             <input 
               type="text" 
-              placeholder="Enter Gift Card Code (e.g. WELCOME50)" 
+              placeholder="Enter gift card code" 
               value={redeemCode}
               onChange={(e) => setRedeemCode(e.target.value)}
               style={{ flex: 1, padding: '12px', border: '1px solid #ddd', borderRadius: '8px', fontSize: '14px' }}

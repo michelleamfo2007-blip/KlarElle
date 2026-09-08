@@ -67,8 +67,10 @@ function Vouchers() {
                   
                   {/* Right Side (Details) */}
                   <div style={{ padding: '20px 16px', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-                    <div style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '4px' }}>Storewide Discount</div>
-                    <div style={{ fontSize: '12px', color: '#666', marginBottom: '12px' }}>Valid for all items</div>
+                    <div style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '4px' }}>{coupon.description || coupon.name || coupon.code}</div>
+                    <div style={{ fontSize: '12px', color: '#666', marginBottom: '12px' }}>
+                      {coupon.discount_percent}% off{coupon.min_order ? ` · min ${coupon.min_order}` : ''}
+                    </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <div style={{ 
                         background: '#ffeeee', 
