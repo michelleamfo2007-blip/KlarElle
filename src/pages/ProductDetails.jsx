@@ -3,11 +3,11 @@ import { createPortal } from 'react-dom';
 import { useParams, Link } from 'react-router-dom';
 import SEO from '../components/SEO';
 import { supabase } from '../lib/supabase';
-import { Heart, Truck, RotateCcw, Share2, Star, ChevronRight, X, Ruler, ThumbsUp, ChevronLeft } from 'lucide-react';
+import { Heart, Truck, RotateCcw, Share2, Star, ChevronRight, X, Ruler, ThumbsUp, ChevronLeft, LayoutGrid } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useFavorites } from '../context/FavoritesContext';
 import { useCurrency } from '../context/CurrencyContext';
-import { formatSizeLabel } from '../utils/size';
+import { formatSizeLabel, recommendDressSize } from '../utils/size';
 import { getColorHex, collectImagesForColor, parseProductColors } from '../utils/colors';
 import { getFulfillmentSource, getVariantStock, pickAvailableSize } from '../utils/stock';
 import NotifyMeForm from '../components/NotifyMeForm';
@@ -108,6 +108,10 @@ function ProductDetails() {
   const [detailsExpanded, setDetailsExpanded] = useState(true);
   const [showNotifyModal, setShowNotifyModal] = useState(false);
   const [showSizeRequestModal, setShowSizeRequestModal] = useState(false);
+  const [showPrivacyModal, setShowPrivacyModal] = useState(false);
+  const [sizePrivacyAgreed, setSizePrivacyAgreed] = useState(false);
+  const [recommendedSize, setRecommendedSize] = useState('');
+  const [requestedSize, setRequestedSize] = useState('');
   
   // Write Review State
   const [showWriteReviewModal, setShowWriteReviewModal] = useState(false);
@@ -294,13 +298,13 @@ function ProductDetails() {
   }, [product?.video_url]);
 
   useEffect(() => {
-    if (showSizeModal || showGuideModal || showGuideTypeSelector || showReviewsModal || showDetailsModal || showSizeRequestModal || showWriteReviewModal || showImageModal || showNotifyModal) {
+    if (showSizeModal || showGuideModal || showGuideTypeSelector || showReviewsModal || showDetailsModal || showSizeRequestModal || showWriteReviewModal || showImageModal || showNotifyModal || showPrivacyModal) {
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = 'unset';
     }
     return () => { document.body.style.overflow = 'unset'; };
-  }, [showSizeModal, showGuideModal, showGuideTypeSelector, showReviewsModal, showDetailsModal, showSizeRequestModal, showWriteReviewModal, showImageModal, showNotifyModal]);
+  }, [showSizeModal, showGuideModal, showGuideTypeSelector, showReviewsModal, showDetailsModal, showSizeRequestModal, showWriteReviewModal, showImageModal, showNotifyModal, showPrivacyModal]);
 
   useEffect(() => {
     if (!showImageModal || !product) return;
@@ -587,19 +591,37 @@ function ProductDetails() {
                   })}
                 </div>
                 
-                <div style={{ display: 'flex', gap: '16px', fontSize: '12px', fontWeight: 'bold', marginTop: '12px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', fontSize: '12px', fontWeight: 'bold', marginTop: '12px' }}>
                   <button
                     type="button"
                     onClick={(e) => {
                       e.preventDefault();
-                      e.stopPropagation();
                       setShowGuideModal(true);
                     }}
                     style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', background: 'none', border: 'none', padding: 0, fontSize: '12px', fontWeight: 'bold', color: '#000' }}
                   >
-                    <Ruler size={14} style={{marginRight:'4px'}}/> Size Guide <ChevronRight size={14} />
+                    <LayoutGrid size={14} style={{ marginRight: '4px' }} /> Size Guide
+                  </button>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setSizeModalStep(1);
+                      setShowPrivacyModal(false);
+                      setShowSizeModal(true);
+                    }}
+                    style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', background: 'none', border: 'none', padding: 0, fontSize: '12px', fontWeight: 'bold', color: '#000' }}
+                  >
+                    <Ruler size={14} style={{ marginRight: '4px' }} /> Check My Size <ChevronRight size={14} />
                   </button>
                 </div>
+                <button
+                  type="button"
+                  onClick={() => setShowSizeRequestModal(true)}
+                  style={{ marginTop: '8px', background: 'none', border: 'none', padding: 0, fontSize: '12px', color: '#666', cursor: 'pointer' }}
+                >
+                  Not your size? Tell us <ChevronRight size={12} style={{ display: 'inline', verticalAlign: 'middle' }} />
+                </button>
                 
                 <div style={{ marginTop: '12px', fontSize: '12px', color: '#666', lineHeight: '1.4' }}>
                   <strong>Sizing and Fit</strong><br/>
@@ -1079,7 +1101,7 @@ function ProductDetails() {
                 <div style={{ padding: '0', background: '#f5f5f5', height: '100%' }}>
                   <div style={{ background: '#fff9e6', padding: '20px', textAlign: 'center' }}>
                     <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#b07b1a', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-                      <span>👍</span> <span style={{ fontSize: '24px' }}>S</span>
+                      <span>👍</span> <span style={{ fontSize: '24px' }}>{formatSizeLabel(recommendedSize || selectedSize || 'M')}</span>
                     </div>
                     <div style={{ fontWeight: 'bold', fontSize: '16px', marginTop: '8px' }}>Best fit for "Me"</div>
                   </div>
@@ -1137,7 +1159,8 @@ function ProductDetails() {
               <div style={{ padding: '0 20px 24px 20px', display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
                 <input type="checkbox" id="privacy" style={{ marginTop: '4px' }} />
                 <label htmlFor="privacy" style={{ fontSize: '11px', color: '#666', lineHeight: '1.4', fontWeight: 'bold' }}>
-                  By clicking "Submit", you consent to KlarElle processing your personal data to provide personalized product sizing recommendations for your profile... <span style={{ color: '#1c7ed6' }}>Privacy Policy</span>
+                  By clicking "Submit", you consent to KlarElle processing your personal data to provide personalized product sizing recommendations for your profile. You can modify or delete this profile at any time.{' '}
+                  <button type="button" onClick={() => setShowPrivacyModal(true)} style={{ color: '#1c7ed6', background: 'none', border: 'none', padding: 0, fontSize: '11px', fontWeight: 'bold', cursor: 'pointer' }}>Privacy Policy</button>
                 </label>
               </div>
             )}
@@ -1145,11 +1168,29 @@ function ProductDetails() {
             <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '16px 20px calc(16px + env(safe-area-inset-bottom))', background: '#fff', borderTop: '1px solid #eee' }}>
               <button 
                 onClick={() => {
-                  if (sizeModalStep < 4) setSizeModalStep(sizeModalStep + 1);
-                  else {
-                    setShowSizeModal(false);
-                    addToCart(product, selectedSize || pickAvailableSize(product, selectedColor, product.parsedSizes), selectedColor);
+                  if (sizeModalStep === 1 && !sizePrivacyAgreed) {
+                    setShowPrivacyModal(true);
+                    return;
                   }
+                  if (sizeModalStep === 3) {
+                    const fit = recommendDressSize({
+                      bust: userBust,
+                      waist: userWaist,
+                      hips: userHips,
+                      sizes: product.parsedSizes
+                    });
+                    setRecommendedSize(fit);
+                    setSizeModalStep(4);
+                    return;
+                  }
+                  if (sizeModalStep < 4) {
+                    setSizeModalStep(sizeModalStep + 1);
+                    return;
+                  }
+                  const fit = recommendedSize || pickAvailableSize(product, selectedColor, product.parsedSizes);
+                  setSelectedSize(fit);
+                  addToCart(product, fit, selectedColor);
+                  setShowSizeModal(false);
                 }}
                 style={{ width: '100%', padding: '16px', background: '#000', color: '#fff', border: 'none', borderRadius: '4px', fontWeight: 'bold', fontSize: '16px', cursor: 'pointer' }}
               >
@@ -1158,6 +1199,42 @@ function ProductDetails() {
             </div>
           </div>
         </div>
+      )}
+
+      {showPrivacyModal && createPortal(
+        <div className="modal-overlay" style={{ zIndex: 4000 }} onClick={() => setShowPrivacyModal(false)}>
+          <div className="modal-content" style={{ minHeight: 'auto', paddingBottom: 0 }} onClick={(e) => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px', borderBottom: '1px solid #eee' }}>
+              <div style={{ width: '24px' }} />
+              <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 'bold' }}>Privacy Policy Agreement</h3>
+              <X size={24} onClick={() => setShowPrivacyModal(false)} style={{ cursor: 'pointer' }} />
+            </div>
+            <div style={{ padding: '20px', fontSize: '13px', lineHeight: 1.6, color: '#333' }}>
+              By continuing, you consent to KlarElle using your measurements to recommend a size for this dress. You can close this at any time. A recommendation is guidance and does not guarantee individual fit.
+            </div>
+            <div style={{ padding: '16px 20px calc(16px + env(safe-area-inset-bottom))', display: 'flex', gap: '12px' }}>
+              <button
+                type="button"
+                onClick={() => setShowPrivacyModal(false)}
+                style={{ flex: 1, padding: '14px', background: '#fff', color: '#111', border: '1px solid #111', fontWeight: 'bold', cursor: 'pointer' }}
+              >
+                Not Now
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setSizePrivacyAgreed(true);
+                  setShowPrivacyModal(false);
+                  if (sizeModalStep === 1) setSizeModalStep(2);
+                }}
+                style={{ flex: 1, padding: '14px', background: '#000', color: '#fff', border: 'none', fontWeight: 'bold', cursor: 'pointer' }}
+              >
+                Agree
+              </button>
+            </div>
+          </div>
+        </div>,
+        document.body
       )}
 
       {/* Details Modal */}
@@ -1306,11 +1383,27 @@ function ProductDetails() {
               <X size={24} onClick={() => setShowSizeRequestModal(false)} style={{ cursor: 'pointer' }} />
             </div>
             <div style={{ overflowY: 'auto', flex: 1, padding: '20px' }}>
-              <p style={{ fontSize: '14px', marginBottom: '16px' }}>Let us know which size you are looking for, and we'll try our best to stock it!</p>
-              <input type="text" placeholder="e.g. XXL, 3XL" style={{ width: '100%', padding: '12px', border: '1px solid #ddd', borderRadius: '4px', marginBottom: '16px' }} />
+              <p style={{ fontSize: '14px', marginBottom: '16px' }}>Tell us the size you need. We will try to stock it.</p>
+              <input
+                type="text"
+                value={requestedSize}
+                onChange={(e) => setRequestedSize(e.target.value)}
+                placeholder="e.g. XXL, 3XL"
+                style={{ width: '100%', padding: '12px', border: '1px solid #ddd', borderRadius: '4px', marginBottom: '16px', boxSizing: 'border-box' }}
+              />
               <button 
-                onClick={() => {
-                  alert("Thank you! We have recorded your size request.");
+                onClick={async () => {
+                  const sizeNote = requestedSize.trim();
+                  if (!sizeNote) return;
+                  await supabase.from('support_tickets').insert([{
+                    customer_name: 'Size request',
+                    customer_email: 'size-request@klarelle.store',
+                    subject: `Size request: ${product.name}`,
+                    message: `Requested size: ${sizeNote}\nProduct: ${product.name}\nColor: ${selectedColor || 'n/a'}`,
+                    status: 'Open',
+                    priority: 'Medium'
+                  }]);
+                  setRequestedSize('');
                   setShowSizeRequestModal(false);
                 }}
                 style={{ width: '100%', padding: '12px', background: '#000', color: '#fff', border: 'none', borderRadius: '4px', fontWeight: 'bold', cursor: 'pointer' }}>

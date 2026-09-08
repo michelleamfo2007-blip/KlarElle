@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Analytics } from '@vercel/analytics/react';
 import PageTracker from './components/PageTracker';
 import { CartProvider } from './context/CartContext';
@@ -56,7 +56,6 @@ import ReturnDetails from './pages/ReturnDetails';
 import CheckIn from './pages/CheckIn';
 import StaticPage from './pages/StaticPage';
 import ContactUs from './pages/ContactUs';
-import FindMySize from './pages/FindMySize';
 import NotFound from './pages/NotFound';
 import { AuthProvider } from './context/AuthContext';
 import { CurrencyProvider } from './context/CurrencyContext';
@@ -94,7 +93,7 @@ function App() {
               <Route path="profile/vouchers" element={<Vouchers />} />
               <Route path="profile/wallet" element={<Wallet />} />
               <Route path="check-in" element={<CheckIn />} />
-              <Route path="find-my-size" element={<FindMySize />} />
+              <Route path="find-my-size" element={<Navigate to="/" replace />} />
               <Route path="page/about-us" element={<StaticPage title="About Us" />} />
               <Route path="page/faq" element={<StaticPage title="FAQ" />} />
               <Route path="page/influencer-collaboration" element={<StaticPage title="Influencer Collaboration" />} />

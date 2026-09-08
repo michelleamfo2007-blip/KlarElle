@@ -458,7 +458,6 @@ function Layout() {
                 <Link to="/category/all" className={`nav-link ${isActive('/category/all')}`}>All Collections</Link>
               </div>
             </div>
-            <Link to="/find-my-size" className={`nav-link ${isActive('/find-my-size')}`}>Find My Size</Link>
             <Link to="/page/about-us" className={`nav-link ${isActive('/page/about-us')}`}>ABOUT</Link>
             <Link to="/page/faq" className={`nav-link ${isActive('/page/faq')}`}>FAQ</Link>
           </nav>
