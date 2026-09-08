@@ -30,6 +30,7 @@ function Layout() {
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
+  const [openNav, setOpenNav] = useState(null);
   const searchFormRef = React.useRef(null);
 
   useEffect(() => {
@@ -81,10 +82,17 @@ function Layout() {
       if (searchFormRef.current && !searchFormRef.current.contains(event.target)) {
         setShowSuggestions(false);
       }
+      if (!event.target.closest('.nav-dropdown')) {
+        setOpenNav(null);
+      }
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  useEffect(() => {
+    setOpenNav(null);
+  }, [location.pathname]);
 
   const handleSearch = (e) => {
     if (e) e.preventDefault();
@@ -213,6 +221,7 @@ function Layout() {
   };
 
   const isActive = (path) => location.pathname === path ? 'active' : '';
+  const isNewEditActive = isActive('/category/new-in') || isActive('/category/coming-soon');
 
   if (checkingMaintenance) {
     return <div style={{ height: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>Loading...</div>;
@@ -440,10 +449,27 @@ function Layout() {
           
           <nav className="nav-menu">
             <Link to="/" className={`nav-link ${isActive('/')}`}>HOME</Link>
-            <Link to="/category/new-in" className={`nav-link ${isActive('/category/new-in')}`}>New Edit</Link>
-            <Link to="/category/coming-soon" className={`nav-link ${isActive('/category/coming-soon')}`}>Coming Next</Link>
-            <div className="nav-dropdown">
-              <Link to="/category/all" className={`nav-link ${isActive('/category/all')}`}>Collections</Link>
+            <div className={`nav-dropdown ${openNav === 'new-edit' ? 'is-open' : ''}`}>
+              <button
+                type="button"
+                className={`nav-link ${isNewEditActive}`}
+                onClick={() => setOpenNav(openNav === 'new-edit' ? null : 'new-edit')}
+              >
+                New Edit
+              </button>
+              <div className="dropdown-menu">
+                <Link to="/category/new-in" className={`nav-link ${isActive('/category/new-in')}`}>The New Edit</Link>
+                <Link to="/category/coming-soon" className={`nav-link ${isActive('/category/coming-soon')}`}>Coming Next</Link>
+              </div>
+            </div>
+            <div className={`nav-dropdown ${openNav === 'collections' ? 'is-open' : ''}`}>
+              <button
+                type="button"
+                className={`nav-link ${isActive('/category/all')}`}
+                onClick={() => setOpenNav(openNav === 'collections' ? null : 'collections')}
+              >
+                Collections
+              </button>
               <div className="dropdown-menu">
                 {STORE_COLLECTIONS.filter((collection) => !['new-in', 'coming-soon'].includes(collection.slug)).map((collection) => (
                   <Link key={collection.slug} to={`/category/${collection.slug}`} className={`nav-link ${isActive(`/category/${collection.slug}`)}`}>

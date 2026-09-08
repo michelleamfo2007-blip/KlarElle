@@ -211,7 +211,7 @@ main {
   position: sticky;
   top: 0;
   z-index: 100;
-  overflow-x: hidden;
+  overflow: visible;
   width: 100%;
 }
 
@@ -309,6 +309,7 @@ main {
   gap: 32px;
   padding-bottom: 16px;
   align-items: center;
+  justify-content: center;
 }
 
 .nav-link {
@@ -370,10 +371,22 @@ main {
   border: 1px solid var(--border-light);
 }
 
-.nav-dropdown:hover .dropdown-menu {
+.nav-dropdown:hover .dropdown-menu,
+.nav-dropdown.is-open .dropdown-menu {
   opacity: 1;
   visibility: visible;
   transform: translateY(0);
+}
+
+button.nav-link {
+  background: none;
+  border: none;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .dropdown-menu .nav-link {
@@ -833,30 +846,26 @@ main {
   .header-actions > a > span:not(.badge) { display: none; }
   .nav-menu {
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     justify-content: center;
     align-items: center;
     overflow: visible;
-    white-space: normal;
-    padding: 0 8px 12px;
+    white-space: nowrap;
+    padding: 0 0 10px;
     margin: 0;
-    gap: 2px 14px;
+    gap: 20px;
     width: 100%;
-    max-width: 100%;
   }
   .nav-menu::-webkit-scrollbar {
     display: none;
   }
   .nav-link {
-    font-size: 11px;
+    font-size: 12px;
     letter-spacing: 0.08em;
-    padding: 8px 2px;
+    padding: 8px 0;
     min-width: 0 !important;
     min-height: 0 !important;
     line-height: 1.2;
-  }
-  .nav-dropdown .dropdown-menu {
-    display: none !important;
   }
   /* Mobile Header Fixes */
   .header-main {
@@ -953,10 +962,11 @@ main {
 
 /* Ensure sufficiently large touch targets on mobile */
 @media screen and (max-width: 768px) {
-  button:not(.color-swatch):not(.size-btn), .btn, input[type="submit"] {
+  button:not(.color-swatch):not(.size-btn):not(.nav-link), .btn, input[type="submit"] {
     min-height: 44px;
   }
-  a.nav-link {
+  a.nav-link,
+  button.nav-link {
     min-width: 0;
     min-height: 36px;
   }
@@ -974,7 +984,7 @@ main {
     min-width: 0;
   }
   .header .container {
-    overflow-x: hidden;
+    overflow: visible;
     max-width: 100%;
   }
 }

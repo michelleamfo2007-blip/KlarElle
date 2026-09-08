@@ -1109,6 +1109,7 @@ function ProductDetails() {
               )}
               
               {sizeModalStep === 3 && (
+                <>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px', marginTop: '16px' }}>
                   {['Hourglass', 'Triangle', 'Rounded', 'Straight', 'Inverted Triangle'].map(shape => (
                     <div 
@@ -1159,6 +1160,7 @@ function ProductDetails() {
                     ))}
                   </div>
                 </div>
+                </>
               )}
 
               {sizeModalStep === 4 && (
