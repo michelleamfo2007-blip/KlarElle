@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Outlet, Navigate, Link, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { supabase } from '../../lib/supabase';
-import { LayoutDashboard, Package, LogOut, Ticket, ShoppingBag, Tag, Menu, X, Users } from 'lucide-react';
+import { LayoutDashboard, Package, LogOut, Ticket, ShoppingBag, Tag, Menu, X, Users, FileText } from 'lucide-react';
 import './Admin.css';
 
 function AdminLayout() {
@@ -110,6 +110,9 @@ function AdminLayout() {
           </NavLink>
           <NavLink onClick={closeMobileMenu} to="/admin/coupons" className={({isActive}) => isActive ? "admin-nav-item active" : "admin-nav-item"}>
             <Tag size={20} /> Discounts & Promotions
+          </NavLink>
+          <NavLink onClick={closeMobileMenu} to="/admin/pages" className={({isActive}) => isActive ? "admin-nav-item active" : "admin-nav-item"}>
+            <FileText size={20} /> Policies & Pages
           </NavLink>
           <NavLink onClick={closeMobileMenu} to="/admin/waitlist" className={({isActive}) => isActive ? "admin-nav-item active" : "admin-nav-item"}>
             <Users size={20} /> Waitlist

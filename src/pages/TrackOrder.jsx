@@ -120,7 +120,7 @@ export default function TrackOrder() {
           <div style={{ marginTop: '32px', padding: '16px', background: '#eff6ff', borderRadius: '4px', display: 'flex', gap: '12px' }}>
             <Info size={20} color="#3b82f6" style={{ flexShrink: 0, marginTop: '2px' }} />
             <p style={{ fontSize: '14px', color: '#1e3a8a', margin: 0, lineHeight: '1.5' }}>
-              If you have any questions about your order, please contact our support team at support@klarellestyles.com.
+              If you have any questions about your order, please contact our support team at support@klarelle.store.
             </p>
           </div>
         </div>

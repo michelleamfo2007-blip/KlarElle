@@ -54,6 +54,7 @@ import Wallet from './pages/Wallet';
 import RequestReturn from './pages/RequestReturn';
 import ReturnDetails from './pages/ReturnDetails';
 import StaticPage from './pages/StaticPage';
+import AdminPages from './pages/admin/AdminPages';
 import ContactUs from './pages/ContactUs';
 import NotFound from './pages/NotFound';
 import { AuthProvider } from './context/AuthContext';
@@ -93,20 +94,20 @@ function App() {
               <Route path="profile/wallet" element={<Wallet />} />
               <Route path="check-in" element={<Navigate to="/profile" replace />} />
               <Route path="find-my-size" element={<Navigate to="/" replace />} />
-              <Route path="page/about-us" element={<StaticPage title="About Us" />} />
-              <Route path="page/faq" element={<StaticPage title="FAQ" />} />
-              <Route path="page/influencer-collaboration" element={<StaticPage title="Influencer Collaboration" />} />
-              <Route path="page/social-responsibility" element={<StaticPage title="Social Responsibility" />} />
-              <Route path="page/shipping-info" element={<StaticPage title="Shipping Info" />} />
-              <Route path="page/returns" element={<StaticPage title="Returns" />} />
-              <Route path="page/how-to-order" element={<StaticPage title="How to Order" />} />
+              <Route path="page/about-us" element={<StaticPage slug="about-us" />} />
+              <Route path="page/faq" element={<StaticPage slug="faq" />} />
+              <Route path="page/influencer-collaboration" element={<StaticPage slug="influencer-collaboration" />} />
+              <Route path="page/social-responsibility" element={<StaticPage slug="social-responsibility" />} />
+              <Route path="page/shipping-info" element={<StaticPage slug="shipping-info" />} />
+              <Route path="page/returns" element={<StaticPage slug="returns" />} />
+              <Route path="page/how-to-order" element={<StaticPage slug="how-to-order" />} />
               <Route path="page/contact-us" element={<ContactUs />} />
-              <Route path="page/payment-method" element={<StaticPage title="Payment Method" />} />
-              <Route path="page/rewards" element={<StaticPage title="Rewards" />} />
-              <Route path="page/privacy-policy" element={<StaticPage title="Privacy Policy" />} />
-              <Route path="page/terms-and-conditions" element={<StaticPage title="Terms & Conditions" />} />
-              <Route path="privacy" element={<StaticPage title="Privacy Policy" />} />
-              <Route path="terms" element={<StaticPage title="Terms & Conditions" />} />
+              <Route path="page/payment-method" element={<StaticPage slug="payment-method" />} />
+              <Route path="page/rewards" element={<StaticPage slug="rewards" />} />
+              <Route path="page/privacy-policy" element={<StaticPage slug="privacy-policy" />} />
+              <Route path="page/terms-and-conditions" element={<StaticPage slug="terms-and-conditions" />} />
+              <Route path="privacy" element={<StaticPage slug="privacy-policy" />} />
+              <Route path="terms" element={<StaticPage slug="terms-and-conditions" />} />
               <Route path="*" element={<NotFound />} />
             </Route>
 
@@ -132,6 +133,7 @@ function App() {
               <Route path="support" element={<SuperSupport />} />
               <Route path="reports" element={<SuperReports />} />
               <Route path="notifications" element={<SuperNotifications />} />
+              <Route path="pages" element={<AdminPages />} />
             </Route>
 
             {/* Super Admin Routes */}
@@ -146,6 +148,7 @@ function App() {
               <Route path="discounts" element={<Coupons />} />
               <Route path="waitlist" element={<Waitlist />} />
               <Route path="website" element={<SuperWebsite />} />
+              <Route path="pages" element={<AdminPages />} />
               <Route path="reviews" element={<SuperReviews />} />
               <Route path="support" element={<SuperSupport />} />
               <Route path="reports" element={<SuperReports />} />
