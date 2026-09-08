@@ -10,6 +10,8 @@ function WhatsAppButton() {
   }
 
   const onProductPage = location.pathname.startsWith('/product/');
+  const onAccountPage = location.pathname.startsWith('/profile');
+  const bottomOffset = onProductPage || onAccountPage ? '92px' : '24px';
 
   // Replace this with your actual WhatsApp business number (include country code, no + or spaces)
   const phoneNumber = "233204011123"; 
@@ -25,7 +27,7 @@ function WhatsAppButton() {
       rel="noopener noreferrer"
       style={{
         position: 'fixed',
-        bottom: onProductPage ? '92px' : '24px',
+        bottom: bottomOffset,
         right: '24px',
         backgroundColor: '#25D366',
         color: 'white',

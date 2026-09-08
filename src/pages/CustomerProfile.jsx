@@ -125,8 +125,9 @@ function CustomerProfile() {
   const bestCoupon = coupons[0] || null;
   const user = session?.user;
   const userEmail = user?.email || '';
-  const userName = accountName(user) || userEmail;
-  const userInitial = (userName || 'K').charAt(0).toUpperCase();
+  const savedName = accountName(user);
+  const userName = savedName || 'My account';
+  const userInitial = (savedName || userEmail || 'K').charAt(0).toUpperCase();
 
   const handleLogout = async () => {
     try {
@@ -183,25 +184,23 @@ function CustomerProfile() {
 
         <div className="profile-content">
           <div className="profile-header-card">
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: '#eee', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px', fontWeight: 'bold' }}>
-                {userInitial}
-              </div>
+            <div className="profile-header-user">
+              <div className="profile-header-avatar">{userInitial}</div>
               <button
                 type="button"
+                className="profile-header-text"
                 onClick={() => setEditingAccount((open) => !open)}
-                style={{ background: 'none', border: 'none', padding: 0, textAlign: 'left', cursor: 'pointer' }}
               >
-                <div style={{ fontWeight: 'bold', fontSize: '18px' }}>{userName}</div>
-                <div style={{ fontSize: '12px', color: '#666', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                  {userEmail} <ChevronRight size={12} />
+                <div className="profile-header-name">{userName}</div>
+                <div className="profile-header-email">
+                  <span>{userEmail}</span> <ChevronRight size={12} />
                 </div>
               </button>
             </div>
             <button
               type="button"
+              className="profile-header-logout"
               onClick={handleLogout}
-              style={{ background: 'none', border: '1px solid #ddd', borderRadius: '16px', padding: '6px 12px', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}
             >
               Logout
             </button>
@@ -268,40 +267,40 @@ function CustomerProfile() {
               <Link to="/profile/orders" style={{ fontSize: '12px', color: '#666', display: 'flex', alignItems: 'center', textDecoration: 'none' }}>View all <ChevronRight size={14} /></Link>
             </div>
             <div className="orders-grid">
-              <Link to="/profile/orders?status=unpaid" style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', position: 'relative', textDecoration: 'none', color: 'inherit' }}>
+              <Link to="/profile/orders?status=unpaid">
                 <CreditCard size={24} strokeWidth={1.5} />
-                {unpaidCount > 0 && <div style={{ position: 'absolute', top: '-4px', right: '12px', background: '#fff', border: '1px solid #ddd', borderRadius: '10px', fontSize: '10px', padding: '0 4px', fontWeight: 'bold' }}>{unpaidCount}</div>}
-                <span style={{ fontSize: '12px' }}>Unpaid</span>
+                {unpaidCount > 0 && <div style={{ position: 'absolute', top: '-4px', right: '4px', background: '#fff', border: '1px solid #ddd', borderRadius: '10px', fontSize: '10px', padding: '0 4px', fontWeight: 'bold' }}>{unpaidCount}</div>}
+                <span>Unpaid</span>
               </Link>
-              <Link to="/profile/orders?status=processing" style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', position: 'relative', textDecoration: 'none', color: 'inherit' }}>
+              <Link to="/profile/orders?status=processing">
                 <Package size={24} strokeWidth={1.5} />
-                {processingCount > 0 && <div style={{ position: 'absolute', top: '-4px', right: '12px', background: '#fff', border: '1px solid #ddd', borderRadius: '10px', fontSize: '12px', padding: '0 4px', fontWeight: 'bold' }}>{processingCount}</div>}
-                <span style={{ fontSize: '12px' }}>Processing</span>
+                {processingCount > 0 && <div style={{ position: 'absolute', top: '-4px', right: '4px', background: '#fff', border: '1px solid #ddd', borderRadius: '10px', fontSize: '10px', padding: '0 4px', fontWeight: 'bold' }}>{processingCount}</div>}
+                <span>Processing</span>
               </Link>
-              <Link to="/profile/orders?status=shipped" style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', position: 'relative', textDecoration: 'none', color: 'inherit' }}>
+              <Link to="/profile/orders?status=shipped">
                 <Truck size={24} strokeWidth={1.5} />
-                {shippedCount > 0 && <div style={{ position: 'absolute', top: '-4px', right: '12px', background: '#fff', border: '1px solid #ddd', borderRadius: '10px', fontSize: '10px', padding: '0 4px', fontWeight: 'bold' }}>{shippedCount}</div>}
-                <span style={{ fontSize: '12px' }}>Shipped</span>
+                {shippedCount > 0 && <div style={{ position: 'absolute', top: '-4px', right: '4px', background: '#fff', border: '1px solid #ddd', borderRadius: '10px', fontSize: '10px', padding: '0 4px', fontWeight: 'bold' }}>{shippedCount}</div>}
+                <span>Shipped</span>
               </Link>
-              <Link to="/profile/orders?status=delivered" style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', position: 'relative', textDecoration: 'none', color: 'inherit' }}>
+              <Link to="/profile/orders?status=delivered">
                 <MessageSquare size={24} strokeWidth={1.5} />
-                {reviewCount > 0 && <div style={{ position: 'absolute', top: '-4px', right: '12px', background: '#fff', border: '1px solid #ddd', borderRadius: '10px', fontSize: '10px', padding: '0 4px', fontWeight: 'bold' }}>{reviewCount}</div>}
-                <span style={{ fontSize: '12px' }}>Review</span>
+                {reviewCount > 0 && <div style={{ position: 'absolute', top: '-4px', right: '4px', background: '#fff', border: '1px solid #ddd', borderRadius: '10px', fontSize: '10px', padding: '0 4px', fontWeight: 'bold' }}>{reviewCount}</div>}
+                <span>Review</span>
               </Link>
-              <Link to="/profile/orders?status=returned" style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', position: 'relative', textDecoration: 'none', color: 'inherit' }}>
+              <Link to="/profile/orders?status=returned">
                 <Undo2 size={24} strokeWidth={1.5} />
-                {returnsCount > 0 && <div style={{ position: 'absolute', top: '-4px', right: '12px', background: '#fff', border: '1px solid #ddd', borderRadius: '10px', fontSize: '10px', padding: '0 4px', fontWeight: 'bold' }}>{returnsCount}</div>}
-                <span style={{ fontSize: '12px' }}>Returns</span>
+                {returnsCount > 0 && <div style={{ position: 'absolute', top: '-4px', right: '4px', background: '#fff', border: '1px solid #ddd', borderRadius: '10px', fontSize: '10px', padding: '0 4px', fontWeight: 'bold' }}>{returnsCount}</div>}
+                <span>Returns</span>
               </Link>
             </div>
           </div>
 
           <div className="utilities-grid">
-            <Link to="/page/contact-us" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', textDecoration: 'none', color: 'inherit' }}>
+            <Link to="/page/contact-us">
               <HeadphonesIcon size={24} strokeWidth={1.5} />
               <span style={{ fontSize: '12px', textAlign: 'center', lineHeight: '1.2' }}>Customer<br/>Service</span>
             </Link>
-            <Link to="/page/returns" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', textDecoration: 'none', color: 'inherit' }}>
+            <Link to="/page/returns">
               <ShieldCheck size={24} strokeWidth={1.5} />
               <span style={{ fontSize: '12px', textAlign: 'center', lineHeight: '1.2' }}>Policy</span>
             </Link>
