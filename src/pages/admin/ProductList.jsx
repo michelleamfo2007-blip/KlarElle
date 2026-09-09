@@ -65,12 +65,13 @@ function ProductList() {
     setMigrating(true);
     setMigrateStatus('Starting…');
     try {
-      const { data: sessionData } = await supabase.auth.getSession();
-      const token = sessionData?.session?.access_token;
-      if (!token) throw new Error('Please sign in again.');
       let remaining = 1;
       let copiedTotal = 0;
       while (remaining > 0) {
+        const { data: refreshed, error: refreshError } = await supabase.auth.refreshSession();
+        const token = refreshed?.session?.access_token;
+        if (refreshError || !token) throw new Error('Admin sign-in expired. Sign in again, then click Copy images to Cloudinary. Already copied photos are skipped.');
+
         const response = await fetch('/api/cloudinary-sign', {
           method: 'POST',
           headers: {
@@ -80,6 +81,9 @@ function ProductList() {
           body: JSON.stringify({ action: 'migrate' })
         });
         const result = await response.json();
+        if (response.status === 401) {
+          throw new Error('Admin sign-in expired. Sign in again, then click Copy images to Cloudinary. Already copied photos are skipped.');
+        }
         if (!response.ok) throw new Error(result.error || 'Migration batch failed');
         copiedTotal += Number(result.copied || 0);
         remaining = Number(result.remaining || 0);
