@@ -87,19 +87,10 @@ function Home() {
   const { toggleFavorite, isFavorite } = useFavorites();
   const { formatPrice } = useCurrency();
   const heroVideoRef = useRef(null);
-  const [heroSrc, setHeroSrc] = useState('');
-
-  useEffect(() => {
-    const start = () => setHeroSrc(heroVideo);
-    const idle = window.requestIdleCallback || ((cb) => setTimeout(cb, 1200));
-    const cancel = window.cancelIdleCallback || clearTimeout;
-    const id = idle(start, { timeout: 1800 });
-    return () => cancel(id);
-  }, []);
 
   useEffect(() => {
     const video = heroVideoRef.current;
-    if (!video || !heroSrc) return;
+    if (!video) return;
     video.muted = true;
     video.defaultMuted = true;
     video.volume = 0;
@@ -113,7 +104,7 @@ function Home() {
       video.removeEventListener('play', keepMuted);
       video.removeEventListener('volumechange', keepMuted);
     };
-  }, [heroSrc]);
+  }, []);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -443,13 +434,12 @@ function Home() {
           <video
             ref={heroVideoRef}
             className="hero-video"
-            src={heroSrc || undefined}
-            poster="/og-home.jpg"
+            src={heroVideo}
             autoPlay
             muted
             loop
             playsInline
-            preload="none"
+            preload="metadata"
             aria-label="KlarElle launch film"
           />
         </div>
