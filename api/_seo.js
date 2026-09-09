@@ -66,11 +66,15 @@ async function loadPublishedProducts() {
   if (Date.now() - catalogCache.at < 60_000) return catalogCache.products;
   const supabase = getSupabase();
   if (!supabase) return catalogCache.products;
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from('products')
-    .select('id, name, description, image_url, price, sku, stock, stock_international, coming_soon, visibility, status, category, categories, tags, colors, material, composition, updated_at, created_at')
+    .select('id, name, description, image_url, price, sku, stock, stock_international, coming_soon, visibility, status, category, tags, colors, material, composition, updated_at, created_at')
     .eq('visibility', true)
     .eq('status', 'active');
+  if (error) {
+    console.error('sitemap catalog query failed', error.message);
+    return catalogCache.products;
+  }
   catalogCache = { at: Date.now(), products: data || [] };
   return catalogCache.products;
 }
