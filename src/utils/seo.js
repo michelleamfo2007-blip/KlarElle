@@ -39,6 +39,8 @@ export function buildProductJsonLd(product, extras = {}) {
     description: pageDescription(product.description, `${product.name} from KlarElle.`),
     image: image ? [image] : undefined,
     sku: product.sku || undefined,
+    color: extras.color || (Array.isArray(product.colors) ? product.colors[0] : product.colors) || undefined,
+    material: product.material || product.composition || undefined,
     brand: {
       '@type': 'Brand',
       name: 'KlarElle'
@@ -53,6 +55,21 @@ export function buildProductJsonLd(product, extras = {}) {
       seller: {
         '@type': 'Organization',
         name: 'KlarElle'
+      },
+      shippingDetails: {
+        '@type': 'OfferShippingDetails',
+        shippingDestination: {
+          '@type': 'DefinedRegion',
+          addressCountry: 'US'
+        }
+      },
+      hasMerchantReturnPolicy: {
+        '@type': 'MerchantReturnPolicy',
+        applicableCountry: 'US',
+        returnPolicyCategory: 'https://schema.org/MerchantReturnFiniteReturnWindow',
+        merchantReturnDays: 7,
+        returnMethod: 'https://schema.org/ReturnByMail',
+        returnFees: 'https://schema.org/ReturnFeesCustomerResponsibility'
       }
     }
   };

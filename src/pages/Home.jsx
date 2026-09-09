@@ -12,6 +12,7 @@ import { isProductSoldOut } from '../utils/stock';
 import ColorPreviewDots, { useProductColorImage } from '../components/ColorPreviewDots';
 import { isComingSoon, maybeLaunchProduct } from '../utils/storefront';
 import { DEFAULT_WEBSITE_CONTENT, normalizeWebsiteContent } from '../data/websiteContent';
+import { buildOrganizationJsonLd, HOME_DESCRIPTION, HOME_TITLE } from '../utils/seoPages';
 import heroVideo from '../../IMG_2870 klarelle.MP4';
 
 function HomeProductCard({ product, formatPrice, addToCart, toggleFavorite, isFavorite, showToast }) {
@@ -179,8 +180,11 @@ function Home() {
   return (
     <>
       <SEO
-        description={websiteContent?.heroSubtitle || 'Join our VIP list for first access and exclusive launch updates.'}
+        title={HOME_TITLE}
+        description={HOME_DESCRIPTION}
+        canonicalUrl="https://www.klarelle.store/"
         type="website"
+        jsonLd={buildOrganizationJsonLd()}
       />
       {toastMessage && (
         <div style={{
@@ -428,12 +432,13 @@ function Home() {
             ref={heroVideoRef}
             className="hero-video"
             src={heroVideo}
+            poster="/og-image.png"
             autoPlay
             muted
             loop
             playsInline
-            preload="auto"
-            aria-label="Klarélle launch film"
+            preload="metadata"
+            aria-label="KlarElle launch film"
           />
         </div>
 

@@ -2,5 +2,12 @@ User-agent: *
 Disallow: /admin/
 Disallow: /super-admin/
 Disallow: /checkout/
+Disallow: /cart
+Disallow: /favorites
+Disallow: /login
+Disallow: /register
+Disallow: /profile
+Disallow: /search
+Disallow: /track-order
 
 Sitemap: https://www.klarelle.store/sitemap.xml

@@ -48,8 +48,8 @@ function ContactUs() {
   return (
     <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '60px 20px', fontFamily: 'Inter, sans-serif' }}>
       <SEO
-        title="Contact Us"
-        description="Contact KlarElle through the Contact Us form, WhatsApp, or support@klarelle.store."
+        title="Contact KlarElle | Customer Care"
+        description="Contact KlarElle through the Contact Us form, WhatsApp, or support@klarelle.store for order and product questions."
         type="website"
       />
       <div style={{ textAlign: 'center', marginBottom: '40px' }}>

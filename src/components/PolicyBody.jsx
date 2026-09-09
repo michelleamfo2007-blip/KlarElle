@@ -9,7 +9,9 @@ function escapeText(value) {
 
 function inlineHtml(value) {
   const escaped = escapeText(value);
-  return escaped.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  return escaped
+    .replace(/\[([^\]]+)\]\((https?:\/\/[^)]+|\/[^)]+)\)/g, '<a href="$2">$1</a>')
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
 }
 
 function parseBlocks(text) {

@@ -5,6 +5,7 @@ import { getSitePage, resolveSitePageBody } from '../data/sitePages';
 import PolicyBody from '../components/PolicyBody';
 import SEO from '../components/SEO';
 import { pageDescription } from '../utils/seo';
+import { PAGE_META, buildFaqJsonLd } from '../utils/seoPages';
 
 function StaticPage({ slug }) {
   const page = getSitePage(slug);
@@ -28,9 +29,10 @@ function StaticPage({ slug }) {
   return (
     <div style={{ padding: '60px 20px', maxWidth: '800px', margin: '0 auto', minHeight: '60vh' }}>
       <SEO
-        title={heading}
-        description={pageDescription(body, `${heading} — KlarElle.`)}
+        title={PAGE_META[page?.path]?.title || heading}
+        description={PAGE_META[page?.path]?.description || pageDescription(body, `${heading} — KlarElle.`)}
         type="website"
+        jsonLd={page?.slug === 'faq' ? buildFaqJsonLd(body) : null}
       />
       <h1 style={{ fontSize: '32px', marginBottom: '24px', fontFamily: 'Playfair Display, serif' }}>{heading}</h1>
       <div style={{ lineHeight: '1.8', color: '#444', fontSize: '15px', fontFamily: 'Inter, sans-serif' }}>

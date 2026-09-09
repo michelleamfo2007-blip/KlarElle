@@ -13,8 +13,10 @@ import { isProductSoldOut } from '../utils/stock';
 import { Filter } from 'lucide-react';
 import ColorPreviewDots, { useProductColorImage } from '../components/ColorPreviewDots';
 import NotifyMeForm from '../components/NotifyMeForm';
-import { getCollectionBySlug } from '../data/collections';
+import { getCollectionBySlug, STORE_COLLECTIONS } from '../data/collections';
 import { getReleaseLabel, isComingSoon, matchesCollection, maybeLaunchProduct } from '../utils/storefront';
+import { getCollectionSeo } from '../utils/seoPages';
+import NotFound from './NotFound';
 import './Category.css';
 
 function CategoryProductCard({ product, formatPrice, addToCart, onNotify }) {
@@ -173,13 +175,20 @@ function Category() {
   }, [activeFilters, allProducts]);
 
   const collection = getCollectionBySlug(id);
-  const categoryName = collection?.title || id.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase());
+  const known = id === 'all' || id === 'collections' || STORE_COLLECTIONS.some((item) => item.slug === id);
+  const seo = getCollectionSeo(id);
+  const categoryName = seo?.heading || collection?.title || id.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase());
 
   if (id === 'coming-soon') return <Navigate to="/category/new-in" replace />;
+  if (!known) return <NotFound />;
 
   return (
     <>
-    <SEO title={categoryName} description={`Shop the latest ${categoryName.toLowerCase()} at KlarElle.`} />
+    <SEO
+      title={seo?.title || categoryName}
+      description={seo?.description}
+      noindex={!loading && products.length === 0}
+    />
     <div className="category-page-container">
       {/* Sidebar */}
       <div className="desktop-filter-sidebar">
@@ -195,7 +204,15 @@ function Category() {
         <div className="category-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
           <div>
             <h1 style={{ fontSize: '28px', marginBottom: '8px', textTransform: collection ? 'none' : 'capitalize' }}>{categoryName}</h1>
-            <p style={{ color: '#666' }}>{collection?.tagline || 'Explore all KlarElle styles.'}</p>
+            <p style={{ color: '#666', maxWidth: '720px', lineHeight: 1.7 }}>{seo?.copy || collection?.tagline || 'Explore all KlarElle styles.'}</p>
+            <div style={{ marginTop: '12px', fontSize: '13px', color: '#666' }}>
+              {STORE_COLLECTIONS.filter((item) => item.slug !== id).slice(0, 5).map((item, index) => (
+                <span key={item.slug}>
+                  {index > 0 && ' · '}
+                  <Link to={`/category/${item.slug}`} style={{ color: '#111' }}>{item.title}</Link>
+                </span>
+              ))}
+            </div>
           </div>
           <button 
             className="mobile-filter-btn" 

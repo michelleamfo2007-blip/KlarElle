@@ -8,6 +8,8 @@ import { supabase } from '../lib/supabase';
 import { useTranslation } from 'react-i18next';
 import { STORE_COLLECTIONS } from '../data/collections';
 import { DEFAULT_WEBSITE_CONTENT, normalizeWebsiteContent } from '../data/websiteContent';
+import SEO from './SEO';
+import { isNoindexPath } from '../utils/seoPages';
 
 function Layout() {
   const { t, i18n } = useTranslation();
@@ -248,6 +250,7 @@ function Layout() {
 
   return (
     <div className="app-wrapper">
+      {isNoindexPath(location.pathname) && <SEO noindex />}
       {toastMessage && (
         <div style={{
           position: 'fixed',

@@ -28,6 +28,8 @@ We are building a brand where every woman can find pieces that make her feel see
 
 Welcome to KlarElle.
 
+Shop [The New Edit](/category/new-in) for the latest arrivals, or read the [FAQ](/page/faq) before you order.
+
 **Curated by KlarElle, for women.**`
   },
   {
@@ -374,6 +376,8 @@ Unless otherwise stated, only one promotional code may be used per order. Discou
 Certain products, collections, gift cards and final-sale items may be excluded. Any exclusions will be included in the promotion’s terms.
 
 ## Contact Us
+
+See [Shipping Information](/page/shipping-info) and [Returns & Exchanges](/page/returns) for delivery and exchange details.
 
 ### How can I contact KlarElle?
 Contact our customer-care team through the Contact Us page, WhatsApp or **support@klarelle.store**. Please include your full name and order number when contacting us about an order.`

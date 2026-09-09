@@ -1,23 +1,80 @@
 {
-  "rewrites": [
+  "redirects": [
     {
-      "source": "/api/(.*)",
-      "destination": "/api/$1"
-    },
-    {
-      "source": "/product/:id",
+      "source": "/",
       "has": [
         {
-          "type": "header",
-          "key": "user-agent",
-          "value": "(?i).*(whatsapp|facebookexternalhit|facebot|twitterbot|linkedinbot|slackbot|telegrambot|discordbot|pinterest|googlebot|bingbot|embedly|showyoubot|outbrain|vkshare).*"
+          "type": "host",
+          "value": "klarelle.store"
         }
       ],
-      "destination": "/api/product-share?id=:id"
+      "destination": "https://www.klarelle.store/",
+      "permanent": true
     },
     {
-      "source": "/(.*)",
-      "destination": "/index.html"
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "klarelle.store"
+        }
+      ],
+      "destination": "https://www.klarelle.store/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/returns",
+      "destination": "/page/returns",
+      "permanent": true
+    },
+    {
+      "source": "/privacy",
+      "destination": "/page/privacy-policy",
+      "permanent": true
+    },
+    {
+      "source": "/terms",
+      "destination": "/page/terms-and-conditions",
+      "permanent": true
+    },
+    {
+      "source": "/category/coming-soon",
+      "destination": "/category/new-in",
+      "permanent": true
+    },
+    {
+      "source": "/category/dinner-date-night",
+      "destination": "/category/dinner",
+      "permanent": true
+    },
+    {
+      "source": "/category/cocktail-party",
+      "destination": "/category/celebration",
+      "permanent": true
+    },
+    {
+      "source": "/category/gala-formal-events",
+      "destination": "/category/evening",
+      "permanent": true
+    },
+    {
+      "source": "/category/christmas-holidays",
+      "destination": "/category/occasion",
+      "permanent": true
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "/api/:path*"
+    },
+    {
+      "source": "/",
+      "destination": "/api/product-share?__path=/"
+    },
+    {
+      "source": "/:path*",
+      "destination": "/api/product-share?__path=/:path*"
     }
   ]
 }

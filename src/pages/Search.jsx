@@ -43,7 +43,7 @@ function Search() {
 
   return (
     <>
-    <SEO title={`Search Results for "${query}"`} />
+    <SEO title={`Search Results for "${query}"`} noindex />
     <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '40px 20px', fontFamily: 'Inter, sans-serif' }}>
       <h1 style={{ fontSize: '28px', fontWeight: '300', textAlign: 'center', marginBottom: '8px' }}>
         Search Results

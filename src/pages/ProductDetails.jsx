@@ -441,6 +441,7 @@ function ProductDetails() {
       description={product.description?.substring(0, 160)}
       image={productImage}
       type="product"
+      canonicalUrl={`https://www.klarelle.store/product/${product.id}`}
       jsonLd={buildProductJsonLd(product, {
         url: `https://www.klarelle.store/product/${product.id}`,
         image: productImage,
