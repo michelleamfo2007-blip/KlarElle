@@ -26,42 +26,77 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.klarelle.store/category/new-in</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://www.klarelle.store/category/flash-sale</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://www.klarelle.store/category/maxi-dresses</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://www.klarelle.store/category/midi-dresses</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://www.klarelle.store/category/mini-dresses</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://www.klarelle.store/category/bodycon</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://www.klarelle.store/category/party-wear</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.klarelle.store/product/0a46ce7e-12a3-49ab-9945-4d9f2d0722a0</loc>
+    <loc>https://www.klarelle.store/category/birthday-celebrant</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.klarelle.store/category/birthday-guest</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.klarelle.store/category/dinner-&-date-night</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.klarelle.store/category/cocktail-&-party</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.klarelle.store/category/brunch</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.klarelle.store/category/gala-&-formal-events</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.klarelle.store/category/graduation</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.klarelle.store/category/vacation</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.klarelle.store/category/christmas-&-holidays</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.klarelle.store/category/wedding-guest</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.klarelle.store/product/9d845795-105a-4e71-a2fe-521fb5f82581</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.klarelle.store/product/f3e127c5-12a3-4b74-9a1c-0775e7b8723f</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.klarelle.store/product/27ad571e-c729-4c1e-8ff1-c8be9486c280</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.klarelle.store/product/45c1dd65-d461-4cf5-bc25-dd974598bbc9</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>

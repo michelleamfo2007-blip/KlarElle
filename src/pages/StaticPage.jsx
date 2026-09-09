@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
-import { getSitePage } from '../data/sitePages';
+import { getSitePage, resolveSitePageBody } from '../data/sitePages';
 import PolicyBody from '../components/PolicyBody';
+import SEO from '../components/SEO';
+import { pageDescription } from '../utils/seo';
 
 function StaticPage({ slug }) {
   const page = getSitePage(slug);
@@ -18,13 +20,18 @@ function StaticPage({ slug }) {
       .eq('slug', page.slug)
       .maybeSingle()
       .then(({ data }) => {
-        if (!cancelled && data?.body) setBody(data.body);
+        if (!cancelled) setBody(resolveSitePageBody(page.slug, data?.body));
       });
     return () => { cancelled = true; };
   }, [page?.slug]);
 
   return (
     <div style={{ padding: '60px 20px', maxWidth: '800px', margin: '0 auto', minHeight: '60vh' }}>
+      <SEO
+        title={heading}
+        description={pageDescription(body, `${heading} — Klarelle.`)}
+        type="website"
+      />
       <h1 style={{ fontSize: '32px', marginBottom: '24px', fontFamily: 'Playfair Display, serif' }}>{heading}</h1>
       <div style={{ lineHeight: '1.8', color: '#444', fontSize: '15px', fontFamily: 'Inter, sans-serif' }}>
         {body ? (

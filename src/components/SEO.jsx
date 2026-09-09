@@ -1,33 +1,29 @@
 import React, { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
+import { DEFAULT_SHARE_IMAGE, SITE_NAME, SITE_URL } from '../utils/seo';
 
-function SEO({ title, description, canonicalUrl, image }) {
+function SEO({ title, description, canonicalUrl, image, type = 'website', jsonLd }) {
   const location = useLocation();
 
   useEffect(() => {
-    // 1. Update Title
-    const siteName = "KLARELLE";
-    const fullTitle = title ? `${title} | ${siteName}` : siteName;
+    const fullTitle = title ? `${title} | ${SITE_NAME}` : SITE_NAME;
     document.title = fullTitle;
 
-    // 2. Update Meta Description
-    const defaultDesc = "KLARELLE - Premium Fashion and Apparel. Shop the latest collections of dresses, tops, and more.";
+    const defaultDesc = 'KLARELLE — curated fashion chosen for quality, fit, and the feminine silhouette.';
     let metaDescription = document.querySelector('meta[name="description"]');
     if (!metaDescription) {
       metaDescription = document.createElement('meta');
-      metaDescription.name = "description";
+      metaDescription.name = 'description';
       document.head.appendChild(metaDescription);
     }
     metaDescription.content = description || defaultDesc;
 
-    // 3. Update Canonical URL
-    const baseUrl = "https://www.klarelle.store";
-    const currentUrl = canonicalUrl || `${baseUrl}${location.pathname}`;
-    
+    const currentUrl = canonicalUrl || `${SITE_URL}${location.pathname}`;
+
     let linkCanonical = document.querySelector('link[rel="canonical"]');
     if (!linkCanonical) {
       linkCanonical = document.createElement('link');
-      linkCanonical.rel = "canonical";
+      linkCanonical.rel = 'canonical';
       document.head.appendChild(linkCanonical);
     }
     linkCanonical.href = currentUrl;
@@ -43,22 +39,35 @@ function SEO({ title, description, canonicalUrl, image }) {
       tag.setAttribute('content', content);
     };
 
-    upsertMeta('property', 'og:site_name', siteName);
+    const shareImage = image || DEFAULT_SHARE_IMAGE;
+
+    upsertMeta('property', 'og:site_name', SITE_NAME);
     upsertMeta('property', 'og:title', fullTitle);
     upsertMeta('property', 'og:description', description || defaultDesc);
     upsertMeta('property', 'og:url', currentUrl);
-    upsertMeta('property', 'og:type', image ? 'product' : 'website');
-    if (image) upsertMeta('property', 'og:image', image);
-    upsertMeta('name', 'twitter:card', image ? 'summary_large_image' : 'summary');
+    upsertMeta('property', 'og:type', type === 'product' ? 'product' : 'website');
+    upsertMeta('property', 'og:image', shareImage);
+    upsertMeta('property', 'og:image:alt', title || SITE_NAME);
+    upsertMeta('name', 'twitter:card', 'summary_large_image');
     upsertMeta('name', 'twitter:title', fullTitle);
     upsertMeta('name', 'twitter:description', description || defaultDesc);
-    if (image) upsertMeta('name', 'twitter:image', image);
-    
-    // Cleanup on unmount (optional, but usually we just let it be overwritten by the next page)
-    return () => {
-      // document.title = siteName;
-    };
-  }, [title, description, canonicalUrl, image, location.pathname]);
+    upsertMeta('name', 'twitter:image', shareImage);
+
+    const scriptId = 'klarelle-jsonld';
+    let script = document.getElementById(scriptId);
+    const jsonLdText = jsonLd ? JSON.stringify(jsonLd) : '';
+    if (jsonLdText) {
+      if (!script) {
+        script = document.createElement('script');
+        script.id = scriptId;
+        script.type = 'application/ld+json';
+        document.head.appendChild(script);
+      }
+      script.textContent = jsonLdText;
+    } else if (script) {
+      script.remove();
+    }
+  }, [title, description, canonicalUrl, image, type, JSON.stringify(jsonLd || null), location.pathname]);
 
   return null;
 }

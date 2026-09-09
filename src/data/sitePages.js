@@ -245,112 +245,138 @@ Klarelle does not currently offer a shopping points or rewards program. Discount
     slug: 'faq',
     title: 'FAQ',
     path: '/page/faq',
-    body: `## Frequently Asked Questions
+    body: `## Launch
+
+### When does Klarelle launch?
+Klarelle officially launches on September 24, 2026.
+
+### Can I order before the launch?
+Items may be available to preview before launch, but purchasing will open on September 24. Join our VIP list to receive launch updates and early-access information.
 
 ## Orders
-**How will I know my order was received?**
+
+### How will I know my order was received?
 After completing your purchase, you will receive an order-confirmation email containing your order number and purchase details. Please check your spam or junk folder if you do not see it.
 
-**Can I change or cancel my order?**
-Please contact us as soon as possible after placing your order. Once an order has entered processing or has been shipped, we may be unable to change or cancel it.
+### Can I change or cancel my order?
+Please contact us as soon as possible at **support@klarelle.store**. Once an order has entered processing or has been shipped, we may be unable to change or cancel it.
 
-**Can I combine multiple orders?**
+### Can I combine separately placed orders?
 We cannot guarantee that separately placed orders will be combined. Each order may be processed and shipped individually.
 
-**What happens if an item in my order becomes unavailable?**
-If an item becomes unavailable after your order is placed, we will notify you and issue a refund for the unavailable item to your original payment method.
+### What happens if an item becomes unavailable after I order?
+If an item becomes unavailable after your order is placed, we will notify you and issue a refund for that item to your original payment method.
 
 ## Sizing and Fit
-**How do I choose the correct size?**
-Please review the size guide provided on each product page before ordering. Product measurements and fit may vary between styles, so we also recommend reading the fit notes and fabric details.
 
-**What should I do if I am between sizes?**
-Your best size will depend on the garment’s material and fit. For fitted styles with little or no stretch, we generally recommend sizing up. For stretchy styles, your usual size may provide the best fit.
+### How do I choose the correct size?
+Review the product-specific size guide, fit notes and fabric information before ordering. Sizing may vary depending on the garment’s fabric, stretch, construction and silhouette.
 
-**Will the color look exactly like the website pictures?**
-We make every effort to display colors accurately. However, colors may appear slightly different depending on lighting, photography, and your device’s screen settings.
+### What should I do if I am between sizes?
+For fitted garments with little or no stretch, we generally recommend sizing up. For stretchy styles, your usual size may provide the best fit. You may also contact **support@klarelle.store** for assistance.
+
+### Are size recommendations guaranteed?
+Size recommendations are provided as guidance and cannot guarantee an exact individual fit.
+
+### Will the color look exactly like the website pictures?
+We make reasonable efforts to display colors and details accurately. However, lighting, device settings, fabric direction, dye lots and hand-finished embellishments may cause slight variations.
 
 ## Payments
-**Which payment methods do you accept?**
-Klarelle accepts major debit and credit cards and any additional payment options displayed during checkout. Available installment-payment methods may depend on your country and eligibility.
 
-**Is my payment information secure?**
+### Which payment methods do you accept?
+We accept Visa, Mastercard, American Express, Discover, Klarna and any additional payment options displayed at checkout. Available installment-payment methods may depend on your location and eligibility.
+
+### Is my payment information secure?
 Yes. Payments are processed through secure third-party payment providers. Klarelle does not directly store your complete card information.
 
-**Can I use more than one payment method?**
-Only one payment method can generally be used per order unless otherwise stated during checkout.
+### Can I use more than one payment method?
+Only one payment method can generally be used per order unless another option is displayed during checkout.
 
 ## Shipping and Delivery
-**Where does Klarelle ship?**
-We offer shipping within the United States and to selected international destinations. Available shipping services and costs will be displayed at checkout.
 
-**How much does shipping cost?**
-Shipping costs depend on your location, package weight, and selected delivery service. Your exact shipping fee will be calculated at checkout before payment.
+### Where does Klarelle ship?
+We ship throughout the United States and to selected international destinations. Available shipping services will be displayed at checkout.
 
-**How long will my order take to arrive?**
-Orders require processing before shipment. Estimated delivery times will be shown at checkout, but they do not include unexpected carrier, customs, weather, or holiday delays.
+### How long does order processing take?
+Orders are generally processed within 3–5 business days. Processing time is separate from shipping or transit time.
 
-**How can I track my order?**
-Once your order ships, you will receive a confirmation email containing your tracking number. Please allow time for the carrier’s tracking information to update.
+### How long does U.S. delivery take?
+Standard U.S. delivery is estimated at 3–5 business days after processing. Delivery estimates are not guaranteed and may be affected by carrier, weather or holiday delays.
 
-**What should I do if my package is delayed?**
-Carrier delays may occur after an order leaves our facility. Please check your tracking information first. If there has been no tracking update for several business days, contact our customer-care team for assistance.
+### How long does international delivery take?
+International delivery is estimated at 9–15 business days after processing. Customs procedures or carrier delays may affect delivery times.
 
-**What happens if my package is marked delivered but I cannot find it?**
-Please check around your property, mailbox, building reception area, and with household members or neighbors. You should also contact the carrier directly. If you still cannot locate the package, contact us promptly so we can review the situation.
+### How much does shipping cost?
+Standard U.S. shipping is $15. U.S. orders of $100 or more qualify for free standard shipping. International shipping costs are calculated at checkout according to the destination, package weight and selected service.
 
-**Am I responsible for entering the correct address?**
-Yes. Customers are responsible for providing a complete and accurate shipping address. Please contact us immediately if you notice an error. We cannot guarantee changes after processing begins, and additional shipping charges may apply if a package is returned because of an incorrect address.
+### Will I have to pay customs duties or taxes?
+International orders may be subject to customs duties, taxes, tariffs, brokerage charges or other fees imposed by the destination country. Unless otherwise stated at checkout, these charges are the customer’s responsibility.
 
-## International Orders
-**Will I have to pay customs duties or taxes?**
-International orders may be subject to customs duties, import taxes, or handling fees imposed by the destination country. Unless otherwise stated at checkout, these charges are the customer’s responsibility and are not included in the product or shipping price.
+### How can I track my order?
+Once your order ships, you will receive a shipping-confirmation email containing your tracking number. Please allow 24–48 hours for tracking information to update.
 
-**Can international orders experience customs delays?**
-Yes. Customs processing times are controlled by the destination country and may delay delivery. Klarelle cannot guarantee a specific customs-clearance date.
+### What should I do if my package is delayed?
+Check your tracking information first. If there has been no update for several business days, contact the carrier and email **support@klarelle.store** for assistance.
+
+### What if my package is marked delivered but I cannot find it?
+Check your mailbox, building reception area, delivery location and with household members or neighbors. Contact the carrier directly and then email **support@klarelle.store** if the package remains missing.
+
+### Am I responsible for entering the correct address?
+Yes. Customers must provide a complete and accurate shipping address. Contact us immediately if you notice an error. Address changes cannot be guaranteed after processing begins, and additional shipping charges may apply if a package is returned.
 
 ## Returns and Exchanges
-**What is Klarelle’s return policy?**
-Eligible items may be returned within the period stated in our Return Policy. Approved returns are issued as an exchange or store credit unless the item qualifies for a refund under applicable law or our policy. Please review the complete Return Policy before submitting a request.
 
-**How do I request a return?**
-Contact our customer-care team with your order number, the item you wish to return, and the reason for the request. Do not mail an item back until you receive return instructions and authorization.
+### What is Klarelle’s return policy?
+Eligible items may be returned within seven days of delivery. Approved returns are issued as an exchange or store credit. We do not provide refunds to the original payment method except where required by law or specifically stated in our policy.
 
-**Are original shipping fees refundable?**
-Original shipping fees are generally non-refundable unless Klarelle made an error with your order or applicable law requires otherwise.
+### What condition must returned items be in?
+Items must be unworn, unwashed, unused and unaltered, with all original tags attached. Items must be free from makeup, deodorant, perfume, stains, odors, pet hair and other signs of wear.
 
-**Are return-shipping costs refundable?**
-Customers are generally responsible for return-shipping costs unless the item received was incorrect, damaged, or confirmed to be defective.
+### Which items are final sale?
+The following items are not eligible for exchange or store credit:
 
-**Which items cannot be returned?**
-Items must be unworn, unwashed, unaltered, free from stains and odors, and returned with all original tags attached. Final-sale items, intimate items, bodysuits, gift cards, and items that do not meet our return conditions may be ineligible.
+- Sale and clearance items
+- Items purchased through a final-sale promotion
+- Shapewear, bodysuits and intimate items
+- Gift cards
+- Customized or personalized items
+- Products specifically marked “Final Sale”
 
-**Can I return a final-sale item?**
-No. Items marked “Final Sale” cannot be returned, exchanged, or credited unless they arrive damaged, defective, or incorrect.
+### How do I request an exchange or store credit?
+Email **support@klarelle.store** within seven days of delivery. Include your order number, name, item being returned, reason for the request and requested replacement, if applicable. Do not send an item back before receiving authorization and return instructions.
 
-**What if I receive a damaged, defective, or incorrect item?**
-Contact us promptly after delivery and include your order number and clear photographs or video of the item, packaging, tags, and shipping label. We will review the claim and provide the appropriate resolution.
+### Who pays for return shipping?
+Customers are responsible for return-shipping costs unless the item received was incorrect, defective or damaged because of an error by Klarelle.
 
-**How long does it take to process a return?**
-Returns are inspected after delivery to our return location. Once approved, your exchange or store credit will be processed, and you will receive confirmation by email.
+### What if I receive a damaged, defective or incorrect item?
+Contact **support@klarelle.store** within seven days of delivery. Include your order number and clear photographs or video showing the item, packaging, tags and shipping label. Once verified, Klarelle will provide an appropriate resolution, such as a replacement, exchange, store credit or refund where required by law.
+
+### Are original shipping charges refundable?
+Original shipping charges are non-refundable unless Klarelle made an error with your order or applicable law requires otherwise.
+
+### How long does return processing take?
+Once your return is received, please allow 3–7 business days for inspection and processing. You will receive confirmation by email after your exchange or store credit has been approved.
 
 ## Products and Care
-**How should I care for my Klarelle item?**
-Always follow the care label attached to the garment. Some delicate, embellished, structured, or specialty-fabric pieces may require hand washing or professional dry cleaning.
 
-**Will sold-out items be restocked?**
-Some popular styles may be restocked, but restocks are not guaranteed. Join our mailing list and follow Klarelle on social media for availability announcements.
+### How should I care for my Klarelle item?
+Always follow the care label attached to the garment. Delicate, embellished, structured and specialty-fabric garments may require hand washing or professional dry cleaning.
 
-## Promotions and Gift Cards
-**Can discount codes be combined?**
-Unless otherwise stated, only one promotional code may be used per order. Discount codes cannot usually be applied after an order has been submitted.
+### Will sold-out items be restocked?
+Selected styles may be restocked, but restocks are not guaranteed. Join our mailing list and follow Klarelle on social media for availability announcements.
 
-**Do promotions apply to every product?**
-Certain products, collections, gift cards, or final-sale items may be excluded. Any exclusions will be stated in the promotion’s terms.
+## Promotions
+
+### Can discount codes be combined?
+Unless otherwise stated, only one promotional code may be used per order. Discount codes generally cannot be applied after an order has been submitted.
+
+### Do promotions apply to every product?
+Certain products, collections, gift cards and final-sale items may be excluded. Any exclusions will be included in the promotion’s terms.
 
 ## Contact Us
-**How can I contact Klarelle?**
-Please contact our customer-care team through the Contact Us page or WhatsApp. Include your full name and order number for order-related questions.`
+
+### How can I contact Klarelle?
+Contact our customer-care team through the Contact Us page, WhatsApp or **support@klarelle.store**. Please include your full name and order number when contacting us about an order.`
   },
   {
     slug: 'privacy-policy',
@@ -433,6 +459,13 @@ support@klarelle.store`
 
 export function getSitePage(slug) {
   return SITE_PAGES.find((page) => page.slug === slug) || null;
+}
+
+export function resolveSitePageBody(slug, storedBody) {
+  const fallback = getSitePage(slug)?.body || '';
+  if (!storedBody) return fallback;
+  if (slug === 'faq' && !storedBody.includes('September 24, 2026')) return fallback;
+  return storedBody;
 }
 
 export function getSitePageByTitle(title) {

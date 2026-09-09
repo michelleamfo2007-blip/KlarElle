@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { Mail, MessageCircle, Globe, Send } from 'lucide-react';
+import SEO from '../components/SEO';
 
 function ContactUs() {
   const [formData, setFormData] = useState({
@@ -46,6 +47,11 @@ function ContactUs() {
 
   return (
     <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '60px 20px', fontFamily: 'Inter, sans-serif' }}>
+      <SEO
+        title="Contact Us"
+        description="Contact Klarelle through the Contact Us form, WhatsApp, or support@klarelle.store."
+        type="website"
+      />
       <div style={{ textAlign: 'center', marginBottom: '40px' }}>
         <h1 style={{ fontSize: '32px', fontWeight: 'bold', marginBottom: '16px' }}>Contact Us</h1>
         <p style={{ color: '#666', fontSize: '16px', maxWidth: '600px', margin: '0 auto' }}>

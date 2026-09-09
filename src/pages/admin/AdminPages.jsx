@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Save } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
-import { SITE_PAGES } from '../../data/sitePages';
+import { SITE_PAGES, resolveSitePageBody } from '../../data/sitePages';
 import PolicyBody from '../../components/PolicyBody';
 
 function AdminPages() {
@@ -31,7 +31,7 @@ function AdminPages() {
       setBodies((prev) => {
         const next = { ...prev };
         data.forEach((row) => {
-          if (row.body) next[row.slug] = row.body;
+          if (row.body) next[row.slug] = resolveSitePageBody(row.slug, row.body);
         });
         return next;
       });

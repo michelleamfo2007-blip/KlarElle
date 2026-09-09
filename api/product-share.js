@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { absoluteUrl, buildProductJsonLd, pageDescription } from '../src/utils/seo.js';
 
 function escapeHtml(value) {
   return String(value || '')
@@ -8,18 +9,13 @@ function escapeHtml(value) {
     .replace(/"/g, '&quot;');
 }
 
-function absoluteUrl(url) {
-  if (!url) return '';
-  if (url.startsWith('http://') || url.startsWith('https://')) return url;
-  return `https://www.klarelle.store${url.startsWith('/') ? url : `/${url}`}`;
-}
-
 export default async function handler(req, res) {
   const id = req.query.id;
   const pageUrl = `https://www.klarelle.store/product/${id || ''}`;
   let title = 'KLARELLE';
-  let description = 'KLARELLE - Premium Fashion and Apparel. Shop the latest collections of dresses, tops, and more.';
+  let description = 'KLARELLE — curated fashion chosen for quality, fit, and the feminine silhouette.';
   let image = '';
+  let jsonLd = null;
 
   try {
     if (id && process.env.VITE_SUPABASE_URL && (process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY)) {
@@ -29,13 +25,20 @@ export default async function handler(req, res) {
       );
       const { data } = await supabase
         .from('products')
-        .select('name, description, image_url')
+        .select('id, name, description, image_url, price, sku, stock, stock_international, coming_soon')
         .eq('id', id)
         .maybeSingle();
       if (data?.name) {
         title = `${data.name} | KLARELLE`;
-        description = (data.description || description).replace(/\s+/g, ' ').slice(0, 160);
+        description = pageDescription(data.description, description);
         image = absoluteUrl(data.image_url);
+        const soldOut = (Number(data.stock) || 0) + (Number(data.stock_international) || 0) <= 0;
+        jsonLd = buildProductJsonLd(data, {
+          url: pageUrl,
+          image,
+          soldOut,
+          comingSoon: Boolean(data.coming_soon)
+        });
       }
     }
   } catch (error) {
@@ -67,6 +70,7 @@ export default async function handler(req, res) {
     <meta name="twitter:title" content="${safeTitle}" />
     <meta name="twitter:description" content="${safeDescription}" />
     ${safeImage ? `<meta name="twitter:image" content="${safeImage}" />` : ''}
+    ${jsonLd ? `<script type="application/ld+json">${JSON.stringify(jsonLd).replace(/</g, '\\u003c')}</script>` : ''}
   </head>
   <body>
     <p>${safeTitle}</p>

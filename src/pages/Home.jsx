@@ -196,7 +196,10 @@ function Home() {
 
   return (
     <>
-      <SEO title="Home" />
+      <SEO
+        description={websiteContent?.heroSubtitle || 'Join our VIP list for first access and exclusive launch updates.'}
+        type="website"
+      />
       {toastMessage && (
         <div style={{
           position: 'fixed',

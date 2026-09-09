@@ -13,6 +13,7 @@ import {
   resolveVariantBin,
   resolveVariantSku
 } from '../../utils/sku';
+import { uploadProductAsset } from '../../utils/cloudinaryUpload';
 
 function ProductForm() {
   const { id } = useParams();
@@ -285,17 +286,9 @@ function ProductForm() {
           continue;
         }
 
-        const fileExt = file.name.split('.').pop();
-        const fileName = `${Math.random()}.${fileExt}`;
-        
-        const { error: uploadError } = await supabase.storage.from('product-images').upload(fileName, file);
-        if (uploadError) throw uploadError;
-
-        const { data } = supabase.storage.from('product-images').getPublicUrl(fileName);
-        
-        // Auto-set first image as main if no main exists
+        const url = await uploadProductAsset(file, { kind: 'image' });
         const isFirst = images.length === 0 && newImages.length === 0;
-        newImages.push({ url: data.publicUrl, isMain: isFirst });
+        newImages.push({ url, isMain: isFirst });
       }
 
       setImages((prev) => [...prev, ...newImages]);
@@ -317,22 +310,17 @@ function ProductForm() {
 
     try {
       setUploading(true);
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${field}-${Math.random()}.${fileExt}`;
-      
-      const { error: uploadError } = await supabase.storage.from('product-images').upload(fileName, file);
-      if (uploadError) throw uploadError;
+      const kind = field === 'video_url' ? 'video' : 'image';
+      const url = await uploadProductAsset(file, { kind, prefix: `${field}-` });
 
-      const { data } = supabase.storage.from('product-images').getPublicUrl(fileName);
-      
       if (field.startsWith('color_')) {
         const color = field.replace('color_', '');
         setVariantImages(prev => ({
           ...prev,
-          [color]: { ...(prev[color] || { stock: {} }), image: data.publicUrl }
+          [color]: { ...(prev[color] || { stock: {} }), image: url }
         }));
       } else {
-        setFormData(prev => ({ ...prev, [field]: data.publicUrl }));
+        setFormData(prev => ({ ...prev, [field]: url }));
       }
     } catch (error) {
       alert(error.message);
