@@ -379,11 +379,6 @@ export async function buildMerchantFeedXml() {
       <g:age_group>adult</g:age_group>
       <g:size>${xmlEscape(feedSize(product))}</g:size>
       <g:google_product_category>Apparel &amp; Accessories &gt; Clothing &gt; Dresses</g:google_product_category>
-      <g:shipping>
-        <g:country>US</g:country>
-        <g:service>Standard</g:service>
-        <g:price>15.00 USD</g:price>
-      </g:shipping>
       ${color ? `<g:color>${xmlEscape(color)}</g:color>` : ''}
       ${product.material ? `<g:material>${xmlEscape(product.material)}</g:material>` : ''}
       ${product.sku ? `<g:mpn>${xmlEscape(product.sku)}</g:mpn>` : ''}
