@@ -1,6 +1,6 @@
 export const SITE_URL = 'https://www.klarelle.store';
 export const SITE_NAME = 'KlarElle';
-export const DEFAULT_SHARE_IMAGE = `${SITE_URL}/og-image.png`;
+export const DEFAULT_SHARE_IMAGE = `${SITE_URL}/og-home.jpg`;
 
 export function absoluteUrl(url) {
   if (!url) return '';

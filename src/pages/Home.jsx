@@ -432,7 +432,7 @@ function Home() {
             ref={heroVideoRef}
             className="hero-video"
             src={heroVideo}
-            poster="/og-image.png"
+            poster="/og-home.jpg"
             autoPlay
             muted
             loop
