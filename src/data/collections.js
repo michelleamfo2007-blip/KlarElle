@@ -1,5 +1,5 @@
 export const STORE_COLLECTIONS = [
-  { slug: 'new-in', nav: 'The New Edit', title: 'The New Edit', tagline: 'Latest arrivals' },
+  { slug: 'new-in', nav: 'THE NEW EDIT', title: 'The New Edit', tagline: 'Latest arrivals' },
   { slug: 'occasion', nav: 'The Occasion Edit', title: 'The Occasion Edit', tagline: 'Shop by event' },
   { slug: 'icons', nav: 'Klarelle Icons', title: 'Klarelle Icons', tagline: 'Bestselling signature pieces' },
   { slug: 'evening', nav: 'The Evening Edit', title: 'The Evening Edit', tagline: 'Dinners and formal events' },

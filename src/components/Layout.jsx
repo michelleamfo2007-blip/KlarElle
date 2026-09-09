@@ -458,7 +458,7 @@ function Layout() {
           
           <nav className="nav-menu">
             <Link to="/" className={`nav-link ${isActive('/')}`}>HOME</Link>
-            <Link to="/category/new-in" className={`nav-link ${isActive('/category/new-in')}`}>New Edit</Link>
+            <Link to="/category/new-in" className={`nav-link ${isActive('/category/new-in')}`}>THE NEW EDIT</Link>
             <div className={`nav-dropdown ${openNav === 'collections' ? 'is-open' : ''}`}>
               <button
                 type="button"
