@@ -45,7 +45,12 @@ function SuperDashboard() {
       const refundedOrders = orders.filter(o => o.status === 'Refunded').length;
       
       // Site views
-      const { count: viewCount } = await supabase.from('page_views').select('*', { count: 'exact', head: true });
+      const { count: viewCount } = await supabase
+        .from('page_views')
+        .select('*', { count: 'exact', head: true })
+        .not('path', 'ilike', '/admin%')
+        .not('path', 'ilike', '/super-admin%')
+        .not('path', 'ilike', '/update-password%');
 
       setStats({
         platformRevenue: revenue,
@@ -139,7 +144,7 @@ function SuperDashboard() {
         </div>
 
         <div style={{ background: '#fff', padding: '24px', borderRadius: '12px', border: '1px solid #D2C4B3', boxShadow: '0 4px 15px rgba(188, 163, 143, 0.1)' }}>
-          <div style={{ color: '#BCA38F', fontSize: '12px', fontWeight: '600', textTransform: 'uppercase', marginBottom: '8px' }}>Site Views</div>
+          <div style={{ color: '#BCA38F', fontSize: '12px', fontWeight: '600', textTransform: 'uppercase', marginBottom: '8px' }}>Customer Views</div>
           <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#111827' }}>{loading ? '...' : stats.siteViews}</div>
         </div>
 

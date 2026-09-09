@@ -1,6 +1,7 @@
 import { COUNTRIES } from '../src/utils/countries.js';
 import { parseShippingAddress } from '../src/utils/address.js';
 import { getVariantSkuFromProduct } from '../src/utils/sku.js';
+import { PACKAGE_HEIGHT_CM, PACKAGE_LENGTH_CM, PACKAGE_WIDTH_CM } from '../src/utils/package.js';
 
 export function isEasyshipSandbox(apiKey = process.env.EASYSHIP_API_KEY || '') {
   return String(apiKey).startsWith('sand_');
@@ -98,7 +99,7 @@ export function toEasyshipItems(orderItems = []) {
       sku: 'DEFAULT',
       category: 'fashion',
       actual_weight: 1.2,
-      dimensions: { length: 45, width: 35, height: 5 },
+      dimensions: { length: PACKAGE_LENGTH_CM, width: PACKAGE_WIDTH_CM, height: PACKAGE_HEIGHT_CM },
       declared_currency: 'USD',
       declared_customs_value: 50,
       quantity: 1
@@ -115,9 +116,9 @@ export function toEasyshipItems(orderItems = []) {
       hs_code: product.hs_code || undefined,
       actual_weight: product.weight ? parseFloat(product.weight) : 1.2,
       dimensions: {
-        length: product.length ? parseFloat(product.length) : 45,
-        width: product.width ? parseFloat(product.width) : 35,
-        height: product.height ? parseFloat(product.height) : 5
+        length: PACKAGE_LENGTH_CM,
+        width: PACKAGE_WIDTH_CM,
+        height: PACKAGE_HEIGHT_CM
       },
       declared_currency: 'USD',
       declared_customs_value: parseFloat(item.price_at_time || product.price || 50),

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabase';
 import { Link } from 'react-router-dom';
+import { productNeedsPackageSync, syncAllProductPackageDimensions } from '../../utils/package';
 
 function ProductList() {
   const [products, setProducts] = useState([]);
@@ -16,7 +17,16 @@ function ProductList() {
 
   const fetchProducts = async () => {
     const { data, error } = await supabase.from('products').select('*').order('created_at', { ascending: false });
-    if (!error) setProducts(data || []);
+    if (!error) {
+      const list = data || [];
+      if (list.some(productNeedsPackageSync)) {
+        await syncAllProductPackageDimensions(supabase);
+        const { data: refreshed } = await supabase.from('products').select('*').order('created_at', { ascending: false });
+        setProducts(refreshed || list);
+      } else {
+        setProducts(list);
+      }
+    }
     setLoading(false);
   };
 

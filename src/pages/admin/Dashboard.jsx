@@ -4,6 +4,7 @@ import { useOutletContext, Link } from 'react-router-dom';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { exportDashboardDataToExcel } from '../../utils/exportToExcel';
 import { DollarSign, ShoppingBag, Package, AlertTriangle, TrendingUp, Clock, CheckCircle, Truck, PackageCheck, ArrowRight, XCircle, RefreshCcw, Eye, Download, Calendar } from 'lucide-react';
+import { productNeedsPackageSync, syncAllProductPackageDimensions } from '../../utils/package';
 
 function Dashboard() {
   const [totalProducts, setTotalProducts] = useState(0);
@@ -36,10 +37,13 @@ function Dashboard() {
     setTotalProducts(productCount || 0);
 
     // 2. Low stock items
-    const { data: stockData } = await supabase.from('products').select('id, name, stock, low_stock_threshold, image_url');
+    const { data: stockData } = await supabase.from('products').select('id, name, stock, low_stock_threshold, image_url, length, width, height');
     if (stockData) {
       const lowStock = stockData.filter(p => p.stock <= (p.low_stock_threshold !== null ? p.low_stock_threshold : 5));
       setLowStockItems(lowStock);
+      if (stockData.some(productNeedsPackageSync)) {
+        await syncAllProductPackageDimensions(supabase);
+      }
     }
     
     // 3. Fetch all orders (for revenue, chart, recent, summary)
@@ -116,7 +120,12 @@ function Dashboard() {
     
     
     // 5. Site Views
-    const { count: viewCount } = await supabase.from('page_views').select('*', { count: 'exact', head: true });
+    const { count: viewCount } = await supabase
+      .from('page_views')
+      .select('*', { count: 'exact', head: true })
+      .not('path', 'ilike', '/admin%')
+      .not('path', 'ilike', '/super-admin%')
+      .not('path', 'ilike', '/update-password%');
     setSiteViews(viewCount || 0);
     
     setLoading(false);
@@ -294,12 +303,12 @@ function Dashboard() {
         <Link to="/admin/reports" style={{ textDecoration: 'none', color: 'inherit' }} className="kpi-card">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
-              <div className="kpi-label">Site Views</div>
+              <div className="kpi-label">Customer Views</div>
               <div className="kpi-value">{loading ? '...' : siteViews}</div>
             </div>
             <div className="kpi-icon" style={{ background: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6' }}><Eye size={20} /></div>
           </div>
-          <div className="kpi-change" style={{ color: '#BCA38F' }}>Total views all time</div>
+          <div className="kpi-change" style={{ color: '#BCA38F' }}>Storefront visits by customers</div>
         </Link>
       </div>
 

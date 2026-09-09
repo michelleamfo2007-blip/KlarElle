@@ -21,6 +21,7 @@ import {
   isPublishedOnStorefront,
   maybeLaunchProduct
 } from '../utils/storefront';
+import { applyMaterialDetails } from '../utils/materialDefaults';
 
 const collectProductImages = (product, color) => collectImagesForColor(product, color);
 
@@ -426,6 +427,7 @@ function ProductDetails() {
   if (!product) return <NotFound />;
 
   const images = collectProductImages(product, selectedColor);
+  const fabric = applyMaterialDetails(product);
   const preorderLeadTime = product.preorder_lead_time || '14–21 business days';
   const comingSoon = isComingSoon(product);
   const releaseLabel = getReleaseLabel(product);
@@ -641,17 +643,17 @@ function ProductDetails() {
               <div className="pd-options-title" style={{ margin: '0 0 12px 0', fontSize: '14px', textTransform: 'uppercase' }}>Fabric & Fit</div>
               <div style={{ display: 'grid', gridTemplateColumns: '140px 1fr', gap: '8px', fontSize: '13px', lineHeight: '1.6', color: '#333' }}>
                 <span style={{ color: '#666' }}>Fabric composition</span>
-                <span>{product.composition || product.material || 'See product description'}</span>
+                <span>{fabric.composition || product.material || 'See product description'}</span>
                 <span style={{ color: '#666' }}>Stretch</span>
-                <span>{product.features || 'See product description'}</span>
+                <span>{fabric.features || 'See product description'}</span>
                 <span style={{ color: '#666' }}>Care instructions</span>
-                <span>{product.care_instructions || 'Follow the care label attached to the garment'}</span>
+                <span>{fabric.care_instructions || 'Follow the care label attached to the garment'}</span>
                 <span style={{ color: '#666' }}>Fit notes</span>
                 <span>{product.fit || 'Compare your measurements with the size guide'}</span>
                 <span style={{ color: '#666' }}>Model measurements</span>
                 <span>{product.measurements || 'See size guide for garment measurements'}</span>
               </div>
-              {(product.style || product.occasion || product.pattern_type) && (
+              {(fabric.style || product.occasion || fabric.pattern_type) && (
                 <>
                   <div 
                     style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', padding: '12px 0 0' }} 
@@ -664,9 +666,9 @@ function ProductDetails() {
                   </div>
                   {detailsExpanded && (
                     <div style={{ display: 'grid', gridTemplateColumns: '140px 1fr', gap: '8px', fontSize: '13px', marginTop: '8px' }}>
-                      {product.style && (<><span style={{ color: '#666' }}>Style</span><span>{product.style}</span></>)}
+                      {fabric.style && (<><span style={{ color: '#666' }}>Style</span><span>{fabric.style}</span></>)}
                       {product.occasion && (<><span style={{ color: '#666' }}>Occasion</span><span>{product.occasion}</span></>)}
-                      {product.pattern_type && (<><span style={{ color: '#666' }}>Pattern</span><span>{product.pattern_type}</span></>)}
+                      {fabric.pattern_type && (<><span style={{ color: '#666' }}>Pattern</span><span>{fabric.pattern_type}</span></>)}
                     </div>
                   )}
                 </>
@@ -1349,13 +1351,15 @@ function ProductDetails() {
                 <span style={{ color: '#666', fontWeight: 'normal' }}>Material:</span>
                 <span>{product.material || 'N/A'}</span>
                 <span style={{ color: '#666', fontWeight: 'normal' }}>Composition:</span>
-                <span>{product.composition || 'N/A'}</span>
+                <span>{fabric.composition || 'N/A'}</span>
                 <span style={{ color: '#666', fontWeight: 'normal' }}>Pattern Type:</span>
-                <span>{product.pattern_type || 'N/A'}</span>
+                <span>{fabric.pattern_type || 'N/A'}</span>
                 <span style={{ color: '#666', fontWeight: 'normal' }}>Care Instructions:</span>
-                <span>{product.care_instructions || 'N/A'}</span>
+                <span>{fabric.care_instructions || 'N/A'}</span>
                 <span style={{ color: '#666', fontWeight: 'normal' }}>Style:</span>
-                <span>{product.style || 'N/A'}</span>
+                <span>{fabric.style || 'N/A'}</span>
+                <span style={{ color: '#666', fontWeight: 'normal' }}>Stretch:</span>
+                <span>{fabric.features || 'N/A'}</span>
               </div>
               <div style={{ marginTop: '24px', fontSize: '13px', lineHeight: '1.6' }}>
                 <p>{product.description || "Enhance your wardrobe with this stunning piece, crafted with premium materials for maximum comfort and style. Perfect for both casual outings and elegant evening events. Designed to fit beautifully and make you feel confident."}</p>

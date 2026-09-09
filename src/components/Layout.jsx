@@ -231,7 +231,6 @@ function Layout() {
   };
 
   const isActive = (path) => location.pathname === path ? 'active' : '';
-  const isNewEditActive = isActive('/category/new-in') || isActive('/category/coming-soon');
 
   if (checkingMaintenance) {
     return <div style={{ height: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>Loading...</div>;
@@ -459,19 +458,7 @@ function Layout() {
           
           <nav className="nav-menu">
             <Link to="/" className={`nav-link ${isActive('/')}`}>HOME</Link>
-            <div className={`nav-dropdown ${openNav === 'new-edit' ? 'is-open' : ''}`}>
-              <button
-                type="button"
-                className={`nav-link ${isNewEditActive}`}
-                onClick={() => setOpenNav(openNav === 'new-edit' ? null : 'new-edit')}
-              >
-                New Edit
-              </button>
-              <div className="dropdown-menu">
-                <Link to="/category/new-in" className={`nav-link ${isActive('/category/new-in')}`}>The New Edit</Link>
-                <Link to="/category/coming-soon" className={`nav-link ${isActive('/category/coming-soon')}`}>Coming Next</Link>
-              </div>
-            </div>
+            <Link to="/category/new-in" className={`nav-link ${isActive('/category/new-in')}`}>New Edit</Link>
             <div className={`nav-dropdown ${openNav === 'collections' ? 'is-open' : ''}`}>
               <button
                 type="button"
@@ -481,7 +468,7 @@ function Layout() {
                 Collections
               </button>
               <div className="dropdown-menu">
-                {STORE_COLLECTIONS.filter((collection) => !['new-in', 'coming-soon'].includes(collection.slug)).map((collection) => (
+                {STORE_COLLECTIONS.filter((collection) => collection.slug !== 'new-in').map((collection) => (
                   <Link key={collection.slug} to={`/category/${collection.slug}`} className={`nav-link ${isActive(`/category/${collection.slug}`)}`}>
                     {collection.title}
                   </Link>

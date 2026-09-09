@@ -1,6 +1,7 @@
 import { getEasyshipBaseUrl } from './_easyship.js';
 import { getVariantSkuFromProduct } from '../src/utils/sku.js';
 import { cartShipsFromInternational } from '../src/utils/stock.js';
+import { PACKAGE_HEIGHT_CM, PACKAGE_LENGTH_CM, PACKAGE_WIDTH_CM } from '../src/utils/package.js';
 
 const COUNTRY_CODES = {
   "United States": "US",
@@ -212,9 +213,9 @@ export default async function handler(req, res) {
       description: item.name,
       sku: getVariantSkuFromProduct(item, item.selectedColor || item.color, item.selectedSize || item.size) || item.sku || `SKU-${item.id}`,
       actual_weight: weight,
-      height: item.height ? parseFloat(item.height) : 5,
-      width: item.width ? parseFloat(item.width) : 35,
-      length: item.length ? parseFloat(item.length) : 45,
+      height: PACKAGE_HEIGHT_CM,
+      width: PACKAGE_WIDTH_CM,
+      length: PACKAGE_LENGTH_CM,
       category: "fashion",
       declared_currency: "USD",
       declared_customs_value: item.price,
@@ -227,9 +228,9 @@ export default async function handler(req, res) {
       description: "Apparel",
       sku: "DEFAULT",
       actual_weight: 1.2,
-      height: 5,
-      width: 35,
-      length: 45,
+      height: PACKAGE_HEIGHT_CM,
+      width: PACKAGE_WIDTH_CM,
+      length: PACKAGE_LENGTH_CM,
       category: "fashion",
       declared_currency: "USD",
       declared_customs_value: 50,

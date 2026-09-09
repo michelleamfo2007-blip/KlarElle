@@ -14,6 +14,8 @@ import {
   resolveVariantSku
 } from '../../utils/sku';
 import { uploadProductAsset } from '../../utils/cloudinaryUpload';
+import { PACKAGE_HEIGHT_CM, PACKAGE_LENGTH_CM, PACKAGE_WIDTH_CM } from '../../utils/package';
+import { getMaterialDetails } from '../../utils/materialDefaults';
 
 function ProductForm() {
   const { id } = useParams();
@@ -52,9 +54,9 @@ function ProductForm() {
     size_guide_url: '',
     video_url: '',
     weight: '',
-    length: '45',
-    width: '35',
-    height: '5',
+    length: String(PACKAGE_LENGTH_CM),
+    width: String(PACKAGE_WIDTH_CM),
+    height: String(PACKAGE_HEIGHT_CM),
     country_of_manufacture: 'China',
     hs_code: ''
   });
@@ -136,9 +138,9 @@ function ProductForm() {
         size_guide_url: data.size_guide_url || '',
         video_url: data.video_url || '',
         weight: data.weight || '',
-        length: data.length || '45',
-        width: data.width || '35',
-        height: data.height || '5',
+        length: String(PACKAGE_LENGTH_CM),
+        width: String(PACKAGE_WIDTH_CM),
+        height: String(PACKAGE_HEIGHT_CM),
         country_of_manufacture: data.country_of_manufacture || 'China',
         hs_code: data.hs_code || '',
       });
@@ -453,9 +455,9 @@ function ProductForm() {
       size_guide_url: formData.size_guide_url,
       video_url: formData.video_url,
       weight: formData.weight ? parseFloat(formData.weight) : null,
-      length: formData.length ? parseFloat(formData.length) : null,
-      width: formData.width ? parseFloat(formData.width) : null,
-      height: formData.height ? parseFloat(formData.height) : null,
+      length: PACKAGE_LENGTH_CM,
+      width: PACKAGE_WIDTH_CM,
+      height: PACKAGE_HEIGHT_CM,
       country_of_manufacture: formData.country_of_manufacture,
       hs_code: formData.hs_code,
       sizes: activeSizes,
@@ -663,7 +665,15 @@ function ProductForm() {
                     <select 
                       className="input-field" 
                       value={formData.material} 
-                      onChange={(e) => setFormData({...formData, material: e.target.value})}
+                      onChange={(e) => {
+                        const material = e.target.value;
+                        const details = getMaterialDetails(material);
+                        setFormData({
+                          ...formData,
+                          material,
+                          ...(details || {})
+                        });
+                      }}
                     >
                       <option value="">Select Material</option>
                       <option value="Cotton">Cotton</option>
@@ -680,6 +690,7 @@ function ProductForm() {
                       <option value="Lace">Lace</option>
                       <option value="Other">Other</option>
                     </select>
+                    <p style={{ fontSize: '12px', color: '#6b7280', margin: '8px 0 0' }}>Choosing a material fills composition, pattern, style, care, and stretch. You can edit those after.</p>
                   </div>
                   <div>
                     <label className="input-label">Composition (e.g. 95% Polyester)</label>
@@ -992,33 +1003,13 @@ function ProductForm() {
                   />
                 </div>
                 <div>
-                  <label className="input-label">Package Dimensions (L x W x H in cm) — default 45 × 35 × 5</label>
+                  <label className="input-label">Package Dimensions (L × W × H in cm)</label>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
-                    <input 
-                      type="number" 
-                      step="0.1"
-                      className="input-field" 
-                      placeholder="Length"
-                      value={formData.length} 
-                      onChange={(e) => setFormData({...formData, length: e.target.value})} 
-                    />
-                    <input 
-                      type="number" 
-                      step="0.1"
-                      className="input-field" 
-                      placeholder="Width"
-                      value={formData.width} 
-                      onChange={(e) => setFormData({...formData, width: e.target.value})} 
-                    />
-                    <input 
-                      type="number" 
-                      step="0.1"
-                      className="input-field" 
-                      placeholder="Height"
-                      value={formData.height} 
-                      onChange={(e) => setFormData({...formData, height: e.target.value})} 
-                    />
+                    <input type="number" className="input-field" value={PACKAGE_LENGTH_CM} readOnly />
+                    <input type="number" className="input-field" value={PACKAGE_WIDTH_CM} readOnly />
+                    <input type="number" className="input-field" value={PACKAGE_HEIGHT_CM} readOnly />
                   </div>
+                  <p style={{ fontSize: '12px', color: '#6b7280', margin: '8px 0 0' }}>Every product ships in a 45 × 35 × 5 cm package (35 × 5 × 45).</p>
                 </div>
               </div>
               <div style={{ padding: '16px 20px', borderTop: '1px solid #e5e7eb', background: '#fafafa', display: 'flex', alignItems: 'center', gap: '12px' }}>

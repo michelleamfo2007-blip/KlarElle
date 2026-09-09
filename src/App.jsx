@@ -64,7 +64,15 @@ import './index.css';
 function App() {
   return (
     <>
-      <Analytics />
+      <Analytics
+        beforeSend={(event) => {
+          const url = event.url || '';
+          if (url.includes('/admin') || url.includes('/super-admin') || url.includes('/update-password')) {
+            return null;
+          }
+          return event;
+        }}
+      />
       <CurrencyProvider>
         <AuthProvider>
           <FavoritesProvider>

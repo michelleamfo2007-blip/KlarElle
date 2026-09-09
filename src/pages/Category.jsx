@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, Navigate } from 'react-router-dom';
 import SEO from '../components/SEO';
 import { supabase } from '../lib/supabase';
 import { Heart, Plus, Minus } from 'lucide-react';
@@ -174,6 +174,8 @@ function Category() {
 
   const collection = getCollectionBySlug(id);
   const categoryName = collection?.title || id.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase());
+
+  if (id === 'coming-soon') return <Navigate to="/category/new-in" replace />;
 
   return (
     <>

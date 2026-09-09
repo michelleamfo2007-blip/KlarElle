@@ -101,10 +101,8 @@ const OCCASION_SLUGS = ['occasion', 'evening', 'celebration', 'dinner', 'birthda
 
 export function matchesCollection(product, slug) {
   if (!product) return false;
-  if (slug === 'all' || slug === 'collections') return !isComingSoon(product);
-  if (slug === 'new-in') return !isComingSoon(product);
-  if (slug === 'coming-soon') return isComingSoon(product);
-  if (isComingSoon(product)) return false;
+  if (slug === 'coming-soon') return false;
+  if (slug === 'all' || slug === 'collections' || slug === 'new-in') return true;
   const assigned = getProductCategorySlugs(product);
   if (assigned.includes(slug)) return true;
   if (slug === 'occasion' && assigned.some((item) => OCCASION_SLUGS.includes(item))) return true;

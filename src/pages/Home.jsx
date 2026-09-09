@@ -10,12 +10,11 @@ import ProductRating from '../components/ProductRating';
 import { attachReviewStats } from '../utils/reviews';
 import { isProductSoldOut } from '../utils/stock';
 import ColorPreviewDots, { useProductColorImage } from '../components/ColorPreviewDots';
-import NotifyMeForm from '../components/NotifyMeForm';
-import { getReleaseLabel, isComingSoon, maybeLaunchProduct } from '../utils/storefront';
+import { isComingSoon, maybeLaunchProduct } from '../utils/storefront';
 import { DEFAULT_WEBSITE_CONTENT, normalizeWebsiteContent } from '../data/websiteContent';
 import heroVideo from '../../IMG_2870 klarelle.MP4';
 
-function HomeProductCard({ product, formatPrice, addToCart, toggleFavorite, isFavorite, showToast, comingSoon, onNotify }) {
+function HomeProductCard({ product, formatPrice, addToCart, toggleFavorite, isFavorite, showToast }) {
   const { colors, selectedColor, setSelectedColor, image } = useProductColorImage(product);
   const soldOut = isProductSoldOut(product);
 
@@ -23,37 +22,33 @@ function HomeProductCard({ product, formatPrice, addToCart, toggleFavorite, isFa
     <div className="luxury-card">
       <div className="luxury-image-wrap">
         <Link to={`/product/${product.id}`} className="luxury-image-link">
-          <img key={selectedColor} src={image || '/placeholder.png'} alt={product.name} className="luxury-image primary" style={{ opacity: soldOut && !comingSoon ? 0.6 : 1 }} />
+          <img key={selectedColor} src={image || '/placeholder.png'} alt={product.name} className="luxury-image primary" style={{ opacity: soldOut ? 0.6 : 1 }} />
         </Link>
-        {comingSoon ? (
-          <div className="luxury-badge" style={{ background: '#111', color: '#fff', letterSpacing: '1px' }}>COMING SOON</div>
-        ) : soldOut ? (
+        {soldOut ? (
           <div className="luxury-badge" style={{ background: '#000', color: '#fff', letterSpacing: '1px' }}>SOLD OUT</div>
         ) : product.old_price && parseFloat(product.old_price) > parseFloat(product.price) && (
           <div className="luxury-badge">-{Math.round(((product.old_price - product.price) / product.old_price) * 100)}%</div>
         )}
-        {!comingSoon && (
-          <div className="luxury-actions">
-            <div
-              className="luxury-action-icon"
-              title="Wishlist"
-              onClick={() => { toggleFavorite(product.id); showToast(isFavorite(product.id) ? 'Removed from Wishlist' : 'Added to your Wishlist!'); }}
-              style={{ background: isFavorite(product.id) ? '#000' : '#fff', color: isFavorite(product.id) ? '#fff' : '#000' }}
-            >
-              <Heart size={16} fill={isFavorite(product.id) ? 'currentColor' : 'none'} />
-            </div>
-            <Link to={`/product/${product.id}`} className="luxury-action-icon" style={{ display: 'flex', color: 'inherit', textDecoration: 'none' }} title="Quick View"><Eye size={16} /></Link>
+        <div className="luxury-actions">
+          <div
+            className="luxury-action-icon"
+            title="Wishlist"
+            onClick={() => { toggleFavorite(product.id); showToast(isFavorite(product.id) ? 'Removed from Wishlist' : 'Added to your Wishlist!'); }}
+            style={{ background: isFavorite(product.id) ? '#000' : '#fff', color: isFavorite(product.id) ? '#fff' : '#000' }}
+          >
+            <Heart size={16} fill={isFavorite(product.id) ? 'currentColor' : 'none'} />
           </div>
-        )}
+          <Link to={`/product/${product.id}`} className="luxury-action-icon" style={{ display: 'flex', color: 'inherit', textDecoration: 'none' }} title="Quick View"><Eye size={16} /></Link>
+        </div>
       </div>
       <div className="luxury-info">
-        {!comingSoon && <div className="luxury-category">{product.category || 'Clothing'}</div>}
+        <div className="luxury-category">{product.category || 'Clothing'}</div>
         <Link to={`/product/${product.id}`} style={{ textDecoration: 'none' }}>
           <h3 className="luxury-title">{product.name}</h3>
         </Link>
         <div className="luxury-price-row">
           <span className="luxury-price">{formatPrice(product.price)}</span>
-          {!comingSoon && product.old_price && parseFloat(product.old_price) > parseFloat(product.price) && (
+          {product.old_price && parseFloat(product.old_price) > parseFloat(product.price) && (
             <>
               <span className="luxury-old-price">{formatPrice(product.old_price)}</span>
               <span className="luxury-saved">Save {Math.round(((product.old_price - product.price) / product.old_price) * 100)}%</span>
@@ -61,26 +56,17 @@ function HomeProductCard({ product, formatPrice, addToCart, toggleFavorite, isFa
           )}
         </div>
         <ColorPreviewDots colors={colors} selectedColor={selectedColor} onSelect={setSelectedColor} />
-        {comingSoon ? (
-          <>
-            <div style={{ fontSize: '12px', color: '#666', marginBottom: '12px' }}>{getReleaseLabel(product)}</div>
-            <button className="luxury-add-btn" onClick={() => onNotify(product)}>NOTIFY ME WHEN AVAILABLE</button>
-          </>
-        ) : (
-          <>
-            <ProductRating count={product.reviewCount} average={product.reviewAvg} className="luxury-rating" />
-            <button
-              className="luxury-add-btn"
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                addToCart(product, 'M', selectedColor || 'Standard');
-              }}
-            >
-              ADD TO CART
-            </button>
-          </>
-        )}
+        <ProductRating count={product.reviewCount} average={product.reviewAvg} className="luxury-rating" />
+        <button
+          className="luxury-add-btn"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            addToCart(product, 'M', selectedColor || 'Standard');
+          }}
+        >
+          ADD TO CART
+        </button>
       </div>
     </div>
   );
@@ -88,8 +74,6 @@ function HomeProductCard({ product, formatPrice, addToCart, toggleFavorite, isFa
 
 function Home() {
   const [products, setProducts] = useState([]);
-  const [comingSoonProducts, setComingSoonProducts] = useState([]);
-  const [notifyProduct, setNotifyProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [toastMessage, setToastMessage] = useState('');
   const [waitlistEmail, setWaitlistEmail] = useState('');
@@ -135,9 +119,7 @@ function Home() {
           }
         }
         const available = data.filter((product) => !isComingSoon(product));
-        const upcoming = data.filter((product) => isComingSoon(product));
         setProducts(await attachReviewStats(supabase, available.slice(0, 4)));
-        setComingSoonProducts(await attachReviewStats(supabase, upcoming.slice(0, 8)));
       }
       setLoading(false);
     };
@@ -531,36 +513,6 @@ function Home() {
         </div>
       </section>
 
-      {comingSoonProducts.length > 0 && (
-        <section className="luxury-section" style={{ backgroundColor: '#fff' }}>
-          <div className="container">
-            <div className="luxury-header">
-              <h2 className="luxury-title">Coming Next</h2>
-              <div className="luxury-subtitle">Next week's release</div>
-            </div>
-            <div className="luxury-grid">
-              {comingSoonProducts.map((product) => (
-                <HomeProductCard
-                  key={`soon-${product.id}`}
-                  product={product}
-                  formatPrice={formatPrice}
-                  comingSoon
-                  onNotify={setNotifyProduct}
-                />
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
-      {notifyProduct && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 4000, display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }} onClick={() => setNotifyProduct(null)}>
-          <div style={{ background: '#fff', width: '100%', maxWidth: '480px', padding: '24px', borderRadius: '16px 16px 0 0' }} onClick={(e) => e.stopPropagation()}>
-            <h3 style={{ marginTop: 0 }}>{notifyProduct.name}</h3>
-            <NotifyMeForm product={notifyProduct} onClose={() => setNotifyProduct(null)} />
-          </div>
-        </div>
-      )}
     </>
   );
 }
