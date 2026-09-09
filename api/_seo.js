@@ -107,6 +107,9 @@ export function applySeoToHtml(html, seo) {
   next = next.replace(/<meta name="twitter:title" content="[^"]*"\s*\/?>/i, `<meta name="twitter:title" content="${title}" />`);
   next = next.replace(/<meta name="twitter:description" content="[^"]*"\s*\/?>/i, `<meta name="twitter:description" content="${description}" />`);
   next = next.replace(/<meta name="twitter:image" content="[^"]*"\s*\/?>/i, `<meta name="twitter:image" content="${image}" />`);
+  if (!/google-site-verification/i.test(next)) {
+    next = next.replace('</title>', '</title>\n    <meta name="google-site-verification" content="raEgzeyaSFT-8hbtdnJ8Tu794wvUUXejStIaoM-2mTc" />');
+  }
 
   if (!/<meta name="robots"/i.test(next)) {
     next = next.replace('</title>', `</title>\n    <meta name="robots" content="${robots}" />`);
