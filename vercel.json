@@ -41,26 +41,6 @@
       "source": "/category/coming-soon",
       "destination": "/category/new-in",
       "permanent": true
-    },
-    {
-      "source": "/category/dinner-date-night",
-      "destination": "/category/dinner",
-      "permanent": true
-    },
-    {
-      "source": "/category/cocktail-party",
-      "destination": "/category/celebration",
-      "permanent": true
-    },
-    {
-      "source": "/category/gala-formal-events",
-      "destination": "/category/evening",
-      "permanent": true
-    },
-    {
-      "source": "/category/christmas-holidays",
-      "destination": "/category/occasion",
-      "permanent": true
     }
   ],
   "rewrites": [

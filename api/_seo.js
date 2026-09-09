@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
-import { STORE_COLLECTIONS } from '../src/data/collections.js';
+import { COLLECTION_ALIASES, getCollectionBySlug, STORE_COLLECTIONS } from '../src/data/collections.js';
 import { getSitePage } from '../src/data/sitePages.js';
 import {
   absoluteUrl,
@@ -132,7 +132,7 @@ export async function loadSpaShell(req) {
 }
 
 function knownCollection(slug) {
-  return slug === 'all' || slug === 'collections' || STORE_COLLECTIONS.some((item) => item.slug === slug);
+  return slug === 'all' || slug === 'collections' || Boolean(getCollectionBySlug(slug)) || Boolean(COLLECTION_ALIASES[slug]);
 }
 
 export async function resolveSeo(pathname) {
@@ -246,25 +246,45 @@ export async function resolveSeo(pathname) {
   return { ...NOT_FOUND, canonical: `${SITE_URL}${path}` };
 }
 
+function xmlEscape(value) {
+  return String(value || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function isCleanSitemapUrl(loc) {
+  try {
+    const path = new URL(loc).pathname;
+    return !path.includes('&') && !/%26/i.test(path);
+  } catch {
+    return false;
+  }
+}
+
 export async function buildSitemapXml() {
   const products = (await loadPublishedProducts()).filter((product) => isPublishedOnStorefront(product) && !isComingSoon(product));
   const now = new Date().toISOString();
+  const categorySlugs = [
+    ...STORE_COLLECTIONS.map((collection) => collection.slug),
+    ...Object.keys(COLLECTION_ALIASES),
+    'all'
+  ];
   const urls = [
     { loc: `${SITE_URL}/`, lastmod: now, priority: '1.0' },
     ...INDEXABLE_POLICY_PATHS.map((path) => ({ loc: `${SITE_URL}${path}`, lastmod: now, priority: '0.7' }))
   ];
 
-  for (const collection of [...STORE_COLLECTIONS, { slug: 'all' }]) {
-    const listed = products.filter((product) => matchesCollection(product, collection.slug));
-    if (!listed.length) continue;
+  for (const slug of [...new Set(categorySlugs)]) {
+    if (String(slug).includes('&')) continue;
+    const matchSlug = COLLECTION_ALIASES[slug] || slug;
+    const listed = products.filter((product) => matchesCollection(product, matchSlug));
+    if (!listed.length && slug !== 'new-in' && slug !== 'all') continue;
     const latest = listed.reduce((max, product) => {
       const stamp = product.updated_at || product.created_at;
       return stamp && stamp > max ? stamp : max;
     }, now);
     urls.push({
-      loc: `${SITE_URL}/category/${collection.slug}`,
+      loc: `${SITE_URL}/category/${slug}`,
       lastmod: latest,
-      priority: collection.slug === 'new-in' ? '0.8' : '0.7'
+      priority: slug === 'new-in' ? '0.8' : '0.7'
     });
   }
 
@@ -276,10 +296,12 @@ export async function buildSitemapXml() {
     });
   }
 
+  const safeUrls = urls.filter((url) => isCleanSitemapUrl(url.loc));
+
   return `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${urls.map((url) => `  <url>
-    <loc>${url.loc}</loc>
+${safeUrls.map((url) => `  <url>
+    <loc>${xmlEscape(url.loc)}</loc>
     <lastmod>${String(url.lastmod).slice(0, 10)}</lastmod>
     <changefreq>${url.loc === `${SITE_URL}/` ? 'daily' : 'weekly'}</changefreq>
     <priority>${url.priority}</priority>

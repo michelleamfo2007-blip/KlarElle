@@ -13,7 +13,7 @@ import { isProductSoldOut } from '../utils/stock';
 import { Filter } from 'lucide-react';
 import ColorPreviewDots, { useProductColorImage } from '../components/ColorPreviewDots';
 import NotifyMeForm from '../components/NotifyMeForm';
-import { getCollectionBySlug, STORE_COLLECTIONS } from '../data/collections';
+import { COLLECTION_ALIASES, getCollectionBySlug, STORE_COLLECTIONS } from '../data/collections';
 import { getReleaseLabel, isComingSoon, matchesCollection, maybeLaunchProduct } from '../utils/storefront';
 import { getCollectionSeo } from '../utils/seoPages';
 import NotFound from './NotFound';
@@ -175,7 +175,7 @@ function Category() {
   }, [activeFilters, allProducts]);
 
   const collection = getCollectionBySlug(id);
-  const known = id === 'all' || id === 'collections' || STORE_COLLECTIONS.some((item) => item.slug === id);
+  const known = id === 'all' || id === 'collections' || Boolean(getCollectionBySlug(id)) || Boolean(COLLECTION_ALIASES[id]);
   const seo = getCollectionSeo(id);
   const categoryName = seo?.heading || collection?.title || id.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase());
 

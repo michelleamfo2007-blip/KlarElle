@@ -65,8 +65,20 @@ export const STORE_COLLECTIONS = [
   }
 ];
 
+export const COLLECTION_ALIASES = {
+  'dinner-date-night': 'dinner',
+  'cocktail-party': 'celebration',
+  'gala-formal-events': 'evening',
+  'christmas-holidays': 'occasion'
+};
+
+export function resolveCollectionSlug(slug) {
+  return COLLECTION_ALIASES[slug] || slug;
+}
+
 export function getCollectionBySlug(slug) {
-  return STORE_COLLECTIONS.find((collection) => collection.slug === slug) || null;
+  const resolved = resolveCollectionSlug(slug);
+  return STORE_COLLECTIONS.find((collection) => collection.slug === resolved) || null;
 }
 
 export const ASSIGNABLE_CATEGORIES = STORE_COLLECTIONS;

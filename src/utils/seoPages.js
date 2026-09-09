@@ -1,4 +1,4 @@
-import { STORE_COLLECTIONS } from '../data/collections.js';
+import { getCollectionBySlug, STORE_COLLECTIONS } from '../data/collections.js';
 import { getSitePage } from '../data/sitePages.js';
 import { DEFAULT_SHARE_IMAGE, SITE_NAME, SITE_URL, pageDescription } from './seo.js';
 
@@ -85,14 +85,10 @@ export const PERMANENT_REDIRECTS = {
   '/check-in': '/profile',
   '/find-my-size': '/',
   '/category/coming-soon': '/category/new-in',
-  '/category/dinner-&-date-night': '/category/dinner',
-  '/category/dinner-date-night': '/category/dinner',
-  '/category/cocktail-&-party': '/category/celebration',
-  '/category/cocktail-party': '/category/celebration',
-  '/category/gala-&-formal-events': '/category/evening',
-  '/category/gala-formal-events': '/category/evening',
-  '/category/christmas-&-holidays': '/category/occasion',
-  '/category/christmas-holidays': '/category/occasion'
+  '/category/dinner-&-date-night': '/category/dinner-date-night',
+  '/category/cocktail-&-party': '/category/cocktail-party',
+  '/category/gala-&-formal-events': '/category/gala-formal-events',
+  '/category/christmas-&-holidays': '/category/christmas-holidays'
 };
 
 export const INDEXABLE_POLICY_PATHS = Object.keys(PAGE_META).filter((path) => path.startsWith('/page/'));
@@ -119,6 +115,7 @@ export function getStaticPageMeta(pathname) {
 }
 
 export function getCollectionSeo(slug) {
+  const collection = getCollectionBySlug(slug);
   if (slug === 'all' || slug === 'collections') {
     return {
       title: 'Occasion Dresses & Gowns | KlarElle',
@@ -127,7 +124,6 @@ export function getCollectionSeo(slug) {
       copy: "Browse KlarElle's curated occasionwear, from dinner dresses to wedding-guest gowns and evening silhouettes."
     };
   }
-  const collection = STORE_COLLECTIONS.find((item) => item.slug === slug);
   if (!collection) return null;
   return {
     title: `${collection.title} Dresses & Gowns | KlarElle`,
