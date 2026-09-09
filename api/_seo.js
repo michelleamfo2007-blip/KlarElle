@@ -68,7 +68,7 @@ async function loadPublishedProducts() {
   if (!supabase) return catalogCache.products;
   const { data, error } = await supabase
     .from('products')
-    .select('id, name, description, image_url, price, sku, stock, stock_international, coming_soon, visibility, status, category, tags, colors, material, composition, updated_at, created_at')
+    .select('*')
     .eq('visibility', true)
     .eq('status', 'active');
   if (error) {
@@ -314,7 +314,7 @@ export async function buildSitemapXml() {
   for (const product of products) {
     urls.push({
       loc: `${SITE_URL}${productPath(product)}`,
-      lastmod: product.updated_at || product.created_at || now,
+      lastmod: product.updated_at || product.created_at || product.createdAt || now,
       priority: '0.8'
     });
   }
