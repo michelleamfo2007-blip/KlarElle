@@ -214,7 +214,7 @@ function Layout() {
           console.error(error);
         }
       } else {
-        showToast("Thanks for subscribing to KLARELLE style news!");
+        showToast("Thanks for subscribing to KlarElle style news!");
         setNewsletterEmail('');
       }
     } catch (err) {
@@ -321,7 +321,7 @@ function Layout() {
       <header className="header">
         <div className="container">
           <div className="header-main">
-            <Link to="/" className="logo">KLARELLE</Link>
+            <Link to="/" className="logo" style={{ textTransform: 'none' }}>KlarElle</Link>
             
             <form ref={searchFormRef} className="search-bar" onSubmit={handleSearch} style={{ position: 'relative' }}>
               <input 
@@ -549,7 +549,7 @@ function Layout() {
                   </a>
                 </div>
               </div>
-              <h4 style={{ marginTop: '24px' }}>Sign up for KLARELLE style news</h4>
+              <h4 style={{ marginTop: '24px' }}>Sign up for KlarElle style news</h4>
               <form className="newsletter-form" onSubmit={handleSubscribe}>
                 <input 
                   type="email" 
@@ -571,7 +571,7 @@ function Layout() {
           </div>
           <div className="footer-bottom" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', paddingTop: '24px', borderTop: '1px solid #eaeaea' }}>
             <div style={{ color: '#999', fontSize: '12px' }}>
-              &copy; {new Date().getFullYear()} KLARELLE. All rights reserved.
+              &copy; {new Date().getFullYear()} KlarElle. All rights reserved.
             </div>
           </div>
         </div>

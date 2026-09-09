@@ -2,16 +2,19 @@ export const DEFAULT_WEBSITE_CONTENT = {
   announcementText: 'Free U.S. shipping on orders over $100',
   heroTitle: 'LAUNCHING THIS SEPTEMBER',
   heroSubtitle: 'Join our VIP list for first access and exclusive launch updates.',
-  featuredCollection: 'A GLIMPSE OF KLARELLE',
-  aboutText: 'Klarelle curates elevated pieces chosen for quality, fit, and the feminine silhouette.'
+  featuredCollection: 'A GLIMPSE OF KlarElle',
+  aboutText: 'KlarElle curates elevated pieces chosen for quality, fit, and the feminine silhouette.'
 };
 
 const LEGACY_PLACEHOLDERS = {
   announcementText: ['Free shipping on all orders over $100!'],
   heroTitle: ['New Arrival Collection'],
   heroSubtitle: ['Discover the latest trends in fashion and accessories.'],
-  featuredCollection: ['Summer 2026'],
-  aboutText: ['KlarElle is a premium brand dedicated to bringing you the finest clothing and accessories.']
+  featuredCollection: ['Summer 2026', 'A GLIMPSE OF KLARELLE'],
+  aboutText: [
+    'KlarElle is a premium brand dedicated to bringing you the finest clothing and accessories.',
+    'Klarelle curates elevated pieces chosen for quality, fit, and the feminine silhouette.'
+  ]
 };
 
 function pick(value, fallback, legacy = []) {

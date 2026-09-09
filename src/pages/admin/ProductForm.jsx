@@ -598,7 +598,7 @@ function ProductForm() {
                         value={formData.sku} 
                         onChange={(e) => setFormData({...formData, sku: e.target.value})} 
                       />
-                      <button type="button" onClick={generateSKU} style={{ padding: '0 16px', background: '#FAF9F6', border: '1px solid #D2C4B3', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: '500', whiteSpace: 'nowrap', color: '#111827' }} title="Uses the Klarelle SKU Master: KLA-[style]-[color]-[size]">
+                      <button type="button" onClick={generateSKU} style={{ padding: '0 16px', background: '#FAF9F6', border: '1px solid #D2C4B3', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: '500', whiteSpace: 'nowrap', color: '#111827' }} title="Uses the KlarElle SKU Master: KLA-[style]-[color]-[size]">
                         Generate
                       </button>
                     </div>
@@ -1030,12 +1030,12 @@ function ProductForm() {
                     value={sizesInput} 
                     onChange={(e) => setSizesInput(e.target.value)} 
                   />
-                  <p style={{ fontSize: '12px', color: '#6b7280', margin: '6px 0 0' }}>The Klarelle size guide on the product page is built from the chart below. Shoppers can switch cm / in themselves.</p>
+                  <p style={{ fontSize: '12px', color: '#6b7280', margin: '6px 0 0' }}>The KlarElle size guide on the product page is built from the chart below. Shoppers can switch cm / in themselves.</p>
                 </div>
                 {sizeChart.length > 0 && (
                   <div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                      <label className="input-label" style={{ margin: 0 }}>Klarelle Size Guide</label>
+                      <label className="input-label" style={{ margin: 0 }}>KlarElle Size Guide</label>
                       <div style={{ display: 'flex', background: '#f3f4f6', borderRadius: '16px', overflow: 'hidden' }}>
                         <button
                           type="button"
@@ -1125,7 +1125,7 @@ function ProductForm() {
               <div className="card">
                 <div className="card-header"><Box size={18} /> Variant Inventory & Images</div>
                 <div className="card-body" style={{ display: 'grid', gap: '20px' }}>
-                  <p style={{ fontSize: '13px', color: '#666', margin: 0 }}>Stock is per color and size. SKUs come from the Klarelle SKU Master, for example KLA-D008-BLK-M. Existing SKUs are kept if you change the name or price.</p>
+                  <p style={{ fontSize: '13px', color: '#666', margin: 0 }}>Stock is per color and size. SKUs come from the KlarElle SKU Master, for example KLA-D008-BLK-M. Existing SKUs are kept if you change the name or price.</p>
                   
                   {colorsInput.split(/[;,]+/).map(c => c.trim()).filter(Boolean).map(color => (
                     <div key={color} style={{ border: '1px solid #e5e7eb', borderRadius: '8px', padding: '16px', background: '#fafafa' }}>

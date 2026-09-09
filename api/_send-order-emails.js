@@ -146,10 +146,10 @@ export async function sendOrderEmails(order_id) {
   const customerHtml = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #111; line-height: 1.6;">
         <div style="text-align: center; padding: 20px 0;">
-          <h1 style="margin: 0; color: #000; font-size: 28px; letter-spacing: 2px;">KLARELLE</h1>
+          <h1 style="margin: 0; color: #000; font-size: 28px; letter-spacing: 2px;">KlarElle</h1>
         </div>
         <p>Hi ${firstName},</p>
-        <p>Thank you for shopping with Klarelle! We’re pleased to confirm that we have received your order and payment.</p>
+        <p>Thank you for shopping with KlarElle! We’re pleased to confirm that we have received your order and payment.</p>
         <p><strong>Order Number:</strong> #${shortOrderId}<br/>
         <strong>Order Date:</strong> ${orderDate}</p>
         <h3 style="margin-bottom: 8px;">Order Summary:</h3>
@@ -164,7 +164,7 @@ export async function sendOrderEmails(order_id) {
         </p>
         <p>We’re now preparing your order. Once it has shipped, you’ll receive another email containing your tracking information.</p>
         <p>If you notice an error or experience any issue with your order, please contact us at <a href="mailto:${supportEmail}">${supportEmail}</a> and include your order number. We kindly ask that you contact our team before initiating a payment dispute or chargeback. Bank disputes can take several weeks or longer to investigate and may limit our ability to resolve the issue directly. Contacting us first allows our team to review your concern and provide a faster resolution whenever possible.</p>
-        <p>With love,<br/>The Klarelle Team<br/><a href="https://www.klarelle.store">www.klarelle.store</a></p>
+        <p>With love,<br/>The KlarElle Team<br/><a href="https://www.klarelle.store">www.klarelle.store</a></p>
       </div>
     `;
 

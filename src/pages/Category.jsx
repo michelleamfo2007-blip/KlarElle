@@ -179,7 +179,7 @@ function Category() {
 
   return (
     <>
-    <SEO title={categoryName} description={`Shop the latest ${categoryName.toLowerCase()} at KLARELLE.`} />
+    <SEO title={categoryName} description={`Shop the latest ${categoryName.toLowerCase()} at KlarElle.`} />
     <div className="category-page-container">
       {/* Sidebar */}
       <div className="desktop-filter-sidebar">
@@ -195,7 +195,7 @@ function Category() {
         <div className="category-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
           <div>
             <h1 style={{ fontSize: '28px', marginBottom: '8px', textTransform: collection ? 'none' : 'capitalize' }}>{categoryName}</h1>
-            <p style={{ color: '#666' }}>{collection?.tagline || 'Explore all Klarelle styles.'}</p>
+            <p style={{ color: '#666' }}>{collection?.tagline || 'Explore all KlarElle styles.'}</p>
           </div>
           <button 
             className="mobile-filter-btn" 

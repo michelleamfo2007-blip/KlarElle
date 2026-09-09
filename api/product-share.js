@@ -12,8 +12,8 @@ function escapeHtml(value) {
 export default async function handler(req, res) {
   const id = req.query.id;
   const pageUrl = `https://www.klarelle.store/product/${id || ''}`;
-  let title = 'KLARELLE';
-  let description = 'KLARELLE — curated fashion chosen for quality, fit, and the feminine silhouette.';
+  let title = 'KlarElle';
+  let description = 'KlarElle — curated fashion chosen for quality, fit, and the feminine silhouette.';
   let image = '';
   let jsonLd = null;
 
@@ -29,7 +29,7 @@ export default async function handler(req, res) {
         .eq('id', id)
         .maybeSingle();
       if (data?.name) {
-        title = `${data.name} | KLARELLE`;
+        title = `${data.name} | KlarElle`;
         description = pageDescription(data.description, description);
         image = absoluteUrl(data.image_url);
         const soldOut = (Number(data.stock) || 0) + (Number(data.stock_international) || 0) <= 0;
@@ -60,7 +60,7 @@ export default async function handler(req, res) {
     <meta name="description" content="${safeDescription}" />
     <link rel="canonical" href="${safeUrl}" />
     <meta property="og:type" content="product" />
-    <meta property="og:site_name" content="KLARELLE" />
+    <meta property="og:site_name" content="KlarElle" />
     <meta property="og:title" content="${safeTitle}" />
     <meta property="og:description" content="${safeDescription}" />
     <meta property="og:url" content="${safeUrl}" />

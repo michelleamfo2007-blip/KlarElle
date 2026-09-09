@@ -438,7 +438,7 @@ function Home() {
         </div>
 
         <div className="hero-text-container">
-          <div className="hero-presents">KLARELLE</div>
+          <div className="hero-presents">KlarElle</div>
           <h1 className="hero-title">{websiteContent.heroTitle}</h1>
           
           {waitlistStatus === 'success' ? (

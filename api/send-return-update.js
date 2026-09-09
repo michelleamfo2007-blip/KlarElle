@@ -35,7 +35,7 @@ export default async function handler(req, res) {
           <p><strong>Return Instructions:</strong></p>
           <p>Please securely pack the items and ship them to the following address:</p>
           <p style="padding: 10px; background: #f5f5f5; border-radius: 4px;">
-            Klarelle Returns<br/>
+            KlarElle Returns<br/>
             123 Fashion Street<br/>
             Suite 400<br/>
             Accra, Ghana
@@ -74,7 +74,7 @@ export default async function handler(req, res) {
           <p>Hi there,</p>
           <p>Your return #${returnId.substring(0,8).toUpperCase()} is now complete!</p>
           <p>We have successfully processed your refund/store credit. Please allow 3-7 business days for the funds to reflect in your account, depending on your original payment method.</p>
-          <p>Thank you for shopping with Klarelle!</p>
+          <p>Thank you for shopping with KlarElle!</p>
         `;
         break;
       default:

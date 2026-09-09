@@ -24,7 +24,7 @@ function KlarelleSizeGuide({
   return (
     <div style={{ background: '#f6f1ea', padding: '28px 20px 24px', textAlign: 'center' }}>
       <div style={{ fontSize: '11px', letterSpacing: '0.28em', textTransform: 'uppercase', color: '#111', marginBottom: '10px' }}>Size Guide</div>
-      <div style={{ fontSize: '22px', fontWeight: 800, letterSpacing: '0.18em', marginBottom: '8px' }}>KLARELLE</div>
+      <div style={{ fontSize: '22px', fontWeight: 800, letterSpacing: '0.18em', marginBottom: '8px' }}>KlarElle</div>
       <div style={{ fontSize: '10px', letterSpacing: '0.16em', textTransform: 'uppercase', color: '#666', marginBottom: '16px' }}>
         All measurements are in {unit === 'in' ? 'inches' : 'centimeters'}
       </div>

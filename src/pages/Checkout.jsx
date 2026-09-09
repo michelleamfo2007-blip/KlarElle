@@ -207,7 +207,7 @@ function Checkout() {
     return (
       <div style={{ padding: '100px 20px', textAlign: 'center', background: '#f5f5f5', minHeight: '100vh' }}>
         <h2 style={{ marginBottom: '16px' }}>Shopping opens at launch</h2>
-        <p style={{ color: '#666', marginBottom: '16px' }}>Checkout is paused until Klarelle launches. Join the VIP list for first access.</p>
+        <p style={{ color: '#666', marginBottom: '16px' }}>Checkout is paused until KlarElle launches. Join the VIP list for first access.</p>
         <Link to="/" style={{ color: '#000', textDecoration: 'underline' }}>Return Home</Link>
       </div>
     );

@@ -3,39 +3,39 @@ export const SITE_PAGES = [
     slug: 'about-us',
     title: 'About Us',
     path: '/page/about-us',
-    body: `## About Klarelle
-*Curated by Klarelle, for women.*
+    body: `## About KlarElle
+*Curated by KlarElle, for women.*
 
-Klarelle was created with one simple belief: women deserve clothing chosen with them, for them, and with the beauty of the feminine silhouette at the center.
+KlarElle was created with one simple belief: women deserve clothing chosen with them, for them, and with the beauty of the feminine silhouette at the center.
 
-Klarelle thoughtfully curates elevated pieces selected for their quality, fit, elegance and ability to celebrate the feminine silhouette.
+KlarElle thoughtfully curates elevated pieces selected for their quality, fit, elegance and ability to celebrate the feminine silhouette.
 
-At Klarelle, we believe clothing should feel as beautiful as it looks. Our curated collection blends timeless elegance with modern femininity, so women can feel confident, sophisticated, and effortlessly beautiful.
+At KlarElle, we believe clothing should feel as beautiful as it looks. Our curated collection blends timeless elegance with modern femininity, so women can feel confident, sophisticated, and effortlessly beautiful.
 
 ## Our Approach
-*Curated by Klarelle, for women.*
+*Curated by KlarElle, for women.*
 
-We pay attention to the details that matter: flattering silhouettes, quality, comfort, and versatility. We want every Klarelle piece to make you feel like the most elevated version of yourself.
+We pay attention to the details that matter: flattering silhouettes, quality, comfort, and versatility. We want every KlarElle piece to make you feel like the most elevated version of yourself.
 
 Because luxury isn’t about being loud.
 
 It’s about how you feel when you wear it.
 
 ## Our Vision
-Klarelle is more than a clothing brand. It is a celebration of the woman who knows her worth, embraces her femininity, and moves through life with confidence.
+KlarElle is more than a clothing brand. It is a celebration of the woman who knows her worth, embraces her femininity, and moves through life with confidence.
 
 We are building a brand where every woman can find pieces that make her feel seen, confident, and unforgettable.
 
-Welcome to Klarelle.
+Welcome to KlarElle.
 
-**Curated by Klarelle, for women.**`
+**Curated by KlarElle, for women.**`
   },
   {
     slug: 'influencer-collaboration',
     title: 'Influencer Collaboration',
     path: '/page/influencer-collaboration',
     body: `## Creator & Influencer Collaborations
-Klarelle collaborates with creators who share our vision of modern femininity, thoughtful design, and elevated style.
+KlarElle collaborates with creators who share our vision of modern femininity, thoughtful design, and elevated style.
 
 ## Gifted Collaborations
 For select creators, we offer gifted pieces in exchange for authentic fashion content.
@@ -44,7 +44,7 @@ For select creators, we offer gifted pieces in exchange for authentic fashion co
 As our brand grows, we will offer paid opportunities for selected creators and campaigns.
 
 ## Creator Features
-Selected creators may be featured on Klarelle’s social platforms and website.
+Selected creators may be featured on KlarElle’s social platforms and website.
 
 Apply by emailing **support@klarelle.store** with the subject “Fashion Blogger Collaboration Application”.`
   },
@@ -53,9 +53,9 @@ Apply by emailing **support@klarelle.store** with the subject “Fashion Blogger
     title: 'Social Responsibility',
     path: '/page/social-responsibility',
     body: `## Social Responsibility
-*Curated by Klarelle, for women.*
+*Curated by KlarElle, for women.*
 
-At Klarelle, we believe our responsibility extends beyond the clothes we curate.
+At KlarElle, we believe our responsibility extends beyond the clothes we curate.
 
 ## Our Planet
 We are committed to thoughtful curation, reducing unnecessary waste, and making more responsible choices in our materials, packaging, and production as we grow.
@@ -64,7 +64,7 @@ We are committed to thoughtful curation, reducing unnecessary waste, and making 
 We aim to build strong, respectful relationships with the people and partners behind our collections and continuously improve the transparency of our production.
 
 ## Our Community
-We believe in using our growth to create opportunities for others. As Klarelle grows, we are committed to supporting organizations and initiatives that empower women and communities in need.
+We believe in using our growth to create opportunities for others. As KlarElle grows, we are committed to supporting organizations and initiatives that empower women and communities in need.
 
 ## Our Promise
 We don’t believe in claiming perfection. We believe in progress, accountability, and doing better with every collection.
@@ -76,7 +76,7 @@ We don’t believe in claiming perfection. We believe in progress, accountabilit
     title: 'Shipping Info',
     path: '/page/shipping-info',
     body: `## Shipping Policy
-At Klarelle, we carefully prepare every order to ensure your pieces arrive safely and beautifully packaged. Please review our shipping policy before placing your order.
+At KlarElle, we carefully prepare every order to ensure your pieces arrive safely and beautifully packaged. Please review our shipping policy before placing your order.
 
 ## Processing Time
 All orders are processed within 3–5 business days after your order is placed.
@@ -91,7 +91,7 @@ Estimated delivery: 3–5 business days after your order has been processed.
 
 **FREE Standard Shipping on U.S. orders of $100 or more.**
 
-Shipping times are estimates and are not guaranteed. Carrier delays, weather, holidays, and other circumstances outside of Klarelle’s control may affect delivery times.
+Shipping times are estimates and are not guaranteed. Carrier delays, weather, holidays, and other circumstances outside of KlarElle’s control may affect delivery times.
 
 ## International Shipping
 We ship internationally!
@@ -102,7 +102,7 @@ Estimated international delivery: 9–15 days after your order has been processe
 
 Customers are responsible for any applicable customs fees, duties, taxes, tariffs, brokerage fees, or other import charges associated with international orders.
 
-Klarelle is not responsible for customs delays or fees imposed by the destination country.
+KlarElle is not responsible for customs delays or fees imposed by the destination country.
 
 ## Tracking Information
 Once your order has shipped, you will receive a shipping confirmation email containing your tracking information.
@@ -112,12 +112,12 @@ Please allow 24–48 hours for tracking information to update after your package
 ## Incorrect Shipping Address
 Please carefully review your shipping information before completing your purchase.
 
-If an incorrect or incomplete address is provided and the package is returned to Klarelle, the customer may be responsible for the additional shipping cost required to reship the order.
+If an incorrect or incomplete address is provided and the package is returned to KlarElle, the customer may be responsible for the additional shipping cost required to reship the order.
 
 If your order has not yet shipped, contact us as soon as possible at **support@klarelle.store**. We will do our best to assist you, but address changes cannot be guaranteed after an order has been placed.
 
 ## Lost, Stolen, or Delayed Packages
-Once an order has been shipped and handed over to the carrier, Klarelle is not responsible for carrier delays, lost packages, or packages marked as delivered but not received.
+Once an order has been shipped and handed over to the carrier, KlarElle is not responsible for carrier delays, lost packages, or packages marked as delivered but not received.
 
 If your tracking information shows that your package was delivered but you cannot locate it, please check with household members, neighbors, and around your delivery location. We also recommend contacting the carrier directly to report the issue.
 
@@ -132,18 +132,18 @@ If you need to make a change or request a cancellation, please contact us as soo
 For questions regarding your order or shipping, please contact:
 **support@klarelle.store**
 
-We appreciate your support and patience as we work to make every Klarelle order a special experience.
+We appreciate your support and patience as we work to make every KlarElle order a special experience.
 
-**Thank you for shopping Klarelle.**`
+**Thank you for shopping KlarElle.**`
   },
   {
     slug: 'returns',
     title: 'Returns',
     path: '/page/returns',
-    body: `## Klarelle Return & Exchange Policy
+    body: `## KlarElle Return & Exchange Policy
 **Effective Date: September 01 2026**
 
-At Klarelle, we want you to love every piece you purchase. Because our items are produced in limited quantities, we currently offer exchanges or store credit only. We do not offer refunds to the original form of payment.
+At KlarElle, we want you to love every piece you purchase. Because our items are produced in limited quantities, we currently offer exchanges or store credit only. We do not offer refunds to the original form of payment.
 
 ### 1. Eligibility for Exchanges or Store Credit
 To be eligible, items must:
@@ -168,7 +168,7 @@ If a customer chooses store credit, the approved return value will be issued as 
 
 Store credit:
 - Is non-refundable and cannot be redeemed for cash.
-- May be used toward future Klarelle purchases.
+- May be used toward future KlarElle purchases.
 - May be subject to any applicable promotional or product-specific restrictions.
 - Does not include original shipping charges.
 
@@ -182,12 +182,12 @@ The following items are final sale and are not eligible for exchange or store cr
 ### 5. Damaged or Incorrect Items
 If you receive an incorrect, defective, or damaged item, please contact us within 7 days of delivery with your order number and clear photos of the issue.
 
-If the issue is verified as a fulfillment or manufacturing error, Klarelle will provide an appropriate replacement or store credit at no additional cost to the customer.
+If the issue is verified as a fulfillment or manufacturing error, KlarElle will provide an appropriate replacement or store credit at no additional cost to the customer.
 
 ### 6. Return Shipping
 Customers are responsible for return shipping costs unless the item received was incorrect, defective, or damaged due to an error on our part.
 
-We recommend using a trackable shipping service. Klarelle is not responsible for packages lost or damaged while being returned.
+We recommend using a trackable shipping service. KlarElle is not responsible for packages lost or damaged while being returned.
 
 ### 7. How to Request an Exchange or Store Credit
 To initiate a return, contact us at **support@klarelle.store** within the applicable return period. Please include:
@@ -197,21 +197,21 @@ To initiate a return, contact us at **support@klarelle.store** within the applic
 - Reason for the return
 - Requested size/item for an exchange, if applicable
 
-Do not ship an item back before receiving return instructions from Klarelle.
+Do not ship an item back before receiving return instructions from KlarElle.
 
 ### 8. Processing Time
 Once your return is received, please allow 3–7 business days for inspection and processing. Store credit will be issued after the return has been approved.
 
-By placing an order with Klarelle, the customer acknowledges and agrees to this Return & Exchange Policy.
+By placing an order with KlarElle, the customer acknowledges and agrees to this Return & Exchange Policy.
 
-Klarelle reserves the right to refuse returns that do not meet the requirements outlined above.`
+KlarElle reserves the right to refuse returns that do not meet the requirements outlined above.`
   },
   {
     slug: 'how-to-order',
     title: 'How to Order',
     path: '/page/how-to-order',
     body: `## How to Order
-Ordering from Klarelle is simple and secure!
+Ordering from KlarElle is simple and secure!
 
 - Browse our collections and select the item you love.
 - Choose your color and size, then click ADD TO CART.
@@ -239,7 +239,7 @@ All transactions are securely encrypted, ensuring your financial information is 
     title: 'Rewards',
     path: '/page/rewards',
     body: `## Rewards
-Klarelle does not currently offer a shopping points or rewards program. Discounts are applied with voucher codes at checkout when available.`
+KlarElle does not currently offer a shopping points or rewards program. Discounts are applied with voucher codes at checkout when available.`
   },
   {
     slug: 'faq',
@@ -247,8 +247,8 @@ Klarelle does not currently offer a shopping points or rewards program. Discount
     path: '/page/faq',
     body: `## Launch
 
-### When does Klarelle launch?
-Klarelle officially launches on September 24, 2026.
+### When does KlarElle launch?
+KlarElle officially launches on September 24, 2026.
 
 ### Can I order before the launch?
 Items may be available to preview before launch, but purchasing will open on September 24. Join our VIP list to receive launch updates and early-access information.
@@ -287,14 +287,14 @@ We make reasonable efforts to display colors and details accurately. However, li
 We accept Visa, Mastercard, American Express, Discover, Klarna and any additional payment options displayed at checkout. Available installment-payment methods may depend on your location and eligibility.
 
 ### Is my payment information secure?
-Yes. Payments are processed through secure third-party payment providers. Klarelle does not directly store your complete card information.
+Yes. Payments are processed through secure third-party payment providers. KlarElle does not directly store your complete card information.
 
 ### Can I use more than one payment method?
 Only one payment method can generally be used per order unless another option is displayed during checkout.
 
 ## Shipping and Delivery
 
-### Where does Klarelle ship?
+### Where does KlarElle ship?
 We ship throughout the United States and to selected international destinations. Available shipping services will be displayed at checkout.
 
 ### How long does order processing take?
@@ -326,7 +326,7 @@ Yes. Customers must provide a complete and accurate shipping address. Contact us
 
 ## Returns and Exchanges
 
-### What is Klarelle’s return policy?
+### What is KlarElle’s return policy?
 Eligible items may be returned within seven days of delivery. Approved returns are issued as an exchange or store credit. We do not provide refunds to the original payment method except where required by law or specifically stated in our policy.
 
 ### What condition must returned items be in?
@@ -346,24 +346,24 @@ The following items are not eligible for exchange or store credit:
 Email **support@klarelle.store** within seven days of delivery. Include your order number, name, item being returned, reason for the request and requested replacement, if applicable. Do not send an item back before receiving authorization and return instructions.
 
 ### Who pays for return shipping?
-Customers are responsible for return-shipping costs unless the item received was incorrect, defective or damaged because of an error by Klarelle.
+Customers are responsible for return-shipping costs unless the item received was incorrect, defective or damaged because of an error by KlarElle.
 
 ### What if I receive a damaged, defective or incorrect item?
-Contact **support@klarelle.store** within seven days of delivery. Include your order number and clear photographs or video showing the item, packaging, tags and shipping label. Once verified, Klarelle will provide an appropriate resolution, such as a replacement, exchange, store credit or refund where required by law.
+Contact **support@klarelle.store** within seven days of delivery. Include your order number and clear photographs or video showing the item, packaging, tags and shipping label. Once verified, KlarElle will provide an appropriate resolution, such as a replacement, exchange, store credit or refund where required by law.
 
 ### Are original shipping charges refundable?
-Original shipping charges are non-refundable unless Klarelle made an error with your order or applicable law requires otherwise.
+Original shipping charges are non-refundable unless KlarElle made an error with your order or applicable law requires otherwise.
 
 ### How long does return processing take?
 Once your return is received, please allow 3–7 business days for inspection and processing. You will receive confirmation by email after your exchange or store credit has been approved.
 
 ## Products and Care
 
-### How should I care for my Klarelle item?
+### How should I care for my KlarElle item?
 Always follow the care label attached to the garment. Delicate, embellished, structured and specialty-fabric garments may require hand washing or professional dry cleaning.
 
 ### Will sold-out items be restocked?
-Selected styles may be restocked, but restocks are not guaranteed. Join our mailing list and follow Klarelle on social media for availability announcements.
+Selected styles may be restocked, but restocks are not guaranteed. Join our mailing list and follow KlarElle on social media for availability announcements.
 
 ## Promotions
 
@@ -375,7 +375,7 @@ Certain products, collections, gift cards and final-sale items may be excluded. 
 
 ## Contact Us
 
-### How can I contact Klarelle?
+### How can I contact KlarElle?
 Contact our customer-care team through the Contact Us page, WhatsApp or **support@klarelle.store**. Please include your full name and order number when contacting us about an order.`
   },
   {
@@ -385,7 +385,7 @@ Contact our customer-care team through the Contact Us page, WhatsApp or **suppor
     body: `## Privacy Policy
 Effective Date: September 1, 2026
 
-Klarelle (“we,” “us,” or “our”) respects your privacy. This policy explains how we collect, use, and protect information when you visit **www.klarelle.store** or place an order.
+KlarElle (“we,” “us,” or “our”) respects your privacy. This policy explains how we collect, use, and protect information when you visit **www.klarelle.store** or place an order.
 
 ### Information We Collect
 We may collect:
@@ -433,7 +433,7 @@ Placing an order is an offer to purchase. We may accept or decline an order if a
 Delivery estimates are provided at checkout and may change after an order is placed. Once a package is handed to the carrier, transit times are outside our control. You are responsible for providing a complete and accurate shipping address.
 
 ### Returns and Exchanges
-Eligible exchanges or store credit are accepted within seven days of delivery. Items must be unworn, unwashed, unused, and returned with original tags. Klarelle does not offer refunds to the original form of payment except where required by law or when an item arrives damaged, defective, or incorrect due to our error. See our Returns page for full details.
+Eligible exchanges or store credit are accepted within seven days of delivery. Items must be unworn, unwashed, unused, and returned with original tags. KlarElle does not offer refunds to the original form of payment except where required by law or when an item arrives damaged, defective, or incorrect due to our error. See our Returns page for full details.
 
 ### Product Information
 We try to show colors, fabrics, and measurements accurately. Device screens, lighting, and dye lots can cause slight differences. Size recommendations are guidance only and do not guarantee fit.
@@ -442,16 +442,16 @@ We try to show colors, fabrics, and measurements accurately. Device screens, lig
 If an item is offered as a preorder, payment is taken at checkout and the item ships after production. Processing times are shown on the product page.
 
 ### Intellectual Property
-Klarelle branding, website copy, original photography, graphics and other content created by or for Klarelle are owned by or licensed to Klarelle. Product designs supplied by third-party manufacturers remain the property of their respective rights holders.
+KlarElle branding, website copy, original photography, graphics and other content created by or for KlarElle are owned by or licensed to KlarElle. Product designs supplied by third-party manufacturers remain the property of their respective rights holders.
 
 ### Limitation of Liability
-To the fullest extent permitted by law, Klarelle is not liable for indirect or consequential losses arising from use of the site or delay in delivery. Our total liability for any order is limited to the amount you paid for that order.
+To the fullest extent permitted by law, KlarElle is not liable for indirect or consequential losses arising from use of the site or delay in delivery. Our total liability for any order is limited to the amount you paid for that order.
 
 ### Contact Before Disputes
 If you have a problem with an order, please contact **support@klarelle.store** and include your order number before starting a payment dispute or chargeback. Direct contact usually allows a faster resolution.
 
 ### Contact
-Klarelle
+KlarElle
 www.klarelle.store
 support@klarelle.store`
   }

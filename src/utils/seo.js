@@ -1,5 +1,5 @@
 export const SITE_URL = 'https://www.klarelle.store';
-export const SITE_NAME = 'KLARELLE';
+export const SITE_NAME = 'KlarElle';
 export const DEFAULT_SHARE_IMAGE = `${SITE_URL}/og-image.png`;
 
 export function absoluteUrl(url) {
@@ -36,12 +36,12 @@ export function buildProductJsonLd(product, extras = {}) {
     '@context': 'https://schema.org',
     '@type': 'Product',
     name: product.name,
-    description: pageDescription(product.description, `${product.name} from Klarelle.`),
+    description: pageDescription(product.description, `${product.name} from KlarElle.`),
     image: image ? [image] : undefined,
     sku: product.sku || undefined,
     brand: {
       '@type': 'Brand',
-      name: 'Klarelle'
+      name: 'KlarElle'
     },
     offers: {
       '@type': 'Offer',
@@ -52,7 +52,7 @@ export function buildProductJsonLd(product, extras = {}) {
       itemCondition: 'https://schema.org/NewCondition',
       seller: {
         '@type': 'Organization',
-        name: 'Klarelle'
+        name: 'KlarElle'
       }
     }
   };

@@ -96,14 +96,14 @@ export default async function handler(req, res) {
         .or('notified.eq.false,notified.is.null');
 
       const productUrl = `https://www.klarelle.store/product/${productId}`;
-      const name = productName || 'your Klarelle dress';
+      const name = productName || 'your KlarElle dress';
       const emails = [...new Set((requests || []).map((row) => row.email).filter(Boolean))];
 
       for (const to of emails) {
         try {
           await sendEmail({
             to,
-            subject: `${name} is now available at Klarelle`,
+            subject: `${name} is now available at KlarElle`,
             html: `
               <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #111;">
                 <h1 style="font-family: Georgia, serif; font-weight: normal; margin-bottom: 24px;">It's here.</h1>

@@ -29,7 +29,7 @@ function StaticPage({ slug }) {
     <div style={{ padding: '60px 20px', maxWidth: '800px', margin: '0 auto', minHeight: '60vh' }}>
       <SEO
         title={heading}
-        description={pageDescription(body, `${heading} — Klarelle.`)}
+        description={pageDescription(body, `${heading} — KlarElle.`)}
         type="website"
       />
       <h1 style={{ fontSize: '32px', marginBottom: '24px', fontFamily: 'Playfair Display, serif' }}>{heading}</h1>

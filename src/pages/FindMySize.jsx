@@ -37,9 +37,9 @@ function FindMySize() {
     ].join('\n');
 
     const { error } = await supabase.from('support_tickets').insert([{
-      customer_name: form.name || 'Find My Klarelle Size',
+      customer_name: form.name || 'Find My KlarElle Size',
       customer_email: form.email || 'size-request@klarelle.store',
-      subject: 'Find My Klarelle Size',
+      subject: 'Find My KlarElle Size',
       message,
       status: 'Open',
       priority: 'Medium'
@@ -50,7 +50,7 @@ function FindMySize() {
       setStatus('We could not send this just now. Please email support@klarelle.store with your measurements.');
       return;
     }
-    setStatus('Thank you. Customer service will review your measurements and recommend a Klarelle size.');
+    setStatus('Thank you. Customer service will review your measurements and recommend a KlarElle size.');
     setForm({ name: '', email: '', phone: '', bust: '', waist: '', hip: '', unit: form.unit });
   };
 
@@ -58,10 +58,10 @@ function FindMySize() {
 
   return (
     <>
-      <SEO title="Find My Klarelle Size" description="Enter your bust, waist and hip measurements for a Klarelle size recommendation." />
+      <SEO title="Find My KlarElle Size" description="Enter your bust, waist and hip measurements for a KlarElle size recommendation." />
       <div style={{ maxWidth: '640px', margin: '0 auto', padding: '60px 20px', fontFamily: 'Inter, sans-serif' }}>
         <p style={{ letterSpacing: '2px', textTransform: 'uppercase', fontSize: '12px', color: '#BCA38F', marginBottom: '8px' }}>Fit</p>
-        <h1 style={{ fontFamily: 'Playfair Display, serif', fontSize: '36px', fontWeight: 400, margin: '0 0 12px' }}>Find My Klarelle Size</h1>
+        <h1 style={{ fontFamily: 'Playfair Display, serif', fontSize: '36px', fontWeight: 400, margin: '0 0 12px' }}>Find My KlarElle Size</h1>
         <p style={{ color: '#555', lineHeight: 1.7, marginBottom: '32px' }}>
           Enter your bust, waist and hip measurements. Our customer service team will recommend a size. A recommendation is guidance and does not guarantee individual fit.
         </p>

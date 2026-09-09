@@ -9,7 +9,7 @@ function SEO({ title, description, canonicalUrl, image, type = 'website', jsonLd
     const fullTitle = title ? `${title} | ${SITE_NAME}` : SITE_NAME;
     document.title = fullTitle;
 
-    const defaultDesc = 'KLARELLE — curated fashion chosen for quality, fit, and the feminine silhouette.';
+    const defaultDesc = 'KlarElle — curated fashion chosen for quality, fit, and the feminine silhouette.';
     let metaDescription = document.querySelector('meta[name="description"]');
     if (!metaDescription) {
       metaDescription = document.createElement('meta');

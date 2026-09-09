@@ -260,7 +260,7 @@ export const exportDashboardDataToExcel = async (startDate = null, endDate = nul
     const wsStartHere = workbook.addWorksheet("Start Here");
     wsStartHere.columns = [{ header: 'HOW TO USE THIS WORKBOOK', key: 'ins', width: 80 }];
     wsStartHere.addRows([
-      { ins: '1. Save this Excel file in your Klarelle SharePoint or OneDrive folder.' },
+      { ins: '1. Save this Excel file in your KlarElle SharePoint or OneDrive folder.' },
       { ins: '2. Give your team edit access so everyone works from the same file.' },
       { ins: '3. Enter dress quantities and pricing in Inventory.' },
       { ins: '4. Record customer orders, production, shipments and expenses as they happen.' },

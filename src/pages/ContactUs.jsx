@@ -49,7 +49,7 @@ function ContactUs() {
     <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '60px 20px', fontFamily: 'Inter, sans-serif' }}>
       <SEO
         title="Contact Us"
-        description="Contact Klarelle through the Contact Us form, WhatsApp, or support@klarelle.store."
+        description="Contact KlarElle through the Contact Us form, WhatsApp, or support@klarelle.store."
         type="website"
       />
       <div style={{ textAlign: 'center', marginBottom: '40px' }}>
@@ -68,7 +68,7 @@ function ContactUs() {
             <Globe size={24} color="#000" />
             <div>
               <h3 style={{ fontSize: '16px', fontWeight: 'bold', margin: '0 0 4px 0' }}>Online Store</h3>
-              <p style={{ color: '#666', margin: 0, lineHeight: '1.5' }}>Klarelle is an online store. We ship to the United States and selected international destinations. There is no walk-in location.</p>
+              <p style={{ color: '#666', margin: 0, lineHeight: '1.5' }}>KlarElle is an online store. We ship to the United States and selected international destinations. There is no walk-in location.</p>
             </div>
           </div>
 
@@ -85,7 +85,7 @@ function ContactUs() {
             <div>
               <h3 style={{ fontSize: '16px', fontWeight: 'bold', margin: '0 0 4px 0' }}>WhatsApp</h3>
               <p style={{ color: '#666', margin: 0 }}>
-                <a href="https://wa.me/233204011123" target="_blank" rel="noopener noreferrer" style={{ color: '#000' }}>Chat with Klarelle on WhatsApp</a>
+                <a href="https://wa.me/233204011123" target="_blank" rel="noopener noreferrer" style={{ color: '#000' }}>Chat with KlarElle on WhatsApp</a>
               </p>
             </div>
           </div>
