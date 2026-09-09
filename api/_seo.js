@@ -339,6 +339,19 @@ function feedAvailability(product) {
   return stock > 0 ? 'in_stock' : 'out_of_stock';
 }
 
+function feedSize(product) {
+  const raw = product?.sizes;
+  const list = Array.isArray(raw) ? raw : String(raw || '').split(/[;,]+/);
+  const size = list.map((value) => String(value).trim()).filter(Boolean)[0];
+  return size || 'M';
+}
+
+function feedImageUrl(url) {
+  const abs = absoluteUrl(url) || DEFAULT_SHARE_IMAGE;
+  if (!abs.includes('res.cloudinary.com') || !abs.includes('/upload/')) return abs;
+  return abs.replace('/upload/', '/upload/f_jpg,q_auto,w_1200/');
+}
+
 export async function buildMerchantFeedXml() {
   let catalog = [];
   try {
@@ -355,7 +368,7 @@ export async function buildMerchantFeedXml() {
       <g:title>${xmlEscape(product.name)}</g:title>
       <g:description>${xmlEscape(description)}</g:description>
       <g:link>${xmlEscape(`${SITE_URL}${productPath(product)}`)}</g:link>
-      <g:image_link>${xmlEscape(absoluteUrl(product.image_url) || DEFAULT_SHARE_IMAGE)}</g:image_link>
+      <g:image_link>${xmlEscape(feedImageUrl(product.image_url))}</g:image_link>
       <g:availability>${feedAvailability(product)}</g:availability>
       <g:price>${Number(product.price || 0).toFixed(2)} USD</g:price>
       <g:brand>KlarElle</g:brand>
@@ -364,7 +377,13 @@ export async function buildMerchantFeedXml() {
       <g:adult>no</g:adult>
       <g:gender>female</g:gender>
       <g:age_group>adult</g:age_group>
+      <g:size>${xmlEscape(feedSize(product))}</g:size>
       <g:google_product_category>Apparel &amp; Accessories &gt; Clothing &gt; Dresses</g:google_product_category>
+      <g:shipping>
+        <g:country>US</g:country>
+        <g:service>Standard</g:service>
+        <g:price>15.00 USD</g:price>
+      </g:shipping>
       ${color ? `<g:color>${xmlEscape(color)}</g:color>` : ''}
       ${product.material ? `<g:material>${xmlEscape(product.material)}</g:material>` : ''}
       ${product.sku ? `<g:mpn>${xmlEscape(product.sku)}</g:mpn>` : ''}
