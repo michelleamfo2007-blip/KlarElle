@@ -1,7 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { createSignedUpload } from './_cloudinary.js';
 
-const BATCH = 4;
+const BATCH = 2;
 
 function isHttpUrl(value) {
   return typeof value === 'string' && /^https?:\/\//i.test(value.trim());
@@ -76,9 +76,17 @@ export function rewriteProduct(product, mapped) {
 
 async function uploadRemoteFile(url) {
   const folder = isVideoUrl(url) ? 'klarelle/products/video' : 'klarelle/products';
+  const downloaded = await fetch(url, { headers: { 'User-Agent': 'KlarelleImageMigrate/1.0' } });
+  if (!downloaded.ok) {
+    throw new Error(`Could not download source image (${downloaded.status})`);
+  }
+  const buffer = Buffer.from(await downloaded.arrayBuffer());
+  const contentType = downloaded.headers.get('content-type') || (isVideoUrl(url) ? 'video/mp4' : 'image/jpeg');
+  const dataUri = `data:${contentType};base64,${buffer.toString('base64')}`;
+
   const signed = createSignedUpload({ folder });
   const body = new URLSearchParams({
-    file: url,
+    file: dataUri,
     api_key: signed.apiKey,
     timestamp: String(signed.timestamp),
     signature: signed.signature,
