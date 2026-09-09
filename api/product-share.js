@@ -23,9 +23,20 @@ function isMerchantFeedRequest(req, pathname) {
   return raw.includes('merchant-feed.xml');
 }
 
+const GOOGLE_VERIFY_FILES = {
+  '/google07666fa51a374f045.html': 'google-site-verification: google07666fa51a374f045.html'
+};
+
 export default async function handler(req, res) {
   try {
     const pathname = getRequestPath(req);
+
+    if (GOOGLE_VERIFY_FILES[pathname]) {
+      res.setHeader('Content-Type', 'text/html; charset=utf-8');
+      res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
+      res.setHeader('X-Robots-Tag', 'noindex');
+      return res.status(200).send(GOOGLE_VERIFY_FILES[pathname]);
+    }
 
     if (isSitemapRequest(req, pathname)) {
       return sendXml(res, await buildSitemapXml());
