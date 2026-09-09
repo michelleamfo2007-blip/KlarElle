@@ -391,7 +391,7 @@ function Layout() {
                         <li key={item.id} style={{ borderBottom: '1px solid #f5f5f5' }}>
                           <Link 
                             to={`/product/${item.id}`} 
-                            style={{ display: 'flex', alignItems: 'center', padding: '12px', textDecoration: 'none', color: 'inherit' }}
+                            style={{ display: 'flex', alignItems: 'center', padding: '12px', textDecoration: 'none', color: '#111827' }}
                             onClick={() => { setShowSuggestions(false); setSearchQuery(''); }}
                           >
                             <img 
@@ -399,8 +399,8 @@ function Layout() {
                               alt={item.name} 
                               style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '4px', marginRight: '12px' }} 
                             />
-                            <div style={{ flex: 1, overflow: 'hidden' }}>
-                              <div style={{ fontSize: '14px', fontWeight: '500', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.name}</div>
+                            <div style={{ flex: 1, overflow: 'hidden', color: '#111827' }}>
+                              <div style={{ fontSize: '14px', fontWeight: '500', color: '#111827', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.name}</div>
                               <div style={{ fontSize: '12px', color: '#666' }}>{formatPrice(item.price)}</div>
                             </div>
                           </Link>
