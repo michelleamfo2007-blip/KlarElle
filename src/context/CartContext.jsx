@@ -4,6 +4,7 @@ import { getFulfillmentSource } from '../utils/stock';
 import { getVariantSkuFromProduct } from '../utils/sku';
 import { isComingSoon } from '../utils/storefront';
 import { logCartActivity, saveCartSnapshot } from '../utils/cartTracking';
+import { trackAddToCart } from '../utils/analytics';
 
 const CartContext = createContext();
 
@@ -52,6 +53,7 @@ export const CartProvider = ({ children }) => {
       sku,
       email: session?.user?.email
     });
+    trackAddToCart(product, { size: selectedSize, color: selectedColor, quantity, sku });
     const label = product?.name ? `${product.name} added to cart` : 'Added to cart';
     setCartToast(label);
     window.clearTimeout(addToCart._toastTimer);

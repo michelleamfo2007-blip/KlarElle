@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Analytics } from '@vercel/analytics/react';
+import GoogleAnalytics from './components/GoogleAnalytics';
 import PageTracker from './components/PageTracker';
 import { CartProvider } from './context/CartContext';
 import { FavoritesProvider } from './context/FavoritesContext';
@@ -12,39 +13,10 @@ import Cart from './pages/Cart';
 import Favorites from './pages/Favorites';
 import Category from './pages/Category';
 import Search from './pages/Search';
-import Login from './pages/admin/Login';
-import AdminLayout from './pages/admin/AdminLayout';
-import Dashboard from './pages/admin/Dashboard';
-import UpdatePassword from './pages/admin/UpdatePassword';
-import ProductList from './pages/admin/ProductList';
-import ProductForm from './pages/admin/ProductForm';
-import Categories from './pages/admin/Categories';
-import Coupons from './pages/admin/Coupons';
-import AdminReturns from './pages/admin/AdminReturns';
-import Orders from './pages/admin/Orders';
-import Waitlist from './pages/admin/Waitlist';
-import AdminCarts from './pages/admin/AdminCarts';
-import OrderDetails from './pages/admin/OrderDetails';
-import SuperAdminLayout from './pages/super-admin/SuperAdminLayout';
-import SuperDashboard from './pages/super-admin/SuperDashboard';
-import ManageStaff from './pages/super-admin/ManageStaff';
-import GlobalSettings from './pages/super-admin/GlobalSettings';
-import SuperOrders from './pages/super-admin/SuperOrders';
-import SuperCustomers from './pages/super-admin/SuperCustomers';
-import SuperPayments from './pages/super-admin/SuperPayments';
-import SuperShipping from './pages/super-admin/SuperShipping';
-import SuperDiscounts from './pages/super-admin/SuperDiscounts';
-import SuperWebsite from './pages/super-admin/SuperWebsite';
-import SuperReviews from './pages/super-admin/SuperReviews';
-import SuperSupport from './pages/super-admin/SuperSupport';
-import SuperReports from './pages/super-admin/SuperReports';
-import SuperNotifications from './pages/super-admin/SuperNotifications';
-import SuperActivity from './pages/super-admin/SuperActivity';
 import CustomerLogin from './pages/CustomerLogin';
 import CustomerRegister from './pages/CustomerRegister';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
-import Checkout from './pages/Checkout';
 import OrderSuccess from './pages/OrderSuccess';
 import TrackOrder from './pages/TrackOrder';
 import CustomerProfile from './pages/CustomerProfile';
@@ -54,16 +26,45 @@ import Wallet from './pages/Wallet';
 import RequestReturn from './pages/RequestReturn';
 import ReturnDetails from './pages/ReturnDetails';
 import StaticPage from './pages/StaticPage';
-import AdminPages from './pages/admin/AdminPages';
 import ContactUs from './pages/ContactUs';
 import NotFound from './pages/NotFound';
 import { AuthProvider } from './context/AuthContext';
 import { CurrencyProvider } from './context/CurrencyContext';
 import './index.css';
 
+const Checkout = lazy(() => import('./pages/Checkout'));
+const Login = lazy(() => import('./pages/admin/Login'));
+const AdminLayout = lazy(() => import('./pages/admin/AdminLayout'));
+const Dashboard = lazy(() => import('./pages/admin/Dashboard'));
+const UpdatePassword = lazy(() => import('./pages/admin/UpdatePassword'));
+const ProductList = lazy(() => import('./pages/admin/ProductList'));
+const ProductForm = lazy(() => import('./pages/admin/ProductForm'));
+const Categories = lazy(() => import('./pages/admin/Categories'));
+const Coupons = lazy(() => import('./pages/admin/Coupons'));
+const AdminReturns = lazy(() => import('./pages/admin/AdminReturns'));
+const Orders = lazy(() => import('./pages/admin/Orders'));
+const Waitlist = lazy(() => import('./pages/admin/Waitlist'));
+const AdminCarts = lazy(() => import('./pages/admin/AdminCarts'));
+const OrderDetails = lazy(() => import('./pages/admin/OrderDetails'));
+const AdminPages = lazy(() => import('./pages/admin/AdminPages'));
+const SuperAdminLayout = lazy(() => import('./pages/super-admin/SuperAdminLayout'));
+const SuperDashboard = lazy(() => import('./pages/super-admin/SuperDashboard'));
+const ManageStaff = lazy(() => import('./pages/super-admin/ManageStaff'));
+const GlobalSettings = lazy(() => import('./pages/super-admin/GlobalSettings'));
+const SuperCustomers = lazy(() => import('./pages/super-admin/SuperCustomers'));
+const SuperPayments = lazy(() => import('./pages/super-admin/SuperPayments'));
+const SuperShipping = lazy(() => import('./pages/super-admin/SuperShipping'));
+const SuperWebsite = lazy(() => import('./pages/super-admin/SuperWebsite'));
+const SuperReviews = lazy(() => import('./pages/super-admin/SuperReviews'));
+const SuperSupport = lazy(() => import('./pages/super-admin/SuperSupport'));
+const SuperReports = lazy(() => import('./pages/super-admin/SuperReports'));
+const SuperNotifications = lazy(() => import('./pages/super-admin/SuperNotifications'));
+const SuperActivity = lazy(() => import('./pages/super-admin/SuperActivity'));
+
 function App() {
   return (
     <>
+      <GoogleAnalytics />
       <Analytics
         beforeSend={(event) => {
           const url = event.url || '';
@@ -79,6 +80,7 @@ function App() {
             <CartProvider>
               <Router>
                 <PageTracker />
+              <Suspense fallback={<div style={{ minHeight: '40vh' }} />}>
               <Routes>
             <Route path="/" element={<Layout />}>
               <Route index element={<Home />} />
@@ -166,6 +168,7 @@ function App() {
               <Route path="settings" element={<GlobalSettings />} />
             </Route>
           </Routes>
+              </Suspense>
           <WhatsAppButton />
         </Router>
         </CartProvider>

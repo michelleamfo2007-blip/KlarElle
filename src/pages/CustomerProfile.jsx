@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import MobileTabBar from '../components/MobileTabBar';
 import { isComingSoon, isPublishedOnStorefront } from '../utils/storefront';
+import { productPath } from '../utils/productUrl';
 import './Profile.css';
 
 function accountName(user) {
@@ -315,7 +316,7 @@ function CustomerProfile() {
             {wishlist.length > 0 ? (
               <div style={{ display: 'flex', gap: '12px', overflowX: 'auto', paddingBottom: '8px' }}>
                 {wishlist.map((item) => (
-                  <Link key={item.id} to={`/product/${item.id}`} style={{ minWidth: '100px', width: '100px', textDecoration: 'none', color: 'inherit' }}>
+                  <Link key={item.id} to={productPath(item)} style={{ minWidth: '100px', width: '100px', textDecoration: 'none', color: 'inherit' }}>
                     <img src={item.image_url || '/placeholder.png'} style={{ width: '100%', height: '130px', objectFit: 'cover', borderRadius: '4px' }} alt={item.name} />
                     <div style={{ fontSize: '12px', fontWeight: 'bold', marginTop: '4px' }}>{formatPrice(item.price)}</div>
                   </Link>
@@ -343,7 +344,7 @@ function CustomerProfile() {
               <div style={{ textAlign: 'center', padding: '16px 0', fontWeight: 'bold', color: '#333' }}>- RECOMMENDED FOR YOU -</div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
                 {recommended.map((product) => (
-                  <Link to={`/product/${product.id}`} key={product.id} style={{ background: '#fff', borderRadius: '8px', overflow: 'hidden', textDecoration: 'none', color: 'inherit' }}>
+                  <Link to={productPath(product)} key={product.id} style={{ background: '#fff', borderRadius: '8px', overflow: 'hidden', textDecoration: 'none', color: 'inherit' }}>
                     <img src={product.image_url || '/placeholder.png'} style={{ width: '100%', height: '220px', objectFit: 'cover' }} alt={product.name} />
                     <div style={{ padding: '8px' }}>
                       <div style={{ fontWeight: 'bold', fontSize: '14px' }}>{formatPrice(product.price)}</div>

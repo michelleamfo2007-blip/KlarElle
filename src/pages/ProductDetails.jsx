@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import SEO from '../components/SEO';
 import { supabase } from '../lib/supabase';
 import { Heart, Truck, RotateCcw, Share2, Star, ChevronRight, X, Ruler, ThumbsUp, ChevronLeft, LayoutGrid, Pencil, Trash2 } from 'lucide-react';
@@ -22,6 +22,10 @@ import {
   maybeLaunchProduct
 } from '../utils/storefront';
 import { applyMaterialDetails } from '../utils/materialDefaults';
+import { findProductByParam, isProductUuid, productPath } from '../utils/productUrl';
+import { galleryViewLabel } from '../utils/media';
+import { trackViewItem } from '../utils/analytics';
+import ProductImage from '../components/ProductImage';
 
 const collectProductImages = (product, color) => collectImagesForColor(product, color);
 
@@ -45,6 +49,7 @@ const CustomSlider = ({ value, min, max, onChange, marks }) => {
 
 function ProductDetails() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const { addToCart, cartItems } = useCart();
   const { toggleFavorite, isFavorite } = useFavorites();
   const { formatPrice } = useCurrency();
@@ -231,13 +236,20 @@ function ProductDetails() {
   useEffect(() => {
     const fetchProductAndMatches = async () => {
       setLoading(true);
-      const { data, error } = await supabase
-        .from('products')
-        .select('*')
-        .eq('id', id)
-        .single();
-      
-      if (!error && data) {
+      let data = null;
+      if (isProductUuid(id)) {
+        const result = await supabase.from('products').select('*').eq('id', id).maybeSingle();
+        data = result.data;
+      } else {
+        const { data: catalog } = await supabase
+          .from('products')
+          .select('*')
+          .eq('visibility', true)
+          .eq('status', 'active');
+        data = findProductByParam(catalog || [], id);
+      }
+
+      if (data) {
         const rawSizes = Array.isArray(data.sizes) ? data.sizes : (typeof data.sizes === 'string' ? [data.sizes] : []);
         const pSizes = rawSizes.flatMap(s => typeof s === 'string' ? s.split(/[;,]+/) : s).map(s => String(s).trim()).filter(Boolean);
         
@@ -316,12 +328,24 @@ function ProductDetails() {
             });
           }
         }
+      } else {
+        setProduct(null);
       }
       setLoading(false);
     };
 
     fetchProductAndMatches();
   }, [id]);
+
+  useEffect(() => {
+    if (product && isProductUuid(id)) {
+      navigate(productPath(product), { replace: true });
+    }
+  }, [product, id, navigate]);
+
+  useEffect(() => {
+    if (product) trackViewItem(product);
+  }, [product?.id]);
 
   const submitReview = async (e) => {
     e.preventDefault();
@@ -441,9 +465,9 @@ function ProductDetails() {
       description={product.description?.substring(0, 160)}
       image={productImage}
       type="product"
-      canonicalUrl={`https://www.klarelle.store/product/${product.id}`}
+      canonicalUrl={`https://www.klarelle.store${productPath(product)}`}
       jsonLd={buildProductJsonLd(product, {
-        url: `https://www.klarelle.store/product/${product.id}`,
+        url: `https://www.klarelle.store${productPath(product)}`,
         image: productImage,
         soldOut: isProductSoldOut(product),
         comingSoon,
@@ -520,7 +544,16 @@ function ProductDetails() {
           <div className="gallery-grid" ref={galleryRef}>
             {images.map((img, i) => (
               <div key={`${selectedColor}-${img}-${i}`} className={`main-image-wrap${activeImage === i ? ' is-active' : ''}`} onClick={() => { setModalImageIndex(i); setImageModalReady(false); setShowImageModal(true); }} style={{ cursor: 'zoom-in' }}>
-                <img src={img} alt={`View ${i+1}`} className="main-image" />
+                <ProductImage
+                  src={img}
+                  product={product}
+                  extras={{ color: selectedColor, view: galleryViewLabel(i) }}
+                  className="main-image"
+                  sizes="(max-width: 900px) 100vw, 640px"
+                  widths={[600, 1000, 1400]}
+                  lazy={i > 0}
+                  priority={i === 0}
+                />
                 {i === 0 && product.old_price && parseFloat(product.old_price) > parseFloat(product.price) && (
                   <div style={{ position: 'absolute', top: 16, right: 16, background: '#000', color: 'white', padding: '4px 8px', fontSize: '14px', fontWeight: 'bold' }}>
                     -{Math.round(((product.old_price - product.price) / product.old_price) * 100)}%
@@ -565,7 +598,14 @@ function ProductDetails() {
                     cursor: 'pointer'
                   }}
                 >
-                  <img src={img} alt={`Close-up ${i + 1}`} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                  <ProductImage
+                    src={img}
+                    product={product}
+                    extras={{ color: selectedColor, view: `${galleryViewLabel(i)} thumbnail` }}
+                    style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                    sizes="64px"
+                    widths={[128, 256]}
+                  />
                 </button>
               ))}
             </div>
@@ -872,8 +912,8 @@ function ProductDetails() {
                
                <div style={{ display: 'flex', gap: '12px', overflowX: 'auto', paddingBottom: '16px', WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none' }}>
                  {matchingStyles.map(p => (
-                   <Link to={`/product/${p.id}`} key={p.id} style={{ minWidth: '120px', textDecoration: 'none', color: '#000' }}>
-                     <img src={p.image_url} alt={p.name} style={{ width: '120px', height: '160px', objectFit: 'cover', borderRadius: '4px' }} />
+                   <Link to={productPath(p)} key={p.id} style={{ minWidth: '120px', textDecoration: 'none', color: '#000' }}>
+                     <ProductImage src={p.image_url} product={p} extras={{ view: 'front view' }} style={{ width: '120px', height: '160px', objectFit: 'cover', borderRadius: '4px' }} sizes="120px" widths={[240, 360]} />
                      <div style={{ fontWeight: 'bold', fontSize: '14px', marginTop: '8px' }}>{formatPrice(p.price)}</div>
                    </Link>
                  ))}
@@ -1560,7 +1600,15 @@ function ProductDetails() {
           >
             {images.map((img, i) => (
               <div key={i} style={{ flex: '0 0 100%', scrollSnapAlign: 'start', display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
-                <img src={img} alt={`Zoomed ${i+1}`} style={{ width: '100%', maxHeight: '100vh', objectFit: 'contain' }} />
+                <ProductImage
+                  src={img}
+                  product={product}
+                  extras={{ color: selectedColor, view: `zoomed ${galleryViewLabel(i)}` }}
+                  style={{ width: '100%', maxHeight: '100vh', objectFit: 'contain' }}
+                  sizes="100vw"
+                  widths={[800, 1400, 2000]}
+                  lazy={false}
+                />
               </div>
             ))}
           </div>

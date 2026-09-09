@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { useCurrency } from '../context/CurrencyContext';
 import { useCart } from '../context/CartContext';
 import { ChevronLeft, Package, Clock, CheckCircle, Truck, RefreshCcw } from 'lucide-react';
+import { productPath } from '../utils/productUrl';
 
 function MyOrders() {
   const { session } = useAuth();
@@ -162,7 +163,7 @@ function MyOrders() {
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 {cartItems.map((item) => (
-                  <Link key={item.cartItemId} to={`/product/${item.id}`} style={{ background: '#fff', borderRadius: '12px', padding: '12px', display: 'flex', gap: '12px', textDecoration: 'none', color: 'inherit' }}>
+                  <Link key={item.cartItemId} to={productPath(item)} style={{ background: '#fff', borderRadius: '12px', padding: '12px', display: 'flex', gap: '12px', textDecoration: 'none', color: 'inherit' }}>
                     <img src={item.image_url || item.image || '/placeholder.png'} alt={item.name} style={{ width: '72px', height: '96px', objectFit: 'cover', borderRadius: '8px', flexShrink: 0 }} />
                     <div style={{ minWidth: 0, flex: 1 }}>
                       <div style={{ fontWeight: 'bold', fontSize: '14px' }}>{item.name}</div>

@@ -12,6 +12,7 @@ import { COUNTRIES } from '../utils/countries';
 import { cartShipsFromInternational, getItemDeliveryEstimate } from '../utils/stock';
 import { getVariantSkuFromProduct } from '../utils/sku';
 import { STORE_LAUNCHED } from '../utils/launch';
+import { trackBeginCheckout, trackPurchase } from '../utils/analytics';
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
@@ -36,6 +37,12 @@ function Checkout() {
     cartShipsFromInternational(cartItems) ? 'CN' : 'US'
   ));
   
+  useEffect(() => {
+    if (STORE_LAUNCHED && cartItems.length > 0) {
+      trackBeginCheckout(cartItems, cartTotal);
+    }
+  }, []);
+
   useEffect(() => {
     const fetchSettings = async () => {
       const { data } = await supabase.from('store_settings').select('shipping_threshold').eq('id', 1).single();
@@ -265,6 +272,11 @@ function Checkout() {
 
       localStorage.setItem('klarelle_saved_address', JSON.stringify(formData));
 
+      trackPurchase({
+        transactionId: data.order_id || paymentIntent?.id,
+        value: finalTotal,
+        items: cartItems
+      });
       clearCart();
       navigate('/order-success');
     } catch (error) {

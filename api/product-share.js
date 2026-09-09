@@ -1,14 +1,26 @@
 import {
   applySeoToHtml,
+  buildMerchantFeedXml,
   buildSitemapXml,
   getRequestPath,
   loadSpaShell,
   resolveSeo
 } from './_seo.js';
 
+function sendXml(res, xml) {
+  res.setHeader('Content-Type', 'application/xml; charset=utf-8');
+  res.setHeader('Cache-Control', 'public, max-age=300');
+  return res.status(200).send(xml);
+}
+
 function isSitemapRequest(req, pathname) {
   const raw = `${req.url || ''} ${pathname || ''}`;
   return raw.includes('sitemap.xml');
+}
+
+function isMerchantFeedRequest(req, pathname) {
+  const raw = `${req.url || ''} ${pathname || ''}`;
+  return raw.includes('merchant-feed.xml');
 }
 
 export default async function handler(req, res) {
@@ -16,17 +28,21 @@ export default async function handler(req, res) {
     const pathname = getRequestPath(req);
 
     if (isSitemapRequest(req, pathname)) {
-      res.setHeader('Content-Type', 'application/xml; charset=utf-8');
-      res.setHeader('Cache-Control', 'public, max-age=300');
-      return res.status(200).send(await buildSitemapXml());
+      return sendXml(res, await buildSitemapXml());
+    }
+
+    if (isMerchantFeedRequest(req, pathname)) {
+      return sendXml(res, await buildMerchantFeedXml());
     }
 
     const resolved = await resolveSeo(pathname);
 
     if (resolved.type === 'sitemap') {
-      res.setHeader('Content-Type', 'application/xml; charset=utf-8');
-      res.setHeader('Cache-Control', 'public, max-age=300');
-      return res.status(200).send(await buildSitemapXml());
+      return sendXml(res, await buildSitemapXml());
+    }
+
+    if (resolved.type === 'merchant-feed') {
+      return sendXml(res, await buildMerchantFeedXml());
     }
 
     if (resolved.status === 301 && resolved.redirect) {
@@ -41,7 +57,7 @@ export default async function handler(req, res) {
     return res.status(resolved.status || 200).send(html);
   } catch (error) {
     console.error('seo document failed', error);
-    if (`${req.url || ''}`.includes('sitemap')) {
+    if (`${req.url || ''}`.includes('sitemap') || `${req.url || ''}`.includes('merchant-feed')) {
       res.setHeader('Content-Type', 'application/xml; charset=utf-8');
       return res.status(200).send(`<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">

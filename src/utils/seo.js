@@ -1,3 +1,5 @@
+import { productPath } from './productUrl.js';
+
 export const SITE_URL = 'https://www.klarelle.store';
 export const SITE_NAME = 'KlarElle';
 export const DEFAULT_SHARE_IMAGE = `${SITE_URL}/og-home.jpg`;
@@ -21,7 +23,7 @@ export function pageDescription(text, fallback = '') {
 export function buildProductJsonLd(product, extras = {}) {
   if (!product?.name) return null;
 
-  const url = extras.url || `${SITE_URL}/product/${product.id}`;
+  const url = extras.url || `${SITE_URL}${productPath(product)}`;
   const image = extras.image || absoluteUrl(product.image_url);
   const price = Number(product.price || 0);
   const soldOut = extras.soldOut === true;

@@ -10,6 +10,7 @@ import { STORE_COLLECTIONS } from '../data/collections';
 import { DEFAULT_WEBSITE_CONTENT, normalizeWebsiteContent } from '../data/websiteContent';
 import SEO from './SEO';
 import { isNoindexPath } from '../utils/seoPages';
+import { productPath } from '../utils/productUrl';
 
 function Layout() {
   const { t, i18n } = useTranslation();
@@ -393,7 +394,7 @@ function Layout() {
                       {suggestions.map((item) => (
                         <li key={item.id} style={{ borderBottom: '1px solid #f5f5f5' }}>
                           <Link 
-                            to={`/product/${item.id}`} 
+                            to={productPath(item)} 
                             style={{ display: 'flex', alignItems: 'center', padding: '12px', textDecoration: 'none', color: '#111827' }}
                             onClick={() => { setShowSuggestions(false); setSearchQuery(''); }}
                           >

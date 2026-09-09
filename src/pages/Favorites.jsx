@@ -9,6 +9,8 @@ import ProductRating from '../components/ProductRating';
 import { attachReviewStats } from '../utils/reviews';
 import { isProductSoldOut } from '../utils/stock';
 import { isComingSoon } from '../utils/storefront';
+import { productPath } from '../utils/productUrl';
+import ProductImage from '../components/ProductImage';
 
 function Favorites() {
   const { favorites, toggleFavorite, isFavorite } = useFavorites();
@@ -70,8 +72,8 @@ function Favorites() {
           {products.map((product) => (
             <div className="luxury-card" key={`fav-${product.id}`}>
               <div className="luxury-image-wrap">
-                <Link to={`/product/${product.id}`} className="luxury-image-link">
-                  <img src={product.image_url || '/placeholder.png'} alt={product.name} className="luxury-image primary" style={{ opacity: isProductSoldOut(product) ? 0.6 : 1 }} />
+                <Link to={productPath(product)} className="luxury-image-link">
+                  <ProductImage src={product.image_url || '/placeholder.png'} product={product} className="luxury-image primary" style={{ opacity: isProductSoldOut(product) ? 0.6 : 1 }} />
                 </Link>
                 
                 {isComingSoon(product) ? (
@@ -91,7 +93,7 @@ function Favorites() {
                   >
                     <Heart size={16} fill={isFavorite(product.id) ? "currentColor" : "none"} />
                   </div>
-                  <Link to={`/product/${product.id}`} className="luxury-action-icon" style={{ display: 'flex', color: 'inherit', textDecoration: 'none' }} title="Quick View"><Eye size={16} /></Link>
+                  <Link to={productPath(product)} className="luxury-action-icon" style={{ display: 'flex', color: 'inherit', textDecoration: 'none' }} title="Quick View"><Eye size={16} /></Link>
                   {!isComingSoon(product) && !isProductSoldOut(product) && (
                     <div className="luxury-action-icon" title="Add to Cart" onClick={() => addToCart(product)}><ShoppingBag size={16} /></div>
                   )}
@@ -100,7 +102,7 @@ function Favorites() {
               
               <div className="luxury-info">
                 <div className="luxury-category">{product.category || 'Clothing'}</div>
-                <Link to={`/product/${product.id}`} style={{ textDecoration: 'none' }}>
+                <Link to={productPath(product)} style={{ textDecoration: 'none' }}>
                   <h3 className="luxury-title">{product.name}</h3>
                 </Link>
                 
@@ -116,7 +118,7 @@ function Favorites() {
                 
                 <ProductRating count={product.reviewCount} average={product.reviewAvg} className="luxury-rating" />
                 {isComingSoon(product) ? (
-                  <Link to={`/product/${product.id}`} className="luxury-add-btn" style={{ textDecoration: 'none', display: 'block', textAlign: 'center' }}>Notify Me When Available</Link>
+                  <Link to={productPath(product)} className="luxury-add-btn" style={{ textDecoration: 'none', display: 'block', textAlign: 'center' }}>Notify Me When Available</Link>
                 ) : (
                   <button className="luxury-add-btn" onClick={() => addToCart(product)}>Add to Cart</button>
                 )}

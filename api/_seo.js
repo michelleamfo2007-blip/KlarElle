@@ -22,6 +22,7 @@ import {
   PERMANENT_REDIRECTS
 } from '../src/utils/seoPages.js';
 import { isComingSoon, isPublishedOnStorefront, matchesCollection } from '../src/utils/storefront.js';
+import { findProductByParam, isProductUuid, productPath } from '../src/utils/productUrl.js';
 
 const NOT_FOUND = {
   status: 404,
@@ -142,6 +143,10 @@ export async function resolveSeo(pathname) {
     return { type: 'sitemap' };
   }
 
+  if (path === '/merchant-feed.xml') {
+    return { type: 'merchant-feed' };
+  }
+
   if (PERMANENT_REDIRECTS[path]) {
     return { status: 301, redirect: `${SITE_URL}${PERMANENT_REDIRECTS[path]}` };
   }
@@ -211,25 +216,30 @@ export async function resolveSeo(pathname) {
   }
 
   if (path.startsWith('/product/')) {
-    const id = path.slice('/product/'.length);
+    const param = decodeURIComponent(path.slice('/product/'.length).split('/')[0] || '');
     const products = await loadPublishedProducts();
-    const product = products.find((item) => item.id === id);
+    const product = findProductByParam(products, param);
     if (!product || !isPublishedOnStorefront(product)) {
       return { ...NOT_FOUND, canonical: `${SITE_URL}${path}` };
+    }
+    const prettyPath = productPath(product);
+    if (isProductUuid(param) || path !== prettyPath) {
+      return { status: 301, redirect: `${SITE_URL}${prettyPath}` };
     }
     const image = absoluteUrl(product.image_url);
     const soldOut = (Number(product.stock) || 0) + (Number(product.stock_international) || 0) <= 0;
     const collectionSlug = Array.isArray(product.categories) ? product.categories[0] : product.category;
+    const url = `${SITE_URL}${prettyPath}`;
     return {
       status: 200,
       title: formatDocumentTitle(product.name),
       description: pageDescription(product.description, `${product.name} from KlarElle.`),
-      canonical: `${SITE_URL}/product/${product.id}`,
+      canonical: url,
       image: image || DEFAULT_SHARE_IMAGE,
       type: 'product',
       jsonLd: [
         buildProductJsonLd(product, {
-          url: `${SITE_URL}/product/${product.id}`,
+          url,
           image,
           soldOut,
           comingSoon: isComingSoon(product)
@@ -237,7 +247,7 @@ export async function resolveSeo(pathname) {
         buildBreadcrumbJsonLd([
           { name: 'Home', url: `${SITE_URL}/` },
           collectionSlug ? { name: String(collectionSlug).replace(/-/g, ' '), url: `${SITE_URL}/category/${collectionSlug}` } : null,
-          { name: product.name, url: `${SITE_URL}/product/${product.id}` }
+          { name: product.name, url }
         ].filter(Boolean))
       ]
     };
@@ -260,7 +270,13 @@ function isCleanSitemapUrl(loc) {
 }
 
 export async function buildSitemapXml() {
-  const products = (await loadPublishedProducts()).filter((product) => isPublishedOnStorefront(product) && !isComingSoon(product));
+  let catalog = [];
+  try {
+    catalog = await loadPublishedProducts();
+  } catch (error) {
+    console.error('sitemap catalog failed', error);
+  }
+  const products = catalog.filter((product) => isPublishedOnStorefront(product) && !isComingSoon(product));
   const now = new Date().toISOString();
   const categorySlugs = [
     ...STORE_COLLECTIONS.map((collection) => collection.slug),
@@ -290,7 +306,7 @@ export async function buildSitemapXml() {
 
   for (const product of products) {
     urls.push({
-      loc: `${SITE_URL}/product/${product.id}`,
+      loc: `${SITE_URL}${productPath(product)}`,
       lastmod: product.updated_at || product.created_at || now,
       priority: '0.8'
     });
@@ -307,5 +323,55 @@ ${safeUrls.map((url) => `  <url>
     <priority>${url.priority}</priority>
   </url>`).join('\n')}
 </urlset>
+`;
+}
+
+function feedAvailability(product) {
+  if (isComingSoon(product)) return 'preorder';
+  const stock = (Number(product.stock) || 0) + (Number(product.stock_international) || 0);
+  return stock > 0 ? 'in_stock' : 'out_of_stock';
+}
+
+export async function buildMerchantFeedXml() {
+  let catalog = [];
+  try {
+    catalog = await loadPublishedProducts();
+  } catch (error) {
+    console.error('merchant feed catalog failed', error);
+  }
+  const products = catalog.filter((product) => isPublishedOnStorefront(product));
+  const items = products.map((product) => {
+    const color = Array.isArray(product.colors) ? product.colors[0] : product.colors;
+    const description = pageDescription(product.description, `${product.name} from KlarElle.`).slice(0, 5000);
+    return `    <item>
+      <g:id>${xmlEscape(product.sku || product.id)}</g:id>
+      <g:title>${xmlEscape(product.name)}</g:title>
+      <g:description>${xmlEscape(description)}</g:description>
+      <g:link>${xmlEscape(`${SITE_URL}${productPath(product)}`)}</g:link>
+      <g:image_link>${xmlEscape(absoluteUrl(product.image_url) || DEFAULT_SHARE_IMAGE)}</g:image_link>
+      <g:availability>${feedAvailability(product)}</g:availability>
+      <g:price>${Number(product.price || 0).toFixed(2)} USD</g:price>
+      <g:brand>KlarElle</g:brand>
+      <g:condition>new</g:condition>
+      <g:identifier_exists>false</g:identifier_exists>
+      <g:adult>no</g:adult>
+      <g:gender>female</g:gender>
+      <g:age_group>adult</g:age_group>
+      <g:google_product_category>Apparel &amp; Accessories &gt; Clothing &gt; Dresses</g:google_product_category>
+      ${color ? `<g:color>${xmlEscape(color)}</g:color>` : ''}
+      ${product.material ? `<g:material>${xmlEscape(product.material)}</g:material>` : ''}
+      ${product.sku ? `<g:mpn>${xmlEscape(product.sku)}</g:mpn>` : ''}
+    </item>`;
+  });
+
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:g="http://base.google.com/ns/1.0">
+  <channel>
+    <title>KlarElle Products</title>
+    <link>${SITE_URL}/</link>
+    <description>KlarElle occasion dresses and evening gowns.</description>
+${items.join('\n')}
+  </channel>
+</rss>
 `;
 }

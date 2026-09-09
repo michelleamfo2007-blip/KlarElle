@@ -4,6 +4,8 @@ import SEO from '../components/SEO';
 import { supabase } from '../lib/supabase';
 import { useCurrency } from '../context/CurrencyContext';
 import { isComingSoon, getReleaseLabel } from '../utils/storefront';
+import { productPath } from '../utils/productUrl';
+import ProductImage from '../components/ProductImage';
 
 function Search() {
   const [products, setProducts] = useState([]);
@@ -62,9 +64,9 @@ function Search() {
         <div className="product-grid">
           {products.map((product) => (
             <div key={product.id} className="product-card">
-              <Link to={`/product/${product.id}`} className="product-image-container">
+              <Link to={productPath(product)} className="product-image-container">
                 {product.image_url ? (
-                  <img src={product.image_url} alt={product.name} className="product-image" />
+                  <ProductImage src={product.image_url} product={product} className="product-image" />
                 ) : (
                   <div style={{ width: '100%', aspectRatio: '2/3', background: '#f5f5f5', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     No Image
@@ -75,7 +77,7 @@ function Search() {
                 </div>
               </Link>
               <div className="product-info">
-                <Link to={`/product/${product.id}`} className="product-title">{product.name}</Link>
+                <Link to={productPath(product)} className="product-title">{product.name}</Link>
                 {isComingSoon(product) && (
                   <div style={{ fontSize: '12px', color: '#666', marginTop: '4px' }}>Coming Soon · {getReleaseLabel(product)}</div>
                 )}

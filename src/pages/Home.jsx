@@ -13,17 +13,20 @@ import ColorPreviewDots, { useProductColorImage } from '../components/ColorPrevi
 import { isComingSoon, maybeLaunchProduct } from '../utils/storefront';
 import { DEFAULT_WEBSITE_CONTENT, normalizeWebsiteContent } from '../data/websiteContent';
 import { buildOrganizationJsonLd, HOME_DESCRIPTION, HOME_TITLE } from '../utils/seoPages';
+import { productPath } from '../utils/productUrl';
+import { trackSelectItem } from '../utils/analytics';
+import ProductImage from '../components/ProductImage';
 import heroVideo from '../../IMG_2870 klarelle.MP4';
 
-function HomeProductCard({ product, formatPrice, addToCart, toggleFavorite, isFavorite, showToast }) {
+function HomeProductCard({ product, formatPrice, addToCart, toggleFavorite, isFavorite, showToast, priority }) {
   const { colors, selectedColor, setSelectedColor, image } = useProductColorImage(product);
   const soldOut = isProductSoldOut(product);
 
   return (
     <div className="luxury-card">
       <div className="luxury-image-wrap">
-        <Link to={`/product/${product.id}`} className="luxury-image-link">
-          <img key={selectedColor} src={image || '/placeholder.png'} alt={product.name} className="luxury-image primary" style={{ opacity: soldOut ? 0.6 : 1 }} />
+        <Link to={productPath(product)} className="luxury-image-link" onClick={() => trackSelectItem(product)}>
+          <ProductImage key={selectedColor} src={image || '/placeholder.png'} product={product} extras={{ color: selectedColor }} className="luxury-image primary" style={{ opacity: soldOut ? 0.6 : 1 }} priority={priority} />
         </Link>
         {soldOut ? (
           <div className="luxury-badge" style={{ background: '#000', color: '#fff', letterSpacing: '1px' }}>SOLD OUT</div>
@@ -39,12 +42,12 @@ function HomeProductCard({ product, formatPrice, addToCart, toggleFavorite, isFa
           >
             <Heart size={16} fill={isFavorite(product.id) ? 'currentColor' : 'none'} />
           </div>
-          <Link to={`/product/${product.id}`} className="luxury-action-icon" style={{ display: 'flex', color: 'inherit', textDecoration: 'none' }} title="Quick View"><Eye size={16} /></Link>
+          <Link to={productPath(product)} className="luxury-action-icon" style={{ display: 'flex', color: 'inherit', textDecoration: 'none' }} title="Quick View"><Eye size={16} /></Link>
         </div>
       </div>
       <div className="luxury-info">
         <div className="luxury-category">{product.category || 'Clothing'}</div>
-        <Link to={`/product/${product.id}`} style={{ textDecoration: 'none' }}>
+        <Link to={productPath(product)} style={{ textDecoration: 'none' }} onClick={() => trackSelectItem(product)}>
           <h3 className="luxury-title">{product.name}</h3>
         </Link>
         <div className="luxury-price-row">
@@ -84,10 +87,19 @@ function Home() {
   const { toggleFavorite, isFavorite } = useFavorites();
   const { formatPrice } = useCurrency();
   const heroVideoRef = useRef(null);
+  const [heroSrc, setHeroSrc] = useState('');
+
+  useEffect(() => {
+    const start = () => setHeroSrc(heroVideo);
+    const idle = window.requestIdleCallback || ((cb) => setTimeout(cb, 1200));
+    const cancel = window.cancelIdleCallback || clearTimeout;
+    const id = idle(start, { timeout: 1800 });
+    return () => cancel(id);
+  }, []);
 
   useEffect(() => {
     const video = heroVideoRef.current;
-    if (!video) return;
+    if (!video || !heroSrc) return;
     video.muted = true;
     video.defaultMuted = true;
     video.volume = 0;
@@ -101,7 +113,7 @@ function Home() {
       video.removeEventListener('play', keepMuted);
       video.removeEventListener('volumechange', keepMuted);
     };
-  }, []);
+  }, [heroSrc]);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -431,13 +443,13 @@ function Home() {
           <video
             ref={heroVideoRef}
             className="hero-video"
-            src={heroVideo}
+            src={heroSrc || undefined}
             poster="/og-home.jpg"
             autoPlay
             muted
             loop
             playsInline
-            preload="metadata"
+            preload="none"
             aria-label="KlarElle launch film"
           />
         </div>
@@ -502,7 +514,7 @@ function Home() {
                 ))}
               </>
             ) : (
-              products.map((product) => (
+              products.map((product, index) => (
                 <HomeProductCard
                   key={`luxury-${product.id}`}
                   product={product}
@@ -511,6 +523,7 @@ function Home() {
                   toggleFavorite={toggleFavorite}
                   isFavorite={isFavorite}
                   showToast={showToast}
+                  priority={index < 2}
                 />
               ))
             )}

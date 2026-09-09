@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { useCurrency } from '../context/CurrencyContext';
 import { Trash2, Minus, Plus, ShieldCheck, Truck } from 'lucide-react';
 import { STORE_LAUNCHED } from '../utils/launch';
+import { productPath } from '../utils/productUrl';
 import './Cart.css';
 
 function Cart() {
@@ -47,7 +48,7 @@ function Cart() {
               <div className="cart-item" key={item.cartItemId}>
                 <img src={item.image_url || item.image || '/placeholder.png'} alt={item.name} className="cart-item-img" />
                 <div className="cart-item-details">
-                  <Link to={`/product/${item.id}`} className="cart-item-name">{item.name}</Link>
+                  <Link to={productPath(item)} className="cart-item-name">{item.name}</Link>
                   <div className="cart-item-specs">
                     {item.selectedColor && `Color: ${item.selectedColor}`}
                     {item.selectedColor && item.selectedSize && ' | '}

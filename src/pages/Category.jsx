@@ -17,6 +17,9 @@ import { COLLECTION_ALIASES, getCollectionBySlug, STORE_COLLECTIONS } from '../d
 import { getReleaseLabel, isComingSoon, matchesCollection, maybeLaunchProduct } from '../utils/storefront';
 import { getCollectionSeo } from '../utils/seoPages';
 import NotFound from './NotFound';
+import { productPath } from '../utils/productUrl';
+import { trackSelectItem } from '../utils/analytics';
+import ProductImage from '../components/ProductImage';
 import './Category.css';
 
 function CategoryProductCard({ product, formatPrice, addToCart, onNotify }) {
@@ -34,8 +37,8 @@ function CategoryProductCard({ product, formatPrice, addToCart, onNotify }) {
         <div className="product-badge">-{Math.round(((product.old_price - product.price) / product.old_price) * 100)}%</div>
       )}
       <div className="product-image-wrap">
-        <Link to={`/product/${product.id}`}>
-          <img key={selectedColor} src={image || '/placeholder.png'} alt={product.name} className="product-image primary" style={{ opacity: soldOut && !comingSoon ? 0.6 : 1 }} />
+        <Link to={productPath(product)} onClick={() => trackSelectItem(product)}>
+          <ProductImage key={selectedColor} src={image || '/placeholder.png'} product={product} extras={{ color: selectedColor }} className="product-image primary" style={{ opacity: soldOut && !comingSoon ? 0.6 : 1 }} />
         </Link>
         <div className="product-actions">
           {comingSoon ? (
@@ -49,7 +52,7 @@ function CategoryProductCard({ product, formatPrice, addToCart, onNotify }) {
         </div>
       </div>
       <div className="product-info">
-        <Link to={`/product/${product.id}`}><h3 className="product-title">{product.name}</h3></Link>
+        <Link to={productPath(product)} onClick={() => trackSelectItem(product)}><h3 className="product-title">{product.name}</h3></Link>
         <div className="product-price-wrap">
           <span className="product-price sale">{formatPrice(product.price)}</span>
           {product.old_price && parseFloat(product.old_price) > parseFloat(product.price) && <span className="product-old-price">{formatPrice(product.old_price)}</span>}
