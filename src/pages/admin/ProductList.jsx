@@ -7,6 +7,8 @@ function ProductList() {
   const [loading, setLoading] = useState(true);
   const [selectedIds, setSelectedIds] = useState([]);
   const [bulkSaving, setBulkSaving] = useState(false);
+  const [migrating, setMigrating] = useState(false);
+  const [migrateStatus, setMigrateStatus] = useState('');
 
   useEffect(() => {
     fetchProducts();
@@ -56,6 +58,45 @@ function ProductList() {
     }
   };
 
+  const migrateImages = async () => {
+    if (!window.confirm('Copy existing Supabase product photos to Cloudinary? Old files stay in Supabase until we delete them later.')) {
+      return;
+    }
+    setMigrating(true);
+    setMigrateStatus('Starting…');
+    try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData?.session?.access_token;
+      if (!token) throw new Error('Please sign in again.');
+      let remaining = 1;
+      let copiedTotal = 0;
+      while (remaining > 0) {
+        const response = await fetch('/api/cloudinary-sign', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify({ action: 'migrate' })
+        });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error || 'Migration batch failed');
+        copiedTotal += Number(result.copied || 0);
+        remaining = Number(result.remaining || 0);
+        setMigrateStatus(`Copied ${copiedTotal}. ${remaining} left…`);
+        if ((result.copied || 0) === 0 && remaining > 0) {
+          throw new Error(result.errors?.[0]?.message || 'Cloudinary did not accept this batch.');
+        }
+      }
+      setMigrateStatus(`Done. Copied ${copiedTotal} images to Cloudinary.`);
+      fetchProducts();
+    } catch (error) {
+      setMigrateStatus(error.message);
+      alert(error.message);
+    } finally {
+      setMigrating(false);
+    }
+  };
   const visibilityLabel = (product) => {
     if (product.visibility === false || product.status === 'draft') return 'Hidden';
     return 'Published';
@@ -65,10 +106,23 @@ function ProductList() {
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '12px' }}>
         <h1 style={{ margin: 0 }}>Products</h1>
-        <Link to="/admin/products/new" style={{ padding: '10px 20px', background: 'black', color: 'white', textDecoration: 'none', borderRadius: '4px', fontWeight: 'bold' }}>
-          + Add Product
-        </Link>
+        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
+          <button
+            type="button"
+            onClick={migrateImages}
+            disabled={migrating}
+            style={{ padding: '10px 16px', background: '#fff', color: '#111', border: '1px solid #111', borderRadius: '4px', fontWeight: 'bold', cursor: migrating ? 'wait' : 'pointer' }}
+          >
+            {migrating ? 'Copying to Cloudinary…' : 'Copy images to Cloudinary'}
+          </button>
+          <Link to="/admin/products/new" style={{ padding: '10px 20px', background: 'black', color: 'white', textDecoration: 'none', borderRadius: '4px', fontWeight: 'bold' }}>
+            + Add Product
+          </Link>
+        </div>
       </div>
+      {migrateStatus && (
+        <p style={{ margin: '0 0 16px', color: '#666', fontSize: '14px' }}>{migrateStatus}</p>
+      )}
 
       {selectedIds.length > 0 && (
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap', marginBottom: '16px', padding: '12px 16px', background: '#111', color: '#fff', borderRadius: '8px' }}>

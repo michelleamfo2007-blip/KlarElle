@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import { cloudinaryConfigured, createSignedUpload } from './_cloudinary.js';
+import { migrateProductImageBatch } from './_migrate-product-images.js';
 
 function setCors(res) {
   res.setHeader('Access-Control-Allow-Credentials', true);
@@ -45,6 +46,15 @@ export default async function handler(req, res) {
   const staff = await requireStaff(req);
   if (!staff) {
     return res.status(401).json({ error: 'Admin sign-in is required to upload.' });
+  }
+
+  if (req.body?.action === 'migrate') {
+    try {
+      const result = await migrateProductImageBatch();
+      return res.status(200).json(result);
+    } catch (error) {
+      return res.status(500).json({ error: error.message || 'Migration batch failed.' });
+    }
   }
 
   const kind = req.body?.kind === 'video' ? 'video' : 'image';
