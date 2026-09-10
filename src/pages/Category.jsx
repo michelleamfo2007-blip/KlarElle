@@ -2,14 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link, Navigate } from 'react-router-dom';
 import SEO from '../components/SEO';
 import { supabase } from '../lib/supabase';
-import { Heart, Plus, Minus } from 'lucide-react';
+import { Filter } from 'lucide-react';
 import { useCurrency } from '../context/CurrencyContext';
 import FilterSidebar from '../components/FilterSidebar';
 import FilterModal from '../components/FilterModal';
-import ProductRating from '../components/ProductRating';
-import { attachReviewStats } from '../utils/reviews';
 import { isProductPreorder, isProductSoldOut } from '../utils/stock';
-import { Filter } from 'lucide-react';
 import ColorPreviewDots, { useProductColorImage } from '../components/ColorPreviewDots';
 import NotifyMeForm from '../components/NotifyMeForm';
 import { COLLECTION_ALIASES, getCollectionBySlug, STORE_COLLECTIONS } from '../data/collections';
@@ -42,14 +39,6 @@ function CategoryProductCard({ product, formatPrice, onNotify }) {
         <Link to={productPath(product)} onClick={() => trackSelectItem(product)}>
           <ProductImage key={selectedColor} src={image || '/placeholder.png'} product={product} extras={{ color: selectedColor }} className="product-image primary" style={{ opacity: soldOut && !comingSoon ? 0.6 : 1 }} />
         </Link>
-        <div className="product-actions">
-          {comingSoon || soldOut ? (
-            <button className="action-btn add-cart" onClick={() => onNotify(product)}>NOTIFY ME</button>
-          ) : (
-            <Link to={productPath(product)} className="action-btn add-cart" onClick={() => trackSelectItem(product)}>ADD TO CART</Link>
-          )}
-          <button className="action-btn"><Heart size={18} /></button>
-        </div>
       </div>
       <div className="product-info">
         <Link to={productPath(product)} onClick={() => trackSelectItem(product)}><h3 className="product-title">{product.name}</h3></Link>
@@ -61,7 +50,11 @@ function CategoryProductCard({ product, formatPrice, onNotify }) {
           <div style={{ fontSize: '12px', color: '#666', marginTop: '4px' }}>{getReleaseLabel(product)}</div>
         )}
         <ColorPreviewDots colors={colors} selectedColor={selectedColor} onSelect={setSelectedColor} />
-        <ProductRating count={product.reviewCount} average={product.reviewAvg} />
+        {comingSoon || soldOut ? (
+          <button type="button" className="luxury-add-btn" onClick={() => onNotify(product)}>NOTIFY ME</button>
+        ) : (
+          <Link to={productPath(product)} className="luxury-add-btn" onClick={() => trackSelectItem(product)}>ADD TO CART</Link>
+        )}
       </div>
     </div>
   );
@@ -97,8 +90,7 @@ function Category() {
             if (await maybeLaunchProduct(product)) product.coming_soon = false;
           }
         }
-        const withReviews = await attachReviewStats(supabase, data);
-        setAllProducts(withReviews);
+        setAllProducts(data);
         
         // Compute available filter options based on the fetched products
         const options = {

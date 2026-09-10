@@ -569,8 +569,9 @@ button.nav-link {
 .luxury-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 32px;
+  gap: 24px;
   padding: 0 16px;
+  align-items: stretch;
 }
 
 /* Luxury Product Card */
@@ -582,6 +583,8 @@ button.nav-link {
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
   display: flex;
   flex-direction: column;
+  height: 100%;
+  min-width: 0;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
@@ -666,10 +669,11 @@ button.nav-link {
 }
 
 .luxury-info {
-  padding: 20px;
+  padding: 16px 16px 16px;
   display: flex;
   flex-direction: column;
   flex-grow: 1;
+  min-height: 0;
 }
 
 .luxury-category {
@@ -678,18 +682,25 @@ button.nav-link {
 
 .luxury-title {
   font-family: 'Playfair Display', serif;
-  font-size: 20px;
+  font-size: 16px;
   font-weight: 600;
   color: #111;
-  margin-bottom: 12px;
+  margin: 0 0 8px;
   line-height: 1.3;
+  min-height: 2.6em;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .luxury-price-row {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 8px;
-  margin-bottom: 12px;
+  min-height: 24px;
+  margin-bottom: 8px;
 }
 
 .luxury-price {
@@ -714,19 +725,38 @@ button.nav-link {
 }
 
 .luxury-rating {
-  display: none; /* User requested to hide ratings on grid, only show on product details */
+  display: none;
 }
 
-.luxury-star {
-  color: #000;
-  width: 14px;
-  height: 14px;
+.color-preview-dots {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 20px;
+  margin: 0 0 12px;
+  flex-wrap: wrap;
+  position: relative;
+  z-index: 3;
+}
+
+.color-preview-dots button {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  padding: 0;
+  cursor: pointer;
+  flex-shrink: 0;
+  border: 1px solid #ddd;
+}
+
+.color-preview-dots button.is-selected {
+  border: 2px solid #111;
 }
 
 .luxury-add-btn {
   display: block;
   width: 100%;
-  margin-top: 12px;
+  margin-top: auto;
   padding: 10px 0;
   background: #111;
   color: #fff;
@@ -738,6 +768,7 @@ button.nav-link {
   text-decoration: none;
   border: none;
   cursor: pointer;
+  box-sizing: border-box;
 }
 
 .luxury-add-btn:hover {
@@ -845,15 +876,20 @@ button.nav-link {
 }
 
 /* Responsive (Basic) */
+@media (max-width: 1200px) {
+  .categories-grid { grid-template-columns: repeat(4, 1fr); }
+  .luxury-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
 @media (max-width: 1024px) {
   .categories-grid { grid-template-columns: repeat(4, 1fr); }
-  .luxury-grid { grid-template-columns: repeat(2, 1fr); }
+  .luxury-grid { grid-template-columns: repeat(3, 1fr); gap: 16px; }
 }
 
 @media (max-width: 768px) {
   .categories-grid { grid-template-columns: repeat(3, 1fr); }
   .luxury-grid { grid-template-columns: repeat(2, 1fr); }
-  .luxury-add-btn { opacity: 1; transform: none; margin-top: 16px; }
+  .luxury-add-btn { opacity: 1; transform: none; margin-top: auto; }
   .luxury-actions { opacity: 1; transform: none; }
   .footer-top { grid-template-columns: 1fr 1fr; }
   .header-actions { display: flex; gap: 16px; }

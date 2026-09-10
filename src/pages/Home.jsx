@@ -2,11 +2,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import SEO from '../components/SEO';
 import { supabase } from '../lib/supabase';
-import { Heart, ArrowRight, Eye, ShoppingBag } from 'lucide-react';
+import { Heart, Eye } from 'lucide-react';
 import { useFavorites } from '../context/FavoritesContext';
 import { useCurrency } from '../context/CurrencyContext';
-import ProductRating from '../components/ProductRating';
-import { attachReviewStats } from '../utils/reviews';
 import { isProductPreorder, isProductSoldOut } from '../utils/stock';
 import ColorPreviewDots, { useProductColorImage } from '../components/ColorPreviewDots';
 import { isComingSoon, maybeLaunchProduct } from '../utils/storefront';
@@ -66,7 +64,6 @@ function HomeProductCard({ product, formatPrice, toggleFavorite, isFavorite, sho
           )}
         </div>
         <ColorPreviewDots colors={colors} selectedColor={selectedColor} onSelect={setSelectedColor} />
-        <ProductRating count={product.reviewCount} average={product.reviewAvg} className="luxury-rating" />
         <Link
           to={productPath(product)}
           className="luxury-add-btn"
@@ -126,7 +123,7 @@ function Home() {
           }
         }
         const available = data.filter((product) => !isComingSoon(product));
-        setProducts(await attachReviewStats(supabase, available.slice(0, 4)));
+        setProducts(available.slice(0, 4));
       }
       setLoading(false);
     };
