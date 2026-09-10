@@ -27,6 +27,6 @@ export function findProductByParam(products, param) {
   const key = decodeURIComponent(String(param || '')).toLowerCase();
   if (!key) return null;
   if (isProductUuid(key)) return products.find((item) => String(item.id).toLowerCase() === key) || null;
-  const matches = products.filter((item) => productSlug(item) === key);
+  const matches = products.filter((item) => productSlug(item).toLowerCase() === key);
   return matches[0] || null;
 }

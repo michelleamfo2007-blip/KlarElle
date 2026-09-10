@@ -25,6 +25,7 @@ import { applyMaterialDetails } from '../utils/materialDefaults';
 import { findProductByParam, isProductUuid, productPath } from '../utils/productUrl';
 import { galleryViewLabel } from '../utils/media';
 import { trackViewItem } from '../utils/analytics';
+import { recordProductPageView } from '../utils/productClicks';
 import ProductImage from '../components/ProductImage';
 import { productCollection } from '../data/collections';
 import { showPublicStockCounts } from '../utils/launch';
@@ -467,7 +468,9 @@ function ProductDetails() {
   }, [product, id, navigate]);
 
   useEffect(() => {
-    if (product) trackViewItem(product);
+    if (!product) return;
+    trackViewItem(product);
+    recordProductPageView(product);
   }, [product?.id]);
 
   useEffect(() => {

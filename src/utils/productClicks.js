@@ -1,7 +1,10 @@
-import { findProductByParam } from './productUrl';
+import { supabase } from '../lib/supabase';
+import { findProductByParam, productPath } from './productUrl';
+import { visitorIsStaff } from './visitor';
 
 export function productParamFromPath(path) {
-  const match = String(path || '').split('?')[0].match(/^\/product\/([^/]+)/i);
+  const clean = String(path || '').split('?')[0].replace(/\/+$/, '');
+  const match = clean.match(/\/product\/([^/]+)$/i);
   return match ? decodeURIComponent(match[1]) : null;
 }
 
@@ -25,4 +28,22 @@ export function rankClickedProducts(views = [], products = []) {
   }
 
   return Object.values(counts).sort((a, b) => b.clicks - a.clicks);
+}
+
+export async function recordProductPageView(product) {
+  if (!product?.id) return;
+  if (await visitorIsStaff()) return;
+
+  const sessionId = sessionStorage.getItem('session_id')
+    || Math.random().toString(36).substring(2, 15);
+  sessionStorage.setItem('session_id', sessionId);
+
+  const { error } = await supabase.from('page_views').insert([{
+    path: productPath(product),
+    referrer: document.referrer || null,
+    user_agent: navigator.userAgent,
+    session_id: sessionId
+  }]);
+
+  if (error) console.error('Product click was not saved:', error.message);
 }

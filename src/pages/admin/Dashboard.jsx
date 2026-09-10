@@ -5,7 +5,7 @@ import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { exportDashboardDataToExcel } from '../../utils/exportToExcel';
 import { DollarSign, ShoppingBag, Package, AlertTriangle, TrendingUp, Clock, CheckCircle, Truck, PackageCheck, ArrowRight, XCircle, RefreshCcw, Eye, Download, Calendar, MousePointerClick } from 'lucide-react';
 import { productNeedsPackageSync, syncAllProductPackageDimensions } from '../../utils/package';
-import { rankClickedProducts } from '../../utils/productClicks';
+import { productParamFromPath, rankClickedProducts } from '../../utils/productClicks';
 
 function Dashboard() {
   const [totalProducts, setTotalProducts] = useState(0);
@@ -130,11 +130,13 @@ function Dashboard() {
       .not('path', 'ilike', '/update-password%');
     setSiteViews(viewCount || 0);
 
-    const [{ data: productViews }, { data: catalog }] = await Promise.all([
-      supabase.from('page_views').select('path').ilike('path', '/product/%').limit(10000),
-      supabase.from('products').select('id, name, image_url, slug')
-    ]);
-    setMostClicked(rankClickedProducts(productViews || [], catalog || []).slice(0, 5));
+    const viewsRes = await supabase.from('page_views').select('path').limit(20000);
+    let catalogRes = await supabase.from('products').select('id, name, image_url, slug');
+    if (catalogRes.error) {
+      catalogRes = await supabase.from('products').select('id, name, image_url');
+    }
+    const productViews = (viewsRes.data || []).filter((row) => productParamFromPath(row.path));
+    setMostClicked(rankClickedProducts(productViews, catalogRes.data || []).slice(0, 5));
     
     setLoading(false);
   };
