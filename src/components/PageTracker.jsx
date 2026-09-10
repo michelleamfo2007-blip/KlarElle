@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { visitorIsStaff } from '../utils/visitor';
+import { hasAcceptedCookies } from '../utils/cookieConsent';
 
 function isStaffOnlyPath(path) {
   return path.startsWith('/admin')
@@ -13,6 +14,8 @@ function PageTracker() {
   const location = useLocation();
 
   useEffect(() => {
+    if (!hasAcceptedCookies()) return;
+
     if (!isStaffOnlyPath(location.pathname) && typeof window.gtag === 'function') {
       window.gtag('event', 'page_view', {
         send_to: 'G-13R3HNGKMK',

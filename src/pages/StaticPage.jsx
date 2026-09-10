@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { getSitePage, resolveSitePageBody } from '../data/sitePages';
 import PolicyBody from '../components/PolicyBody';
+import FaqAccordion from '../components/FaqAccordion';
 import SEO from '../components/SEO';
 import { pageDescription } from '../utils/seo';
 import { PAGE_META, buildFaqJsonLd } from '../utils/seoPages';
@@ -37,7 +38,7 @@ function StaticPage({ slug }) {
       <h1 style={{ fontSize: '32px', marginBottom: '24px', fontFamily: 'Playfair Display, serif' }}>{heading}</h1>
       <div style={{ lineHeight: '1.8', color: '#444', fontSize: '15px', fontFamily: 'Inter, sans-serif' }}>
         {body ? (
-          <PolicyBody text={body} />
+          page?.slug === 'faq' ? <FaqAccordion text={body} /> : <PolicyBody text={body} />
         ) : (
           <p style={{ marginBottom: '16px' }}>Content for {heading} will be available soon.</p>
         )}

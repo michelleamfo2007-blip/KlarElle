@@ -7,12 +7,14 @@ import { Trash2, Minus, Plus, ShieldCheck, Truck } from 'lucide-react';
 import { STORE_LAUNCHED } from '../utils/launch';
 import { productPath } from '../utils/productUrl';
 import { rememberCartEmail } from '../utils/cartTracking';
+import { useCookieConsent } from '../context/CookieConsentContext';
 import './Cart.css';
 
 function Cart() {
   const { cartItems, removeFromCart, updateQuantity, cartTotal } = useCart();
   const { session } = useAuth();
   const { formatPrice } = useCurrency();
+  const { canShop, requireCookiesToShop } = useCookieConsent();
   
   if (session?.user?.email) rememberCartEmail(session.user.email);
   const shippingThreshold = 100;
@@ -94,7 +96,18 @@ function Cart() {
             </div>
             
             {STORE_LAUNCHED ? (
-              <Link to="/checkout" className="btn btn-primary checkout-btn" style={{ display: 'block', textAlign: 'center', textDecoration: 'none' }}>CHECKOUT</Link>
+              canShop ? (
+                <Link to="/checkout" className="btn btn-primary checkout-btn" style={{ display: 'block', textAlign: 'center', textDecoration: 'none' }}>CHECKOUT</Link>
+              ) : (
+                <button
+                  type="button"
+                  className="btn btn-primary checkout-btn"
+                  style={{ display: 'block', width: '100%', textAlign: 'center', background: '#111', color: '#fff', cursor: 'pointer', border: 'none' }}
+                  onClick={() => requireCookiesToShop()}
+                >
+                  ACCEPT COOKIES TO CHECKOUT
+                </button>
+              )
             ) : (
               <div className="btn btn-primary checkout-btn" style={{ display: 'block', textAlign: 'center', background: '#ddd', color: '#666', cursor: 'not-allowed' }}>
                 CHECKOUT OPENS AT LAUNCH

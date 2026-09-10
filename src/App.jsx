@@ -5,8 +5,11 @@ import GoogleAnalytics from './components/GoogleAnalytics';
 import PageTracker from './components/PageTracker';
 import { CartProvider } from './context/CartContext';
 import { FavoritesProvider } from './context/FavoritesContext';
+import { CookieConsentProvider } from './context/CookieConsentContext';
 import Layout from './components/Layout';
 import WhatsAppButton from './components/WhatsAppButton';
+import CookieConsent from './components/CookieConsent';
+import ScrollControls from './components/ScrollControls';
 import Home from './pages/Home';
 import ProductDetails from './pages/ProductDetails';
 import Cart from './pages/Cart';
@@ -64,9 +67,15 @@ const SuperActivity = lazy(() => import('./pages/super-admin/SuperActivity'));
 function App() {
   return (
     <>
+      <CookieConsentProvider>
       <GoogleAnalytics />
       <Analytics
         beforeSend={(event) => {
+          try {
+            if (localStorage.getItem('klarelle_cookie_consent') !== 'accepted') return null;
+          } catch {
+            return null;
+          }
           const url = event.url || '';
           if (url.includes('/admin') || url.includes('/super-admin') || url.includes('/update-password')) {
             return null;
@@ -170,11 +179,14 @@ function App() {
           </Routes>
               </Suspense>
           <WhatsAppButton />
+          <ScrollControls />
+          <CookieConsent />
         </Router>
         </CartProvider>
       </FavoritesProvider>
     </AuthProvider>
     </CurrencyProvider>
+      </CookieConsentProvider>
     </>
   );
 }

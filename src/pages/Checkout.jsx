@@ -11,6 +11,7 @@ import { getVariantSkuFromProduct } from '../utils/sku';
 import { STORE_LAUNCHED } from '../utils/launch';
 import { attachEmailToSavedCart } from '../utils/cartTracking';
 import { trackBeginCheckout, trackPurchase } from '../utils/analytics';
+import { useCookieConsent } from '../context/CookieConsentContext';
 
 const StripePaymentBlock = lazy(() => import('../components/StripePaymentBlock'));
 
@@ -19,6 +20,7 @@ function Checkout() {
   const { cartItems, cartTotal, clearCart } = useCart();
   const { session } = useAuth();
   const { currency, EXCHANGE_RATES, formatPrice } = useCurrency();
+  const { canShop, requireCookiesToShop } = useCookieConsent();
   
   const [clientSecret, setClientSecret] = useState("");
   const [paymentError, setPaymentError] = useState("");
@@ -254,6 +256,25 @@ function Checkout() {
         <h2 style={{ marginBottom: '16px' }}>Shopping opens at launch</h2>
         <p style={{ color: '#666', marginBottom: '16px' }}>Checkout is paused until KlarElle launches. Join the VIP list for first access.</p>
         <Link to="/" style={{ color: '#000', textDecoration: 'underline' }}>Return Home</Link>
+      </div>
+    );
+  }
+
+  if (!canShop) {
+    return (
+      <div style={{ padding: '100px 20px', textAlign: 'center', background: '#f5f5f5', minHeight: '100vh' }}>
+        <h2 style={{ marginBottom: '16px' }}>Cookies required to checkout</h2>
+        <p style={{ color: '#666', marginBottom: '20px' }}>Accept cookies to continue shopping and complete your order.</p>
+        <button
+          type="button"
+          onClick={() => requireCookiesToShop()}
+          style={{ padding: '14px 24px', background: '#111', color: '#fff', border: 'none', cursor: 'pointer', fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase' }}
+        >
+          Accept cookies
+        </button>
+        <div style={{ marginTop: '16px' }}>
+          <Link to="/cart" style={{ color: '#000', textDecoration: 'underline' }}>Return to Cart</Link>
+        </div>
       </div>
     );
   }

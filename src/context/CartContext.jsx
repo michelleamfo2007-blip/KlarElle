@@ -5,6 +5,7 @@ import { getVariantSkuFromProduct, isOfficialSku } from '../utils/sku';
 import { isComingSoon } from '../utils/storefront';
 import { getRememberedCartEmail, logCartActivity, saveCartSnapshot } from '../utils/cartTracking';
 import { trackAddToCart } from '../utils/analytics';
+import { canShopWithCookies } from '../utils/cookieConsent';
 
 const CartContext = createContext();
 
@@ -28,6 +29,10 @@ export const CartProvider = ({ children }) => {
   }, [cartItems, session?.user?.email]);
 
   const addToCart = (product, selectedSize = null, selectedColor = null, quantity = 1, fulfilledFrom) => {
+    if (!canShopWithCookies()) {
+      window.dispatchEvent(new CustomEvent('klarelle-cookie-prompt'));
+      return;
+    }
     if (isComingSoon(product)) {
       setCartToast('This style is coming soon. Use Notify Me When Available.');
       window.clearTimeout(addToCart._toastTimer);

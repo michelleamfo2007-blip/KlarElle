@@ -462,9 +462,9 @@ function Layout() {
         <div className="container">
           <div className="footer-top">
             <div className="footer-col">
-              <h4>Company Info</h4>
+              <h4 className="footer-col-title">Company Info</h4>
               {websiteContent.aboutText && (
-                <p style={{ color: '#666', fontSize: '13px', lineHeight: 1.6, margin: '0 0 16px' }}>{websiteContent.aboutText}</p>
+                <p className="footer-about">{websiteContent.aboutText}</p>
               )}
               <div className="footer-links">
                 <Link to="/page/about-us">About Us</Link>
@@ -473,7 +473,7 @@ function Layout() {
               </div>
             </div>
             <div className="footer-col">
-              <h4>Help & Support</h4>
+              <h4 className="footer-col-title">Help & Support</h4>
               <div className="footer-links">
                 <Link to="/page/faq">FAQ</Link>
                 <Link to="/page/shipping-info">Shipping Info</Link>
@@ -483,7 +483,7 @@ function Layout() {
               </div>
             </div>
             <div className="footer-col">
-              <h4>Customer Care</h4>
+              <h4 className="footer-col-title">Customer Care</h4>
               <div className="footer-links">
                 <Link to="/page/contact-us">Contact Us</Link>
                 <Link to="/page/payment-method">Payment Method</Link>
@@ -492,30 +492,30 @@ function Layout() {
                 <Link to="/page/terms-and-conditions">Terms & Conditions</Link>
               </div>
             </div>
-            <div className="footer-col">
+            <div className="footer-col footer-col-newsletter">
               <div>
-                <h4 style={{ marginBottom: '12px' }}>Follow Us</h4>
-                <div style={{ display: 'flex', gap: '16px', color: '#666', alignItems: 'center' }}>
-                  <a href="https://www.instagram.com/klarelle_store" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', color: 'inherit' }} title="Instagram">
+                <h4 className="footer-col-title">Follow Us</h4>
+                <div className="footer-social">
+                  <a href="https://www.instagram.com/klarelle_store" target="_blank" rel="noopener noreferrer" title="Instagram">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
                       <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
                       <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
                     </svg>
                   </a>
-                  <a href="https://www.tiktok.com/@klarelle.store?_r=1&_t=ZS-98qn2e8LpYe" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', color: 'inherit' }} title="TikTok">
+                  <a href="https://www.tiktok.com/@klarelle.store?_r=1&_t=ZS-98qn2e8LpYe" target="_blank" rel="noopener noreferrer" title="TikTok">
                     <svg width="18" height="18" viewBox="0 0 448 512" fill="currentColor">
                       <path d="M448,209.91a210.06,210.06,0,0,1-122.77-39.25V349.38A162.55,162.55,0,1,1,185,188.31V278.2a74.62,74.62,0,1,0,52.23,71.18V0l88,0a121.18,121.18,0,0,0,1.86,22.17h0A122.18,122.18,0,0,0,381,102.39a121.43,121.43,0,0,0,67,20.14Z"/>
                     </svg>
                   </a>
-                  <a href="https://www.facebook.com/share/1ETeTXkNfh/?mibextid=wwXIfr" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', color: 'inherit' }} title="Facebook">
+                  <a href="https://www.facebook.com/share/1ETeTXkNfh/?mibextid=wwXIfr" target="_blank" rel="noopener noreferrer" title="Facebook">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
                     </svg>
                   </a>
                 </div>
               </div>
-              <h4 style={{ marginTop: '24px' }}>Sign up for KlarElle style news</h4>
+              <h4 className="footer-col-title" style={{ marginTop: '24px' }}>Sign up for KlarElle style news</h4>
               <form className="newsletter-form" onSubmit={handleSubscribe}>
                 <input 
                   type="email" 
@@ -530,15 +530,13 @@ function Layout() {
                   {subscribing ? 'WAIT...' : 'SUBSCRIBE'}
                 </button>
               </form>
-              <div style={{ marginTop: '16px', fontSize: '13px', color: '#666' }}>
-                Questions? Email us at <a href="mailto:support@klarelle.store" style={{color: '#000', textDecoration: 'underline'}}>support@klarelle.store</a>
+              <div className="footer-support-note">
+                Questions? Email us at <a href="mailto:support@klarelle.store">support@klarelle.store</a>
               </div>
             </div>
           </div>
-          <div className="footer-bottom" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', paddingTop: '24px', borderTop: '1px solid #eaeaea' }}>
-            <div style={{ color: '#999', fontSize: '12px' }}>
-              &copy; {new Date().getFullYear()} KlarElle. All rights reserved.
-            </div>
+          <div className="footer-bottom">
+            <div>&copy; {new Date().getFullYear()} KlarElle. All rights reserved.</div>
           </div>
         </div>
       </footer>
