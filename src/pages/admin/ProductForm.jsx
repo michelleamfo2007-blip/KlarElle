@@ -16,6 +16,7 @@ import {
 } from '../../utils/sku';
 import { uploadProductAsset } from '../../utils/cloudinaryUpload';
 import { PACKAGE_HEIGHT_CM, PACKAGE_LENGTH_CM, PACKAGE_WIDTH_CM } from '../../utils/package';
+import { getVariantWarehouseTotals } from '../../utils/stock';
 import { getMaterialDetails } from '../../utils/materialDefaults';
 
 function ProductForm() {
@@ -90,6 +91,19 @@ function ProductForm() {
     }
     setSizeChart((prev) => parseSizeChart(prev, sizes));
   }, [sizesInput]);
+
+  const hasVariantMatrix = colorsInput.trim().length > 0 && sizesInput.trim().length > 0;
+
+  useEffect(() => {
+    if (!hasVariantMatrix) return;
+    const { us, intl } = getVariantWarehouseTotals(variantImages);
+    setFormData((prev) => {
+      const nextUs = String(us);
+      const nextIntl = String(intl);
+      if (prev.stock === nextUs && prev.stock_international === nextIntl) return prev;
+      return { ...prev, stock: nextUs, stock_international: nextIntl };
+    });
+  }, [hasVariantMatrix, variantImages]);
 
   const fetchCategories = async () => {
     const { data, error } = await supabase
@@ -179,10 +193,12 @@ function ProductForm() {
             const remappedSkus = {};
             const remappedBins = {};
             Object.entries(value.stock || {}).forEach(([sizeKey, qty]) => {
-              remappedStock[formatSizeLabel(sizeKey)] = qty;
+              const key = formatSizeLabel(sizeKey);
+              remappedStock[key] = Math.max(parseInt(remappedStock[key], 10) || 0, parseInt(qty, 10) || 0);
             });
             Object.entries(value.stock_international || {}).forEach(([sizeKey, qty]) => {
-              remappedIntl[formatSizeLabel(sizeKey)] = qty;
+              const key = formatSizeLabel(sizeKey);
+              remappedIntl[key] = Math.max(parseInt(remappedIntl[key], 10) || 0, parseInt(qty, 10) || 0);
             });
             Object.entries(value.skus || {}).forEach(([sizeKey, sku]) => {
               remappedSkus[formatSizeLabel(sizeKey)] = sku;
@@ -388,7 +404,8 @@ function ProductForm() {
     const styleCode = await resolveStyleCode();
     
     const cleanVariantImages = {};
-    let totalVariantStock = 0;
+    let totalUsStock = 0;
+    let totalIntlStock = 0;
     let firstVariantSku = '';
 
     if (activeColors.length > 0 && activeSizes.length > 0) {
@@ -402,34 +419,37 @@ function ProductForm() {
           bins: {}
         };
         activeSizes.forEach(size => {
-          const qty = parseInt(current.stock?.[size], 10) || 0;
-          const intlQty = parseInt(current.stock_international?.[size], 10) || 0;
+          const sizeKey = formatSizeLabel(size);
+          const qty = parseInt(current.stock?.[sizeKey] ?? current.stock?.[size], 10) || 0;
+          const intlQty = parseInt(current.stock_international?.[sizeKey] ?? current.stock_international?.[size], 10) || 0;
           const sku = resolveVariantSku({
             productId: id,
             name: formData.name,
             color,
             size,
-            existingSku: current.skus?.[size],
+            existingSku: current.skus?.[sizeKey] || current.skus?.[size],
             styleCode
           });
-          cleanVariantImages[color].stock[size] = qty;
-          cleanVariantImages[color].stock_international[size] = intlQty;
-          cleanVariantImages[color].skus[size] = sku;
-          cleanVariantImages[color].bins[size] = resolveVariantBin({
+          cleanVariantImages[color].stock[sizeKey] = qty;
+          cleanVariantImages[color].stock_international[sizeKey] = intlQty;
+          cleanVariantImages[color].skus[sizeKey] = sku;
+          cleanVariantImages[color].bins[sizeKey] = resolveVariantBin({
             productId: id,
             name: formData.name,
             color,
             size,
-            existingBin: current.bins?.[size],
+            existingBin: current.bins?.[sizeKey] || current.bins?.[size],
             styleCode
           });
           if (!firstVariantSku) firstVariantSku = sku;
-          totalVariantStock += qty + intlQty;
+          totalUsStock += qty;
+          totalIntlStock += intlQty;
         });
       });
     }
     
-    const finalStock = (activeSizes.length > 0 && activeColors.length > 0) ? totalVariantStock : parseInt(formData.stock, 10);
+    const finalStock = (activeSizes.length > 0 && activeColors.length > 0) ? totalUsStock : parseInt(formData.stock, 10);
+    const finalIntlStock = (activeSizes.length > 0 && activeColors.length > 0) ? totalIntlStock : (formData.stock_international ? parseInt(formData.stock_international, 10) : 0);
 
     const selectedCategories = (formData.categories?.length ? formData.categories : [formData.category]).filter(Boolean);
 
@@ -444,7 +464,7 @@ function ProductForm() {
       category: (formData.categories?.length ? formData.categories[0] : formData.category) || 'new-in',
       categories: (formData.categories?.length ? formData.categories : [formData.category]).filter(Boolean),
       stock: finalStock,
-      stock_international: formData.stock_international ? parseInt(formData.stock_international, 10) : 0,
+      stock_international: finalIntlStock,
       low_stock_threshold: formData.low_stock_threshold ? parseInt(formData.low_stock_threshold, 10) : 5,
       status: saveAsStatus || formData.status,
       visibility: formData.visibility,
@@ -946,8 +966,10 @@ function ProductForm() {
                     className="input-field" 
                     placeholder="0"
                     value={formData.stock} 
+                    readOnly={hasVariantMatrix}
                     onChange={(e) => setFormData({...formData, stock: e.target.value})} 
                   />
+                  {hasVariantMatrix && <div style={{ fontSize: '12px', color: '#6b7280', marginTop: '6px' }}>Updates automatically from US stock in the size matrix below.</div>}
                 </div>
                 <div>
                   <label className="input-label">International Warehouse Stock</label>
@@ -956,8 +978,10 @@ function ProductForm() {
                     className="input-field" 
                     placeholder="0"
                     value={formData.stock_international} 
+                    readOnly={hasVariantMatrix}
                     onChange={(e) => setFormData({...formData, stock_international: e.target.value})} 
                   />
+                  {hasVariantMatrix && <div style={{ fontSize: '12px', color: '#6b7280', marginTop: '6px' }}>Updates automatically from international stock in the size matrix below.</div>}
                 </div>
                 <div>
                   <label className="input-label">Low Stock Alert Threshold</label>
@@ -1198,16 +1222,17 @@ function ProductForm() {
                                   placeholder="0"
                                   min="0"
                                   style={{ padding: '4px 6px', width: '60px', height: '24px', fontSize: '12px' }}
-                                  value={(variantImages[color]?.stock?.[size]) || ''} 
+                                  value={(variantImages[color]?.stock?.[formatSizeLabel(size)] ?? variantImages[color]?.stock?.[size]) || ''} 
                                   onChange={(e) => {
                                     const val = e.target.value;
+                                    const sizeKey = formatSizeLabel(size);
                                     setVariantImages(prev => ({
                                       ...prev,
                                       [color]: {
                                         ...(prev[color] || { image: null }),
                                         stock: {
                                           ...(prev[color]?.stock || {}),
-                                          [size]: val
+                                          [sizeKey]: val
                                         }
                                       }
                                     }));
@@ -1223,16 +1248,17 @@ function ProductForm() {
                                   placeholder="0"
                                   min="0"
                                   style={{ padding: '4px 6px', width: '60px', height: '24px', fontSize: '12px' }}
-                                  value={(variantImages[color]?.stock_international?.[size]) || ''} 
+                                  value={(variantImages[color]?.stock_international?.[formatSizeLabel(size)] ?? variantImages[color]?.stock_international?.[size]) || ''} 
                                   onChange={(e) => {
                                     const val = e.target.value;
+                                    const sizeKey = formatSizeLabel(size);
                                     setVariantImages(prev => ({
                                       ...prev,
                                       [color]: {
                                         ...(prev[color] || { image: null }),
                                         stock_international: {
                                           ...(prev[color]?.stock_international || {}),
-                                          [size]: val
+                                          [sizeKey]: val
                                         }
                                       }
                                     }));

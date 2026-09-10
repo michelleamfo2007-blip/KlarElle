@@ -4,6 +4,7 @@ import { useOutletContext, Link } from 'react-router-dom';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { exportDashboardDataToExcel } from '../../utils/exportToExcel';
 import { DollarSign, ShoppingBag, Package, AlertTriangle, TrendingUp, Clock, CheckCircle, Truck, PackageCheck, ArrowRight, XCircle, RefreshCcw, Eye, Download, Calendar, MousePointerClick } from 'lucide-react';
+import { getProductStockTotals } from '../../utils/stock';
 import { productNeedsPackageSync, syncAllProductPackageDimensions } from '../../utils/package';
 import { productParamFromPath, rankClickedProducts } from '../../utils/productClicks';
 
@@ -39,9 +40,13 @@ function Dashboard() {
     setTotalProducts(productCount || 0);
 
     // 2. Low stock items
-    const { data: stockData } = await supabase.from('products').select('id, name, stock, low_stock_threshold, image_url, length, width, height');
+    const { data: stockData } = await supabase.from('products').select('id, name, stock, stock_international, variant_images, low_stock_threshold, image_url, length, width, height');
     if (stockData) {
-      const lowStock = stockData.filter(p => p.stock <= (p.low_stock_threshold !== null ? p.low_stock_threshold : 5));
+      const lowStock = stockData.filter((p) => {
+        const totals = getProductStockTotals(p);
+        const threshold = p.low_stock_threshold !== null ? p.low_stock_threshold : 5;
+        return totals.us <= threshold;
+      }).map((p) => ({ ...p, stock: getProductStockTotals(p).us }));
       setLowStockItems(lowStock);
       if (stockData.some(productNeedsPackageSync)) {
         await syncAllProductPackageDimensions(supabase);

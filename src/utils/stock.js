@@ -38,20 +38,38 @@ export function getAvailableQty({ us = 0, intl = 0 } = {}) {
   return usQty > 0 ? usQty : intlQty;
 }
 
-export function getProductStockTotals(product) {
-  let us = toQty(product?.stock);
-  let intl = toQty(product?.stock_international);
-
-  if (productHasVariantInventory(product)) {
-    us = 0;
-    intl = 0;
-    Object.values(product.variant_images).forEach((value) => {
-      if (!variantHasInventory(value)) return;
-      us += sumStockMap(value.stock);
-      intl += sumStockMap(value.stock_international);
-    });
+function mergeSizeQtyMap(map) {
+  const next = {};
+  if (!map || typeof map !== 'object') return next;
+  for (const [key, qty] of Object.entries(map)) {
+    const size = formatSizeLabel(key) || String(key).trim();
+    if (!size) continue;
+    const n = toQty(qty);
+    next[size] = next[size] == null ? n : Math.max(next[size], n);
   }
+  return next;
+}
 
+export function getVariantWarehouseTotals(variantImages) {
+  let us = 0;
+  let intl = 0;
+  if (!variantImages || typeof variantImages !== 'object') return { us, intl };
+  Object.values(variantImages).forEach((value) => {
+    if (!value || typeof value !== 'object') return;
+    if (!variantHasInventory(value)) return;
+    us += sumStockMap(mergeSizeQtyMap(value.stock));
+    intl += sumStockMap(mergeSizeQtyMap(value.stock_international));
+  });
+  return { us, intl };
+}
+
+export function getProductStockTotals(product) {
+  if (productHasVariantInventory(product)) {
+    const { us, intl } = getVariantWarehouseTotals(product.variant_images);
+    return { us, intl, total: us + intl };
+  }
+  const us = toQty(product?.stock);
+  const intl = toQty(product?.stock_international);
   return { us, intl, total: us + intl };
 }
 
@@ -173,7 +191,7 @@ function syncProductStockTotals(product) {
   const totals = getProductStockTotals(product);
   return {
     ...product,
-    stock: productHasVariantInventory(product) ? totals.total : totals.us,
+    stock: totals.us,
     stock_international: totals.intl
   };
 }
