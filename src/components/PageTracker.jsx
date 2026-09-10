@@ -37,6 +37,7 @@ function PageTracker() {
   useEffect(() => {
     if (!isStaffOnlyPath(location.pathname) && typeof window.gtag === 'function') {
       window.gtag('event', 'page_view', {
+        send_to: 'G-13R3HNGKMK',
         page_path: `${location.pathname}${location.search}`,
         page_title: document.title,
         page_location: window.location.href
