@@ -1,20 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { useCurrency } from '../context/CurrencyContext';
 import { supabase } from '../lib/supabase';
-import { loadStripe } from "@stripe/stripe-js";
-import { Elements } from "@stripe/react-stripe-js";
-import CheckoutForm from '../components/CheckoutForm';
 import { ChevronLeft, MapPin, ChevronRight, CheckCircle2, Truck } from 'lucide-react';
 import { COUNTRIES } from '../utils/countries';
 import { cartShipsFromInternational, getFulfillmentSource, getItemDeliveryEstimate } from '../utils/stock';
 import { getVariantSkuFromProduct } from '../utils/sku';
 import { isTrialCheckout } from '../utils/launch';
 import { attachEmailToSavedCart } from '../utils/cartTracking';
+import { trackBeginCheckout, trackPurchase } from '../utils/analytics';
 
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
+const StripePaymentBlock = lazy(() => import('../components/StripePaymentBlock'));
 
 function Checkout() {
   const navigate = useNavigate();
@@ -70,7 +68,9 @@ function Checkout() {
     if (savedAddress) {
       try {
         const parsed = JSON.parse(savedAddress);
-        // Ensure email matches session if logged in, otherwise use saved
+        if (!parsed || typeof parsed !== 'object') {
+          throw new Error('Invalid saved address');
+        }
         if (session?.user?.email) {
           parsed.email = session.user.email;
         }
@@ -218,6 +218,38 @@ function Checkout() {
     }
   }, [trialCheckout, preTaxTotal, shippingTotal, currency, EXCHANGE_RATES, showShippingForm, formData.houseNo, formData.apartment, formData.city, formData.region, formData.postcode, formData.location]);
 
+  useEffect(() => {
+    if (showShippingForm || !formData.postcode || !formData.location) return;
+    let cancelled = false;
+    const loadRates = async () => {
+      setIsFetchingRates(true);
+      try {
+        const res = await fetch('/api/shipping-rates', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            destinationZip: formData.postcode,
+            country: formData.location,
+            cartItems
+          })
+        });
+        const data = await res.json();
+        if (cancelled) return;
+        if (data.fulfillmentSource) setFulfillmentSource(data.fulfillmentSource);
+        else setFulfillmentSource(cartShipsFromInternational(cartItems) ? 'CN' : 'US');
+        if (data.success && data.rates && data.rates.length > 0) {
+          setShippingRates(data.rates);
+        }
+      } catch (err) {
+        console.error('Failed to fetch rates', err);
+      } finally {
+        if (!cancelled) setIsFetchingRates(false);
+      }
+    };
+    loadRates();
+    return () => { cancelled = true; };
+  }, [showShippingForm, formData.postcode, formData.location, cartItems]);
+
   if (cartItems.length === 0) {
     return (
       <div style={{ padding: '100px 20px', textAlign: 'center', background: '#f5f5f5', minHeight: '100vh' }}>
@@ -291,41 +323,6 @@ function Checkout() {
     setFormData(next);
     if (e.target.name === 'email') attachEmailToSavedCart(e.target.value);
   };
-
-  const fetchShippingRates = async () => {
-    if (!formData.postcode || !formData.location) return;
-    setIsFetchingRates(true);
-    try {
-      const res = await fetch('/api/shipping-rates', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          destinationZip: formData.postcode,
-          country: formData.location,
-          cartItems
-        })
-      });
-      const data = await res.json();
-      if (data.fulfillmentSource) setFulfillmentSource(data.fulfillmentSource);
-      else setFulfillmentSource(cartShipsFromInternational(cartItems) ? 'CN' : 'US');
-      if (data.success && data.rates && data.rates.length > 0) {
-        setShippingRates(data.rates);
-      }
-    } catch (err) {
-      console.error('Failed to fetch rates', err);
-    } finally {
-      setIsFetchingRates(false);
-    }
-  };
-
-  useEffect(() => {
-    if (!showShippingForm && formData.postcode && formData.location) {
-      fetchShippingRates();
-    }
-  }, [showShippingForm, formData.postcode, formData.location]);
-
-  const appearance = { theme: 'stripe' };
-  const options = { clientSecret, appearance };
 
   if (showShippingForm) {
     return (
@@ -438,7 +435,6 @@ function Checkout() {
                   return;
                 }
                 setShowShippingForm(false);
-                fetchShippingRates();
               }}
               style={{ width: '100%', padding: '16px', background: '#000', color: '#fff', border: 'none', fontWeight: 'bold', fontSize: '16px', borderRadius: '4px', cursor: 'pointer' }}
             >
@@ -627,9 +623,14 @@ function Checkout() {
             </button>
           </div>
         ) : clientSecret ? (
-          <Elements options={options} stripe={stripePromise}>
-            <CheckoutForm amount={finalTotal} formattedAmount={formatPrice(finalTotal)} onSuccess={handlePaymentSuccess} />
-          </Elements>
+          <Suspense fallback={<div style={{ padding: '24px', textAlign: 'center' }}>Loading payment form...</div>}>
+            <StripePaymentBlock
+              clientSecret={clientSecret}
+              amount={finalTotal}
+              formattedAmount={formatPrice(finalTotal)}
+              onSuccess={handlePaymentSuccess}
+            />
+          </Suspense>
         ) : paymentError ? (
           <div style={{ padding: '24px', textAlign: 'center', background: '#fee2e2', color: '#dc2626', borderRadius: '8px' }}>
             <strong>Payment Setup Error:</strong><br/>
