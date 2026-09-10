@@ -49,6 +49,18 @@
       "destination": "/api/:path*"
     },
     {
+      "source": "/gtag/js",
+      "destination": "https://www.googletagmanager.com/gtag/js"
+    },
+    {
+      "source": "/gtag/destination",
+      "destination": "https://www.googletagmanager.com/gtag/destination"
+    },
+    {
+      "source": "/g/collect",
+      "destination": "https://www.google-analytics.com/g/collect"
+    },
+    {
       "source": "/",
       "destination": "/api/product-share?__path=/"
     },

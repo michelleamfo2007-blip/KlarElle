@@ -22,7 +22,7 @@
     <meta name="twitter:title" content="Elegant Occasion Dresses & Evening Gowns | KlarElle" />
     <meta name="twitter:description" content="Discover KlarElle's curated collection of elegant occasion dresses, evening gowns and statement pieces chosen for exceptional fit and unforgettable moments." />
     <meta name="twitter:image" content="https://www.klarelle.store/og-home.jpg" />
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-13R3HNGKMK"></script>
+    <script async src="/gtag/js?id=G-13R3HNGKMK"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
@@ -35,7 +35,13 @@
         ad_personalization: 'denied'
       });
       gtag('js', new Date());
-      gtag('config', 'G-13R3HNGKMK', { send_page_view: true, cookie_domain: 'auto' });
+      gtag('config', 'G-13R3HNGKMK', {
+        send_page_view: true,
+        cookie_domain: 'auto',
+        first_party_collection: true,
+        transport_url: 'https://www.klarelle.store',
+        debug_mode: true
+      });
     </script>
   </head>
   <body>
