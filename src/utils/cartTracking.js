@@ -40,6 +40,38 @@ export async function logCartActivity({
   }
 }
 
+const EMAIL_KEY = 'klarelle_cart_email';
+
+export function rememberCartEmail(email) {
+  const cleaned = String(email || '').trim().toLowerCase();
+  if (!cleaned.includes('@')) return;
+  try {
+    localStorage.setItem(EMAIL_KEY, cleaned);
+  } catch {
+    /* ignore */
+  }
+}
+
+export function getRememberedCartEmail() {
+  try {
+    return localStorage.getItem(EMAIL_KEY) || '';
+  } catch {
+    return '';
+  }
+}
+
+export async function attachEmailToSavedCart(email) {
+  rememberCartEmail(email);
+  try {
+    const items = JSON.parse(localStorage.getItem('klarelle_cart') || '[]');
+    if (Array.isArray(items) && items.length) {
+      await saveCartSnapshot(items, email);
+    }
+  } catch {
+    /* ignore */
+  }
+}
+
 export async function saveCartSnapshot(items, email) {
   try {
     const compact = (items || []).map((item) => ({
@@ -54,7 +86,7 @@ export async function saveCartSnapshot(items, email) {
     }));
     await supabase.from('customer_carts').upsert({
       session_id: getCartSessionId(),
-      customer_email: email || null,
+      customer_email: email || getRememberedCartEmail() || null,
       items: compact,
       item_count: compact.reduce((sum, item) => sum + (item.quantity || 0), 0),
       updated_at: new Date().toISOString()

@@ -724,11 +724,25 @@ button.nav-link {
 }
 
 .luxury-add-btn {
-  display: none; /* User requested to hide large add button on grid */
+  display: block;
+  width: 100%;
+  margin-top: 12px;
+  padding: 10px 0;
+  background: #111;
+  color: #fff;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
 }
 
 .luxury-add-btn:hover {
-  display: none;
+  background: #000;
+  color: #fff;
 }
 
 /* Footer */

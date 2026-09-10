@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { formatSizeLabel } from '../utils/size';
+import { attachEmailToSavedCart } from '../utils/cartTracking';
 
 function NotifyMeForm({ product, selectedSize, onClose, reason = 'oos' }) {
   const [email, setEmail] = useState('');
@@ -36,6 +37,7 @@ function NotifyMeForm({ product, selectedSize, onClose, reason = 'oos' }) {
       });
       const data = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(data.error || 'Could not save your request.');
+      if (email.trim()) attachEmailToSavedCart(email.trim());
       setStatus('Thank you. We will notify you when this size is in stock.');
     } catch (error) {
       setStatus(error.message || 'Could not save your request.');

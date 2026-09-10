@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { sendAbandonedCartReminders, unsubscribeCartEmail } from './_abandoned-cart.js';
 
 function getSupabase() {
   const url = process.env.VITE_SUPABASE_URL;
@@ -30,14 +31,46 @@ async function sendEmail({ to, subject, html }) {
   }
 }
 
+function isCronAuthorized(req) {
+  const secret = process.env.CRON_SECRET;
+  const auth = String(req.headers.authorization || '');
+  if (secret && auth === `Bearer ${secret}`) return true;
+  return String(req.headers['user-agent'] || '').includes('vercel-cron');
+}
+
 export default async function handler(req, res) {
   try {
+    const action = req.method === 'GET'
+      ? String(req.query?.action || '')
+      : String(req.body?.action || 'join');
+
+    if (action === 'abandoned-cart') {
+      if (!isCronAuthorized(req)) {
+        return res.status(401).json({ error: 'Unauthorized' });
+      }
+      const result = await sendAbandonedCartReminders();
+      return res.status(200).json(result);
+    }
+
+    if (action === 'unsubscribe-cart') {
+      const email = req.method === 'GET' ? req.query?.email : req.body?.email;
+      const token = req.method === 'GET' ? req.query?.token : req.body?.token;
+      const result = await unsubscribeCartEmail(email, token);
+      if (req.method === 'GET') {
+        res.setHeader('Content-Type', 'text/html; charset=utf-8');
+        const message = result.ok
+          ? 'You have been unsubscribed from KlarElle cart reminders.'
+          : (result.error || 'This unsubscribe link is not valid.');
+        return res.status(result.ok ? 200 : 400).send(`<!doctype html><html><body style="font-family:Georgia,serif;background:#FAF9F6;padding:80px 24px;text-align:center;color:#111;"><p style="letter-spacing:3px;text-transform:uppercase;font-size:12px;color:#BCA38F;">KlarElle</p><h1 style="font-weight:400;">${result.ok ? 'Unsubscribed' : 'Link expired'}</h1><p style="color:#555;">${message}</p><p><a href="https://www.klarelle.store" style="color:#111;">Return to KlarElle</a></p></body></html>`);
+      }
+      return res.status(result.ok ? 200 : 400).json(result);
+    }
+
     if (req.method !== 'POST') {
       return res.status(405).json({ error: 'Method not allowed' });
     }
 
     const {
-      action = 'join',
       email,
       phone,
       size,

@@ -3,7 +3,7 @@ import { useAuth } from './AuthContext';
 import { getFulfillmentSource, isProductSoldOut } from '../utils/stock';
 import { getVariantSkuFromProduct, isOfficialSku } from '../utils/sku';
 import { isComingSoon } from '../utils/storefront';
-import { logCartActivity, saveCartSnapshot } from '../utils/cartTracking';
+import { getRememberedCartEmail, logCartActivity, saveCartSnapshot } from '../utils/cartTracking';
 import { trackAddToCart } from '../utils/analytics';
 
 const CartContext = createContext();
@@ -24,7 +24,7 @@ export const CartProvider = ({ children }) => {
 
   useEffect(() => {
     localStorage.setItem('klarelle_cart', JSON.stringify(cartItems));
-    saveCartSnapshot(cartItems, session?.user?.email);
+    saveCartSnapshot(cartItems, session?.user?.email || getRememberedCartEmail());
   }, [cartItems, session?.user?.email]);
 
   const addToCart = (product, selectedSize = null, selectedColor = null, quantity = 1, fulfilledFrom) => {

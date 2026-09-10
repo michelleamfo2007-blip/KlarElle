@@ -113,6 +113,51 @@ function parseStretchLevel(text) {
   return 1;
 }
 
+function loadHelpfulVotes() {
+  try {
+    return JSON.parse(localStorage.getItem('klarelle_helpful_reviews') || '[]');
+  } catch {
+    return [];
+  }
+}
+
+function ReviewHelpfulButton({ review }) {
+  const [count, setCount] = useState(review.helpful_count || 0);
+  const [voted, setVoted] = useState(() => loadHelpfulVotes().includes(review.id));
+
+  const markHelpful = async () => {
+    if (voted) return;
+    const next = count + 1;
+    const { error } = await supabase.from('product_reviews').update({ helpful_count: next }).eq('id', review.id);
+    if (error) return;
+    localStorage.setItem('klarelle_helpful_reviews', JSON.stringify([...loadHelpfulVotes(), review.id]));
+    setCount(next);
+    setVoted(true);
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={markHelpful}
+      disabled={voted}
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '4px',
+        background: 'none',
+        border: 'none',
+        padding: 0,
+        fontSize: '12px',
+        fontWeight: 'bold',
+        color: voted ? '#666' : '#000',
+        cursor: voted ? 'default' : 'pointer'
+      }}
+    >
+      <ThumbsUp size={14} fill={voted ? 'currentColor' : 'none'} /> Helpful ({count})
+    </button>
+  );
+}
+
 function ProductDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -986,9 +1031,8 @@ function ProductDetails() {
                           <div style={{ color: '#999' }}>Color: {review.color_bought || 'N/A'} / Size: {formatSizeLabel(review.size_bought || 'N/A')}</div>
                        </div>
                        <p style={{ fontSize: '13px', margin: '0 0 12px 0', fontWeight: '600' }}>{review.text}</p>
-                       <div style={{ display: 'flex', justifyContent: 'flex-end', fontSize: '12px', color: '#000', fontWeight: 'bold', gap: '16px', alignItems: 'center' }}>
-                          <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><ThumbsUp size={14} /> Helpful ({review.helpful_count})</span>
-                          <span>•••</span>
+                       <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                          <ReviewHelpfulButton review={review} />
                        </div>
                     </div>
                   ))}
@@ -1595,8 +1639,8 @@ function ProductDetails() {
                       <div style={{ color: '#999' }}>Color: {review.color_bought || 'N/A'} / Size: {formatSizeLabel(review.size_bought || 'N/A')}</div>
                    </div>
                    <p style={{ fontSize: '13px', margin: '0 0 12px 0', fontWeight: '600' }}>{review.text}</p>
-                   <div style={{ display: 'flex', justifyContent: 'flex-end', fontSize: '12px', color: '#000', fontWeight: 'bold', gap: '16px', alignItems: 'center' }}>
-                      <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><ThumbsUp size={14} /> Helpful ({review.helpful_count})</span>
+                   <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                      <ReviewHelpfulButton review={review} />
                    </div>
                 </div>
               ))}

@@ -14,6 +14,7 @@ import { DEFAULT_WEBSITE_CONTENT, normalizeWebsiteContent } from '../data/websit
 import { buildOrganizationJsonLd, HOME_DESCRIPTION, HOME_TITLE } from '../utils/seoPages';
 import { productPath } from '../utils/productUrl';
 import { trackSelectItem } from '../utils/analytics';
+import { attachEmailToSavedCart } from '../utils/cartTracking';
 import ProductImage from '../components/ProductImage';
 import heroVideo from '../../IMG_2870 klarelle.MP4';
 
@@ -72,7 +73,7 @@ function HomeProductCard({ product, formatPrice, toggleFavorite, isFavorite, sho
           onClick={() => trackSelectItem(product)}
           style={{ textAlign: 'center', textDecoration: 'none' }}
         >
-          {comingSoon ? 'COMING SOON' : soldOut ? 'SOLD OUT' : 'SELECT OPTIONS'}
+          {comingSoon ? 'COMING SOON' : soldOut ? 'SOLD OUT' : 'ADD TO CART'}
         </Link>
       </div>
     </div>
@@ -161,12 +162,14 @@ function Home() {
     if (error) {
       if (error.code === '23505') { // Unique violation
         setWaitlistStatus('success'); // Already on the list
+        attachEmailToSavedCart(waitlistEmail);
       } else {
         setWaitlistStatus('error');
         console.error(error);
       }
     } else {
       setWaitlistStatus('success');
+      attachEmailToSavedCart(waitlistEmail);
       // Send the automated welcome email via backend
       try {
         await fetch('/api/join-waitlist', {

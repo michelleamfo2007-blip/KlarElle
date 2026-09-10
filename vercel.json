@@ -58,6 +58,12 @@
       "permanent": true
     }
   ],
+  "crons": [
+    {
+      "path": "/api/join-waitlist?action=abandoned-cart",
+      "schedule": "0 15 * * *"
+    }
+  ],
   "rewrites": [
     {
       "source": "/api/:path*",

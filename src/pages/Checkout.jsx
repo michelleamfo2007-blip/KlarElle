@@ -12,7 +12,7 @@ import { COUNTRIES } from '../utils/countries';
 import { cartShipsFromInternational, getItemDeliveryEstimate } from '../utils/stock';
 import { getVariantSkuFromProduct } from '../utils/sku';
 import { STORE_LAUNCHED } from '../utils/launch';
-import { trackBeginCheckout, trackPurchase } from '../utils/analytics';
+import { attachEmailToSavedCart } from '../utils/cartTracking';
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
@@ -285,7 +285,9 @@ function Checkout() {
   };
 
   const handleInputChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const next = { ...formData, [e.target.name]: e.target.value };
+    setFormData(next);
+    if (e.target.name === 'email') attachEmailToSavedCart(e.target.value);
   };
 
   const fetchShippingRates = async () => {

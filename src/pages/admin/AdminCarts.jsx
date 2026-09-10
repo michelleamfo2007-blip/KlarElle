@@ -60,7 +60,7 @@ function AdminCarts() {
           <h1 style={{ fontSize: '24px', fontWeight: 'bold', margin: '0 0 8px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
             <ShoppingBag size={24} /> Customer Carts
           </h1>
-          <p style={{ color: '#6b7280', margin: 0 }}>See what shoppers are adding to their carts, including guests.</p>
+          <p style={{ color: '#6b7280', margin: 0 }}>See what shoppers are adding. If they leave an email, KlarElle sends one saved-cart note the next day.</p>
         </div>
       </div>
 

@@ -46,7 +46,7 @@ function CategoryProductCard({ product, formatPrice, onNotify }) {
           {comingSoon || soldOut ? (
             <button className="action-btn add-cart" onClick={() => onNotify(product)}>NOTIFY ME</button>
           ) : (
-            <Link to={productPath(product)} className="action-btn add-cart" onClick={() => trackSelectItem(product)}>SELECT OPTIONS</Link>
+            <Link to={productPath(product)} className="action-btn add-cart" onClick={() => trackSelectItem(product)}>ADD TO CART</Link>
           )}
           <button className="action-btn"><Heart size={18} /></button>
         </div>

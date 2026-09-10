@@ -122,7 +122,7 @@ function Favorites() {
                 ) : isProductSoldOut(product) ? (
                   <Link to={productPath(product)} className="luxury-add-btn" style={{ textDecoration: 'none', display: 'block', textAlign: 'center' }}>Sold Out</Link>
                 ) : (
-                  <Link to={productPath(product)} className="luxury-add-btn" style={{ textDecoration: 'none', display: 'block', textAlign: 'center' }}>Select Options</Link>
+                  <Link to={productPath(product)} className="luxury-add-btn" style={{ textDecoration: 'none', display: 'block', textAlign: 'center' }}>Add to Cart</Link>
                 )}
               </div>
             </div>
