@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 
-const MEASUREMENT_ID = import.meta.env.VITE_GA_MEASUREMENT_ID;
+const MEASUREMENT_ID = import.meta.env.VITE_GA_MEASUREMENT_ID || 'G-13R3HNGKMK';
 
 function GoogleAnalytics() {
   useEffect(() => {
