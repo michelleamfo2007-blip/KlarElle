@@ -91,8 +91,13 @@ export function getMaterialDetails(material) {
 
 export function applyMaterialDetails(product = {}) {
   const defaults = getMaterialDetails(product.material) || {};
+  const stored = String(product.composition || '').trim();
+  const materialName = String(product.material || '').trim();
+  const compositionIsGeneric = !stored
+    || stored.toLowerCase() === materialName.toLowerCase()
+    || (!/\d/.test(stored) && stored.split(/\s+/).length <= 2);
   return {
-    composition: product.composition || defaults.composition || '',
+    composition: compositionIsGeneric ? (defaults.composition || stored) : stored,
     pattern_type: product.pattern_type || defaults.pattern_type || '',
     style: product.style || defaults.style || '',
     care_instructions: product.care_instructions || defaults.care_instructions || '',

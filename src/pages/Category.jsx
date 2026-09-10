@@ -3,13 +3,12 @@ import { useParams, Link, Navigate } from 'react-router-dom';
 import SEO from '../components/SEO';
 import { supabase } from '../lib/supabase';
 import { Heart, Plus, Minus } from 'lucide-react';
-import { useCart } from '../context/CartContext';
 import { useCurrency } from '../context/CurrencyContext';
 import FilterSidebar from '../components/FilterSidebar';
 import FilterModal from '../components/FilterModal';
 import ProductRating from '../components/ProductRating';
 import { attachReviewStats } from '../utils/reviews';
-import { isProductSoldOut } from '../utils/stock';
+import { isProductPreorder, isProductSoldOut } from '../utils/stock';
 import { Filter } from 'lucide-react';
 import ColorPreviewDots, { useProductColorImage } from '../components/ColorPreviewDots';
 import NotifyMeForm from '../components/NotifyMeForm';
@@ -22,15 +21,18 @@ import { trackSelectItem } from '../utils/analytics';
 import ProductImage from '../components/ProductImage';
 import './Category.css';
 
-function CategoryProductCard({ product, formatPrice, addToCart, onNotify }) {
+function CategoryProductCard({ product, formatPrice, onNotify }) {
   const { colors, selectedColor, setSelectedColor, image } = useProductColorImage(product);
   const comingSoon = isComingSoon(product);
   const soldOut = isProductSoldOut(product);
+  const preorder = isProductPreorder(product);
 
   return (
     <div className="product-card">
       {comingSoon ? (
         <div className="product-badge" style={{ background: '#111', color: '#fff', letterSpacing: '1px' }}>COMING SOON</div>
+      ) : preorder ? (
+        <div className="product-badge" style={{ background: '#9a3412', color: '#fff', letterSpacing: '1px' }}>PREORDER</div>
       ) : soldOut ? (
         <div className="product-badge" style={{ background: '#000', color: '#fff' }}>SOLD OUT</div>
       ) : product.old_price && parseFloat(product.old_price) > parseFloat(product.price) && (
@@ -41,12 +43,10 @@ function CategoryProductCard({ product, formatPrice, addToCart, onNotify }) {
           <ProductImage key={selectedColor} src={image || '/placeholder.png'} product={product} extras={{ color: selectedColor }} className="product-image primary" style={{ opacity: soldOut && !comingSoon ? 0.6 : 1 }} />
         </Link>
         <div className="product-actions">
-          {comingSoon ? (
+          {comingSoon || soldOut ? (
             <button className="action-btn add-cart" onClick={() => onNotify(product)}>NOTIFY ME</button>
-          ) : !soldOut ? (
-            <button className="action-btn add-cart" onClick={() => addToCart(product, null, selectedColor || null)}>ADD TO CART</button>
           ) : (
-            <button className="action-btn add-cart" disabled style={{ background: '#ddd', color: '#666', cursor: 'not-allowed' }}>SOLD OUT</button>
+            <Link to={productPath(product)} className="action-btn add-cart" onClick={() => trackSelectItem(product)}>SELECT OPTIONS</Link>
           )}
           <button className="action-btn"><Heart size={18} /></button>
         </div>
@@ -69,7 +69,6 @@ function CategoryProductCard({ product, formatPrice, addToCart, onNotify }) {
 
 function Category() {
   const { id } = useParams(); // gets 'dresses', 'tops', etc. from URL
-  const { addToCart } = useCart();
   const { formatPrice } = useCurrency();
   const [allProducts, setAllProducts] = useState([]);
   const [products, setProducts] = useState([]);
@@ -240,7 +239,6 @@ function Category() {
                 key={product.id}
                 product={product}
                 formatPrice={formatPrice}
-                addToCart={addToCart}
                 onNotify={setNotifyProduct}
               />
             ))}

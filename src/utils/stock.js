@@ -45,7 +45,26 @@ export function getProductStockTotals(product) {
   return { us, intl, total: us + intl };
 }
 
+export function getAvailabilityMode(product) {
+  const raw = String(product?.availability_mode || '').toLowerCase().replace(/-/g, '_');
+  if (raw === 'preorder' || raw === 'sold_out') return raw;
+  const tags = Array.isArray(product?.tags)
+    ? product.tags.map((tag) => String(tag).toLowerCase())
+    : [];
+  if (tags.includes('availability:preorder')) return 'preorder';
+  if (tags.includes('availability:sold-out') || tags.includes('availability:sold_out')) return 'sold_out';
+  return 'stock';
+}
+
+export function isProductPreorder(product) {
+  return getAvailabilityMode(product) === 'preorder';
+}
+
 export function isProductSoldOut(product) {
+  if (!product) return false;
+  const mode = getAvailabilityMode(product);
+  if (mode === 'sold_out') return true;
+  if (mode === 'preorder') return false;
   return getProductStockTotals(product).total <= 0;
 }
 

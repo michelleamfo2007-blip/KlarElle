@@ -1,4 +1,5 @@
 import { productPath } from './productUrl.js';
+import { getVariantSkuFromProduct, isOfficialSku } from './sku.js';
 
 export const SITE_URL = 'https://www.klarelle.store';
 export const SITE_NAME = 'KlarElle';
@@ -8,6 +9,13 @@ export function absoluteUrl(url) {
   if (!url) return '';
   if (url.startsWith('http://') || url.startsWith('https://')) return url;
   return `${SITE_URL}${url.startsWith('/') ? url : `/${url}`}`;
+}
+
+export function shareImageUrl(url) {
+  const abs = absoluteUrl(url) || DEFAULT_SHARE_IMAGE;
+  if (!abs.includes('res.cloudinary.com') || !abs.includes('/upload/')) return abs;
+  if (/\/upload\/[^/]*f_jpg/.test(abs)) return abs;
+  return abs.replace('/upload/', '/upload/f_jpg,q_auto,w_1200/');
 }
 
 export function pageDescription(text, fallback = '') {
@@ -40,7 +48,7 @@ export function buildProductJsonLd(product, extras = {}) {
     name: product.name,
     description: pageDescription(product.description, `${product.name} from KlarElle.`),
     image: image ? [image] : undefined,
-    sku: product.sku || undefined,
+    sku: getVariantSkuFromProduct(product, extras.color, extras.size) || (isOfficialSku(product.sku) ? product.sku : undefined),
     color: extras.color || (Array.isArray(product.colors) ? product.colors[0] : product.colors) || undefined,
     material: product.material || product.composition || undefined,
     brand: {

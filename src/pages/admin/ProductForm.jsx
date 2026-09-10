@@ -7,6 +7,7 @@ import { getColorHex } from '../../utils/colors';
 import { ASSIGNABLE_CATEGORIES } from '../../data/collections';
 import {
   collectStyleCodes,
+  getVariantSkuFromProduct,
   isOfficialSku,
   lookupStyle,
   nextStyleCode,
@@ -49,6 +50,7 @@ function ProductForm() {
     features: '',
     measurements: '',
     preorder_lead_time: '14–21 business days',
+    availability_mode: 'stock',
     coming_soon: false,
     release_date: '',
     size_guide_url: '',
@@ -104,7 +106,7 @@ function ProductForm() {
     if (data) {
       setFormData({
         name: data.name || '',
-        sku: data.sku || '',
+        sku: getVariantSkuFromProduct(data) || data.sku || '',
         style_code: lookupStyle({ productId: id, name: data.name, sku: data.sku })?.styleCode || '',
         description: data.description || '',
         price: data.price || '',
@@ -133,6 +135,14 @@ function ProductForm() {
         features: data.features || '',
         measurements: data.measurements || '',
         preorder_lead_time: data.preorder_lead_time || '14–21 business days',
+        availability_mode: (() => {
+          const mode = String(data.availability_mode || '').toLowerCase().replace(/-/g, '_');
+          if (mode === 'preorder' || mode === 'sold_out') return mode;
+          const tags = Array.isArray(data.tags) ? data.tags.map((tag) => String(tag).toLowerCase()) : [];
+          if (tags.includes('availability:preorder')) return 'preorder';
+          if (tags.includes('availability:sold-out') || tags.includes('availability:sold_out')) return 'sold_out';
+          return 'stock';
+        })(),
         coming_soon: data.coming_soon === true,
         release_date: data.release_date || '',
         size_guide_url: data.size_guide_url || '',
@@ -155,7 +165,7 @@ function ProductForm() {
       setTagsInput(Array.isArray(data.tags)
         ? data.tags.filter((tag) => {
             const lower = String(tag).toLowerCase();
-            return lower !== 'coming-soon' && !lower.startsWith('cat:');
+            return lower !== 'coming-soon' && !lower.startsWith('cat:') && !lower.startsWith('availability:');
           }).join(', ')
         : (data.tags || ''));
       const loadedVariants = {};
@@ -450,6 +460,7 @@ function ProductForm() {
       features: formData.features,
       measurements: formData.measurements,
       preorder_lead_time: formData.preorder_lead_time,
+      availability_mode: formData.availability_mode || 'stock',
       coming_soon: formData.coming_soon === true,
       release_date: formData.release_date || null,
       size_guide_url: formData.size_guide_url,
@@ -467,14 +478,16 @@ function ProductForm() {
         const tags = tagsInput.split(/[;,]+/).map(t => t.trim()).filter(Boolean);
         const withoutMeta = tags.filter((tag) => {
           const lower = tag.toLowerCase();
-          return lower !== 'coming-soon' && !lower.startsWith('cat:');
+          return lower !== 'coming-soon' && !lower.startsWith('cat:') && !lower.startsWith('availability:');
         });
         const categoryTags = ((formData.categories?.length ? formData.categories : [formData.category]).filter(Boolean))
           .map((slug) => `cat:${slug}`);
         return [
           ...withoutMeta,
           ...categoryTags,
-          ...(formData.coming_soon ? ['coming-soon'] : [])
+          ...(formData.coming_soon ? ['coming-soon'] : []),
+          ...(formData.availability_mode === 'preorder' ? ['availability:preorder'] : []),
+          ...(formData.availability_mode === 'sold_out' ? ['availability:sold-out'] : [])
         ];
       })(),
       variant_images: cleanVariantImages
@@ -490,7 +503,7 @@ function ProductForm() {
     try {
       let { error } = await saveProduct(productData);
       if (error && /column|schema cache|does not exist/i.test(error.message || '')) {
-        const { fit, features, measurements, preorder_lead_time, coming_soon, release_date, categories, size_chart, ...basePayload } = productData;
+        const { fit, features, measurements, preorder_lead_time, coming_soon, release_date, categories, size_chart, availability_mode, ...basePayload } = productData;
         ({ error } = await saveProduct(basePayload));
       }
       if (error) throw error;
@@ -1330,6 +1343,26 @@ function ProductForm() {
                     <option value="active">Active</option>
                     <option value="archived">Archived</option>
                   </select>
+                </div>
+
+                <div>
+                  <label className="input-label">Live availability</label>
+                  <select
+                    className="input-field"
+                    value={formData.availability_mode || 'stock'}
+                    onChange={(e) => setFormData({ ...formData, availability_mode: e.target.value })}
+                  >
+                    <option value="stock">In stock — follow size quantities</option>
+                    <option value="preorder">Preorder — customers can buy now</option>
+                    <option value="sold_out">Sold out — customers cannot buy</option>
+                  </select>
+                  <p style={{ fontSize: '12px', color: '#6b7280', margin: '8px 0 0' }}>
+                    {formData.availability_mode === 'preorder'
+                      ? 'The product page shows Preorder. Customers can add to cart; the dress ships after production.'
+                      : formData.availability_mode === 'sold_out'
+                        ? 'The product page shows Sold out. Add to cart is hidden; customers can use Notify me.'
+                        : 'Sizes with quantity show as in stock. Sizes at 0 show as sold out, not preorder.'}
+                  </p>
                 </div>
 
                 <div style={{ borderTop: '1px solid #e5e7eb', paddingTop: '16px' }}>

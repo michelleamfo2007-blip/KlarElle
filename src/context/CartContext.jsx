@@ -1,7 +1,7 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { useAuth } from './AuthContext';
-import { getFulfillmentSource } from '../utils/stock';
-import { getVariantSkuFromProduct } from '../utils/sku';
+import { getFulfillmentSource, isProductSoldOut } from '../utils/stock';
+import { getVariantSkuFromProduct, isOfficialSku } from '../utils/sku';
 import { isComingSoon } from '../utils/storefront';
 import { logCartActivity, saveCartSnapshot } from '../utils/cartTracking';
 import { trackAddToCart } from '../utils/analytics';
@@ -34,8 +34,15 @@ export const CartProvider = ({ children }) => {
       addToCart._toastTimer = window.setTimeout(() => setCartToast(''), 3500);
       return;
     }
+    if (isProductSoldOut(product)) {
+      setCartToast('This style is sold out. Use Notify Me When Available.');
+      window.clearTimeout(addToCart._toastTimer);
+      addToCart._toastTimer = window.setTimeout(() => setCartToast(''), 3500);
+      return;
+    }
     const source = fulfilledFrom || getFulfillmentSource(product, selectedColor, selectedSize);
-    const sku = getVariantSkuFromProduct(product, selectedColor, selectedSize) || product.sku;
+    const sku = getVariantSkuFromProduct(product, selectedColor, selectedSize)
+      || (isOfficialSku(product.sku) ? product.sku : '');
     setCartItems(prev => {
       const cartItemId = `${product.id}-${selectedSize || 'default'}-${selectedColor || 'default'}`;
       const existing = prev.find(item => item.cartItemId === cartItemId);

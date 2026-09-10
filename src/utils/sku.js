@@ -135,21 +135,31 @@ export function resolveVariantBin({ productId, name, color, size, existingBin, s
 }
 
 export function getVariantSkuFromProduct(product, color, size) {
-  const sizeCode = formatSizeLabel(size);
+  const colors = Array.isArray(product?.colors)
+    ? product.colors
+    : String(product?.colors || '').split(/[;,]+/).map((value) => String(value).trim()).filter(Boolean);
+  const sizes = Array.isArray(product?.sizes)
+    ? product.sizes
+    : String(product?.sizes || '').split(/[;,]+/).map((value) => String(value).trim()).filter(Boolean);
+  const useColor = color && !/^standard$/i.test(String(color).trim()) ? color : colors[0];
+  const useSize = size || sizes[0];
+  const sizeCode = formatSizeLabel(useSize);
   const variants = product?.variant_images || {};
-  const direct = variants[color]?.skus?.[sizeCode] || variants[color]?.skus?.[size];
-  if (direct) return direct;
-  const matchColor = Object.keys(variants).find((key) => normalizeSkuName(key) === normalizeSkuName(color));
+  const direct = variants[useColor]?.skus?.[sizeCode] || variants[useColor]?.skus?.[useSize];
+  if (isOfficialSku(direct)) return direct;
+  const matchColor = Object.keys(variants).find((key) => normalizeSkuName(key) === normalizeSkuName(useColor));
   const fromColor = matchColor
-    ? (variants[matchColor]?.skus?.[sizeCode] || variants[matchColor]?.skus?.[size])
+    ? (variants[matchColor]?.skus?.[sizeCode] || variants[matchColor]?.skus?.[useSize])
     : '';
-  if (fromColor) return fromColor;
-  return resolveVariantSku({
+  if (isOfficialSku(fromColor)) return fromColor;
+  const resolved = resolveVariantSku({
     productId: product?.id,
     name: product?.name,
-    color,
+    color: useColor,
     size: sizeCode,
-    existingSku: product?.sku,
-    sku: product?.sku
-  }) || product?.sku || '';
+    existingSku: isOfficialSku(product?.sku) ? product.sku : '',
+    sku: isOfficialSku(product?.sku) ? product.sku : ''
+  });
+  if (isOfficialSku(resolved)) return resolved;
+  return isOfficialSku(product?.sku) ? product.sku : (resolved || '');
 }

@@ -3,12 +3,11 @@ import { Link } from 'react-router-dom';
 import SEO from '../components/SEO';
 import { supabase } from '../lib/supabase';
 import { Heart, ArrowRight, Eye, ShoppingBag } from 'lucide-react';
-import { useCart } from '../context/CartContext';
 import { useFavorites } from '../context/FavoritesContext';
 import { useCurrency } from '../context/CurrencyContext';
 import ProductRating from '../components/ProductRating';
 import { attachReviewStats } from '../utils/reviews';
-import { isProductSoldOut } from '../utils/stock';
+import { isProductPreorder, isProductSoldOut } from '../utils/stock';
 import ColorPreviewDots, { useProductColorImage } from '../components/ColorPreviewDots';
 import { isComingSoon, maybeLaunchProduct } from '../utils/storefront';
 import { DEFAULT_WEBSITE_CONTENT, normalizeWebsiteContent } from '../data/websiteContent';
@@ -18,9 +17,11 @@ import { trackSelectItem } from '../utils/analytics';
 import ProductImage from '../components/ProductImage';
 import heroVideo from '../../IMG_2870 klarelle.MP4';
 
-function HomeProductCard({ product, formatPrice, addToCart, toggleFavorite, isFavorite, showToast, priority }) {
+function HomeProductCard({ product, formatPrice, toggleFavorite, isFavorite, showToast, priority }) {
   const { colors, selectedColor, setSelectedColor, image } = useProductColorImage(product);
   const soldOut = isProductSoldOut(product);
+  const preorder = isProductPreorder(product);
+  const comingSoon = isComingSoon(product);
 
   return (
     <div className="luxury-card">
@@ -28,7 +29,11 @@ function HomeProductCard({ product, formatPrice, addToCart, toggleFavorite, isFa
         <Link to={productPath(product)} className="luxury-image-link" onClick={() => trackSelectItem(product)}>
           <ProductImage key={selectedColor} src={image || '/placeholder.png'} product={product} extras={{ color: selectedColor }} className="luxury-image primary" style={{ opacity: soldOut ? 0.6 : 1 }} priority={priority} />
         </Link>
-        {soldOut ? (
+        {comingSoon ? (
+          <div className="luxury-badge" style={{ background: '#111', color: '#fff', letterSpacing: '1px' }}>COMING SOON</div>
+        ) : preorder ? (
+          <div className="luxury-badge" style={{ background: '#9a3412', color: '#fff', letterSpacing: '1px' }}>PREORDER</div>
+        ) : soldOut ? (
           <div className="luxury-badge" style={{ background: '#000', color: '#fff', letterSpacing: '1px' }}>SOLD OUT</div>
         ) : product.old_price && parseFloat(product.old_price) > parseFloat(product.price) && (
           <div className="luxury-badge">-{Math.round(((product.old_price - product.price) / product.old_price) * 100)}%</div>
@@ -61,16 +66,14 @@ function HomeProductCard({ product, formatPrice, addToCart, toggleFavorite, isFa
         </div>
         <ColorPreviewDots colors={colors} selectedColor={selectedColor} onSelect={setSelectedColor} />
         <ProductRating count={product.reviewCount} average={product.reviewAvg} className="luxury-rating" />
-        <button
+        <Link
+          to={productPath(product)}
           className="luxury-add-btn"
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            addToCart(product, 'M', selectedColor || 'Standard');
-          }}
+          onClick={() => trackSelectItem(product)}
+          style={{ textAlign: 'center', textDecoration: 'none' }}
         >
-          ADD TO CART
-        </button>
+          {comingSoon ? 'COMING SOON' : soldOut ? 'SOLD OUT' : 'SELECT OPTIONS'}
+        </Link>
       </div>
     </div>
   );
@@ -83,7 +86,6 @@ function Home() {
   const [waitlistEmail, setWaitlistEmail] = useState('');
   const [waitlistStatus, setWaitlistStatus] = useState(''); // 'idle', 'loading', 'success', 'error'
   const [websiteContent, setWebsiteContent] = useState(DEFAULT_WEBSITE_CONTENT);
-  const { addToCart } = useCart();
   const { toggleFavorite, isFavorite } = useFavorites();
   const { formatPrice } = useCurrency();
   const heroVideoRef = useRef(null);
@@ -509,7 +511,6 @@ function Home() {
                   key={`luxury-${product.id}`}
                   product={product}
                   formatPrice={formatPrice}
-                  addToCart={addToCart}
                   toggleFavorite={toggleFavorite}
                   isFavorite={isFavorite}
                   showToast={showToast}

@@ -41,6 +41,21 @@
       "source": "/category/coming-soon",
       "destination": "/category/new-in",
       "permanent": true
+    },
+    {
+      "source": "/category/dinner-wear",
+      "destination": "/category/dinner",
+      "permanent": true
+    },
+    {
+      "source": "/category/party-wear",
+      "destination": "/category/celebration",
+      "permanent": true
+    },
+    {
+      "source": "/category/maxi-dresses",
+      "destination": "/category/evening",
+      "permanent": true
     }
   ],
   "rewrites": [

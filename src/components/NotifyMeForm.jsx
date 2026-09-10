@@ -1,13 +1,17 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { formatSizeLabel } from '../utils/size';
 
-function NotifyMeForm({ product, selectedSize, onClose }) {
+function NotifyMeForm({ product, selectedSize, onClose, reason = 'oos' }) {
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [size, setSize] = useState(selectedSize || product?.parsedSizes?.[0] || product?.sizes?.[0] || '');
   const [status, setStatus] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const sizes = product?.parsedSizes || (Array.isArray(product?.sizes) ? product.sizes : []);
+
+  useEffect(() => {
+    if (selectedSize) setSize(selectedSize);
+  }, [selectedSize]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -32,7 +36,7 @@ function NotifyMeForm({ product, selectedSize, onClose }) {
       });
       const data = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(data.error || 'Could not save your request.');
-      setStatus('Thank you. We will notify you when this style is available.');
+      setStatus('Thank you. We will notify you when this size is in stock.');
     } catch (error) {
       setStatus(error.message || 'Could not save your request.');
     } finally {
@@ -40,10 +44,14 @@ function NotifyMeForm({ product, selectedSize, onClose }) {
     }
   };
 
+  const copy = reason === 'coming-soon'
+    ? 'Enter your email or phone number and the size you want. We will message you when this dress launches.'
+    : 'This size or color is not available. Enter your email or phone number and we will notify you when it is in stock.';
+
   return (
     <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '12px' }}>
       <p style={{ margin: 0, fontSize: '13px', color: '#555', lineHeight: 1.5 }}>
-        Enter your email or phone number and the size you want. We will message you when this dress launches.
+        {copy}
       </p>
       <input
         type="email"
@@ -75,7 +83,7 @@ function NotifyMeForm({ product, selectedSize, onClose }) {
         disabled={submitting}
         style={{ padding: '14px', background: '#000', color: '#fff', border: 'none', fontWeight: 700, cursor: submitting ? 'wait' : 'pointer' }}
       >
-        {submitting ? 'SAVING...' : 'NOTIFY ME WHEN AVAILABLE'}
+        {submitting ? 'SAVING...' : 'NOTIFY ME WHEN IN STOCK'}
       </button>
       {status && <p style={{ margin: 0, fontSize: '13px', color: '#333' }}>{status}</p>}
       {onClose && (

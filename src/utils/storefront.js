@@ -1,3 +1,5 @@
+import { resolveCollectionSlug } from '../data/collections.js';
+
 export function isPublishedOnStorefront(product) {
   if (!product) return false;
   if (product.visibility === false) return false;
@@ -81,7 +83,7 @@ export function getProductCategorySlugs(product) {
       value.forEach(add);
       return;
     }
-    const slug = String(value).trim().toLowerCase();
+    const slug = resolveCollectionSlug(String(value).trim().toLowerCase());
     if (slug) slugs.push(slug);
   };
   add(product?.categories);

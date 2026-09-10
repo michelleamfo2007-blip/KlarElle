@@ -1,11 +1,12 @@
 import { createClient } from '@supabase/supabase-js';
-import { COLLECTION_ALIASES, getCollectionBySlug, STORE_COLLECTIONS } from '../src/data/collections.js';
+import { COLLECTION_ALIASES, getCollectionBySlug, productCollection, STORE_COLLECTIONS } from '../src/data/collections.js';
 import { getSitePage } from '../src/data/sitePages.js';
 import {
   absoluteUrl,
   buildProductJsonLd,
   DEFAULT_SHARE_IMAGE,
   pageDescription,
+  shareImageUrl,
   SITE_URL
 } from '../src/utils/seo.js';
 import {
@@ -22,6 +23,8 @@ import {
   PERMANENT_REDIRECTS
 } from '../src/utils/seoPages.js';
 import { isComingSoon, isPublishedOnStorefront, matchesCollection } from '../src/utils/storefront.js';
+import { getAvailabilityMode, isProductSoldOut } from '../src/utils/stock.js';
+import { getVariantSkuFromProduct, isOfficialSku } from '../src/utils/sku.js';
 import { findProductByParam, isProductUuid, productPath } from '../src/utils/productUrl.js';
 
 const NOT_FOUND = {
@@ -211,7 +214,7 @@ export async function resolveSeo(pathname) {
       title: seo.title,
       description: seo.description,
       canonical: `${SITE_URL}${path}`,
-      image: listed[0]?.image_url ? absoluteUrl(listed[0].image_url) : DEFAULT_SHARE_IMAGE,
+      image: listed[0]?.image_url ? shareImageUrl(listed[0].image_url) : DEFAULT_SHARE_IMAGE,
       type: 'website',
       jsonLd: [
         buildBreadcrumbJsonLd([
@@ -233,9 +236,9 @@ export async function resolveSeo(pathname) {
     if (isProductUuid(param) || path !== prettyPath) {
       return { status: 301, redirect: `${SITE_URL}${prettyPath}` };
     }
-    const image = absoluteUrl(product.image_url);
-    const soldOut = (Number(product.stock) || 0) + (Number(product.stock_international) || 0) <= 0;
-    const collectionSlug = Array.isArray(product.categories) ? product.categories[0] : product.category;
+    const image = shareImageUrl(product.image_url);
+    const soldOut = isProductSoldOut(product);
+    const collection = productCollection(product);
     const url = `${SITE_URL}${prettyPath}`;
     return {
       status: 200,
@@ -249,11 +252,11 @@ export async function resolveSeo(pathname) {
           url,
           image,
           soldOut,
-          comingSoon: isComingSoon(product)
+          comingSoon: isComingSoon(product) || getAvailabilityMode(product) === 'preorder'
         }),
         buildBreadcrumbJsonLd([
           { name: 'Home', url: `${SITE_URL}/` },
-          collectionSlug ? { name: String(collectionSlug).replace(/-/g, ' '), url: `${SITE_URL}/category/${collectionSlug}` } : null,
+          collection ? { name: collection.label, url: `${SITE_URL}/category/${collection.slug}` } : null,
           { name: product.name, url }
         ].filter(Boolean))
       ]
@@ -334,7 +337,8 @@ ${safeUrls.map((url) => `  <url>
 }
 
 function feedAvailability(product) {
-  if (isComingSoon(product)) return 'preorder';
+  if (isComingSoon(product) || getAvailabilityMode(product) === 'preorder') return 'preorder';
+  if (isProductSoldOut(product)) return 'out_of_stock';
   const stock = (Number(product.stock) || 0) + (Number(product.stock_international) || 0);
   return stock > 0 ? 'in_stock' : 'out_of_stock';
 }
@@ -347,9 +351,7 @@ function feedSize(product) {
 }
 
 function feedImageUrl(url) {
-  const abs = absoluteUrl(url) || DEFAULT_SHARE_IMAGE;
-  if (!abs.includes('res.cloudinary.com') || !abs.includes('/upload/')) return abs;
-  return abs.replace('/upload/', '/upload/f_jpg,q_auto,w_1200/');
+  return shareImageUrl(url);
 }
 
 export async function buildMerchantFeedXml() {
@@ -362,9 +364,10 @@ export async function buildMerchantFeedXml() {
   const products = catalog.filter((product) => isPublishedOnStorefront(product));
   const items = products.map((product) => {
     const color = Array.isArray(product.colors) ? product.colors[0] : product.colors;
+    const sku = getVariantSkuFromProduct(product, color, feedSize(product));
     const description = pageDescription(product.description, `${product.name} from KlarElle.`).slice(0, 5000);
     return `    <item>
-      <g:id>${xmlEscape(product.sku || product.id)}</g:id>
+      <g:id>${xmlEscape(sku || product.id)}</g:id>
       <g:title>${xmlEscape(product.name)}</g:title>
       <g:description>${xmlEscape(description)}</g:description>
       <g:link>${xmlEscape(`${SITE_URL}${productPath(product)}`)}</g:link>
@@ -381,7 +384,7 @@ export async function buildMerchantFeedXml() {
       <g:google_product_category>Apparel &amp; Accessories &gt; Clothing &gt; Dresses</g:google_product_category>
       ${color ? `<g:color>${xmlEscape(color)}</g:color>` : ''}
       ${product.material ? `<g:material>${xmlEscape(product.material)}</g:material>` : ''}
-      ${product.sku ? `<g:mpn>${xmlEscape(product.sku)}</g:mpn>` : ''}
+      ${sku && isOfficialSku(sku) ? `<g:mpn>${xmlEscape(sku)}</g:mpn>` : ''}
     </item>`;
   });
 

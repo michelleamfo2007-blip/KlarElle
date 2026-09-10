@@ -2,19 +2,17 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { Heart, ShoppingBag, Eye } from 'lucide-react';
-import { useCart } from '../context/CartContext';
 import { useFavorites } from '../context/FavoritesContext';
 import { useCurrency } from '../context/CurrencyContext';
 import ProductRating from '../components/ProductRating';
 import { attachReviewStats } from '../utils/reviews';
-import { isProductSoldOut } from '../utils/stock';
+import { isProductPreorder, isProductSoldOut } from '../utils/stock';
 import { isComingSoon } from '../utils/storefront';
 import { productPath } from '../utils/productUrl';
 import ProductImage from '../components/ProductImage';
 
 function Favorites() {
   const { favorites, toggleFavorite, isFavorite } = useFavorites();
-  const { addToCart } = useCart();
   const { formatPrice } = useCurrency();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -78,6 +76,8 @@ function Favorites() {
                 
                 {isComingSoon(product) ? (
                   <div className="luxury-badge" style={{ background: '#111', color: '#fff', letterSpacing: '1px' }}>COMING SOON</div>
+                ) : isProductPreorder(product) ? (
+                  <div className="luxury-badge" style={{ background: '#9a3412', color: '#fff', letterSpacing: '1px' }}>PREORDER</div>
                 ) : isProductSoldOut(product) ? (
                   <div className="luxury-badge" style={{ background: '#000', color: '#fff', letterSpacing: '1px' }}>SOLD OUT</div>
                 ) : product.old_price && parseFloat(product.old_price) > parseFloat(product.price) && (
@@ -95,7 +95,7 @@ function Favorites() {
                   </div>
                   <Link to={productPath(product)} className="luxury-action-icon" style={{ display: 'flex', color: 'inherit', textDecoration: 'none' }} title="Quick View"><Eye size={16} /></Link>
                   {!isComingSoon(product) && !isProductSoldOut(product) && (
-                    <div className="luxury-action-icon" title="Add to Cart" onClick={() => addToCart(product)}><ShoppingBag size={16} /></div>
+                    <Link to={productPath(product)} className="luxury-action-icon" style={{ display: 'flex', color: 'inherit', textDecoration: 'none' }} title="Select options"><ShoppingBag size={16} /></Link>
                   )}
                 </div>
               </div>
@@ -119,8 +119,10 @@ function Favorites() {
                 <ProductRating count={product.reviewCount} average={product.reviewAvg} className="luxury-rating" />
                 {isComingSoon(product) ? (
                   <Link to={productPath(product)} className="luxury-add-btn" style={{ textDecoration: 'none', display: 'block', textAlign: 'center' }}>Notify Me When Available</Link>
+                ) : isProductSoldOut(product) ? (
+                  <Link to={productPath(product)} className="luxury-add-btn" style={{ textDecoration: 'none', display: 'block', textAlign: 'center' }}>Sold Out</Link>
                 ) : (
-                  <button className="luxury-add-btn" onClick={() => addToCart(product)}>Add to Cart</button>
+                  <Link to={productPath(product)} className="luxury-add-btn" style={{ textDecoration: 'none', display: 'block', textAlign: 'center' }}>Select Options</Link>
                 )}
               </div>
             </div>

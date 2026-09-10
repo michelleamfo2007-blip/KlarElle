@@ -11,8 +11,8 @@ import { formatSizeLabel, recommendDressSize, getSizeChartRows } from '../utils/
 import KlarelleSizeGuide from '../components/KlarelleSizeGuide';
 import { createSizeProfile, loadSizeProfiles, saveSizeProfiles } from '../utils/sizeProfile';
 import { getColorHex, collectImagesForColor, parseProductColors } from '../utils/colors';
-import { getFulfillmentSource, getVariantStock, isProductSoldOut, pickAvailableSize } from '../utils/stock';
-import { buildProductJsonLd } from '../utils/seo';
+import { getAvailabilityMode, getFulfillmentSource, getVariantStock, isProductSoldOut, pickAvailableSize } from '../utils/stock';
+import { buildProductJsonLd, shareImageUrl } from '../utils/seo';
 import NotifyMeForm from '../components/NotifyMeForm';
 import NotFound from './NotFound';
 import {
@@ -23,6 +23,10 @@ import {
 } from '../utils/storefront';
 import { applyMaterialDetails } from '../utils/materialDefaults';
 import { findProductByParam, isProductUuid, productPath } from '../utils/productUrl';
+import { galleryViewLabel } from '../utils/media';
+import { trackViewItem } from '../utils/analytics';
+import ProductImage from '../components/ProductImage';
+import { productCollection } from '../data/collections';
 import { galleryViewLabel } from '../utils/media';
 import { trackViewItem } from '../utils/analytics';
 import ProductImage from '../components/ProductImage';
@@ -138,7 +142,9 @@ function ProductDetails() {
   const cartItemId = product ? `${product.id}-${selectedSize || 'default'}-${selectedColor || 'default'}` : null;
   const qtyInCart = cartItems?.find(item => item.cartItemId === cartItemId)?.quantity || 0;
   const remainingStock = Math.max(0, availableStock - qtyInCart);
-  const isPreOrder = remainingStock <= 0 || availableStock <= 0;
+  const availabilityMode = getAvailabilityMode(product);
+  const isPreOrder = availabilityMode === 'preorder';
+  const isSoldOut = availabilityMode === 'sold_out' || (availabilityMode === 'stock' && availableStock <= 0);
 
   // Cap quantity if they switch to a variant with less stock than currently selected
   useEffect(() => {
@@ -150,6 +156,10 @@ function ProductDetails() {
   }, [remainingStock, quantity, product, isPreOrder]);
 
   const handleAddToCart = () => {
+    if (isComingSoon(product) || isSoldOut) {
+      setShowNotifyModal(true);
+      return;
+    }
     if (!isPreOrder && quantity > remainingStock) {
       alert(`You already have ${qtyInCart} in your cart. You can only add ${remainingStock} more.`);
       return;
@@ -529,7 +539,8 @@ function ProductDetails() {
   const preorderLeadTime = product.preorder_lead_time || '14–21 business days';
   const comingSoon = isComingSoon(product);
   const releaseLabel = getReleaseLabel(product);
-  const productImage = product.image_url?.startsWith('http') ? product.image_url : (product.image_url ? `https://www.klarelle.store${product.image_url}` : '');
+  const productImage = shareImageUrl(product.image_url);
+  const collection = productCollection(product);
 
 
   return (
@@ -544,7 +555,7 @@ function ProductDetails() {
         url: `https://www.klarelle.store${productPath(product)}`,
         image: productImage,
         soldOut: isProductSoldOut(product),
-        comingSoon,
+        comingSoon: comingSoon || isPreOrder,
         ratingCount: reviewStats.count,
         ratingValue: reviewStats.avg
       })}
@@ -554,7 +565,7 @@ function ProductDetails() {
         
         <div style={{ marginBottom: '24px', fontSize: '12px', color: '#666', textTransform: 'uppercase' }}>
           <Link to="/" style={{ color: '#666', textDecoration: 'none' }}>Home</Link> / 
-          <Link to={`/category/${product.category}`} style={{ color: '#666', textDecoration: 'none', marginLeft: '8px' }}>{product.category.replace('-', ' ')}</Link> / 
+          <Link to={`/category/${collection.slug}`} style={{ color: '#666', textDecoration: 'none', marginLeft: '8px' }}>{collection.label}</Link> / 
           <span style={{ color: '#000', marginLeft: '8px', fontWeight: 'bold' }}>{product.name}</span>
         </div>
 
@@ -585,10 +596,12 @@ function ProductDetails() {
             
             .pd-options-title { font-size: 14px; font-weight: bold; text-transform: capitalize; }
             
-            .size-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin: 12px 0; }
-            .size-btn { padding: 10px 4px; border: 1px solid #f0f0f0; background: #f9f9f9; cursor: pointer; text-align: center; transition: all 0.2s; font-size: 13px; font-weight: 600; }
+            .size-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px 8px; margin: 12px 0; }
+            .size-btn { padding: 12px 4px; border: 1px solid #f0f0f0; background: #f9f9f9; cursor: pointer; text-align: center; transition: all 0.2s; font-size: 13px; font-weight: 600; position: relative; overflow: visible; }
             .size-btn:hover { border-color: #999; }
             .size-btn.active { border-color: #000; background: #000; color: white; }
+            .size-left-badge { position: absolute; top: -8px; right: -4px; background: #c2410c; color: #fff; font-size: 9px; font-weight: 700; line-height: 1; padding: 3px 5px; border-radius: 3px; white-space: nowrap; pointer-events: none; }
+            .size-btn.active .size-left-badge { background: #9a3412; }
             
             .color-grid { display: flex; gap: 8px; margin: 8px 0 16px 0; flex-wrap: wrap; }
             .color-swatch { width: 22px; height: 22px; border-radius: 50%; border: 1px solid #d1d5db; cursor: pointer; padding: 0; position: relative; }
@@ -698,7 +711,7 @@ function ProductDetails() {
               <div className="pd-price-row">
                 <span className="pd-price" style={{ color: '#000' }}>{formatPrice(product.price)}</span>
               </div>
-              {isPreOrder && (
+              {isPreOrder && !comingSoon && (
                 <div style={{
                   marginTop: '12px',
                   padding: '10px 12px',
@@ -709,7 +722,21 @@ function ProductDetails() {
                   lineHeight: '1.5',
                   color: '#111'
                 }}>
-                  <strong>Preorder.</strong> This size is not in stock. Preorders are processed within {preorderLeadTime}. Payment is taken now and the item ships after production.
+                  <strong>Preorder.</strong> This dress is offered as a preorder. Preorders are processed within {preorderLeadTime}. Payment is taken now and the item ships after production.
+                </div>
+              )}
+              {isSoldOut && !comingSoon && !isPreOrder && (
+                <div style={{
+                  marginTop: '12px',
+                  padding: '10px 12px',
+                  background: '#f4f4f4',
+                  border: '1px solid #ddd',
+                  borderRadius: '4px',
+                  fontSize: '13px',
+                  lineHeight: '1.5',
+                  color: '#111'
+                }}>
+                  <strong>Sold out.</strong> This size or color is not available. Notify me when it is in stock.
                 </div>
               )}
             </div>
@@ -800,15 +827,24 @@ function ProductDetails() {
                 <div className="size-grid">
                   {product.parsedSizes.map(size => {
                     const sizeStock = getVariantStock(product, selectedColor, size);
-                    const sizeInStock = (sizeStock.us + sizeStock.intl) > 0;
+                    const sizeQty = sizeStock.us + sizeStock.intl;
+                    const sizeInStock = sizeQty > 0;
+                    const showLeft = sizeInStock && sizeQty <= 3;
                     return (
                     <button
                       key={size}
+                      type="button"
                       className={`size-btn ${selectedSize === size ? 'active' : ''}`}
-                      onClick={() => setSelectedSize(size)}
-                      style={sizeInStock ? undefined : { opacity: 0.45, textDecoration: 'line-through' }}
+                      onClick={() => {
+                        setSelectedSize(size);
+                        if (!sizeInStock && !isPreOrder && !comingSoon) {
+                          setShowNotifyModal(true);
+                        }
+                      }}
+                      style={sizeInStock ? { width: '100%' } : { width: '100%', opacity: 0.45, textDecoration: 'line-through' }}
                     >
                       {formatSizeLabel(size)}
+                      {showLeft && <span className="size-left-badge">{sizeQty} left</span>}
                     </button>
                     );
                   })}
@@ -852,7 +888,7 @@ function ProductDetails() {
             )}
 
             {/* Quantity Selector */}
-            {!comingSoon && (
+            {!comingSoon && !isSoldOut && (
             <div style={{ marginTop: '24px' }}>
               <div className="pd-options-title">Quantity <span style={{fontSize: '12px', color: '#666', fontWeight: 'normal'}}>{isPreOrder ? `(Preorder · ${preorderLeadTime})` : `(In stock: ${availableStock})`}</span></div>
               <div style={{ display: 'flex', alignItems: 'center', marginTop: '12px', border: '1px solid #e0e0e0', width: 'fit-content', borderRadius: '4px' }}>
@@ -869,9 +905,9 @@ function ProductDetails() {
             </div>
             )}
 
-            {comingSoon && (
+            {(comingSoon || isSoldOut) && (
               <div style={{ marginTop: '24px' }}>
-                <NotifyMeForm product={product} selectedSize={selectedSize} />
+            <NotifyMeForm product={product} selectedSize={selectedSize} reason={comingSoon ? 'coming-soon' : 'oos'} />
               </div>
             )}
 
@@ -989,6 +1025,8 @@ function ProductDetails() {
               </button>
               {comingSoon ? (
                 <button className="add-to-bag" onClick={() => setShowNotifyModal(true)}>NOTIFY ME WHEN AVAILABLE</button>
+              ) : isSoldOut ? (
+                <button className="add-to-bag" onClick={() => setShowNotifyModal(true)}>NOTIFY ME WHEN AVAILABLE</button>
               ) : (
                 <button className="add-to-bag" onClick={handleAddToCart}>
                   {addedToCart ? 'ADDED TO CART' : (isPreOrder ? 'PREORDER' : 'ADD TO CART')}
@@ -1007,9 +1045,9 @@ function ProductDetails() {
           <button
             type="button"
             className="add-to-bag"
-            onClick={comingSoon ? () => setShowNotifyModal(true) : handleAddToCart}
+            onClick={comingSoon || isSoldOut ? () => setShowNotifyModal(true) : handleAddToCart}
           >
-            {comingSoon ? 'NOTIFY ME WHEN AVAILABLE' : (addedToCart ? 'ADDED TO CART' : (isPreOrder ? 'PREORDER' : 'ADD TO CART'))}
+            {comingSoon || isSoldOut ? 'NOTIFY ME WHEN AVAILABLE' : (addedToCart ? 'ADDED TO CART' : (isPreOrder ? 'PREORDER' : 'ADD TO CART'))}
           </button>
         </div>,
         document.body
@@ -1019,10 +1057,10 @@ function ProductDetails() {
         <div className="modal-overlay" onClick={() => setShowNotifyModal(false)}>
           <div className="modal-content" style={{ padding: '24px', maxHeight: '80vh' }} onClick={(e) => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-              <h3 style={{ margin: 0, fontSize: '16px' }}>Notify Me When Available</h3>
+              <h3 style={{ margin: 0, fontSize: '16px' }}>Notify me when in stock</h3>
               <X size={22} onClick={() => setShowNotifyModal(false)} style={{ cursor: 'pointer' }} />
             </div>
-            <NotifyMeForm product={product} selectedSize={selectedSize} onClose={() => setShowNotifyModal(false)} />
+            <NotifyMeForm product={product} selectedSize={selectedSize} reason={comingSoon ? 'coming-soon' : 'oos'} onClose={() => setShowNotifyModal(false)} />
           </div>
         </div>,
         document.body

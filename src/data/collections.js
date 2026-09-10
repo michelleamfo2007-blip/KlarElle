@@ -67,7 +67,10 @@ export const STORE_COLLECTIONS = [
 
 export const COLLECTION_ALIASES = {
   'dinner-date-night': 'dinner',
+  'dinner-wear': 'dinner',
+  'party-wear': 'celebration',
   'cocktail-party': 'celebration',
+  'maxi-dresses': 'evening',
   'gala-formal-events': 'evening',
   'christmas-holidays': 'occasion'
 };
@@ -79,6 +82,23 @@ export function resolveCollectionSlug(slug) {
 export function getCollectionBySlug(slug) {
   const resolved = resolveCollectionSlug(slug);
   return STORE_COLLECTIONS.find((collection) => collection.slug === resolved) || null;
+}
+
+export function productCollection(product) {
+  const candidates = [];
+  if (Array.isArray(product?.categories)) candidates.push(...product.categories);
+  if (product?.category) candidates.push(product.category);
+  for (const raw of candidates) {
+    const slug = resolveCollectionSlug(String(raw || '').trim().toLowerCase());
+    const collection = getCollectionBySlug(slug);
+    if (collection) {
+      return {
+        slug: collection.slug,
+        label: collection.nav || collection.title
+      };
+    }
+  }
+  return { slug: 'new-in', label: 'The New Edit' };
 }
 
 export const ASSIGNABLE_CATEGORIES = STORE_COLLECTIONS;
