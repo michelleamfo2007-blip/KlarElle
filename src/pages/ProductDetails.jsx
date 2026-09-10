@@ -875,18 +875,6 @@ function ProductDetails() {
               </div>
             )}
 
-            {/* More Options */}
-            <div style={{ marginTop: '24px', borderTop: '1px solid #eee', paddingTop: '16px' }}>
-              <div className="pd-options-title" style={{ marginBottom: '12px' }}>More Options</div>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                {(product.tags || []).map(tag => (
-                  <span key={tag} style={{ padding: '8px 12px', background: '#f9f9f9', borderRadius: '4px', fontSize: '13px', color: '#000', fontWeight: '600' }}>
-                    {tag} <ChevronRight size={12} color="#999"/>
-                  </span>
-                ))}
-              </div>
-            </div>
-
             {/* Shipping & Returns */}
             <div style={{ marginTop: '24px', borderTop: '1px solid #eee', paddingTop: '16px' }}>
               <div className="pd-options-title" style={{ marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
