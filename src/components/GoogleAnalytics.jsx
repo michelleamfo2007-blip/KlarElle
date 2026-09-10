@@ -10,7 +10,7 @@ function GoogleAnalytics() {
     };
     if (!MEASUREMENT_ID) return;
 
-    if (document.getElementById('klarelle-ga')) return;
+    if (document.getElementById('klarelle-ga') || document.querySelector('script[src*="googletagmanager.com/gtag/js"]')) return;
     const script = document.createElement('script');
     script.id = 'klarelle-ga';
     script.async = true;
