@@ -89,6 +89,8 @@ function Layout() {
 
   useEffect(() => {
     setShowSuggestions(false);
+    setShowLangMenu(false);
+    setShowCurrMenu(false);
   }, [location.pathname]);
 
   const handleSearch = (e) => {
@@ -254,52 +256,64 @@ function Layout() {
         </div>
       )}
       
-      <div className="top-bar" style={{ background: '#f5f5f5', padding: '8px 0', fontSize: '12px', borderBottom: '1px solid #eee' }}>
+      <div className="top-bar">
         <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div style={{ display: 'flex', gap: '24px', alignItems: 'center' }}>
-            <div style={{ position: 'relative', cursor: 'pointer' }}>
-              <span style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#666', fontSize: '12px' }} onClick={() => { setShowLangMenu(!showLangMenu); setShowCurrMenu(false); }}>
+          <div className="top-bar-controls">
+            <div className="top-bar-select">
+              <button
+                type="button"
+                className="top-bar-select-btn"
+                aria-haspopup="listbox"
+                aria-expanded={showLangMenu}
+                onClick={() => { setShowLangMenu(!showLangMenu); setShowCurrMenu(false); }}
+              >
                 <Globe size={12} /> {i18n.language?.toUpperCase() || 'EN'} <ChevronDown size={10} />
-              </span>
-              {showLangMenu && <div style={{position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 40}} onClick={() => setShowLangMenu(false)} />}
+              </button>
+              {showLangMenu && <div className="top-bar-backdrop" onClick={() => setShowLangMenu(false)} />}
               {showLangMenu && (
-                <div style={{ position: 'absolute', top: '100%', left: 0, marginTop: '8px', background: '#fff', border: '1px solid #eee', padding: '8px 0', zIndex: 50, minWidth: '120px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', borderRadius: '4px', maxHeight: '200px', overflowY: 'auto' }}>
+                <div className="top-bar-menu" role="listbox" aria-label="Language">
                   {['EN - English', 'FR - Français', 'ES - Español', 'DE - Deutsch', 'IT - Italiano', 'PT - Português', 'RU - Русский', 'ZH - 中文', 'JA - 日本語', 'AR - العربية', 'HI - हिन्दी', 'KO - 한국어', 'TR - Türkçe', 'NL - Nederlands'].map(lang => (
-                    <div 
-                      key={lang} 
-                      className="dropdown-item" 
+                    <button
+                      type="button"
+                      key={lang}
+                      className={`top-bar-menu-item ${i18n.language === lang.split(' ')[0] ? 'is-active' : ''}`}
                       onClick={() => { i18n.changeLanguage(lang.split(' ')[0]); setShowLangMenu(false); }}
-                      style={{ padding: '8px 16px', color: i18n.language === lang.split(' ')[0] ? '#000' : '#666', fontSize: '12px', fontWeight: i18n.language === lang.split(' ')[0] ? 'bold' : 'normal', textAlign: 'left', whiteSpace: 'nowrap' }}
                     >
                       {lang}
-                    </div>
+                    </button>
                   ))}
                 </div>
               )}
             </div>
 
-            <div style={{ position: 'relative', cursor: 'pointer' }}>
-              <span style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#666', fontSize: '12px' }} onClick={() => { setShowCurrMenu(!showCurrMenu); setShowLangMenu(false); }}>
+            <div className="top-bar-select">
+              <button
+                type="button"
+                className="top-bar-select-btn"
+                aria-haspopup="listbox"
+                aria-expanded={showCurrMenu}
+                onClick={() => { setShowCurrMenu(!showCurrMenu); setShowLangMenu(false); }}
+              >
                 {currency} <ChevronDown size={10} />
-              </span>
-              {showCurrMenu && <div style={{position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 40}} onClick={() => setShowCurrMenu(false)} />}
+              </button>
+              {showCurrMenu && <div className="top-bar-backdrop" onClick={() => setShowCurrMenu(false)} />}
               {showCurrMenu && (
-                <div style={{ position: 'absolute', top: '100%', left: 0, marginTop: '8px', background: '#fff', border: '1px solid #eee', padding: '8px 0', zIndex: 50, minWidth: '150px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', borderRadius: '4px', maxHeight: '200px', overflowY: 'auto' }}>
+                <div className="top-bar-menu" role="listbox" aria-label="Currency">
                   {Object.entries(EXCHANGE_RATES).map(([code, data]) => (
-                    <div 
-                      key={code} 
-                      className="dropdown-item" 
+                    <button
+                      type="button"
+                      key={code}
+                      className={`top-bar-menu-item ${currency === code ? 'is-active' : ''}`}
                       onClick={() => { setCurrency(code); setShowCurrMenu(false); }}
-                      style={{ padding: '8px 16px', color: currency === code ? '#000' : '#666', fontSize: '12px', fontWeight: currency === code ? 'bold' : 'normal', textAlign: 'left' }}
                     >
                       {code} - {data.symbol}
-                    </div>
+                    </button>
                   ))}
                 </div>
               )}
             </div>
           </div>
-          <div style={{ color: '#666' }}>
+          <div className="top-bar-announcement">
             {websiteContent.announcementText}
           </div>
         </div>
