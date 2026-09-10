@@ -358,6 +358,19 @@ function ProductDetails() {
   };
 
   useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+  }, [id]);
+
+  useEffect(() => {
+    if (loading || !product) return;
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+  }, [loading, product?.id]);
+
+  useEffect(() => {
     const stored = loadSizeProfiles();
     setSizeProfiles(stored.profiles);
     setActiveProfileId(stored.activeId);
@@ -578,8 +591,8 @@ function ProductDetails() {
 
   useEffect(() => {
     setActiveImage(0);
-    const firstSlide = galleryRef.current?.children?.[0];
-    if (firstSlide) firstSlide.scrollIntoView({ behavior: 'auto', inline: 'start', block: 'nearest' });
+    const gallery = galleryRef.current;
+    if (gallery) gallery.scrollTo({ left: 0, behavior: 'auto' });
   }, [selectedColor]);
 
   useEffect(() => {
@@ -734,9 +747,11 @@ function ProductDetails() {
                   type="button"
                   onClick={() => {
                     setActiveImage(i);
-                    const wrap = document.querySelector('.gallery-grid');
+                    const wrap = galleryRef.current || document.querySelector('.gallery-grid');
                     const slide = wrap?.children?.[i];
-                    if (slide) slide.scrollIntoView({ behavior: 'smooth', inline: 'start', block: 'nearest' });
+                    if (wrap && slide) {
+                      wrap.scrollTo({ left: slide.offsetLeft, behavior: 'smooth' });
+                    }
                   }}
                   style={{
                     flex: '0 0 64px',
@@ -830,8 +845,7 @@ function ProductDetails() {
                           }
                           setActiveImage(0);
                           setModalImageIndex(0);
-                          const firstSlide = galleryRef.current?.children?.[0];
-                          if (firstSlide) firstSlide.scrollIntoView({ behavior: 'smooth', inline: 'start', block: 'nearest' });
+                          if (galleryRef.current) galleryRef.current.scrollTo({ left: 0, behavior: 'smooth' });
                         }}
                         style={{ backgroundColor: getColorHex(color) }}
                       />

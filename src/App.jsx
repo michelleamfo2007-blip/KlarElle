@@ -10,6 +10,7 @@ import Layout from './components/Layout';
 import WhatsAppButton from './components/WhatsAppButton';
 import CookieConsent from './components/CookieConsent';
 import ScrollControls from './components/ScrollControls';
+import ScrollToTop from './components/ScrollToTop';
 import Home from './pages/Home';
 import ProductDetails from './pages/ProductDetails';
 import Cart from './pages/Cart';
@@ -88,6 +89,7 @@ function App() {
           <FavoritesProvider>
             <CartProvider>
               <Router>
+                <ScrollToTop />
                 <PageTracker />
               <Suspense fallback={<div style={{ minHeight: '40vh' }} />}>
               <Routes>
