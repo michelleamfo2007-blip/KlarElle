@@ -31,9 +31,12 @@ export function sessionEmails(sessionOrEmail) {
   return emails.filter(Boolean);
 }
 
-export function canUseCheckout(sessionOrEmail) {
-  if (STORE_LAUNCHED) return true;
-  return sessionEmails(sessionOrEmail).some(isTestShopper);
+export function canUseCheckout() {
+  return true;
+}
+
+export function isTrialCheckout() {
+  return !STORE_LAUNCHED;
 }
 
 export function showPublicStockCounts(now = Date.now()) {

@@ -2,7 +2,7 @@ import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
 import { sendOrderEmails } from './_send-order-emails.js';
 import { deductInventoryForItems } from './_deduct-inventory.js';
-import { isTestShopper } from '../src/utils/launch.js';
+import { STORE_LAUNCHED, isTestShopper } from '../src/utils/launch.js';
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Credentials', true);
@@ -35,12 +35,10 @@ export default async function handler(req, res) {
     coupon_id
   } = req.body || {};
 
-  const trial = Boolean(req.body?.trial) || String(payment_intent_id || '').startsWith('trial_');
-  const testOrder = isTestShopper(customer_email);
-
-  if (trial && !testOrder) {
-    return res.status(403).json({ error: 'Trial checkout is only available for the test account.' });
-  }
+  const trial = !STORE_LAUNCHED && (
+    Boolean(req.body?.trial) || String(payment_intent_id || '').startsWith('trial_')
+  );
+  const testOrder = trial || isTestShopper(customer_email);
 
   if (!trial && !payment_intent_id) {
     return res.status(400).json({ error: 'Missing payment_intent_id' });
