@@ -62,7 +62,7 @@ function FavoriteProductCard({ product, formatPrice, toggleFavorite, isFavorite 
           className="luxury-add-btn"
           style={{ textDecoration: 'none', display: 'block', textAlign: 'center' }}
         >
-          {comingSoon ? 'NOTIFY ME' : soldOut ? 'SOLD OUT' : 'ADD TO CART'}
+          {comingSoon ? 'NOTIFY ME' : soldOut ? 'SOLD OUT' : 'SELECT OPTIONS'}
         </Link>
       </div>
     </div>

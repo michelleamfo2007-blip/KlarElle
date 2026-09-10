@@ -9,7 +9,7 @@ import FilterModal from '../components/FilterModal';
 import { isProductPreorder, isProductSoldOut } from '../utils/stock';
 import ColorPreviewDots, { useProductColorImage } from '../components/ColorPreviewDots';
 import NotifyMeForm from '../components/NotifyMeForm';
-import { getCollectionBySlug, isKnownCollectionSlug, STORE_COLLECTIONS } from '../data/collections';
+import { getCollectionBySlug, isKnownCollectionSlug } from '../data/collections';
 import { getReleaseLabel, isComingSoon, isPublishedOnStorefront, matchesCollection, maybeLaunchProduct } from '../utils/storefront';
 import { getCollectionSeo } from '../utils/seoPages';
 import NotFound from './NotFound';
@@ -54,7 +54,7 @@ function CategoryProductCard({ product, formatPrice, onNotify }) {
         {comingSoon || soldOut ? (
           <button type="button" className="luxury-add-btn" onClick={() => onNotify(product)}>NOTIFY ME</button>
         ) : (
-          <Link to={productPath(product)} className="luxury-add-btn" onClick={() => trackSelectItem(product)}>ADD TO CART</Link>
+          <Link to={productPath(product)} className="luxury-add-btn" onClick={() => trackSelectItem(product)}>SELECT OPTIONS</Link>
         )}
       </div>
     </div>
@@ -159,14 +159,6 @@ function Category() {
           <div>
             <h1 style={{ fontSize: '28px', marginBottom: '8px', textTransform: collection ? 'none' : 'capitalize' }}>{categoryName}</h1>
             <p style={{ color: '#666', maxWidth: '520px', lineHeight: 1.5, fontSize: '14px', margin: 0 }}>{seo?.copy || collection?.tagline || 'Explore all KlarElle styles.'}</p>
-            <div style={{ marginTop: '12px', fontSize: '13px', color: '#666' }}>
-              {STORE_COLLECTIONS.filter((item) => item.slug !== id).slice(0, 5).map((item, index) => (
-                <span key={item.slug}>
-                  {index > 0 && ' · '}
-                  <Link to={`/category/${item.slug}`} style={{ color: '#111' }}>{item.title}</Link>
-                </span>
-              ))}
-            </div>
           </div>
           {hasFilterOptions && (
           <button 

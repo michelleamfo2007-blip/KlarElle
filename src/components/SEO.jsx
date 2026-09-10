@@ -56,6 +56,18 @@ function SEO({ title, description, canonicalUrl, image, type = 'website', jsonLd
     upsertMeta('name', 'twitter:image', image || DEFAULT_SHARE_IMAGE);
 
     const scriptId = 'klarelle-jsonld';
+    document.querySelectorAll('script[type="application/ld+json"]').forEach((node) => {
+      if (node.id === scriptId) return;
+      try {
+        const parsed = JSON.parse(node.textContent || '');
+        const types = Array.isArray(parsed)
+          ? parsed.map((item) => item?.['@type']).filter(Boolean)
+          : [parsed?.['@type']].filter(Boolean);
+        if (types.includes('Product') || types.includes('BreadcrumbList')) node.remove();
+      } catch {
+        // ignore non-JSON scripts
+      }
+    });
     let script = document.getElementById(scriptId);
     const payload = Array.isArray(jsonLd) ? jsonLd.filter(Boolean) : jsonLd;
     const jsonLdText = payload && (Array.isArray(payload) ? payload.length : true) ? JSON.stringify(payload) : '';

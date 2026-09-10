@@ -70,7 +70,7 @@ function HomeProductCard({ product, formatPrice, toggleFavorite, isFavorite, sho
           onClick={() => trackSelectItem(product)}
           style={{ textAlign: 'center', textDecoration: 'none' }}
         >
-          {comingSoon ? 'COMING SOON' : soldOut ? 'SOLD OUT' : 'ADD TO CART'}
+          {comingSoon ? 'COMING SOON' : soldOut ? 'SOLD OUT' : 'SELECT OPTIONS'}
         </Link>
       </div>
     </div>

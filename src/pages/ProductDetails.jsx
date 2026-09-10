@@ -12,7 +12,7 @@ import KlarelleSizeGuide from '../components/KlarelleSizeGuide';
 import { createSizeProfile, loadSizeProfiles, saveSizeProfiles } from '../utils/sizeProfile';
 import { getColorHex, collectImagesForColor, parseProductColors } from '../utils/colors';
 import { getAvailabilityMode, getAvailableQty, getFulfillmentSource, getVariantStock, isProductSoldOut, pickAvailableSize } from '../utils/stock';
-import { buildProductJsonLd, shareImageUrl } from '../utils/seo';
+import { buildProductJsonLd, shareImageUrl, SITE_URL } from '../utils/seo';
 import NotifyMeForm from '../components/NotifyMeForm';
 import NotFound from './NotFound';
 import {
@@ -28,6 +28,7 @@ import { trackViewItem } from '../utils/analytics';
 import { recordProductPageView } from '../utils/productClicks';
 import ProductImage from '../components/ProductImage';
 import { productCollection } from '../data/collections';
+import { buildBreadcrumbJsonLd } from '../utils/seoPages';
 import { showPublicStockCounts } from '../utils/launch';
 
 const collectProductImages = (product, color) => collectImagesForColor(product, color);
@@ -605,15 +606,22 @@ function ProductDetails() {
       description={product.description?.substring(0, 160)}
       image={productImage}
       type="product"
-      canonicalUrl={`https://www.klarelle.store${productPath(product)}`}
-      jsonLd={buildProductJsonLd(product, {
-        url: `https://www.klarelle.store${productPath(product)}`,
-        image: productImage,
-        soldOut: isProductSoldOut(product),
-        comingSoon: comingSoon || isPreOrder,
-        ratingCount: reviewStats.count,
-        ratingValue: reviewStats.avg
-      })}
+      canonicalUrl={`${SITE_URL}${productPath(product)}`}
+      jsonLd={[
+        buildProductJsonLd(product, {
+          url: `${SITE_URL}${productPath(product)}`,
+          image: productImage,
+          soldOut: isProductSoldOut(product),
+          comingSoon: comingSoon || isPreOrder,
+          ratingCount: reviewStats.count,
+          ratingValue: reviewStats.avg
+        }),
+        buildBreadcrumbJsonLd([
+          { name: 'Home', url: `${SITE_URL}/` },
+          { name: collection.label, url: `${SITE_URL}/category/${collection.slug}` },
+          { name: product.name, url: `${SITE_URL}${productPath(product)}` }
+        ])
+      ]}
     />
     <div className="product-details-page" style={{ paddingBottom: '90px' }}>
       <div className="container" style={{ padding: '40px 20px' }}>

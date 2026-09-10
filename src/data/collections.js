@@ -62,59 +62,14 @@ export const STORE_COLLECTIONS = [
     tagline: 'Wedding guest looks',
     seoDescription: "Discover KlarElle's curated wedding-guest dresses, featuring elegant silhouettes, statement embellishments and sophisticated finishes.",
     description: 'Elegant wedding-guest looks for the ceremony and after.'
-  },
-  {
-    slug: 'birthday-celebrant',
-    nav: 'Birthday Celebrant',
-    title: 'Birthday Celebrant',
-    tagline: 'For the woman of the night',
-    seoDescription: 'Shop KlarElle birthday celebrant dresses for the woman the night is about.',
-    description: 'Statement birthday looks for the celebrant.'
-  },
-  {
-    slug: 'birthday-guest',
-    nav: 'Birthday Guest',
-    title: 'Birthday Guest',
-    tagline: 'Birthday guest looks',
-    seoDescription: 'Shop KlarElle birthday guest dresses for parties, dinners, and celebrations.',
-    description: 'Polished looks for birthday guests.'
-  },
-  {
-    slug: 'brunch',
-    nav: 'Brunch',
-    title: 'Brunch',
-    tagline: 'Daytime and brunch',
-    seoDescription: 'Shop KlarElle brunch dresses for daytime gatherings and easy polished looks.',
-    description: 'Daytime dresses for brunch and afternoon plans.'
-  },
-  {
-    slug: 'graduation',
-    nav: 'Graduation',
-    title: 'Graduation',
-    tagline: 'Graduation looks',
-    seoDescription: 'Shop KlarElle graduation dresses for ceremonies, photos, and the celebration after.',
-    description: 'Dresses for graduation day and the party after.'
-  },
-  {
-    slug: 'vacation',
-    nav: 'Vacation',
-    title: 'Vacation',
-    tagline: 'Vacation and travel',
-    seoDescription: 'Shop KlarElle vacation dresses for travel, dinners away, and warm-weather evenings.',
-    description: 'Dresses for vacation dinners and travel days.'
   }
 ];
 
+// Only map true legacy spelling variants — do not alias distinct occasions onto other collections.
 export const COLLECTION_ALIASES = {
-  'dinner-date-night': 'dinner',
   'dinner-wear': 'dinner',
-  'party-wear': 'celebration',
-  'cocktail-party': 'celebration',
-  'maxi-dresses': 'evening',
-  'gala-formal-events': 'evening',
-  'christmas-holidays': 'occasion',
   'klarelle-icons': 'icons',
-  'bestsellers': 'icons',
+  bestsellers: 'icons',
   'best-sellers': 'icons'
 };
 
@@ -160,4 +115,3 @@ export function productCollection(product) {
 }
 
 export const ASSIGNABLE_CATEGORIES = STORE_COLLECTIONS;
-

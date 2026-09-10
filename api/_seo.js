@@ -83,10 +83,9 @@ async function loadPublishedProducts() {
 }
 
 function jsonLdTags(blocks) {
-  return (Array.isArray(blocks) ? blocks : [blocks])
-    .filter(Boolean)
-    .map((block) => `<script type="application/ld+json">${JSON.stringify(block).replace(/</g, '\\u003c')}</script>`)
-    .join('\n    ');
+  const payload = (Array.isArray(blocks) ? blocks : [blocks]).filter(Boolean);
+  if (!payload.length) return '';
+  return `<script id="klarelle-jsonld" type="application/ld+json">${JSON.stringify(payload).replace(/</g, '\\u003c')}</script>`;
 }
 
 export function applySeoToHtml(html, seo) {
@@ -120,7 +119,20 @@ export function applySeoToHtml(html, seo) {
     next = next.replace(/<meta name="robots" content="[^"]*"\s*\/?>/i, `<meta name="robots" content="${robots}" />`);
   }
 
-  next = next.replace(/<script id="klarelle-jsonld"[^>]*>[\s\S]*?<\/script>/i, '');
+  next = next.replace(/<script id="klarelle-jsonld"[^>]*>[\s\S]*?<\/script>/gi, '');
+  next = next.replace(/<script type="application\/ld\+json">[\s\S]*?<\/script>/gi, (tag) => {
+    try {
+      const json = tag.replace(/^<script[^>]*>/i, '').replace(/<\/script>$/i, '');
+      const parsed = JSON.parse(json);
+      const types = Array.isArray(parsed)
+        ? parsed.map((item) => item?.['@type']).filter(Boolean)
+        : [parsed?.['@type']].filter(Boolean);
+      if (types.includes('Product') || types.includes('BreadcrumbList')) return '';
+    } catch {
+      return tag;
+    }
+    return tag;
+  });
   if (seo.jsonLd) {
     next = next.replace('</head>', `    ${jsonLdTags(seo.jsonLd)}\n  </head>`);
   }

@@ -6,7 +6,6 @@ import { useAuth } from '../context/AuthContext';
 import { useCurrency } from '../context/CurrencyContext';
 import { supabase } from '../lib/supabase';
 import { useTranslation } from 'react-i18next';
-import { STORE_COLLECTIONS } from '../data/collections';
 import { DEFAULT_WEBSITE_CONTENT, normalizeWebsiteContent } from '../data/websiteContent';
 import SEO from './SEO';
 import { isNoindexPath } from '../utils/seoPages';
@@ -28,27 +27,15 @@ function Layout() {
   const [maintenanceMode, setMaintenanceMode] = useState(false);
   const [checkingMaintenance, setCheckingMaintenance] = useState(true);
   const [analyzingImage, setAnalyzingImage] = useState(false);
-  const [categories, setCategories] = useState([]);
   const [websiteContent, setWebsiteContent] = useState(DEFAULT_WEBSITE_CONTENT);
   const fileInputRef = React.useRef(null);
   
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
-  const [openNav, setOpenNav] = useState(null);
   const searchFormRef = React.useRef(null);
 
   useEffect(() => {
-    const fetchCategories = async () => {
-      const { data, error } = await supabase
-        .from('categories')
-        .select('*')
-        .order('name', { ascending: true });
-      if (!error && data) {
-        setCategories(data);
-      }
-    };
-    fetchCategories();
     supabase
       .from('website_content')
       .select('*')
@@ -95,16 +82,13 @@ function Layout() {
       if (searchFormRef.current && !searchFormRef.current.contains(event.target)) {
         setShowSuggestions(false);
       }
-      if (!event.target.closest('.nav-dropdown')) {
-        setOpenNav(null);
-      }
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   useEffect(() => {
-    setOpenNav(null);
+    setShowSuggestions(false);
   }, [location.pathname]);
 
   const handleSearch = (e) => {
@@ -463,28 +447,6 @@ function Layout() {
           <nav className="nav-menu">
             <Link to="/" className={`nav-link ${isActive('/')}`}>HOME</Link>
             <Link to="/category/new-in" className={`nav-link ${isActive('/category/new-in')}`}>THE NEW EDIT</Link>
-            <div className={`nav-dropdown ${openNav === 'collections' ? 'is-open' : ''}`}>
-              <button
-                type="button"
-                className={`nav-link ${isActive('/category/all')}`}
-                onClick={() => setOpenNav(openNav === 'collections' ? null : 'collections')}
-              >
-                Collections
-              </button>
-              <div className="dropdown-menu">
-                {STORE_COLLECTIONS.filter((collection) => collection.slug !== 'new-in').map((collection) => (
-                  <Link key={collection.slug} to={`/category/${collection.slug}`} className={`nav-link ${isActive(`/category/${collection.slug}`)}`}>
-                    {collection.title}
-                  </Link>
-                ))}
-                {categories.filter((cat) => !STORE_COLLECTIONS.some((collection) => collection.slug === cat.slug)).map((cat) => (
-                  <Link key={cat.id} to={`/category/${cat.slug}`} className={`nav-link ${isActive(`/category/${cat.slug}`)}`}>
-                    {cat.name}
-                  </Link>
-                ))}
-                <Link to="/category/all" className={`nav-link ${isActive('/category/all')}`}>All Collections</Link>
-              </div>
-            </div>
             <Link to="/page/about-us" className={`nav-link ${isActive('/page/about-us')}`}>ABOUT</Link>
             <Link to="/page/faq" className={`nav-link ${isActive('/page/faq')}`}>FAQ</Link>
           </nav>

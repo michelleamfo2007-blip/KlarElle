@@ -86,12 +86,16 @@ export const PERMANENT_REDIRECTS = {
   '/find-my-size': '/',
   '/category/coming-soon': '/category/new-in',
   '/category/dinner-wear': '/category/dinner',
-  '/category/party-wear': '/category/celebration',
-  '/category/maxi-dresses': '/category/evening',
-  '/category/dinner-&-date-night': '/category/dinner-date-night',
-  '/category/cocktail-&-party': '/category/cocktail-party',
-  '/category/gala-&-formal-events': '/category/gala-formal-events',
-  '/category/christmas-&-holidays': '/category/christmas-holidays'
+  '/category/dinner-&-date-night': '/category/all',
+  '/category/cocktail-&-party': '/category/all',
+  '/category/gala-&-formal-events': '/category/all',
+  '/category/christmas-&-holidays': '/category/all',
+  '/category/party-wear': '/category/all',
+  '/category/dinner-date-night': '/category/all',
+  '/category/cocktail-party': '/category/all',
+  '/category/gala-formal-events': '/category/all',
+  '/category/christmas-holidays': '/category/all',
+  '/category/maxi-dresses': '/category/all'
 };
 
 export const INDEXABLE_POLICY_PATHS = Object.keys(PAGE_META).filter((path) => path.startsWith('/page/'));

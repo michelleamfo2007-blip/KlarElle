@@ -99,7 +99,7 @@ const OCCASION_KEYS = ['formal', 'evening', 'wedding', 'party', 'birthday', 'occ
 const EVENING_KEYS = ['evening', 'formal', 'dinner', 'gala', 'black tie', 'cocktail', 'night out'];
 const CELEBRATION_KEYS = ['birthday', 'party', 'celebration', 'wedding', 'bachelorette', 'homecoming'];
 const ICON_KEYS = ['icon', 'bestseller', 'signature', 'icons'];
-const OCCASION_SLUGS = ['occasion', 'evening', 'celebration', 'dinner', 'birthday', 'wedding-guest', 'birthday-celebrant', 'birthday-guest', 'brunch', 'graduation', 'vacation'];
+const OCCASION_SLUGS = ['occasion', 'evening', 'celebration', 'dinner', 'birthday', 'wedding-guest'];
 
 function fieldSlugs(value) {
   const parts = Array.isArray(value) ? value : String(value || '').split(/[;,|/]+/);
@@ -118,17 +118,11 @@ export function matchesCollection(product, slug) {
   if (fieldSlugs(product.category).includes(slug)) return true;
   if (slug === 'occasion' && assigned.some((item) => OCCASION_SLUGS.includes(item))) return true;
   if (slug === 'evening' && assigned.includes('dinner')) return true;
-  if (slug === 'celebration' && (assigned.includes('birthday') || assigned.includes('wedding-guest') || assigned.includes('birthday-celebrant') || assigned.includes('birthday-guest'))) return true;
-  if (slug === 'birthday' && (assigned.includes('birthday-celebrant') || assigned.includes('birthday-guest'))) return true;
+  if (slug === 'celebration' && (assigned.includes('birthday') || assigned.includes('wedding-guest'))) return true;
   const text = haystack(product);
   if (slug === 'icons') return ICON_KEYS.some((key) => text.includes(key));
   if (slug === 'evening') return EVENING_KEYS.some((key) => text.includes(key));
   if (slug === 'celebration') return CELEBRATION_KEYS.some((key) => text.includes(key));
   if (slug === 'occasion') return OCCASION_KEYS.some((key) => text.includes(key));
-  if (slug === 'brunch') return text.includes('brunch');
-  if (slug === 'graduation') return text.includes('graduation');
-  if (slug === 'vacation') return ['vacation', 'travel', 'beach', 'holiday'].some((key) => text.includes(key));
-  if (slug === 'birthday-celebrant') return text.includes('celebrant') || text.includes('birthday girl');
-  if (slug === 'birthday-guest') return text.includes('birthday guest');
   return toCollectionSlug(product.category) === slug;
 }
