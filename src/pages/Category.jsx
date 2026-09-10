@@ -9,7 +9,7 @@ import FilterModal from '../components/FilterModal';
 import { isProductPreorder, isProductSoldOut } from '../utils/stock';
 import ColorPreviewDots, { useProductColorImage } from '../components/ColorPreviewDots';
 import NotifyMeForm from '../components/NotifyMeForm';
-import { COLLECTION_ALIASES, getCollectionBySlug, STORE_COLLECTIONS } from '../data/collections';
+import { getCollectionBySlug, isKnownCollectionSlug, STORE_COLLECTIONS } from '../data/collections';
 import { getReleaseLabel, isComingSoon, isPublishedOnStorefront, matchesCollection, maybeLaunchProduct } from '../utils/storefront';
 import { getCollectionSeo } from '../utils/seoPages';
 import NotFound from './NotFound';
@@ -125,7 +125,7 @@ function Category() {
   }, [activeFilters, allProducts, id]);
 
   const collection = getCollectionBySlug(id);
-  const known = id === 'all' || id === 'collections' || Boolean(getCollectionBySlug(id)) || Boolean(COLLECTION_ALIASES[id]);
+  const known = isKnownCollectionSlug(id);
   const seo = getCollectionSeo(id);
   const categoryName = seo?.heading || collection?.title || id.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase());
   const collectionHasProducts = allProducts.some((product) => matchesCollection(product, id));
@@ -133,7 +133,6 @@ function Category() {
 
   if (id === 'coming-soon') return <Navigate to="/category/new-in" replace />;
   if (!known) return <NotFound />;
-  if (!loading && !collectionHasProducts) return <NotFound />;
 
   return (
     <>
@@ -184,8 +183,13 @@ function Category() {
           <div style={{ textAlign: 'center', padding: '60px', color: '#666' }}>Loading {categoryName}...</div>
         ) : products.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '60px' }}>
-            <p style={{ fontSize: '16px', color: '#333' }}>No dresses match these filters.</p>
-            <p style={{ color: '#666', marginTop: '8px' }}>Clear filters or explore <Link to="/category/new-in" style={{ color: 'black', textDecoration: 'underline' }}>The New Edit</Link>.</p>
+            <p style={{ fontSize: '16px', color: '#333' }}>
+              {collectionHasProducts ? 'No dresses match these filters.' : 'This collection is coming soon.'}
+            </p>
+            <p style={{ color: '#666', marginTop: '8px' }}>
+              {collectionHasProducts ? 'Clear filters or explore ' : 'Explore '}
+              <Link to="/category/new-in" style={{ color: 'black', textDecoration: 'underline' }}>The New Edit</Link>.
+            </p>
           </div>
         ) : (
           <div className="products-grid">

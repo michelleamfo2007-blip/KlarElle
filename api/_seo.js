@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
-import { COLLECTION_ALIASES, getCollectionBySlug, productCollection, STORE_COLLECTIONS } from '../src/data/collections.js';
+import { COLLECTION_ALIASES, isKnownCollectionSlug, productCollection, STORE_COLLECTIONS } from '../src/data/collections.js';
 import { getSitePage } from '../src/data/sitePages.js';
 import {
   absoluteUrl,
@@ -143,7 +143,7 @@ export async function loadSpaShell(req) {
 }
 
 function knownCollection(slug) {
-  return slug === 'all' || slug === 'collections' || Boolean(getCollectionBySlug(slug)) || Boolean(COLLECTION_ALIASES[slug]);
+  return isKnownCollectionSlug(slug);
 }
 
 export async function resolveSeo(pathname) {
@@ -206,7 +206,11 @@ export async function resolveSeo(pathname) {
     if (!knownCollection(slug)) return { ...NOT_FOUND, canonical: `${SITE_URL}${path}` };
     const products = await loadPublishedProducts();
     const listed = products.filter((product) => isPublishedOnStorefront(product) && !isComingSoon(product) && matchesCollection(product, slug));
-    const seo = getCollectionSeo(slug);
+    const seo = getCollectionSeo(slug) || {
+      title: `${slug.replace(/-/g, ' ')} | KlarElle`,
+      description: HOME_DESCRIPTION,
+      heading: slug.replace(/-/g, ' ')
+    };
     const empty = listed.length === 0;
     return {
       status: 200,

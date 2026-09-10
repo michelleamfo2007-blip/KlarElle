@@ -62,6 +62,46 @@ export const STORE_COLLECTIONS = [
     tagline: 'Wedding guest looks',
     seoDescription: "Discover KlarElle's curated wedding-guest dresses, featuring elegant silhouettes, statement embellishments and sophisticated finishes.",
     description: 'Elegant wedding-guest looks for the ceremony and after.'
+  },
+  {
+    slug: 'birthday-celebrant',
+    nav: 'Birthday Celebrant',
+    title: 'Birthday Celebrant',
+    tagline: 'For the woman of the night',
+    seoDescription: 'Shop KlarElle birthday celebrant dresses for the woman the night is about.',
+    description: 'Statement birthday looks for the celebrant.'
+  },
+  {
+    slug: 'birthday-guest',
+    nav: 'Birthday Guest',
+    title: 'Birthday Guest',
+    tagline: 'Birthday guest looks',
+    seoDescription: 'Shop KlarElle birthday guest dresses for parties, dinners, and celebrations.',
+    description: 'Polished looks for birthday guests.'
+  },
+  {
+    slug: 'brunch',
+    nav: 'Brunch',
+    title: 'Brunch',
+    tagline: 'Daytime and brunch',
+    seoDescription: 'Shop KlarElle brunch dresses for daytime gatherings and easy polished looks.',
+    description: 'Daytime dresses for brunch and afternoon plans.'
+  },
+  {
+    slug: 'graduation',
+    nav: 'Graduation',
+    title: 'Graduation',
+    tagline: 'Graduation looks',
+    seoDescription: 'Shop KlarElle graduation dresses for ceremonies, photos, and the celebration after.',
+    description: 'Dresses for graduation day and the party after.'
+  },
+  {
+    slug: 'vacation',
+    nav: 'Vacation',
+    title: 'Vacation',
+    tagline: 'Vacation and travel',
+    seoDescription: 'Shop KlarElle vacation dresses for travel, dinners away, and warm-weather evenings.',
+    description: 'Dresses for vacation dinners and travel days.'
   }
 ];
 
@@ -78,8 +118,18 @@ export const COLLECTION_ALIASES = {
   'best-sellers': 'icons'
 };
 
+export function toCollectionSlug(value) {
+  return String(value || '')
+    .trim()
+    .toLowerCase()
+    .replace(/&/g, ' ')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
 export function resolveCollectionSlug(slug) {
-  return COLLECTION_ALIASES[slug] || slug;
+  const cleaned = toCollectionSlug(slug);
+  return COLLECTION_ALIASES[cleaned] || COLLECTION_ALIASES[slug] || cleaned || slug;
 }
 
 export function getCollectionBySlug(slug) {
@@ -87,12 +137,17 @@ export function getCollectionBySlug(slug) {
   return STORE_COLLECTIONS.find((collection) => collection.slug === resolved) || null;
 }
 
+export function isKnownCollectionSlug(slug) {
+  const cleaned = String(slug || '').trim();
+  return cleaned === 'all' || cleaned === 'collections' || Boolean(getCollectionBySlug(cleaned));
+}
+
 export function productCollection(product) {
   const candidates = [];
   if (Array.isArray(product?.categories)) candidates.push(...product.categories);
   if (product?.category) candidates.push(product.category);
   for (const raw of candidates) {
-    const slug = resolveCollectionSlug(String(raw || '').trim().toLowerCase());
+    const slug = resolveCollectionSlug(raw);
     const collection = getCollectionBySlug(slug);
     if (collection) {
       return {

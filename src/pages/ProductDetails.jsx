@@ -175,6 +175,7 @@ function ProductDetails() {
   
   const [selectedColor, setSelectedColor] = useState('');
   const [selectedSize, setSelectedSize] = useState('');
+  const [sizePrompt, setSizePrompt] = useState(false);
   const [activeImage, setActiveImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [addedToCart, setAddedToCart] = useState(false);
@@ -188,7 +189,9 @@ function ProductDetails() {
   const remainingStock = Math.max(0, availableStock - qtyInCart);
   const availabilityMode = getAvailabilityMode(product);
   const isPreOrder = availabilityMode === 'preorder';
-  const isSoldOut = availabilityMode === 'sold_out' || (availabilityMode === 'stock' && availableStock <= 0);
+  const productSoldOut = isProductSoldOut(product);
+  const selectedVariantSoldOut = Boolean(selectedSize) && availabilityMode === 'stock' && availableStock <= 0;
+  const isSoldOut = availabilityMode === 'sold_out' || productSoldOut || selectedVariantSoldOut;
   const revealStockCounts = showPublicStockCounts();
 
   // Cap quantity if they switch to a variant with less stock than currently selected
@@ -203,6 +206,10 @@ function ProductDetails() {
   const handleAddToCart = () => {
     if (isComingSoon(product) || isSoldOut) {
       setShowNotifyModal(true);
+      return;
+    }
+    if (product?.parsedSizes?.length && !selectedSize) {
+      setSizePrompt(true);
       return;
     }
     if (!isPreOrder && quantity > remainingStock) {
@@ -393,13 +400,12 @@ function ProductDetails() {
         }
 
         setProduct(data);
+        setSelectedSize('');
+        setSizePrompt(false);
         const initialColor = pColors[0] || '';
         if (pColors.length > 0) {
           setSelectedColor(initialColor);
           setActiveImage(0);
-        }
-        if (pSizes.length > 0) {
-          setSelectedSize(pickAvailableSize(data, initialColor, pSizes));
         }
 
         // Fetch matching styles (published products from same category)
@@ -811,7 +817,9 @@ function ProductDetails() {
                         className={`color-swatch ${selectedColor === color ? 'active' : ''}`}
                         onClick={() => {
                           setSelectedColor(color);
-                          setSelectedSize(pickAvailableSize(product, color, product.parsedSizes, selectedSize));
+                          if (selectedSize && !(product.parsedSizes || []).some((size) => size === selectedSize)) {
+                            setSelectedSize('');
+                          }
                           setActiveImage(0);
                           setModalImageIndex(0);
                           const firstSlide = galleryRef.current?.children?.[0];
@@ -889,6 +897,7 @@ function ProductDetails() {
                       className={`size-btn ${selectedSize === size ? 'active' : ''}`}
                       onClick={() => {
                         setSelectedSize(size);
+                        setSizePrompt(false);
                         if (!sizeInStock && !isPreOrder && !comingSoon) {
                           setShowNotifyModal(true);
                         }
@@ -901,6 +910,11 @@ function ProductDetails() {
                     );
                   })}
                 </div>
+                {sizePrompt && (
+                  <div style={{ marginTop: '8px', fontSize: '13px', color: '#b91c1c', fontWeight: 600 }}>
+                    Please select a size
+                  </div>
+                )}
                 
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', flexWrap: 'wrap', fontSize: '12px', fontWeight: 'bold', marginTop: '12px' }}>
                   <button
