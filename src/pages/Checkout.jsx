@@ -11,7 +11,7 @@ import { ChevronLeft, MapPin, ChevronRight, CheckCircle2, Truck } from 'lucide-r
 import { COUNTRIES } from '../utils/countries';
 import { cartShipsFromInternational, getFulfillmentSource, getItemDeliveryEstimate } from '../utils/stock';
 import { getVariantSkuFromProduct } from '../utils/sku';
-import { canUseCheckout } from '../utils/launch';
+import { canUseCheckout, isTestShopper } from '../utils/launch';
 import { attachEmailToSavedCart } from '../utils/cartTracking';
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
@@ -33,6 +33,8 @@ function Checkout() {
   const [isFetchingRates, setIsFetchingRates] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [taxAmount, setTaxAmount] = useState(0);
+  const [trialSubmitting, setTrialSubmitting] = useState(false);
+  const trialCheckout = isTestShopper(session?.user?.email);
   const [fulfillmentSource, setFulfillmentSource] = useState(() => (
     cartShipsFromInternational(cartItems) ? 'CN' : 'US'
   ));
@@ -158,6 +160,12 @@ function Checkout() {
   };
 
   useEffect(() => {
+    if (trialCheckout) {
+      setClientSecret("");
+      setPaymentError("");
+      setTaxAmount(0);
+      return;
+    }
     if (preTaxTotal > 0 && !showShippingForm) {
       const STRIPE_SUPPORTED_CURRENCIES = [
         "usd", "aed", "afn", "all", "amd", "ang", "aoa", "ars", "aud", "awg", "azn", "bam", "bbd", "bdt", "bgn", "bif", "bmd", "bnd", "bob", "brl", "bsd", "bwp", "byn", "bzd", "cad", "cdf", "chf", "clp", "cny", "cop", "crc", "cve", "czk", "djf", "dkk", "dop", "dzd", "egp", "etb", "eur", "fjd", "fkp", "gbp", "gel", "gip", "gmd", "gnf", "gtq", "gyd", "hkd", "hnl", "hrk", "htg", "huf", "idr", "ils", "inr", "isk", "jmd", "jpy", "kes", "kgs", "khr", "kmf", "krw", "kyd", "kzt", "lak", "lbp", "lkr", "lrd", "lsl", "mad", "mdl", "mga", "mkd", "mmk", "mnt", "mop", "mur", "mvr", "mwk", "mxn", "myr", "mzn", "nad", "ngn", "nio", "nok", "npr", "nzd", "pab", "pen", "pgk", "php", "pkr", "pln", "pyg", "qar", "ron", "rsd", "rub", "rwf", "sar", "sbd", "scr", "sek", "sgd", "shp", "sle", "sos", "srd", "std", "szl", "thb", "tjs", "top", "try", "ttd", "twd", "tzs", "uah", "ugx", "uyu", "uzs", "vnd", "vuv", "wst", "xaf", "xcd", "xcg", "xof", "xpf", "yer", "zar", "zmw"
@@ -208,7 +216,7 @@ function Checkout() {
       setClientSecret("");
       setTaxAmount(0);
     }
-  }, [preTaxTotal, shippingTotal, currency, EXCHANGE_RATES, showShippingForm, formData.houseNo, formData.apartment, formData.city, formData.region, formData.postcode, formData.location]);
+  }, [trialCheckout, preTaxTotal, shippingTotal, currency, EXCHANGE_RATES, showShippingForm, formData.houseNo, formData.apartment, formData.city, formData.region, formData.postcode, formData.location]);
 
   if (!canUseCheckout(session?.user?.email)) {
     return (
@@ -237,8 +245,9 @@ function Checkout() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           payment_intent_id: paymentIntent?.id,
+          trial: Boolean(paymentIntent?.trial),
           customer_name: fullName || 'Guest',
-          customer_email: formData.email,
+          customer_email: session?.user?.email || formData.email,
           total_amount: finalTotal,
           shipping_address: {
             street: formData.houseNo,
@@ -273,11 +282,13 @@ function Checkout() {
 
       localStorage.setItem('klarelle_saved_address', JSON.stringify(formData));
 
-      trackPurchase({
-        transactionId: data.order_id || paymentIntent?.id,
-        value: finalTotal,
-        items: cartItems
-      });
+      if (!paymentIntent?.trial) {
+        trackPurchase({
+          transactionId: data.order_id || paymentIntent?.id,
+          value: finalTotal,
+          items: cartItems
+        });
+      }
       clearCart();
       navigate('/order-success');
     } catch (error) {
@@ -593,6 +604,37 @@ function Checkout() {
         {!selectedRateId && shippingRates.length > 0 ? (
           <div style={{ padding: '24px', textAlign: 'center', background: '#f9fafb', color: '#666', border: '1px solid #eee', borderRadius: '8px' }}>
             Please select a shipping method above to proceed with payment.
+          </div>
+        ) : trialCheckout ? (
+          <div style={{ padding: '20px', background: '#f9fafb', border: '1px solid #eee', borderRadius: '8px' }}>
+            <p style={{ margin: '0 0 8px', fontWeight: 'bold' }}>Trial checkout — no real payment</p>
+            <p style={{ margin: '0 0 16px', fontSize: '13px', color: '#666', lineHeight: 1.4 }}>
+              This account is in test mode. Place order will create a fake delivered order so you can try a return. Your card will not be charged.
+            </p>
+            <button
+              id="submit"
+              type="button"
+              disabled={trialSubmitting}
+              onClick={async () => {
+                if (!termsAccepted) {
+                  alert('Please agree to the Terms of Sale and Privacy Policy to proceed.');
+                  return;
+                }
+                setTrialSubmitting(true);
+                try {
+                  await handlePaymentSuccess({ id: `trial_${Date.now()}`, trial: true });
+                } finally {
+                  setTrialSubmitting(false);
+                }
+              }}
+              style={{
+                width: '100%', padding: '16px', background: '#000', color: '#fff',
+                border: 'none', borderRadius: '4px', fontSize: '16px', fontWeight: 'bold',
+                cursor: trialSubmitting ? 'not-allowed' : 'pointer'
+              }}
+            >
+              {trialSubmitting ? 'Placing trial order...' : 'Place trial order'}
+            </button>
           </div>
         ) : clientSecret ? (
           <Elements options={options} stripe={stripePromise}>

@@ -35,7 +35,14 @@ export default async function handler(req, res) {
     coupon_id
   } = req.body || {};
 
-  if (!payment_intent_id) {
+  const trial = Boolean(req.body?.trial) || String(payment_intent_id || '').startsWith('trial_');
+  const testOrder = isTestShopper(customer_email);
+
+  if (trial && !testOrder) {
+    return res.status(403).json({ error: 'Trial checkout is only available for the test account.' });
+  }
+
+  if (!trial && !payment_intent_id) {
     return res.status(400).json({ error: 'Missing payment_intent_id' });
   }
 
@@ -43,16 +50,22 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Email and at least one item are required.' });
   }
 
-  if (!process.env.STRIPE_SECRET_KEY || !process.env.VITE_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+  if (!process.env.VITE_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    return res.status(500).json({ error: 'Missing server environment variables' });
+  }
+
+  if (!trial && !process.env.STRIPE_SECRET_KEY) {
     return res.status(500).json({ error: 'Missing server environment variables' });
   }
 
   try {
-    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
-    const paymentIntent = await stripe.paymentIntents.retrieve(payment_intent_id);
+    if (!trial) {
+      const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+      const paymentIntent = await stripe.paymentIntents.retrieve(payment_intent_id);
 
-    if (paymentIntent.status !== 'succeeded') {
-      return res.status(400).json({ error: 'Payment has not completed successfully.' });
+      if (paymentIntent.status !== 'succeeded') {
+        return res.status(400).json({ error: 'Payment has not completed successfully.' });
+      }
     }
 
     const supabase = createClient(
@@ -60,17 +73,18 @@ export default async function handler(req, res) {
       process.env.SUPABASE_SERVICE_ROLE_KEY
     );
 
+    const orderPaymentId = payment_intent_id || `trial_${Date.now()}`;
+
     const existing = await supabase
       .from('orders')
       .select('id')
-      .eq('payment_intent_id', payment_intent_id)
+      .eq('payment_intent_id', orderPaymentId)
       .maybeSingle();
 
     if (!existing.error && existing.data?.id) {
       return res.status(200).json({ order_id: existing.data.id, already_created: true });
     }
 
-    const testOrder = isTestShopper(customer_email);
     const orderPayload = {
       customer_name: (customer_name || 'Guest').trim() || 'Guest',
       customer_email,
@@ -83,7 +97,7 @@ export default async function handler(req, res) {
       shipping_provider: shipping_provider || 'Standard',
       shipping_service: shipping_service || 'Shipping',
       shippo_rate_id: shippo_rate_id || null,
-      payment_intent_id,
+      payment_intent_id: orderPaymentId,
       fulfilled_from: req.body.fulfilled_from || null
     };
 
@@ -109,7 +123,7 @@ export default async function handler(req, res) {
       const { data: duplicate } = await supabase
         .from('orders')
         .select('id')
-        .eq('payment_intent_id', payment_intent_id)
+        .eq('payment_intent_id', orderPaymentId)
         .maybeSingle();
       if (duplicate?.id) {
         return res.status(200).json({ order_id: duplicate.id, already_created: true });
@@ -138,14 +152,16 @@ export default async function handler(req, res) {
       }
     }
 
-    if (coupon_id) {
+    if (!trial && coupon_id) {
       await supabase.rpc('increment_coupon_usage', { coupon_id });
     }
 
-    try {
-      await sendOrderEmails(orderData.id);
-    } catch (emailError) {
-      console.error('Order saved but email failed:', emailError);
+    if (!trial) {
+      try {
+        await sendOrderEmails(orderData.id);
+      } catch (emailError) {
+        console.error('Order saved but email failed:', emailError);
+      }
     }
 
     return res.status(200).json({ order_id: orderData.id });
