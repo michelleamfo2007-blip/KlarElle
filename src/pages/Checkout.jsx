@@ -8,7 +8,7 @@ import { ChevronLeft, MapPin, ChevronRight, CheckCircle2, Truck } from 'lucide-r
 import { COUNTRIES } from '../utils/countries';
 import { cartShipsFromInternational, getFulfillmentSource, getItemDeliveryEstimate } from '../utils/stock';
 import { getVariantSkuFromProduct } from '../utils/sku';
-import { isTrialCheckout } from '../utils/launch';
+import { STORE_LAUNCHED } from '../utils/launch';
 import { attachEmailToSavedCart } from '../utils/cartTracking';
 import { trackBeginCheckout, trackPurchase } from '../utils/analytics';
 
@@ -31,14 +31,12 @@ function Checkout() {
   const [isFetchingRates, setIsFetchingRates] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [taxAmount, setTaxAmount] = useState(0);
-  const [trialSubmitting, setTrialSubmitting] = useState(false);
-  const trialCheckout = isTrialCheckout();
   const [fulfillmentSource, setFulfillmentSource] = useState(() => (
     cartShipsFromInternational(cartItems) ? 'CN' : 'US'
   ));
   
   useEffect(() => {
-    if (cartItems.length > 0) {
+    if (STORE_LAUNCHED && cartItems.length > 0) {
       trackBeginCheckout(cartItems, cartTotal);
     }
   }, []);
@@ -160,7 +158,7 @@ function Checkout() {
   };
 
   useEffect(() => {
-    if (trialCheckout) {
+    if (!STORE_LAUNCHED) {
       setClientSecret("");
       setPaymentError("");
       setTaxAmount(0);
@@ -216,7 +214,7 @@ function Checkout() {
       setClientSecret("");
       setTaxAmount(0);
     }
-  }, [trialCheckout, preTaxTotal, shippingTotal, currency, EXCHANGE_RATES, showShippingForm, formData.houseNo, formData.apartment, formData.city, formData.region, formData.postcode, formData.location]);
+  }, [preTaxTotal, shippingTotal, currency, EXCHANGE_RATES, showShippingForm, formData.houseNo, formData.apartment, formData.city, formData.region, formData.postcode, formData.location]);
 
   useEffect(() => {
     if (showShippingForm || !formData.postcode || !formData.location) return;
@@ -250,6 +248,16 @@ function Checkout() {
     return () => { cancelled = true; };
   }, [showShippingForm, formData.postcode, formData.location, cartItems]);
 
+  if (!STORE_LAUNCHED) {
+    return (
+      <div style={{ padding: '100px 20px', textAlign: 'center', background: '#f5f5f5', minHeight: '100vh' }}>
+        <h2 style={{ marginBottom: '16px' }}>Shopping opens at launch</h2>
+        <p style={{ color: '#666', marginBottom: '16px' }}>Checkout is paused until KlarElle launches. Join the VIP list for first access.</p>
+        <Link to="/" style={{ color: '#000', textDecoration: 'underline' }}>Return Home</Link>
+      </div>
+    );
+  }
+
   if (cartItems.length === 0) {
     return (
       <div style={{ padding: '100px 20px', textAlign: 'center', background: '#f5f5f5', minHeight: '100vh' }}>
@@ -267,7 +275,6 @@ function Checkout() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           payment_intent_id: paymentIntent?.id,
-          trial: Boolean(paymentIntent?.trial),
           customer_name: fullName || 'Guest',
           customer_email: session?.user?.email || formData.email,
           total_amount: finalTotal,
@@ -304,13 +311,11 @@ function Checkout() {
 
       localStorage.setItem('klarelle_saved_address', JSON.stringify(formData));
 
-      if (!paymentIntent?.trial) {
-        trackPurchase({
-          transactionId: data.order_id || paymentIntent?.id,
-          value: finalTotal,
-          items: cartItems
-        });
-      }
+      trackPurchase({
+        transactionId: data.order_id || paymentIntent?.id,
+        value: finalTotal,
+        items: cartItems
+      });
       clearCart();
       navigate('/order-success');
     } catch (error) {
@@ -590,37 +595,6 @@ function Checkout() {
         {!selectedRateId && shippingRates.length > 0 ? (
           <div style={{ padding: '24px', textAlign: 'center', background: '#f9fafb', color: '#666', border: '1px solid #eee', borderRadius: '8px' }}>
             Please select a shipping method above to proceed with payment.
-          </div>
-        ) : trialCheckout ? (
-          <div style={{ padding: '20px', background: '#f9fafb', border: '1px solid #eee', borderRadius: '8px' }}>
-            <p style={{ margin: '0 0 8px', fontWeight: 'bold' }}>Trial checkout — no real payment</p>
-            <p style={{ margin: '0 0 16px', fontSize: '13px', color: '#666', lineHeight: 1.4 }}>
-              This account is in test mode. Place order will create a fake delivered order so you can try a return. Your card will not be charged.
-            </p>
-            <button
-              id="submit"
-              type="button"
-              disabled={trialSubmitting}
-              onClick={async () => {
-                if (!termsAccepted) {
-                  alert('Please agree to the Terms of Sale and Privacy Policy to proceed.');
-                  return;
-                }
-                setTrialSubmitting(true);
-                try {
-                  await handlePaymentSuccess({ id: `trial_${Date.now()}`, trial: true });
-                } finally {
-                  setTrialSubmitting(false);
-                }
-              }}
-              style={{
-                width: '100%', padding: '16px', background: '#000', color: '#fff',
-                border: 'none', borderRadius: '4px', fontSize: '16px', fontWeight: 'bold',
-                cursor: trialSubmitting ? 'not-allowed' : 'pointer'
-              }}
-            >
-              {trialSubmitting ? 'Placing trial order...' : 'Place trial order'}
-            </button>
           </div>
         ) : clientSecret ? (
           <Suspense fallback={<div style={{ padding: '24px', textAlign: 'center' }}>Loading payment form...</div>}>

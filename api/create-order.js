@@ -2,7 +2,6 @@ import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
 import { sendOrderEmails } from './_send-order-emails.js';
 import { deductInventoryForItems } from './_deduct-inventory.js';
-import { STORE_LAUNCHED, isTestShopper } from '../src/utils/launch.js';
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Credentials', true);
@@ -35,12 +34,7 @@ export default async function handler(req, res) {
     coupon_id
   } = req.body || {};
 
-  const trial = !STORE_LAUNCHED && (
-    Boolean(req.body?.trial) || String(payment_intent_id || '').startsWith('trial_')
-  );
-  const testOrder = trial || isTestShopper(customer_email);
-
-  if (!trial && !payment_intent_id) {
+  if (!payment_intent_id) {
     return res.status(400).json({ error: 'Missing payment_intent_id' });
   }
 
@@ -48,22 +42,16 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Email and at least one item are required.' });
   }
 
-  if (!process.env.VITE_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
-    return res.status(500).json({ error: 'Missing server environment variables' });
-  }
-
-  if (!trial && !process.env.STRIPE_SECRET_KEY) {
+  if (!process.env.STRIPE_SECRET_KEY || !process.env.VITE_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
     return res.status(500).json({ error: 'Missing server environment variables' });
   }
 
   try {
-    if (!trial) {
-      const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
-      const paymentIntent = await stripe.paymentIntents.retrieve(payment_intent_id);
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+    const paymentIntent = await stripe.paymentIntents.retrieve(payment_intent_id);
 
-      if (paymentIntent.status !== 'succeeded') {
-        return res.status(400).json({ error: 'Payment has not completed successfully.' });
-      }
+    if (paymentIntent.status !== 'succeeded') {
+      return res.status(400).json({ error: 'Payment has not completed successfully.' });
     }
 
     const supabase = createClient(
@@ -71,12 +59,10 @@ export default async function handler(req, res) {
       process.env.SUPABASE_SERVICE_ROLE_KEY
     );
 
-    const orderPaymentId = payment_intent_id || `trial_${Date.now()}`;
-
     const existing = await supabase
       .from('orders')
       .select('id')
-      .eq('payment_intent_id', orderPaymentId)
+      .eq('payment_intent_id', payment_intent_id)
       .maybeSingle();
 
     if (!existing.error && existing.data?.id) {
@@ -87,7 +73,7 @@ export default async function handler(req, res) {
       customer_name: (customer_name || 'Guest').trim() || 'Guest',
       customer_email,
       total_amount,
-      status: testOrder ? 'Delivered' : 'Paid',
+      status: 'Paid',
       shipping_address: typeof shipping_address === 'string'
         ? shipping_address
         : JSON.stringify(shipping_address || {}),
@@ -95,7 +81,7 @@ export default async function handler(req, res) {
       shipping_provider: shipping_provider || 'Standard',
       shipping_service: shipping_service || 'Shipping',
       shippo_rate_id: shippo_rate_id || null,
-      payment_intent_id: orderPaymentId,
+      payment_intent_id,
       fulfilled_from: req.body.fulfilled_from || null
     };
 
@@ -121,7 +107,7 @@ export default async function handler(req, res) {
       const { data: duplicate } = await supabase
         .from('orders')
         .select('id')
-        .eq('payment_intent_id', orderPaymentId)
+        .eq('payment_intent_id', payment_intent_id)
         .maybeSingle();
       if (duplicate?.id) {
         return res.status(200).json({ order_id: duplicate.id, already_created: true });
@@ -142,24 +128,20 @@ export default async function handler(req, res) {
     const { error: itemsError } = await supabase.from('order_items').insert(orderItems);
     if (itemsError) throw itemsError;
 
-    if (!testOrder) {
-      try {
-        await deductInventoryForItems(supabase, items);
-      } catch (stockError) {
-        console.error('Order saved but inventory deduct failed:', stockError);
-      }
+    try {
+      await deductInventoryForItems(supabase, items);
+    } catch (stockError) {
+      console.error('Order saved but inventory deduct failed:', stockError);
     }
 
-    if (!trial && coupon_id) {
+    if (coupon_id) {
       await supabase.rpc('increment_coupon_usage', { coupon_id });
     }
 
-    if (!trial) {
-      try {
-        await sendOrderEmails(orderData.id);
-      } catch (emailError) {
-        console.error('Order saved but email failed:', emailError);
-      }
+    try {
+      await sendOrderEmails(orderData.id);
+    } catch (emailError) {
+      console.error('Order saved but email failed:', emailError);
     }
 
     return res.status(200).json({ order_id: orderData.id });

@@ -4,6 +4,7 @@ import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { useCurrency } from '../context/CurrencyContext';
 import { Trash2, Minus, Plus, ShieldCheck, Truck } from 'lucide-react';
+import { STORE_LAUNCHED } from '../utils/launch';
 import { productPath } from '../utils/productUrl';
 import { rememberCartEmail } from '../utils/cartTracking';
 import './Cart.css';
@@ -92,8 +93,13 @@ function Cart() {
               <span>{formatPrice(finalTotal)}</span>
             </div>
             
-            <Link to="/checkout" className="btn btn-primary checkout-btn" style={{ display: 'block', textAlign: 'center', textDecoration: 'none' }}>CHECKOUT</Link>
-            <p style={{ margin: '8px 0 0', fontSize: '12px', color: '#666', textAlign: 'center' }}>Trial checkout — no real payment</p>
+            {STORE_LAUNCHED ? (
+              <Link to="/checkout" className="btn btn-primary checkout-btn" style={{ display: 'block', textAlign: 'center', textDecoration: 'none' }}>CHECKOUT</Link>
+            ) : (
+              <div className="btn btn-primary checkout-btn" style={{ display: 'block', textAlign: 'center', background: '#ddd', color: '#666', cursor: 'not-allowed' }}>
+                CHECKOUT OPENS AT LAUNCH
+              </div>
+            )}
             
             <div className="payment-methods">
               We accept: Visa, Mastercard, American Express, Discover, Klarna
