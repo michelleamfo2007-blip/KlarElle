@@ -3,14 +3,17 @@ import { parseShippingAddress } from '../src/utils/address.js';
 import { getVariantSkuFromProduct } from '../src/utils/sku.js';
 import { PACKAGE_HEIGHT_CM, PACKAGE_LENGTH_CM, PACKAGE_WIDTH_CM } from '../src/utils/package.js';
 
+export const EASYSHIP_API_VERSION = '2024-09';
+
 export function isEasyshipSandbox(apiKey = process.env.EASYSHIP_API_KEY || '') {
   return String(apiKey).startsWith('sand_');
 }
 
 export function getEasyshipBaseUrl(apiKey) {
+  // Public API 2024-09 hosts (tokens are version-scoped to 2024-09+)
   return isEasyshipSandbox(apiKey)
-    ? 'https://api-sandbox.easyship.com'
-    : 'https://api.easyship.com';
+    ? 'https://public-api-sandbox.easyship.com'
+    : 'https://public-api.easyship.com';
 }
 
 export function getCountryCode(countryName) {
@@ -20,7 +23,12 @@ export function getCountryCode(countryName) {
 export { parseShippingAddress };
 
 export async function easyshipRequest(apiKey, path, options = {}) {
-  const response = await fetch(`${getEasyshipBaseUrl(apiKey)}${path}`, {
+  const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+  const versionedPath = normalizedPath.startsWith('/20')
+    ? normalizedPath
+    : `/${EASYSHIP_API_VERSION}${normalizedPath}`;
+
+  const response = await fetch(`${getEasyshipBaseUrl(apiKey)}${versionedPath}`, {
     ...options,
     headers: {
       'Content-Type': 'application/json',
@@ -35,13 +43,14 @@ export async function easyshipRequest(apiKey, path, options = {}) {
     const error = new Error(message);
     error.status = response.status;
     error.details = data.error;
+    error.code = data.error?.code;
     throw error;
   }
   return data;
 }
 
 export async function getEasyshipOriginAddress(apiKey, order, fulfillmentSource = 'US') {
-  const data = await easyshipRequest(apiKey, '/2023-01/addresses');
+  const data = await easyshipRequest(apiKey, '/addresses');
   const addresses = data.addresses || [];
   if (!addresses.length) {
     throw new Error('No pickup address found in Easyship. Add a warehouse/pickup address in your Easyship dashboard.');
@@ -58,13 +67,13 @@ export async function getEasyshipOriginAddress(apiKey, order, fulfillmentSource 
     line_1: match.line_1,
     line_2: match.line_2 || null,
     city: match.city,
-    state: match.state || '',
+    state: match.state || (match.country_alpha2 === 'US' ? 'NY' : '') || '',
     postal_code: match.postal_code || '',
     country_alpha2: match.country_alpha2,
     contact_name: match.contact_name || 'Klarélle',
     company_name: match.company_name || 'Klarélle',
-    contact_phone: match.contact_phone || order.phone_number || '',
-    contact_email: match.contact_email || order.customer_email
+    contact_phone: match.contact_phone || order?.phone_number || '',
+    contact_email: match.contact_email || order?.customer_email
   };
 }
 
@@ -102,6 +111,7 @@ export function toEasyshipItems(orderItems = []) {
       dimensions: { length: PACKAGE_LENGTH_CM, width: PACKAGE_WIDTH_CM, height: PACKAGE_HEIGHT_CM },
       declared_currency: 'USD',
       declared_customs_value: 50,
+      origin_country_alpha2: 'CN',
       quantity: 1
     }];
   }
@@ -125,4 +135,18 @@ export function toEasyshipItems(orderItems = []) {
       quantity: item.quantity || 1
     };
   });
+}
+
+export function mapEasyshipRates(rates = []) {
+  return rates.map((r) => {
+    const service = r.courier_service || {};
+    return {
+      provider: service.umbrella_name || service.name || r.courier_name || 'Courier',
+      serviceLevel: service.name || r.courier_service_name || r.description || 'Standard',
+      amount: parseFloat(r.total_charge ?? r.shipment_charge_total ?? r.shipment_charge ?? 0),
+      currency: r.currency || 'USD',
+      objectId: service.id || r.courier_service_id || r.courier_id || r.easyship_rate_id,
+      estimatedDays: `${r.min_delivery_time ?? '?'}-${r.max_delivery_time ?? '?'}`
+    };
+  }).filter((rate) => Number.isFinite(rate.amount) && rate.amount >= 0 && rate.objectId);
 }

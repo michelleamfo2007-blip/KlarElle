@@ -1,247 +1,78 @@
-import { getEasyshipBaseUrl } from './_easyship.js';
+import {
+  easyshipRequest,
+  getCountryCode,
+  getEasyshipOriginAddress,
+  mapEasyshipRates
+} from './_easyship.js';
 import { getVariantSkuFromProduct } from '../src/utils/sku.js';
 import { cartShipsFromInternational } from '../src/utils/stock.js';
 import { PACKAGE_HEIGHT_CM, PACKAGE_LENGTH_CM, PACKAGE_WIDTH_CM } from '../src/utils/package.js';
 
-const COUNTRY_CODES = {
-  "United States": "US",
-  "Afghanistan": "AF",
-  "Albania": "AL",
-  "Algeria": "DZ",
-  "Andorra": "AD",
-  "Angola": "AO",
-  "Antigua and Barbuda": "AG",
-  "Argentina": "AR",
-  "Armenia": "AM",
-  "Australia": "AU",
-  "Austria": "AT",
-  "Azerbaijan": "AZ",
-  "Bahamas": "BS",
-  "Bahrain": "BH",
-  "Bangladesh": "BD",
-  "Barbados": "BB",
-  "Belarus": "BY",
-  "Belgium": "BE",
-  "Belize": "BZ",
-  "Benin": "BJ",
-  "Bhutan": "BT",
-  "Bolivia": "BO",
-  "Bosnia and Herzegovina": "BA",
-  "Botswana": "BW",
-  "Brazil": "BR",
-  "Brunei": "BN",
-  "Bulgaria": "BG",
-  "Burkina Faso": "BF",
-  "Burundi": "BI",
-  "Cabo Verde": "CV",
-  "Cambodia": "KH",
-  "Cameroon": "CM",
-  "Canada": "CA",
-  "Central African Republic": "CF",
-  "Chad": "TD",
-  "Chile": "CL",
-  "China": "CN",
-  "Colombia": "CO",
-  "Comoros": "KM",
-  "Congo (Congo-Brazzaville)": "CG",
-  "Costa Rica": "CR",
-  "Croatia": "HR",
-  "Cuba": "CU",
-  "Cyprus": "CY",
-  "Czechia (Czech Republic)": "CZ",
-  "Democratic Republic of the Congo": "CD",
-  "Denmark": "DK",
-  "Djibouti": "DJ",
-  "Dominica": "DM",
-  "Dominican Republic": "DO",
-  "Ecuador": "EC",
-  "Egypt": "EG",
-  "El Salvador": "SV",
-  "Equatorial Guinea": "GQ",
-  "Eritrea": "ER",
-  "Estonia": "EE",
-  "Eswatini": "SZ",
-  "Ethiopia": "ET",
-  "Fiji": "FJ",
-  "Finland": "FI",
-  "France": "FR",
-  "Gabon": "GA",
-  "Gambia": "GM",
-  "Georgia": "GE",
-  "Germany": "DE",
-  "Ghana": "GH",
-  "Greece": "GR",
-  "Grenada": "GD",
-  "Guatemala": "GT",
-  "Guinea": "GN",
-  "Guinea-Bissau": "GW",
-  "Guyana": "GY",
-  "Haiti": "HT",
-  "Honduras": "HN",
-  "Hungary": "HU",
-  "Iceland": "IS",
-  "India": "IN",
-  "Indonesia": "ID",
-  "Iran": "IR",
-  "Iraq": "IQ",
-  "Ireland": "IE",
-  "Israel": "IL",
-  "Italy": "IT",
-  "Jamaica": "JM",
-  "Japan": "JP",
-  "Jordan": "JO",
-  "Kazakhstan": "KZ",
-  "Kenya": "KE",
-  "Kiribati": "KI",
-  "Kuwait": "KW",
-  "Kyrgyzstan": "KG",
-  "Laos": "LA",
-  "Latvia": "LV",
-  "Lebanon": "LB",
-  "Lesotho": "LS",
-  "Liberia": "LR",
-  "Libya": "LY",
-  "Liechtenstein": "LI",
-  "Lithuania": "LT",
-  "Luxembourg": "LU",
-  "Madagascar": "MG",
-  "Malawi": "MW",
-  "Malaysia": "MY",
-  "Maldives": "MV",
-  "Mali": "ML",
-  "Malta": "MT",
-  "Marshall Islands": "MH",
-  "Mauritania": "MR",
-  "Mauritius": "MU",
-  "Mexico": "MX",
-  "Micronesia": "FM",
-  "Moldova": "MD",
-  "Monaco": "MC",
-  "Mongolia": "MN",
-  "Montenegro": "ME",
-  "Morocco": "MA",
-  "Mozambique": "MZ",
-  "Myanmar (formerly Burma)": "MM",
-  "Namibia": "NA",
-  "Nauru": "NR",
-  "Nepal": "NP",
-  "Netherlands": "NL",
-  "New Zealand": "NZ",
-  "Nicaragua": "NI",
-  "Niger": "NE",
-  "Nigeria": "NG",
-  "North Korea": "KP",
-  "North Macedonia": "MK",
-  "Norway": "NO",
-  "Oman": "OM",
-  "Pakistan": "PK",
-  "Palau": "PW",
-  "Palestine State": "PS",
-  "Panama": "PA",
-  "Papua New Guinea": "PG",
-  "Paraguay": "PY",
-  "Peru": "PE",
-  "Philippines": "PH",
-  "Poland": "PL",
-  "Portugal": "PT",
-  "Qatar": "QA",
-  "Romania": "RO",
-  "Russia": "RU",
-  "Rwanda": "RW",
-  "Saint Kitts and Nevis": "KN",
-  "Saint Lucia": "LC",
-  "Saint Vincent and the Grenadines": "VC",
-  "Samoa": "WS",
-  "San Marino": "SM",
-  "Sao Tome and Principe": "ST",
-  "Saudi Arabia": "SA",
-  "Senegal": "SN",
-  "Serbia": "RS",
-  "Seychelles": "SC",
-  "Sierra Leone": "SL",
-  "Singapore": "SG",
-  "Slovakia": "SK",
-  "Slovenia": "SI",
-  "Solomon Islands": "SB",
-  "Somalia": "SO",
-  "South Africa": "ZA",
-  "South Korea": "KR",
-  "South Sudan": "SS",
-  "Spain": "ES",
-  "Sri Lanka": "LK",
-  "Sudan": "SD",
-  "Suriname": "SR",
-  "Sweden": "SE",
-  "Switzerland": "CH",
-  "Syria": "SY",
-  "Tajikistan": "TJ",
-  "Tanzania": "TZ",
-  "Thailand": "TH",
-  "Timor-Leste": "TL",
-  "Togo": "TG",
-  "Tonga": "TO",
-  "Trinidad and Tobago": "TT",
-  "Tunisia": "TN",
-  "Turkey": "TR",
-  "Turkmenistan": "TM",
-  "Tuvalu": "TV",
-  "Uganda": "UG",
-  "Ukraine": "UA",
-  "United Arab Emirates": "AE",
-  "United Kingdom": "GB",
-  "Uruguay": "UY",
-  "Uzbekistan": "UZ",
-  "Vanuatu": "VU",
-  "Venezuela": "VE",
-  "Vietnam": "VN",
-  "Yemen": "YE",
-  "Zambia": "ZM",
-  "Zimbabwe": "ZW"
-};
+function toRateItems(cartItems = []) {
+  const items = cartItems.map((item) => {
+    const weight = item.weight ? parseFloat(item.weight) : 1.2;
+    const price = parseFloat(item.price ?? item.sale_price ?? item.price_at_time ?? 50) || 50;
+    return {
+      description: item.name || 'Apparel',
+      sku: getVariantSkuFromProduct(item, item.selectedColor || item.color, item.selectedSize || item.size) || item.sku || `SKU-${item.id}`,
+      category: 'fashion',
+      origin_country_alpha2: getCountryCode(item.country_of_manufacture || 'China'),
+      hs_code: item.hs_code || undefined,
+      actual_weight: Number.isFinite(weight) && weight > 0 ? weight : 1.2,
+      dimensions: {
+        length: PACKAGE_LENGTH_CM,
+        width: PACKAGE_WIDTH_CM,
+        height: PACKAGE_HEIGHT_CM
+      },
+      declared_currency: 'USD',
+      declared_customs_value: price,
+      quantity: item.quantity || 1
+    };
+  });
+
+  if (!items.length) {
+    items.push({
+      description: 'Apparel',
+      sku: 'DEFAULT',
+      category: 'fashion',
+      origin_country_alpha2: 'CN',
+      actual_weight: 1.2,
+      dimensions: {
+        length: PACKAGE_LENGTH_CM,
+        width: PACKAGE_WIDTH_CM,
+        height: PACKAGE_HEIGHT_CM
+      },
+      declared_currency: 'USD',
+      declared_customs_value: 50,
+      quantity: 1
+    });
+  }
+
+  return items;
+}
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { destinationZip, country = 'United States', cartItems = [] } = req.body;
-  const destCountryCode = COUNTRY_CODES[country] || 'US';
+  const {
+    destinationZip,
+    country = 'United States',
+    cartItems = [],
+    city = '',
+    state = '',
+    street = '',
+    line2 = ''
+  } = req.body || {};
 
-  const items = cartItems.map(item => {
-    const weight = item.weight ? parseFloat(item.weight) : 1.2;
-    return {
-      description: item.name,
-      sku: getVariantSkuFromProduct(item, item.selectedColor || item.color, item.selectedSize || item.size) || item.sku || `SKU-${item.id}`,
-      actual_weight: weight,
-      height: PACKAGE_HEIGHT_CM,
-      width: PACKAGE_WIDTH_CM,
-      length: PACKAGE_LENGTH_CM,
-      category: "fashion",
-      declared_currency: "USD",
-      declared_customs_value: item.price,
-      quantity: item.quantity
-    };
-  });
-
-  if (items.length === 0) {
-    items.push({
-      description: "Apparel",
-      sku: "DEFAULT",
-      actual_weight: 1.2,
-      height: PACKAGE_HEIGHT_CM,
-      width: PACKAGE_WIDTH_CM,
-      length: PACKAGE_LENGTH_CM,
-      category: "fashion",
-      declared_currency: "USD",
-      declared_customs_value: 50,
-      quantity: 1
-    });
-  }
+  const destCountryCode = getCountryCode(country);
+  const items = toRateItems(cartItems);
+  const totalWeight = items.reduce((sum, item) => sum + (item.actual_weight * (item.quantity || 1)), 0);
 
   // US stock can ship to any country. International warehouse only when US stock is 0.
   const isFulfilledFromChina = cartShipsFromInternational(cartItems);
-  const originCountry = isFulfilledFromChina ? 'CN' : 'US';
-  const originZip = isFulfilledFromChina ? '518000' : '10001';
+  const fulfillmentSource = isFulfilledFromChina ? 'CN' : 'US';
 
   const apiKey = process.env.EASYSHIP_API_KEY;
   if (!apiKey) {
@@ -249,47 +80,61 @@ export default async function handler(req, res) {
       { provider: 'ePost Global', serviceLevel: 'Economy International', amount: 19.99, objectId: 'easyship_mock_1', estimatedDays: '7-16' },
       { provider: 'DHL Express', serviceLevel: 'Express Worldwide', amount: 45.00, objectId: 'easyship_mock_2', estimatedDays: '3-5' }
     ];
-    return res.status(200).json({ success: true, rates: mockRates, fulfillmentSource: originCountry });
+    return res.status(200).json({ success: true, rates: mockRates, fulfillmentSource });
   }
 
   try {
-    const response = await fetch(`${getEasyshipBaseUrl(apiKey)}/2023-01/rates`, {
+    const originAddress = await getEasyshipOriginAddress(apiKey, null, fulfillmentSource);
+
+    const destinationAddress = {
+      line_1: street || 'Address pending',
+      line_2: line2 || null,
+      city: city || (destCountryCode === 'US' ? 'New York' : 'City'),
+      state: state || '',
+      postal_code: destinationZip || '',
+      country_alpha2: destCountryCode
+    };
+
+    if (['US', 'CA', 'AU'].includes(destCountryCode) && !destinationAddress.postal_code) {
+      return res.status(400).json({ error: 'Postal/ZIP code is required for shipping rates.' });
+    }
+
+    const data = await easyshipRequest(apiKey, '/rates', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`
-      },
       body: JSON.stringify({
-        origin_country_alpha2: originCountry,
-        origin_postal_code: originZip,
-        destination_country_alpha2: destCountryCode,
-        destination_postal_code: destinationZip,
-        taxes_duties_paid_by: 'Receiver',
-        is_insured: false,
-        items: items
+        origin_address: originAddress,
+        destination_address: destinationAddress,
+        incoterms: 'DDU',
+        insurance: { is_insured: false },
+        courier_settings: {
+          apply_shipping_rules: true,
+          show_courier_logo_url: false
+        },
+        shipping_settings: {
+          units: {
+            weight: 'kg',
+            dimensions: 'cm'
+          }
+        },
+        parcels: [{
+          items,
+          total_actual_weight: Number(totalWeight.toFixed(3)) || 1.2,
+          box: {
+            length: PACKAGE_LENGTH_CM,
+            width: PACKAGE_WIDTH_CM,
+            height: PACKAGE_HEIGHT_CM
+          }
+        }]
       })
     });
 
-    const data = await response.json();
-    if (!response.ok) {
-      throw new Error(data.error?.message || 'Failed to fetch Easyship rates');
-    }
-
-    let rates = [];
-    if (data.rates && data.rates.length > 0) {
-      rates = data.rates.map(r => ({
-        provider: r.courier_name,
-        serviceLevel: r.courier_service_name,
-        amount: parseFloat(r.total_charge),
-        currency: r.currency,
-        objectId: r.courier_id || r.easyship_rate_id,
-        estimatedDays: `${r.min_delivery_time}-${r.max_delivery_time}`
-      }));
-    }
-
-    return res.status(200).json({ success: true, rates, fulfillmentSource: originCountry });
+    const rates = mapEasyshipRates(data.rates || []);
+    return res.status(200).json({ success: true, rates, fulfillmentSource });
   } catch (error) {
     console.error('Easyship API Error:', error);
-    return res.status(500).json({ error: 'Internal server error while fetching shipping rates' });
+    return res.status(error.status || 500).json({
+      error: error.message || 'Internal server error while fetching shipping rates',
+      code: error.code || undefined
+    });
   }
 }

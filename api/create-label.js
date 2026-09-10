@@ -92,20 +92,30 @@ export default async function handler(req, res) {
       insurance: { is_insured: false },
       parcels: [{ items }],
       shipping_settings: {
-        buy_label: true,
-        buy_label_synchronous: true
+        buy_label: false,
+        buy_label_synchronous: false,
+        units: {
+          weight: 'kg',
+          dimensions: 'cm'
+        }
       }
     };
 
     const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(rateId);
     if (isUuid) {
-      shipmentPayload.courier_selection = {
-        selected_courier_id: rateId,
-        allow_courier_fallback: true
+      shipmentPayload.courier_settings = {
+        courier_service_id: rateId,
+        allow_fallback: true,
+        apply_shipping_rules: true
+      };
+    } else {
+      shipmentPayload.courier_settings = {
+        apply_shipping_rules: true,
+        allow_fallback: true
       };
     }
 
-    const shipmentData = await easyshipRequest(apiKey, '/2023-01/shipments', {
+    const shipmentData = await easyshipRequest(apiKey, '/shipments', {
       method: 'POST',
       body: JSON.stringify(shipmentPayload)
     });
@@ -116,13 +126,16 @@ export default async function handler(req, res) {
 
     if (shipment.easyship_shipment_id && (!trackingNumber || !labelUrl)) {
       try {
-        const labelData = await easyshipRequest(apiKey, '/2023-01/labels', {
+        const labelData = await easyshipRequest(apiKey, '/batches/labels', {
           method: 'POST',
           body: JSON.stringify({
-            shipments: [{ easyship_shipment_id: shipment.easyship_shipment_id }]
+            shipments: [{
+              easyship_shipment_id: shipment.easyship_shipment_id,
+              ...(isUuid ? { courier_service_id: rateId } : {})
+            }]
           })
         });
-        const label = labelData.labels?.[0] || {};
+        const label = labelData.labels?.[0] || labelData.shipments?.[0] || {};
         trackingNumber = label.tracking_number || trackingNumber;
         labelUrl = label.label_url || labelUrl;
       } catch (labelError) {

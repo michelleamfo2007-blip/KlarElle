@@ -230,6 +230,10 @@ function Checkout() {
           body: JSON.stringify({
             destinationZip: formData.postcode,
             country: formData.location,
+            city: formData.city,
+            state: formData.region,
+            street: formData.houseNo,
+            line2: formData.apartment || '',
             cartItems
           })
         });
@@ -248,7 +252,7 @@ function Checkout() {
     };
     loadRates();
     return () => { cancelled = true; };
-  }, [showShippingForm, formData.postcode, formData.location, cartItems]);
+  }, [showShippingForm, formData.postcode, formData.location, formData.city, formData.region, formData.houseNo, formData.apartment, cartItems]);
 
   if (!STORE_LAUNCHED) {
     return (
