@@ -9,7 +9,7 @@ import { Elements } from "@stripe/react-stripe-js";
 import CheckoutForm from '../components/CheckoutForm';
 import { ChevronLeft, MapPin, ChevronRight, CheckCircle2, Truck } from 'lucide-react';
 import { COUNTRIES } from '../utils/countries';
-import { cartShipsFromInternational, getItemDeliveryEstimate } from '../utils/stock';
+import { cartShipsFromInternational, getFulfillmentSource, getItemDeliveryEstimate } from '../utils/stock';
 import { getVariantSkuFromProduct } from '../utils/sku';
 import { STORE_LAUNCHED } from '../utils/launch';
 import { attachEmailToSavedCart } from '../utils/cartTracking';
@@ -260,7 +260,8 @@ function Checkout() {
             price_at_time: item.price || 0,
             size: item.selectedSize || null,
             color: item.selectedColor || null,
-            sku: item.sku || getVariantSkuFromProduct(item, item.selectedColor, item.selectedSize)
+            sku: item.sku || getVariantSkuFromProduct(item, item.selectedColor, item.selectedSize),
+            fulfilledFrom: item.fulfilledFrom || getFulfillmentSource(item, item.selectedColor, item.selectedSize)
           }))
         })
       });

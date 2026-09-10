@@ -1,6 +1,7 @@
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
 import { sendOrderEmails } from './_send-order-emails.js';
+import { deductInventoryForItems } from './_deduct-inventory.js';
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Credentials', true);
@@ -126,6 +127,12 @@ export default async function handler(req, res) {
 
     const { error: itemsError } = await supabase.from('order_items').insert(orderItems);
     if (itemsError) throw itemsError;
+
+    try {
+      await deductInventoryForItems(supabase, items);
+    } catch (stockError) {
+      console.error('Order saved but inventory deduct failed:', stockError);
+    }
 
     if (coupon_id) {
       await supabase.rpc('increment_coupon_usage', { coupon_id });
