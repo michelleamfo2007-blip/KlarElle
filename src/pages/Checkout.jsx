@@ -11,7 +11,7 @@ import { ChevronLeft, MapPin, ChevronRight, CheckCircle2, Truck } from 'lucide-r
 import { COUNTRIES } from '../utils/countries';
 import { cartShipsFromInternational, getFulfillmentSource, getItemDeliveryEstimate } from '../utils/stock';
 import { getVariantSkuFromProduct } from '../utils/sku';
-import { STORE_LAUNCHED } from '../utils/launch';
+import { canUseCheckout } from '../utils/launch';
 import { attachEmailToSavedCart } from '../utils/cartTracking';
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
@@ -38,7 +38,7 @@ function Checkout() {
   ));
   
   useEffect(() => {
-    if (STORE_LAUNCHED && cartItems.length > 0) {
+    if (canUseCheckout(session?.user?.email) && cartItems.length > 0) {
       trackBeginCheckout(cartItems, cartTotal);
     }
   }, []);
@@ -210,7 +210,7 @@ function Checkout() {
     }
   }, [preTaxTotal, shippingTotal, currency, EXCHANGE_RATES, showShippingForm, formData.houseNo, formData.apartment, formData.city, formData.region, formData.postcode, formData.location]);
 
-  if (!STORE_LAUNCHED) {
+  if (!canUseCheckout(session?.user?.email)) {
     return (
       <div style={{ padding: '100px 20px', textAlign: 'center', background: '#f5f5f5', minHeight: '100vh' }}>
         <h2 style={{ marginBottom: '16px' }}>Shopping opens at launch</h2>

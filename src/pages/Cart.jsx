@@ -4,7 +4,7 @@ import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { useCurrency } from '../context/CurrencyContext';
 import { Trash2, Minus, Plus, ShieldCheck, Truck } from 'lucide-react';
-import { STORE_LAUNCHED } from '../utils/launch';
+import { canUseCheckout } from '../utils/launch';
 import { productPath } from '../utils/productUrl';
 import './Cart.css';
 
@@ -91,7 +91,7 @@ function Cart() {
               <span>{formatPrice(finalTotal)}</span>
             </div>
             
-            {STORE_LAUNCHED ? (
+            {canUseCheckout(session?.user?.email) ? (
               <Link to="/checkout" className="btn btn-primary checkout-btn" style={{ display: 'block', textAlign: 'center', textDecoration: 'none' }}>CHECKOUT</Link>
             ) : (
               <div className="btn btn-primary checkout-btn" style={{ display: 'block', textAlign: 'center', background: '#ddd', color: '#666', cursor: 'not-allowed' }}>

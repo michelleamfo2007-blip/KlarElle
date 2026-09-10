@@ -2,6 +2,7 @@ import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
 import { sendOrderEmails } from './_send-order-emails.js';
 import { deductInventoryForItems } from './_deduct-inventory.js';
+import { isTestShopper } from '../src/utils/launch.js';
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Credentials', true);
@@ -69,11 +70,12 @@ export default async function handler(req, res) {
       return res.status(200).json({ order_id: existing.data.id, already_created: true });
     }
 
+    const testOrder = isTestShopper(customer_email);
     const orderPayload = {
       customer_name: (customer_name || 'Guest').trim() || 'Guest',
       customer_email,
       total_amount,
-      status: 'Paid',
+      status: testOrder ? 'Delivered' : 'Paid',
       shipping_address: typeof shipping_address === 'string'
         ? shipping_address
         : JSON.stringify(shipping_address || {}),
@@ -128,10 +130,12 @@ export default async function handler(req, res) {
     const { error: itemsError } = await supabase.from('order_items').insert(orderItems);
     if (itemsError) throw itemsError;
 
-    try {
-      await deductInventoryForItems(supabase, items);
-    } catch (stockError) {
-      console.error('Order saved but inventory deduct failed:', stockError);
+    if (!testOrder) {
+      try {
+        await deductInventoryForItems(supabase, items);
+      } catch (stockError) {
+        console.error('Order saved but inventory deduct failed:', stockError);
+      }
     }
 
     if (coupon_id) {

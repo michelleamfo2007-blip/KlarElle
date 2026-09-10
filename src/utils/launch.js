@@ -8,6 +8,18 @@ export const STORE_LAUNCH_AT = null;
 
 const THREE_DAYS_MS = 3 * 24 * 60 * 60 * 1000;
 
+const TEST_SHOPPER_EMAILS = [
+  'devvwithmercedes@gmail.com'
+];
+
+export function isTestShopper(email) {
+  return TEST_SHOPPER_EMAILS.includes(String(email || '').trim().toLowerCase());
+}
+
+export function canUseCheckout(email) {
+  return STORE_LAUNCHED || isTestShopper(email);
+}
+
 export function showPublicStockCounts(now = Date.now()) {
   if (!STORE_LAUNCHED) return false;
   if (!STORE_LAUNCH_AT) return false;
