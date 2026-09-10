@@ -30,22 +30,87 @@ import ProductImage from '../components/ProductImage';
 const collectProductImages = (product, color) => collectImagesForColor(product, color);
 
 const CustomSlider = ({ value, min, max, onChange, marks }) => {
-  const percentage = ((value - min) / (max - min)) * 100;
+  const span = Math.max(1, max - min);
+  const pct = (val) => `${((Number(val) - min) / span) * 100}%`;
+  const clamped = Math.min(max, Math.max(min, Number(value) || min));
   return (
-    <div style={{ width: '100%', height: '40px', background: '#f8f9fa', border: '1px solid #e9ecef', borderRadius: '4px', position: 'relative' }}>
-      <div style={{ position: 'absolute', left: `${percentage}%`, top: 0, bottom: 0, width: '2px', background: '#1c7ed6', transform: 'translateX(-50%)', pointerEvents: 'none' }}></div>
-      <div style={{ position: 'absolute', left: `${percentage}%`, top: '-6px', transform: 'translateX(-50%)', width: 0, height: 0, borderLeft: '6px solid transparent', borderRight: '6px solid transparent', borderTop: '8px solid #1c7ed6', pointerEvents: 'none' }}></div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', padding: '24px 10px 0 10px', fontSize: '10px', color: '#999', pointerEvents: 'none' }}>
-        {marks.map(mark => <span key={mark}>{mark}</span>)}
-      </div>
-      <input 
-        type="range" min={min} max={max} value={value} 
-        onChange={e => onChange(Number(e.target.value))}
-        style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', opacity: 0, cursor: 'pointer', margin: 0 }} 
+    <div style={{ width: '100%', height: '44px', background: '#f8f9fa', border: '1px solid #e9ecef', borderRadius: '4px', position: 'relative' }}>
+      <div style={{ position: 'absolute', left: pct(clamped), top: 0, bottom: 18, width: '2px', background: '#1c7ed6', transform: 'translateX(-50%)', pointerEvents: 'none' }}></div>
+      <div style={{ position: 'absolute', left: pct(clamped), top: '-6px', transform: 'translateX(-50%)', width: 0, height: 0, borderLeft: '6px solid transparent', borderRight: '6px solid transparent', borderTop: '8px solid #1c7ed6', pointerEvents: 'none' }}></div>
+      {marks.map((mark) => (
+        <span
+          key={mark}
+          style={{ position: 'absolute', left: pct(mark), bottom: 4, transform: 'translateX(-50%)', fontSize: '10px', color: '#999', pointerEvents: 'none' }}
+        >
+          {mark}
+        </span>
+      ))}
+      <input
+        type="range"
+        min={min}
+        max={max}
+        step={1}
+        value={clamped}
+        onChange={(e) => onChange(Number(e.target.value))}
+        style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', opacity: 0, cursor: 'pointer', margin: 0 }}
       />
     </div>
   );
 };
+
+const ChoiceSlider = ({ value, options, onChange }) => {
+  const max = Math.max(1, options.length - 1);
+  const pct = `${(Number(value) / max) * 100}%`;
+  return (
+    <div style={{ flex: 1, position: 'relative', height: '28px' }}>
+      <div style={{ position: 'absolute', left: 0, right: 0, top: '12px', height: '4px', background: '#eee', borderRadius: '2px' }} />
+      {options.map((_, i) => (
+        <div
+          key={options[i]}
+          style={{ position: 'absolute', left: `${(i / max) * 100}%`, top: '8px', width: '2px', height: '12px', background: '#ddd', transform: 'translateX(-50%)' }}
+        />
+      ))}
+      <div
+        style={{
+          position: 'absolute',
+          left: pct,
+          top: '8px',
+          width: '18px',
+          height: '12px',
+          background: '#000',
+          borderRadius: '4px',
+          transform: 'translateX(-50%)',
+          pointerEvents: 'none'
+        }}
+      />
+      <input
+        type="range"
+        min={0}
+        max={max}
+        step={1}
+        value={value}
+        onChange={(e) => onChange(Number(e.target.value))}
+        style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', opacity: 0, cursor: 'pointer', margin: 0 }}
+      />
+    </div>
+  );
+};
+
+function parseFitLevel(text) {
+  const value = String(text || '').toLowerCase();
+  if (value.includes('oversize') || value.includes('relax') || value.includes('loose')) return 2;
+  if (value.includes('skinny') || value.includes('slim') || value.includes('bodycon')) return 0;
+  return 1;
+}
+
+function parseStretchLevel(text) {
+  const value = String(text || '').toLowerCase();
+  if (value.includes('high')) return 3;
+  if (value.includes('moderate') || value.includes('medium')) return 2;
+  if (value.includes('slight')) return 1;
+  if (value.includes('no stretch') || value.includes('non')) return 0;
+  return 1;
+}
 
 function ProductDetails() {
   const { id } = useParams();
@@ -186,6 +251,8 @@ function ProductDetails() {
   const [userHips, setUserHips] = useState(100);
   const [userUnderbust, setUserUnderbust] = useState(75);
   const [fitPreference, setFitPreference] = useState('');
+  const [guideFit, setGuideFit] = useState(1);
+  const [guideStretch, setGuideStretch] = useState(1);
   const [ageRange, setAgeRange] = useState('');
   const [sizeProfiles, setSizeProfiles] = useState([]);
   const [activeProfileId, setActiveProfileId] = useState(null);
@@ -345,6 +412,13 @@ function ProductDetails() {
 
   useEffect(() => {
     if (product) trackViewItem(product);
+  }, [product?.id]);
+
+  useEffect(() => {
+    if (!product) return;
+    const details = applyMaterialDetails(product);
+    setGuideFit(parseFitLevel(product.fit || product.fit_notes));
+    setGuideStretch(parseStretchLevel(details.features || product.features));
   }, [product?.id]);
 
   const submitReview = async (e) => {
@@ -1004,12 +1078,7 @@ function ProductDetails() {
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center' }}>
                     <div style={{ width: '80px' }}></div>
-                    <div style={{ flex: 1, position: 'relative', height: '4px', background: '#eee', borderRadius: '2px' }}>
-                      <div style={{ position: 'absolute', left: '25%', top: '-2px', width: '20px', height: '8px', background: '#000', borderRadius: '4px' }}></div>
-                      <div style={{ position: 'absolute', left: '0', top: '-4px', width: '2px', height: '12px', background: '#eee' }}></div>
-                      <div style={{ position: 'absolute', left: '50%', top: '-4px', width: '2px', height: '12px', background: '#eee' }}></div>
-                      <div style={{ position: 'absolute', right: '0', top: '-4px', width: '2px', height: '12px', background: '#eee' }}></div>
-                    </div>
+                    <ChoiceSlider value={guideFit} options={['Skinny', 'Regular', 'Oversized']} onChange={setGuideFit} />
                   </div>
                 </div>
 
@@ -1022,13 +1091,7 @@ function ProductDetails() {
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center' }}>
                     <div style={{ width: '80px' }}></div>
-                    <div style={{ flex: 1, position: 'relative', height: '4px', background: '#eee', borderRadius: '2px' }}>
-                      <div style={{ position: 'absolute', right: '0', top: '-2px', width: '20px', height: '8px', background: '#000', borderRadius: '4px' }}></div>
-                      <div style={{ position: 'absolute', left: '0', top: '-4px', width: '2px', height: '12px', background: '#eee' }}></div>
-                      <div style={{ position: 'absolute', left: '33.3%', top: '-4px', width: '2px', height: '12px', background: '#eee' }}></div>
-                      <div style={{ position: 'absolute', left: '66.6%', top: '-4px', width: '2px', height: '12px', background: '#eee' }}></div>
-                      <div style={{ position: 'absolute', right: '0', top: '-4px', width: '2px', height: '12px', background: '#eee' }}></div>
-                    </div>
+                    <ChoiceSlider value={guideStretch} options={['Non', 'Slight', 'Medium', 'High']} onChange={setGuideStretch} />
                   </div>
                 </div>
               </div>
@@ -1079,14 +1142,14 @@ function ProductDetails() {
                       <span style={{ fontWeight: 'bold', fontSize: '14px' }}>Height<span style={{ color: '#d90429' }}>*</span></span>
                       <span style={{ fontWeight: '900', fontSize: '20px' }}>{measurementUnit === 'cm, kg' ? userHeight : Math.round(userHeight * 0.393701)} <span style={{ fontSize: '13px', fontWeight: 'bold' }}>{measurementUnit === 'cm, kg' ? 'cm' : 'in'}</span></span>
                     </div>
-                    <CustomSlider value={userHeight} min={140} max={200} marks={['155', '165', '175']} onChange={setUserHeight} />
+                    <CustomSlider value={userHeight} min={0} max={200} marks={['0', '50', '100', '150', '200']} onChange={setUserHeight} />
                   </div>
                   <div style={{ marginBottom: '32px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '12px' }}>
                       <span style={{ fontWeight: 'bold', fontSize: '14px' }}>Weight<span style={{ color: '#d90429' }}>*</span></span>
                       <span style={{ fontWeight: '900', fontSize: '20px' }}>{measurementUnit === 'cm, kg' ? userWeight : Math.round(userWeight * 2.20462)} <span style={{ fontSize: '13px', fontWeight: 'bold' }}>{measurementUnit === 'cm, kg' ? 'kg' : 'lb'}</span></span>
                     </div>
-                    <CustomSlider value={userWeight} min={30} max={120} marks={['45', '55', '65', '75']} onChange={setUserWeight} />
+                    <CustomSlider value={userWeight} min={0} max={200} marks={['0', '50', '100', '150', '200']} onChange={setUserWeight} />
                   </div>
                 </>
               )}
