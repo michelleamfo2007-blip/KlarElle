@@ -274,10 +274,8 @@ main {
 
 .top-bar-announcement {
   color: #666;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
   min-width: 0;
+  line-height: 1.35;
 }
 
 /* Header */
@@ -1415,21 +1413,36 @@ button.nav-link {
   }
   .top-bar {
     overflow: visible;
+    padding: 8px 0;
   }
   .top-bar .container {
     gap: 8px;
     min-width: 0;
     overflow: visible;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .top-bar-controls {
+    flex: 0 0 auto;
+    gap: 8px;
   }
   .top-bar-announcement {
-    max-width: 46%;
-    font-size: 11px;
+    flex: 1 1 100%;
+    order: -1;
+    max-width: none;
+    width: 100%;
+    text-align: center;
+    white-space: normal;
+    overflow: visible;
+    font-size: 12px;
+    line-height: 1.4;
+    padding: 0 4px;
   }
   .top-bar-menu {
     position: fixed;
     left: 12px;
     right: 12px;
-    top: 44px;
+    top: 72px;
     width: auto;
     min-width: 0;
     max-height: 55vh;
