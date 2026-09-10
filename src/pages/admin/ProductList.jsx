@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabase';
 import { Link } from 'react-router-dom';
 import { productNeedsPackageSync, syncAllProductPackageDimensions } from '../../utils/package';
+import { getProductStockTotals } from '../../utils/stock';
 
 function ProductList() {
   const [products, setProducts] = useState([]);
@@ -125,7 +126,9 @@ function ProductList() {
                 <th style={{ padding: '16px' }}>Image</th>
                 <th style={{ padding: '16px' }}>Name</th>
                 <th style={{ padding: '16px' }}>Price</th>
-                <th style={{ padding: '16px' }}>Stock</th>
+                <th style={{ padding: '16px', whiteSpace: 'nowrap' }}>US stock</th>
+                <th style={{ padding: '16px', whiteSpace: 'nowrap' }}>China stock</th>
+                <th style={{ padding: '16px', whiteSpace: 'nowrap' }}>Total</th>
                 <th style={{ padding: '16px' }}>Status</th>
                 <th style={{ padding: '16px' }}>Category</th>
                 <th style={{ padding: '16px' }}>Actions</th>
@@ -133,9 +136,11 @@ function ProductList() {
             </thead>
             <tbody>
               {products.length === 0 ? (
-                <tr><td colSpan="8" style={{ padding: '24px', textAlign: 'center', color: '#666' }}>No products found. Add one!</td></tr>
+                <tr><td colSpan="10" style={{ padding: '24px', textAlign: 'center', color: '#666' }}>No products found. Add one!</td></tr>
               ) : (
-                products.map(product => (
+                products.map(product => {
+                  const stock = getProductStockTotals(product);
+                  return (
                   <tr key={product.id} style={{ borderBottom: '1px solid #eee', background: selectedIds.includes(product.id) ? '#f5f5f5' : 'transparent' }}>
                     <td style={{ padding: '16px' }}>
                       <input
@@ -150,7 +155,9 @@ function ProductList() {
                     </td>
                     <td style={{ padding: '16px', fontWeight: '500' }}>{product.name}</td>
                     <td style={{ padding: '16px' }}>${product.price}</td>
-                    <td style={{ padding: '16px' }}>{product.stock}</td>
+                    <td style={{ padding: '16px', whiteSpace: 'nowrap' }}>{stock.us}</td>
+                    <td style={{ padding: '16px', whiteSpace: 'nowrap' }}>{stock.intl}</td>
+                    <td style={{ padding: '16px', whiteSpace: 'nowrap', fontWeight: 600 }}>{stock.total}</td>
                     <td style={{ padding: '16px' }}>
                       <span style={{
                         padding: '4px 8px',
@@ -169,7 +176,8 @@ function ProductList() {
                       <button onClick={() => deleteProduct(product.id)} style={{ color: 'red', background: 'none', border: 'none', cursor: 'pointer' }}>Delete</button>
                     </td>
                   </tr>
-                ))
+                  );
+                })
               )}
             </tbody>
           </table>
