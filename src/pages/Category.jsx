@@ -10,12 +10,13 @@ import { isProductPreorder, isProductSoldOut } from '../utils/stock';
 import ColorPreviewDots, { useProductColorImage } from '../components/ColorPreviewDots';
 import NotifyMeForm from '../components/NotifyMeForm';
 import { COLLECTION_ALIASES, getCollectionBySlug, STORE_COLLECTIONS } from '../data/collections';
-import { getReleaseLabel, isComingSoon, matchesCollection, maybeLaunchProduct } from '../utils/storefront';
+import { getReleaseLabel, isComingSoon, isPublishedOnStorefront, matchesCollection, maybeLaunchProduct } from '../utils/storefront';
 import { getCollectionSeo } from '../utils/seoPages';
 import NotFound from './NotFound';
 import { productPath } from '../utils/productUrl';
 import { trackSelectItem } from '../utils/analytics';
 import ProductImage from '../components/ProductImage';
+import { buildCollectionFilterOptions, productMatchesFilterValue } from '../utils/collectionFilters';
 import './Category.css';
 
 function CategoryProductCard({ product, formatPrice, onNotify }) {
@@ -91,19 +92,6 @@ function Category() {
           }
         }
         setAllProducts(data);
-        
-        // Compute available filter options based on the fetched products
-        const options = {
-          Type: ['Bodycon', 'A Line', 'Cami', 'Fitted', 'Shirt', 'Tunic', 'Fit and Flare'],
-          Color: ['Multi', 'Black', 'White', 'Pink', 'Blue', 'Grey', 'Red', 'Green'],
-          Size: ['XXS', 'XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL'],
-          Length: ['Maxi', 'Long', 'Midi', 'Mini', 'Knee Length', 'Short'],
-          Style: ['Elegant', 'Sexy', 'Party', 'Casual', 'Boho', 'Modest', 'Vintage', 'Cute'],
-          PatternType: ['Plain', 'Plants', 'All Over Print', 'Random Print', 'Colorblock', 'Floral'],
-          Occasion: ['Formal & Evening', 'Wedding', 'Vacation', 'Beach', 'Night Out', 'Stage & Concert', 'Dating', 'Homecoming', 'Daily', 'Holiday', 'Birthday Party', 'Bachelorette Party', 'Home', 'Travel', 'Office', 'Garden', 'Country Concert', 'Tea Party', 'Photoshoot', 'Baby Shower Party', 'Street', 'Airport', 'Brunch'],
-          WaistLine: ['High Waist', 'Natural(Mid Waist)', 'Low Waist']
-        };
-        setFilterOptions(options);
       }
       setLoading(false);
     };
@@ -112,58 +100,26 @@ function Category() {
   }, [id]);
 
   useEffect(() => {
-    // Apply filters client-side
+    setActiveFilters({});
+  }, [id]);
+
+  useEffect(() => {
+    const inCollection = allProducts.filter((product) => (
+      isPublishedOnStorefront(product) && matchesCollection(product, id)
+    ));
+    setFilterOptions(buildCollectionFilterOptions(inCollection));
+  }, [allProducts, id]);
+
+  useEffect(() => {
     let result = [...allProducts].filter((product) => matchesCollection(product, id));
 
-    // Simple matching for categories that exist directly on the product (or tags)
-    // Assuming product schema has some of these or they are in tags
-    const activeKeys = Object.keys(activeFilters).filter(k => activeFilters[k] && activeFilters[k].length > 0 && k !== 'price' && k !== 'pricePreset');
-    
-    activeKeys.forEach(key => {
-      const selectedOptions = activeFilters[key];
-      result = result.filter(product => {
-        // Mock filtering logic - if product has tags, check if tags include the selected option
-        const productTags = product.tags || [];
-        const productColors = product.colors || [];
-        const productSizes = product.sizes || [];
-        
-        if (key === 'Color') {
-          return selectedOptions.some(color => productColors.includes(color));
-        }
-        if (key === 'Size') {
-          return selectedOptions.some(size => productSizes.includes(size));
-        }
-        if (key === 'Style') {
-          return selectedOptions.includes(product.style);
-        }
-        if (key === 'PatternType') {
-          return selectedOptions.includes(product.pattern_type);
-        }
-        
-        // Fallback for missing direct fields: check tags
-        return selectedOptions.some(option => productTags.includes(option));
-      });
-    });
+    const activeKeys = Object.keys(activeFilters).filter((key) => (
+      Array.isArray(activeFilters[key]) && activeFilters[key].length > 0
+    ));
 
-    // Apply price filter
-    if (activeFilters.pricePreset) {
-      if (activeFilters.pricePreset === 'Under GH₵177') {
-        result = result.filter(p => parseFloat(p.price) < 177);
-      } else if (activeFilters.pricePreset === 'GH₵177 - GH₵235') {
-        result = result.filter(p => parseFloat(p.price) >= 177 && parseFloat(p.price) <= 235);
-      } else if (activeFilters.pricePreset === 'GH₵235 - GH₵294') {
-        result = result.filter(p => parseFloat(p.price) >= 235 && parseFloat(p.price) <= 294);
-      } else if (activeFilters.pricePreset === 'Over GH₵294') {
-        result = result.filter(p => parseFloat(p.price) > 294);
-      }
-    } else if (activeFilters.price) {
-      if (activeFilters.price.min) {
-        result = result.filter(p => parseFloat(p.price) >= parseFloat(activeFilters.price.min));
-      }
-      if (activeFilters.price.max) {
-        result = result.filter(p => parseFloat(p.price) <= parseFloat(activeFilters.price.max));
-      }
-    }
+    activeKeys.forEach((key) => {
+      result = result.filter((product) => productMatchesFilterValue(product, key, activeFilters[key]));
+    });
 
     setProducts(result);
   }, [activeFilters, allProducts, id]);
@@ -173,6 +129,7 @@ function Category() {
   const seo = getCollectionSeo(id);
   const categoryName = seo?.heading || collection?.title || id.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase());
   const collectionHasProducts = allProducts.some((product) => matchesCollection(product, id));
+  const hasFilterOptions = Object.values(filterOptions).some((options) => (options || []).length > 0);
 
   if (id === 'coming-soon') return <Navigate to="/category/new-in" replace />;
   if (!known) return <NotFound />;
@@ -187,6 +144,7 @@ function Category() {
     />
     <div className="category-page-container">
       {/* Sidebar */}
+      {hasFilterOptions && (
       <div className="desktop-filter-sidebar">
         <FilterSidebar 
           filterOptions={filterOptions} 
@@ -194,6 +152,7 @@ function Category() {
           onFilterChange={setActiveFilters} 
         />
       </div>
+      )}
 
       {/* Main Content */}
       <div className="category-content">
@@ -210,6 +169,7 @@ function Category() {
               ))}
             </div>
           </div>
+          {hasFilterOptions && (
           <button 
             className="mobile-filter-btn" 
             onClick={() => setIsMobileFilterOpen(true)}
@@ -217,6 +177,7 @@ function Category() {
           >
             Filter <Filter size={16} />
           </button>
+          )}
         </div>
 
         {loading ? (
@@ -245,7 +206,7 @@ function Category() {
         onClose={() => setIsMobileFilterOpen(false)}
         filterOptions={filterOptions}
         activeFilters={activeFilters}
-        onFilterChange={setActiveFilters}
+        onApplyFilters={setActiveFilters}
       />
       {notifyProduct && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 2000, display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }} onClick={() => setNotifyProduct(null)}>

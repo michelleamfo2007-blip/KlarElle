@@ -77,8 +77,6 @@ function FilterSidebar({ filterOptions, activeFilters, onFilterChange }) {
       {renderSection('PatternType', 'Pattern Type', true)}
       {renderSection('Occasion', 'Occasion', true)}
       {renderSection('WaistLine', 'Waist Line', true)}
-      
-      {/* Price section could be added here if needed, but often kept simple on desktop sidebar */}
     </aside>
   );
 }

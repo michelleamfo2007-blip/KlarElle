@@ -32,7 +32,7 @@ export const PAGE_META = {
   },
   '/page/payment-method': {
     title: 'Payment Methods | KlarElle',
-    description: 'KlarElle accepts major cards, Apple Pay, Google Pay, Link, and Klarna where available. Payments are processed securely at checkout.'
+    description: 'KlarElle accepts Visa, Mastercard, American Express, Discover, and Klarna where available. Payments are processed securely at checkout.'
   },
   '/page/privacy-policy': {
     title: 'Privacy Policy | KlarElle',

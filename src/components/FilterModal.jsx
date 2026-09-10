@@ -1,67 +1,46 @@
 import React, { useState, useEffect } from 'react';
-import { X, ChevronDown, ChevronUp } from 'lucide-react';
-import './Filter.css'; // We'll create a shared CSS file for both modal and sidebar
+import { X } from 'lucide-react';
+import './Filter.css';
+
+const TAB_DEFS = [
+  { id: 'Type', label: 'Product Type' },
+  { id: 'Color', label: 'Color' },
+  { id: 'Size', label: 'Size' },
+  { id: 'Length', label: 'Length' },
+  { id: 'PatternType', label: 'Pattern Type' },
+  { id: 'Style', label: 'Style' },
+  { id: 'WaistLine', label: 'Waist Line' },
+  { id: 'Occasion', label: 'Occasion' }
+];
 
 function FilterModal({ isOpen, onClose, filterOptions, activeFilters, onApplyFilters }) {
   const [localFilters, setLocalFilters] = useState({});
-  const [activeTab, setActiveTab] = useState('Type');
+  const [activeTab, setActiveTab] = useState('Color');
+  const tabs = TAB_DEFS.filter((tab) => (filterOptions[tab.id] || []).length > 0);
 
   useEffect(() => {
-    if (isOpen) {
-      setLocalFilters({ ...activeFilters });
-    }
+    if (!isOpen) return;
+    setLocalFilters({ ...activeFilters });
   }, [isOpen, activeFilters]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const visible = TAB_DEFS.filter((tab) => (filterOptions[tab.id] || []).length > 0);
+    if (!visible[0]) return;
+    setActiveTab((current) => (visible.some((tab) => tab.id === current) ? current : visible[0].id));
+  }, [isOpen, filterOptions]);
 
   if (!isOpen) return null;
 
   const handleToggle = (category, value) => {
-    setLocalFilters(prev => {
+    setLocalFilters((prev) => {
       const categoryFilters = prev[category] || [];
       if (categoryFilters.includes(value)) {
-        return { ...prev, [category]: categoryFilters.filter(v => v !== value) };
-      } else {
-        return { ...prev, [category]: [...categoryFilters, value] };
+        return { ...prev, [category]: categoryFilters.filter((item) => item !== value) };
       }
+      return { ...prev, [category]: [...categoryFilters, value] };
     });
   };
-
-  const handlePriceChange = (field, value) => {
-    setLocalFilters(prev => ({
-      ...prev,
-      price: {
-        ...prev.price,
-        [field]: value
-      }
-    }));
-  };
-
-  const handleClear = () => {
-    setLocalFilters({});
-  };
-
-  const handleDone = () => {
-    onApplyFilters(localFilters);
-    onClose();
-  };
-
-  const tabs = [
-    { id: 'Type', label: 'Product Type' },
-    { id: 'Color', label: 'Color' },
-    { id: 'Details', label: 'Details' },
-    { id: 'FabricElasticity', label: 'Fabric Elasticity' },
-    { id: 'FitType', label: 'Fit Type' },
-    { id: 'Length', label: 'Length' },
-    { id: 'Composition', label: 'Composition' },
-    { id: 'Neckline', label: 'Neckline' },
-    { id: 'PatternType', label: 'Pattern Type' },
-    { id: 'Size', label: 'Size' },
-    { id: 'SleeveLength', label: 'Sleeve Length' },
-    { id: 'SleeveType', label: 'Sleeve Type' },
-    { id: 'Style', label: 'Style' },
-    { id: 'WaistLine', label: 'Waist Line' },
-    { id: 'Occasion', label: 'Occasion' },
-    { id: 'PriceRange', label: 'Price Range' }
-  ];
 
   return (
     <div className="filter-modal-overlay">
@@ -75,11 +54,10 @@ function FilterModal({ isOpen, onClose, filterOptions, activeFilters, onApplyFil
         </div>
 
         <div className="filter-modal-body">
-          {/* Left Sidebar Tabs */}
           <div className="filter-tabs">
-            {tabs.map(tab => (
-              <div 
-                key={tab.id} 
+            {tabs.map((tab) => (
+              <div
+                key={tab.id}
                 className={`filter-tab ${activeTab === tab.id ? 'active' : ''}`}
                 onClick={() => setActiveTab(tab.id)}
               >
@@ -88,62 +66,35 @@ function FilterModal({ isOpen, onClose, filterOptions, activeFilters, onApplyFil
             ))}
           </div>
 
-          {/* Right Content Area */}
           <div className="filter-options-pane">
-            {activeTab !== 'PriceRange' ? (
-              <div className="filter-options-grid">
-                <h3 className="filter-pane-title">{tabs.find(t => t.id === activeTab)?.label}</h3>
-                <div className="pills-container">
-                  {(filterOptions[activeTab] || []).map(option => (
-                    <button
-                      key={option}
-                      className={`filter-pill ${(localFilters[activeTab] || []).includes(option) ? 'active' : ''}`}
-                      onClick={() => handleToggle(activeTab, option)}
-                    >
-                      {option}
-                    </button>
-                  ))}
-                </div>
+            <div className="filter-options-grid">
+              <h3 className="filter-pane-title">{tabs.find((tab) => tab.id === activeTab)?.label}</h3>
+              <div className="pills-container">
+                {(filterOptions[activeTab] || []).map((option) => (
+                  <button
+                    key={option}
+                    className={`filter-pill ${(localFilters[activeTab] || []).includes(option) ? 'active' : ''}`}
+                    onClick={() => handleToggle(activeTab, option)}
+                  >
+                    {option}
+                  </button>
+                ))}
               </div>
-            ) : (
-              <div className="filter-options-grid">
-                <h3 className="filter-pane-title">Price Range(GHS)</h3>
-                <div className="pills-container">
-                  {['Under GH₵177', 'GH₵177 - GH₵235', 'GH₵235 - GH₵294', 'Over GH₵294'].map(preset => (
-                     <button
-                       key={preset}
-                       className={`filter-pill ${localFilters.pricePreset === preset ? 'active' : ''}`}
-                       onClick={() => setLocalFilters(prev => ({ ...prev, pricePreset: preset }))}
-                     >
-                       {preset}
-                     </button>
-                  ))}
-                </div>
-                <div className="price-inputs">
-                  <input 
-                    type="number" 
-                    placeholder="Min: 52" 
-                    value={localFilters.price?.min || ''}
-                    onChange={(e) => handlePriceChange('min', e.target.value)}
-                    className="price-input"
-                  />
-                  <span> - </span>
-                  <input 
-                    type="number" 
-                    placeholder="Max: 1236" 
-                    value={localFilters.price?.max || ''}
-                    onChange={(e) => handlePriceChange('max', e.target.value)}
-                    className="price-input"
-                  />
-                </div>
-              </div>
-            )}
+            </div>
           </div>
         </div>
 
         <div className="filter-modal-footer">
-          <button className="filter-btn-clear" onClick={handleClear}>Clear</button>
-          <button className="filter-btn-done" onClick={handleDone}>Done</button>
+          <button className="filter-btn-clear" onClick={() => setLocalFilters({})}>Clear</button>
+          <button
+            className="filter-btn-done"
+            onClick={() => {
+              onApplyFilters(localFilters);
+              onClose();
+            }}
+          >
+            Done
+          </button>
         </div>
       </div>
     </div>

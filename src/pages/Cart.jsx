@@ -100,7 +100,7 @@ function Cart() {
             )}
             
             <div className="payment-methods">
-              We accept: Visa, Mastercard, Klarna
+              We accept: Visa, Mastercard, American Express, Discover, Klarna
             </div>
             
             <div style={{ marginTop: '20px', fontSize: '12px', color: '#555', borderTop: '1px solid #eee', paddingTop: '15px' }}>
