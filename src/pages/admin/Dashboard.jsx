@@ -3,8 +3,9 @@ import { supabase } from '../../lib/supabase';
 import { useOutletContext, Link } from 'react-router-dom';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { exportDashboardDataToExcel } from '../../utils/exportToExcel';
-import { DollarSign, ShoppingBag, Package, AlertTriangle, TrendingUp, Clock, CheckCircle, Truck, PackageCheck, ArrowRight, XCircle, RefreshCcw, Eye, Download, Calendar } from 'lucide-react';
+import { DollarSign, ShoppingBag, Package, AlertTriangle, TrendingUp, Clock, CheckCircle, Truck, PackageCheck, ArrowRight, XCircle, RefreshCcw, Eye, Download, Calendar, MousePointerClick } from 'lucide-react';
 import { productNeedsPackageSync, syncAllProductPackageDimensions } from '../../utils/package';
+import { rankClickedProducts } from '../../utils/productClicks';
 
 function Dashboard() {
   const [totalProducts, setTotalProducts] = useState(0);
@@ -20,6 +21,7 @@ function Dashboard() {
   const [showAllOrders, setShowAllOrders] = useState(false);
   const [salesData, setSalesData] = useState([]);
   const [bestSellers, setBestSellers] = useState([]);
+  const [mostClicked, setMostClicked] = useState([]);
   
   const [loading, setLoading] = useState(true);
   const [exporting, setExporting] = useState(false);
@@ -127,6 +129,12 @@ function Dashboard() {
       .not('path', 'ilike', '/super-admin%')
       .not('path', 'ilike', '/update-password%');
     setSiteViews(viewCount || 0);
+
+    const [{ data: productViews }, { data: catalog }] = await Promise.all([
+      supabase.from('page_views').select('path').ilike('path', '/product/%').limit(10000),
+      supabase.from('products').select('id, name, image_url, slug')
+    ]);
+    setMostClicked(rankClickedProducts(productViews || [], catalog || []).slice(0, 5));
     
     setLoading(false);
   };
@@ -230,6 +238,8 @@ function Dashboard() {
         
         .section-2col-65-35 { display: grid; grid-template-columns: 2fr 1fr; gap: 24px; margin-bottom: 24px; }
         .section-2col-50-50 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px; }
+        .most-clicked-grid { display: grid; grid-template-columns: minmax(260px, 1.1fr) 1.4fr; }
+        .most-clicked-lead { padding: 20px; border-right: 1px solid #FAF9F6; display: flex; gap: 16px; align-items: center; }
         
         .table-standard { width: 100%; border-collapse: collapse; text-align: left; }
         .table-standard th { padding: 12px 20px; font-size: 12px; text-transform: uppercase; color: #BCA38F; border-bottom: 1px solid #D2C4B3; background: #FAF9F6; font-weight: 600; letter-spacing: 0.5px; }
@@ -245,7 +255,8 @@ function Dashboard() {
         }
         @media (max-width: 1024px) {
           .kpi-grid { grid-template-columns: repeat(2, 1fr); }
-          .section-2col-65-35, .section-2col-50-50 { grid-template-columns: 1fr; }
+          .section-2col-65-35, .section-2col-50-50, .most-clicked-grid { grid-template-columns: 1fr; }
+          .most-clicked-lead { border-right: none; border-bottom: 1px solid #FAF9F6; }
         }
         @media (max-width: 640px) {
           .kpi-grid { grid-template-columns: 1fr; }
@@ -310,6 +321,52 @@ function Dashboard() {
           </div>
           <div className="kpi-change" style={{ color: '#BCA38F' }}>Storefront visits by customers</div>
         </Link>
+      </div>
+
+      {/* Most clicked dresses */}
+      <div className="dash-card" style={{ marginBottom: '24px' }}>
+        <div className="dash-card-header">
+          <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <MousePointerClick size={18} /> Most clicked dresses
+          </span>
+          <span style={{ fontSize: '13px', color: '#6b7280', fontWeight: 500 }}>Customer product-page visits</span>
+        </div>
+        {loading ? (
+          <div style={{ padding: '24px', color: '#6b7280' }}>Loading clicks...</div>
+        ) : mostClicked.length === 0 ? (
+          <div style={{ padding: '24px', color: '#6b7280' }}>No customer clicks yet. This fills in as shoppers open product pages.</div>
+        ) : (
+          <div className="most-clicked-grid">
+            <div className="most-clicked-lead">
+              {mostClicked[0].image ? (
+                <img src={mostClicked[0].image} alt={mostClicked[0].name} style={{ width: '88px', height: '110px', objectFit: 'cover', borderRadius: '8px', background: '#f3f4f6' }} />
+              ) : (
+                <div style={{ width: '88px', height: '110px', background: '#e5e7eb', borderRadius: '8px' }} />
+              )}
+              <div>
+                <div style={{ fontSize: '12px', fontWeight: 700, letterSpacing: '0.6px', textTransform: 'uppercase', color: '#BCA38F', marginBottom: '6px' }}>Most clicked</div>
+                <div style={{ fontSize: '18px', fontWeight: 700, marginBottom: '8px' }}>{mostClicked[0].name}</div>
+                <div style={{ fontSize: '28px', fontWeight: 800, lineHeight: 1 }}>{mostClicked[0].clicks}</div>
+                <div style={{ fontSize: '13px', color: '#6b7280', marginTop: '4px' }}>{mostClicked[0].clicks === 1 ? 'click' : 'clicks'}</div>
+                <Link to={`/admin/products/edit/${mostClicked[0].id}`} style={{ display: 'inline-block', marginTop: '12px', fontSize: '13px', fontWeight: 600, color: '#111827' }}>View in products</Link>
+              </div>
+            </div>
+            <div>
+              {mostClicked.map((item, index) => (
+                <div key={item.id} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '14px 20px', borderBottom: index === mostClicked.length - 1 ? 'none' : '1px solid #FAF9F6' }}>
+                  <div style={{ width: '24px', fontWeight: 700, color: '#BCA38F' }}>{index + 1}</div>
+                  {item.image ? (
+                    <img src={item.image} alt="" style={{ width: '36px', height: '44px', objectFit: 'cover', borderRadius: '4px' }} />
+                  ) : (
+                    <div style={{ width: '36px', height: '44px', background: '#e5e7eb', borderRadius: '4px' }} />
+                  )}
+                  <div style={{ flex: 1, fontWeight: 600 }}>{item.name}</div>
+                  <div style={{ fontWeight: 700 }}>{item.clicks}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* ROW 2: Charts & Order Summary */}
