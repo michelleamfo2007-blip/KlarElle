@@ -85,8 +85,17 @@ export const MATERIAL_DETAILS = {
   }
 };
 
+export function normalizeMaterialName(material = '') {
+  const trimmed = String(material || '').trim();
+  if (!trimmed) return '';
+  const key = trimmed.toLowerCase();
+  if (key === 'knitted' || key === 'knitted fabric') return 'Knitted Fabric';
+  const match = Object.keys(MATERIAL_DETAILS).find((name) => name.toLowerCase() === key);
+  return match || trimmed;
+}
+
 export function getMaterialDetails(material) {
-  return MATERIAL_DETAILS[material] || null;
+  return MATERIAL_DETAILS[normalizeMaterialName(material)] || null;
 }
 
 export function applyMaterialDetails(product = {}) {
