@@ -27,6 +27,7 @@ import { galleryViewLabel } from '../utils/media';
 import { trackViewItem } from '../utils/analytics';
 import ProductImage from '../components/ProductImage';
 import { productCollection } from '../data/collections';
+import { showPublicStockCounts } from '../utils/launch';
 
 const collectProductImages = (product, color) => collectImagesForColor(product, color);
 
@@ -187,6 +188,7 @@ function ProductDetails() {
   const availabilityMode = getAvailabilityMode(product);
   const isPreOrder = availabilityMode === 'preorder';
   const isSoldOut = availabilityMode === 'sold_out' || (availabilityMode === 'stock' && availableStock <= 0);
+  const revealStockCounts = showPublicStockCounts();
 
   // Cap quantity if they switch to a variant with less stock than currently selected
   useEffect(() => {
@@ -203,7 +205,9 @@ function ProductDetails() {
       return;
     }
     if (!isPreOrder && quantity > remainingStock) {
-      alert(`You already have ${qtyInCart} in your cart. You can only add ${remainingStock} more.`);
+      alert(revealStockCounts
+        ? `You already have ${qtyInCart} in your cart. You can only add ${remainingStock} more.`
+        : 'You already have the available quantity of this item in your cart.');
       return;
     }
     addToCart(product, selectedSize, selectedColor, quantity, fulfilledFrom);
@@ -874,7 +878,7 @@ function ProductDetails() {
                     const sizeStock = getVariantStock(product, selectedColor, size);
                     const sizeQty = getAvailableQty(sizeStock);
                     const sizeInStock = sizeQty > 0;
-                    const showLeft = sizeInStock && sizeQty <= 3;
+                    const showLeft = revealStockCounts && sizeInStock && sizeQty <= 3;
                     return (
                     <button
                       key={size}
@@ -935,7 +939,7 @@ function ProductDetails() {
             {/* Quantity Selector */}
             {!comingSoon && !isSoldOut && (
             <div style={{ marginTop: '24px' }}>
-              <div className="pd-options-title">Quantity <span style={{fontSize: '12px', color: '#666', fontWeight: 'normal'}}>{isPreOrder ? `(Preorder · ${preorderLeadTime})` : `(In stock: ${availableStock})`}</span></div>
+              <div className="pd-options-title">Quantity <span style={{fontSize: '12px', color: '#666', fontWeight: 'normal'}}>{isPreOrder ? `(Preorder · ${preorderLeadTime})` : (revealStockCounts ? `(In stock: ${availableStock})` : '')}</span></div>
               <div style={{ display: 'flex', alignItems: 'center', marginTop: '12px', border: '1px solid #e0e0e0', width: 'fit-content', borderRadius: '4px' }}>
                 <button onClick={() => setQuantity(Math.max(1, quantity - 1))} style={{ padding: '8px 16px', fontSize: '18px', cursor: 'pointer', background: '#f9f9f9', borderRight: '1px solid #e0e0e0', borderTopLeftRadius: '4px', borderBottomLeftRadius: '4px' }}>-</button>
                 <div style={{ padding: '0 24px', fontSize: '16px', fontWeight: 'bold' }}>{quantity}</div>
@@ -943,7 +947,9 @@ function ProductDetails() {
                   if (isPreOrder || quantity < remainingStock) {
                     setQuantity(quantity + 1);
                   } else {
-                    alert(`Sorry, only ${remainingStock} more items available to add to your cart (You already have ${qtyInCart} in cart).`);
+                    alert(revealStockCounts
+                      ? `Sorry, only ${remainingStock} more items available to add to your cart (You already have ${qtyInCart} in cart).`
+                      : 'That is all we can add of this item right now.');
                   }
                 }} style={{ padding: '8px 16px', fontSize: '18px', cursor: 'pointer', background: '#f9f9f9', borderLeft: '1px solid #e0e0e0', borderTopRightRadius: '4px', borderBottomRightRadius: '4px' }}>+</button>
               </div>
