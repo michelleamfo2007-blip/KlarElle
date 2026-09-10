@@ -27,9 +27,6 @@ import { galleryViewLabel } from '../utils/media';
 import { trackViewItem } from '../utils/analytics';
 import ProductImage from '../components/ProductImage';
 import { productCollection } from '../data/collections';
-import { galleryViewLabel } from '../utils/media';
-import { trackViewItem } from '../utils/analytics';
-import ProductImage from '../components/ProductImage';
 
 const collectProductImages = (product, color) => collectImagesForColor(product, color);
 
