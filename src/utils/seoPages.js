@@ -124,7 +124,7 @@ export function getCollectionSeo(slug) {
       title: 'Occasion Dresses & Gowns | KlarElle',
       description: "Shop KlarElle's full collection of occasion dresses, evening gowns, and celebration looks chosen for fit and presence.",
       heading: 'All Collections',
-      copy: "Browse KlarElle's curated occasionwear, from dinner dresses to wedding-guest gowns and evening silhouettes."
+      copy: 'Occasion dresses, evening gowns, and celebration looks.'
     };
   }
   if (!collection) return null;

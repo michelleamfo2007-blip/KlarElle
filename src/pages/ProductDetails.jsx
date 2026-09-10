@@ -11,7 +11,7 @@ import { formatSizeLabel, recommendDressSize, getSizeChartRows } from '../utils/
 import KlarelleSizeGuide from '../components/KlarelleSizeGuide';
 import { createSizeProfile, loadSizeProfiles, saveSizeProfiles } from '../utils/sizeProfile';
 import { getColorHex, collectImagesForColor, parseProductColors } from '../utils/colors';
-import { getAvailabilityMode, getFulfillmentSource, getVariantStock, isProductSoldOut, pickAvailableSize } from '../utils/stock';
+import { getAvailabilityMode, getAvailableQty, getFulfillmentSource, getVariantStock, isProductSoldOut, pickAvailableSize } from '../utils/stock';
 import { buildProductJsonLd, shareImageUrl } from '../utils/seo';
 import NotifyMeForm from '../components/NotifyMeForm';
 import NotFound from './NotFound';
@@ -134,7 +134,7 @@ function ProductDetails() {
 
   const { us: usStock, intl: intlStock } = getVariantStock(product, selectedColor, selectedSize);
   const fulfilledFrom = getFulfillmentSource(product, selectedColor, selectedSize);
-  const availableStock = usStock > 0 ? usStock : intlStock;
+  const availableStock = getAvailableQty({ us: usStock, intl: intlStock });
 
   const cartItemId = product ? `${product.id}-${selectedSize || 'default'}-${selectedColor || 'default'}` : null;
   const qtyInCart = cartItems?.find(item => item.cartItemId === cartItemId)?.quantity || 0;
@@ -593,7 +593,7 @@ function ProductDetails() {
             
             .pd-options-title { font-size: 14px; font-weight: bold; text-transform: capitalize; }
             
-            .size-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px 8px; margin: 12px 0; }
+            .size-grid { display: grid; gap: 10px 8px; margin: 12px 0; padding-top: 10px; overflow: visible; }
             .size-btn { padding: 12px 4px; border: 1px solid #f0f0f0; background: #f9f9f9; cursor: pointer; text-align: center; transition: all 0.2s; font-size: 13px; font-weight: 600; position: relative; overflow: visible; }
             .size-btn:hover { border-color: #999; }
             .size-btn.active { border-color: #000; background: #000; color: white; }
@@ -821,10 +821,13 @@ function ProductDetails() {
                   <div className="pd-options-title">Select Size</div>
                 </div>
                 
-                <div className="size-grid">
+                <div
+                  className="size-grid"
+                  style={{ gridTemplateColumns: `repeat(${Math.min(Math.max(product.parsedSizes.length, 1), 5)}, 1fr)` }}
+                >
                   {product.parsedSizes.map(size => {
                     const sizeStock = getVariantStock(product, selectedColor, size);
-                    const sizeQty = sizeStock.us + sizeStock.intl;
+                    const sizeQty = getAvailableQty(sizeStock);
                     const sizeInStock = sizeQty > 0;
                     const showLeft = sizeInStock && sizeQty <= 3;
                     return (
@@ -847,7 +850,7 @@ function ProductDetails() {
                   })}
                 </div>
                 
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', fontSize: '12px', fontWeight: 'bold', marginTop: '12px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', flexWrap: 'wrap', fontSize: '12px', fontWeight: 'bold', marginTop: '12px' }}>
                   <button
                     type="button"
                     onClick={(e) => {

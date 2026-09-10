@@ -174,15 +174,17 @@ function Category() {
     }
 
     setProducts(result);
-  }, [activeFilters, allProducts]);
+  }, [activeFilters, allProducts, id]);
 
   const collection = getCollectionBySlug(id);
   const known = id === 'all' || id === 'collections' || Boolean(getCollectionBySlug(id)) || Boolean(COLLECTION_ALIASES[id]);
   const seo = getCollectionSeo(id);
   const categoryName = seo?.heading || collection?.title || id.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase());
+  const collectionHasProducts = allProducts.some((product) => matchesCollection(product, id));
 
   if (id === 'coming-soon') return <Navigate to="/category/new-in" replace />;
   if (!known) return <NotFound />;
+  if (!loading && !collectionHasProducts) return <NotFound />;
 
   return (
     <>
@@ -206,7 +208,7 @@ function Category() {
         <div className="category-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
           <div>
             <h1 style={{ fontSize: '28px', marginBottom: '8px', textTransform: collection ? 'none' : 'capitalize' }}>{categoryName}</h1>
-            <p style={{ color: '#666', maxWidth: '720px', lineHeight: 1.7 }}>{seo?.copy || collection?.tagline || 'Explore all KlarElle styles.'}</p>
+            <p style={{ color: '#666', maxWidth: '520px', lineHeight: 1.5, fontSize: '14px', margin: 0 }}>{seo?.copy || collection?.tagline || 'Explore all KlarElle styles.'}</p>
             <div style={{ marginTop: '12px', fontSize: '13px', color: '#666' }}>
               {STORE_COLLECTIONS.filter((item) => item.slug !== id).slice(0, 5).map((item, index) => (
                 <span key={item.slug}>
@@ -228,9 +230,9 @@ function Category() {
         {loading ? (
           <div style={{ textAlign: 'center', padding: '60px', color: '#666' }}>Loading {categoryName}...</div>
         ) : products.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '60px', background: '#f9f9f9', borderRadius: '8px' }}>
-            <p style={{ fontSize: '18px', color: '#333' }}>No products found in this category.</p>
-            <p style={{ color: '#666', marginTop: '8px' }}>Check back later or explore our <Link to="/" style={{ color: 'black', textDecoration: 'underline' }}>new arrivals</Link>.</p>
+          <div style={{ textAlign: 'center', padding: '60px' }}>
+            <p style={{ fontSize: '16px', color: '#333' }}>No dresses match these filters.</p>
+            <p style={{ color: '#666', marginTop: '8px' }}>Clear filters or explore <Link to="/category/new-in" style={{ color: 'black', textDecoration: 'underline' }}>The New Edit</Link>.</p>
           </div>
         ) : (
           <div className="products-grid">

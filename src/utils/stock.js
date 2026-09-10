@@ -18,28 +18,38 @@ function sumStockMap(map) {
   return Object.values(map).reduce((sum, qty) => sum + toQty(qty), 0);
 }
 
+function isStockMap(map) {
+  return Boolean(map && typeof map === 'object' && Object.keys(map).length > 0);
+}
+
+function variantHasInventory(value) {
+  return Boolean(value && typeof value === 'object' && (isStockMap(value.stock) || isStockMap(value.stock_international)));
+}
+
+function productHasVariantInventory(product) {
+  const variants = product?.variant_images;
+  if (!variants || typeof variants !== 'object') return false;
+  return Object.values(variants).some(variantHasInventory);
+}
+
+export function getAvailableQty({ us = 0, intl = 0 } = {}) {
+  const usQty = toQty(us);
+  const intlQty = toQty(intl);
+  return usQty > 0 ? usQty : intlQty;
+}
+
 export function getProductStockTotals(product) {
   let us = toQty(product?.stock);
   let intl = toQty(product?.stock_international);
 
-  const variants = product?.variant_images;
-  if (variants && typeof variants === 'object') {
-    let variantUs = 0;
-    let variantIntl = 0;
-    let hasVariantInventory = false;
-
-    Object.values(variants).forEach((value) => {
-      if (value && typeof value === 'object' && (value.stock || value.stock_international)) {
-        hasVariantInventory = true;
-        variantUs += sumStockMap(value.stock);
-        variantIntl += sumStockMap(value.stock_international);
-      }
+  if (productHasVariantInventory(product)) {
+    us = 0;
+    intl = 0;
+    Object.values(product.variant_images).forEach((value) => {
+      if (!variantHasInventory(value)) return;
+      us += sumStockMap(value.stock);
+      intl += sumStockMap(value.stock_international);
     });
-
-    if (hasVariantInventory) {
-      us = variantUs;
-      intl = variantIntl;
-    }
   }
 
   return { us, intl, total: us + intl };
@@ -69,20 +79,16 @@ export function isProductSoldOut(product) {
 }
 
 export function getVariantStock(product, color, size) {
-  const variants = product?.variant_images;
-  if (variants && typeof variants === 'object') {
-    const hasVariantInventory = Object.values(variants).some((value) => (
-      value && typeof value === 'object' && (value.stock || value.stock_international)
-    ));
-    if (hasVariantInventory) {
-      const colorData = (color && variants[color])
-        || Object.entries(variants).find(([key]) => String(key).toLowerCase() === String(color || '').toLowerCase())?.[1]
-        || null;
-      return {
-        us: qtyForSize(colorData?.stock, size),
-        intl: qtyForSize(colorData?.stock_international, size)
-      };
-    }
+  if (productHasVariantInventory(product)) {
+    const variants = product.variant_images;
+    const colorData = (color && variants[color])
+      || Object.entries(variants).find(([key]) => String(key).toLowerCase() === String(color || '').toLowerCase())?.[1]
+      || Object.values(variants).find(variantHasInventory)
+      || null;
+    return {
+      us: qtyForSize(colorData?.stock, size),
+      intl: qtyForSize(colorData?.stock_international, size)
+    };
   }
 
   return {

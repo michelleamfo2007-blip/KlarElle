@@ -103,14 +103,10 @@ const OCCASION_SLUGS = ['occasion', 'evening', 'celebration', 'dinner', 'birthda
 
 export function matchesCollection(product, slug) {
   if (!product) return false;
-  const resolved = String(slug || '').includes('&') ? String(slug).replace(/&/g, '').replace(/-+/g, '-') : slug;
-  slug = resolved;
+  const cleaned = String(slug || '').includes('&') ? String(slug).replace(/&/g, '').replace(/-+/g, '-') : slug;
+  slug = resolveCollectionSlug(cleaned);
   if (slug === 'coming-soon') return false;
   if (slug === 'all' || slug === 'collections' || slug === 'new-in') return true;
-  if (slug === 'dinner-date-night') slug = 'dinner';
-  if (slug === 'cocktail-party') slug = 'celebration';
-  if (slug === 'gala-formal-events') slug = 'evening';
-  if (slug === 'christmas-holidays') slug = 'occasion';
   const assigned = getProductCategorySlugs(product);
   if (assigned.includes(slug)) return true;
   if (slug === 'occasion' && assigned.some((item) => OCCASION_SLUGS.includes(item))) return true;
