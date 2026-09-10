@@ -12,12 +12,28 @@ const TEST_SHOPPER_EMAILS = [
   'devvwithmercedes@gmail.com'
 ];
 
-export function isTestShopper(email) {
-  return TEST_SHOPPER_EMAILS.includes(String(email || '').trim().toLowerCase());
+function normalizeEmail(email) {
+  return String(email || '').trim().toLowerCase();
 }
 
-export function canUseCheckout(email) {
-  return STORE_LAUNCHED || isTestShopper(email);
+export function isTestShopper(email) {
+  return TEST_SHOPPER_EMAILS.includes(normalizeEmail(email));
+}
+
+export function sessionEmails(sessionOrEmail) {
+  if (!sessionOrEmail) return [];
+  if (typeof sessionOrEmail === 'string') return [sessionOrEmail];
+  const user = sessionOrEmail.user || sessionOrEmail;
+  const emails = [user?.email, user?.user_metadata?.email];
+  for (const identity of user?.identities || []) {
+    emails.push(identity?.identity_data?.email);
+  }
+  return emails.filter(Boolean);
+}
+
+export function canUseCheckout(sessionOrEmail) {
+  if (STORE_LAUNCHED) return true;
+  return sessionEmails(sessionOrEmail).some(isTestShopper);
 }
 
 export function showPublicStockCounts(now = Date.now()) {

@@ -34,13 +34,13 @@ function Checkout() {
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [taxAmount, setTaxAmount] = useState(0);
   const [trialSubmitting, setTrialSubmitting] = useState(false);
-  const trialCheckout = isTestShopper(session?.user?.email);
+  const trialCheckout = isTestShopper(session?.user?.email) || canUseCheckout(session);
   const [fulfillmentSource, setFulfillmentSource] = useState(() => (
     cartShipsFromInternational(cartItems) ? 'CN' : 'US'
   ));
   
   useEffect(() => {
-    if (canUseCheckout(session?.user?.email) && cartItems.length > 0) {
+    if (canUseCheckout(session) && cartItems.length > 0) {
       trackBeginCheckout(cartItems, cartTotal);
     }
   }, []);
@@ -218,7 +218,7 @@ function Checkout() {
     }
   }, [trialCheckout, preTaxTotal, shippingTotal, currency, EXCHANGE_RATES, showShippingForm, formData.houseNo, formData.apartment, formData.city, formData.region, formData.postcode, formData.location]);
 
-  if (!canUseCheckout(session?.user?.email)) {
+  if (!canUseCheckout(session)) {
     return (
       <div style={{ padding: '100px 20px', textAlign: 'center', background: '#f5f5f5', minHeight: '100vh' }}>
         <h2 style={{ marginBottom: '16px' }}>Shopping opens at launch</h2>

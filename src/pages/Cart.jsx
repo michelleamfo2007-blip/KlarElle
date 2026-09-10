@@ -6,6 +6,7 @@ import { useCurrency } from '../context/CurrencyContext';
 import { Trash2, Minus, Plus, ShieldCheck, Truck } from 'lucide-react';
 import { canUseCheckout } from '../utils/launch';
 import { productPath } from '../utils/productUrl';
+import { rememberCartEmail } from '../utils/cartTracking';
 import './Cart.css';
 
 function Cart() {
@@ -13,6 +14,8 @@ function Cart() {
   const { session } = useAuth();
   const { formatPrice } = useCurrency();
   
+  const checkoutOpen = canUseCheckout(session);
+  if (session?.user?.email) rememberCartEmail(session.user.email);
   const shippingThreshold = 100;
   const baseShippingFee = 15.00;
   const shipping = cartTotal >= shippingThreshold ? 0 : baseShippingFee;
@@ -91,8 +94,15 @@ function Cart() {
               <span>{formatPrice(finalTotal)}</span>
             </div>
             
-            {canUseCheckout(session?.user?.email) ? (
-              <Link to="/checkout" className="btn btn-primary checkout-btn" style={{ display: 'block', textAlign: 'center', textDecoration: 'none' }}>CHECKOUT</Link>
+            {checkoutOpen ? (
+              <>
+                <Link to="/checkout" className="btn btn-primary checkout-btn" style={{ display: 'block', textAlign: 'center', textDecoration: 'none' }}>CHECKOUT</Link>
+                <p style={{ margin: '8px 0 0', fontSize: '12px', color: '#666', textAlign: 'center' }}>Trial checkout — no real payment</p>
+              </>
+            ) : !session ? (
+              <Link to="/login?next=/cart" className="btn btn-primary checkout-btn" style={{ display: 'block', textAlign: 'center', textDecoration: 'none' }}>
+                SIGN IN TO CHECKOUT
+              </Link>
             ) : (
               <div className="btn btn-primary checkout-btn" style={{ display: 'block', textAlign: 'center', background: '#ddd', color: '#666', cursor: 'not-allowed' }}>
                 CHECKOUT OPENS AT LAUNCH

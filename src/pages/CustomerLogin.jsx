@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 import { Loader2 } from 'lucide-react';
 
 function CustomerLogin() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const nextPath = searchParams.get('next') || '/';
   const { session, signOut } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -33,7 +35,7 @@ function CustomerLogin() {
     if (error) {
       setError(error.message);
     } else {
-      navigate('/');
+      navigate(nextPath.startsWith('/') ? nextPath : '/');
     }
     setLoading(false);
   };
@@ -48,8 +50,8 @@ function CustomerLogin() {
           <div style={{ background: '#f5f5f5', padding: '12px', borderRadius: '4px', marginBottom: '16px', fontSize: '14px' }}>
             You’re already signed in as <strong>{session.user.email}</strong>.
             <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
-              <button type="button" onClick={() => navigate('/profile')} style={{ flex: 1, padding: '10px', background: '#000', color: '#fff', border: 'none', borderRadius: '4px', fontWeight: 'bold', cursor: 'pointer' }}>
-                Go to profile
+              <button type="button" onClick={() => navigate(nextPath.startsWith('/') ? nextPath : '/profile')} style={{ flex: 1, padding: '10px', background: '#000', color: '#fff', border: 'none', borderRadius: '4px', fontWeight: 'bold', cursor: 'pointer' }}>
+                Continue
               </button>
               <button type="button" onClick={handleSwitchAccount} style={{ flex: 1, padding: '10px', background: '#fff', color: '#000', border: '1px solid #ccc', borderRadius: '4px', fontWeight: 'bold', cursor: 'pointer' }}>
                 Switch account
