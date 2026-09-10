@@ -47,8 +47,7 @@ function PageTracker() {
     const trackPageView = async () => {
       try {
         if (isStaffOnlyPath(location.pathname)) return;
-        const onProductPage = location.pathname.startsWith('/product/');
-        if (!onProductPage && await visitorIsStaff()) return;
+        if (await visitorIsStaff()) return;
 
         const sessionId = sessionStorage.getItem('session_id')
           || Math.random().toString(36).substring(2, 15);
