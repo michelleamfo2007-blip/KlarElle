@@ -468,7 +468,6 @@ export function getSitePage(slug) {
 export function resolveSitePageBody(slug, storedBody) {
   const fallback = getSitePage(slug)?.body || '';
   if (!storedBody) return fallback;
-  if (slug === 'faq' && !storedBody.includes('September 24, 2026')) return fallback;
   return storedBody;
 }
 
