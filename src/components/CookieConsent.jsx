@@ -34,11 +34,11 @@ function CookieConsent() {
         <div className="cookie-banner" role="dialog" aria-live="polite" aria-label="Cookie consent">
           <div className="cookie-banner-inner">
             <div className="cookie-banner-copy">
-              <strong>{showDeclinedBar ? 'Cookies are required to shop' : 'We use cookies'}</strong>
+              <strong>{showDeclinedBar ? 'Cookies help KlarElle run' : 'We use cookies'}</strong>
               <p>
                 {showDeclinedBar
-                  ? 'You declined cookies, so checkout and adding to cart are paused. Accept cookies to shop KlarElle. See our '
-                  : 'KlarElle uses cookies to keep your bag, remember preferences, and run the store securely. You must accept cookies to shop. Read our '}
+                  ? 'You declined optional cookies. Cart and checkout need essential cookies to work — accept to continue shopping. See our '
+                  : 'KlarElle uses essential cookies to keep your bag, remember your preferences and operate the store securely. Optional cookies help us improve your shopping experience. Read our '}
                 <Link to="/page/privacy-policy">Privacy Policy</Link>.
               </p>
             </div>

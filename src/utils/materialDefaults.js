@@ -63,11 +63,11 @@ export const MATERIAL_DETAILS = {
     features: 'Slight stretch'
   },
   'Knitted Fabric': {
-    composition: '70% Acrylic, 30% Polyester',
+    composition: '95% Polyester, 5% Elastane',
     pattern_type: 'Plain',
-    style: 'Casual',
+    style: 'Elegant',
     care_instructions: 'Hand wash cold. Lay flat to dry. Do not wring.',
-    features: 'Moderate stretch'
+    features: 'Slight stretch'
   },
   Chiffon: {
     composition: '100% Polyester',
