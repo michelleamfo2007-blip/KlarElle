@@ -18,6 +18,7 @@ import { uploadProductAsset } from '../../utils/cloudinaryUpload';
 import { PACKAGE_HEIGHT_CM, PACKAGE_LENGTH_CM, PACKAGE_WIDTH_CM } from '../../utils/package';
 import { getVariantWarehouseTotals } from '../../utils/stock';
 import { getMaterialDetails } from '../../utils/materialDefaults';
+import { getMeshDressSizeChart, isMeshDressProduct } from '../../data/sizeGuides';
 
 function ProductForm() {
   const { id } = useParams();
@@ -89,8 +90,12 @@ function ProductForm() {
       setSizeChart([]);
       return;
     }
-    setSizeChart((prev) => parseSizeChart(prev, sizes));
-  }, [sizesInput]);
+    setSizeChart((prev) => (
+      isMeshDressProduct(formData.name)
+        ? getMeshDressSizeChart(sizes)
+        : parseSizeChart(prev, sizes)
+    ));
+  }, [sizesInput, formData.name]);
 
   const hasVariantMatrix = colorsInput.trim().length > 0 && sizesInput.trim().length > 0;
 
@@ -174,7 +179,11 @@ function ProductForm() {
         ? normalizeSizeList(loadedSizes)
         : normalizeSizeList(String(loadedSizes).split(/[;,]+/).map((s) => s.trim()).filter(Boolean));
       setSizesInput(sizeList.join(', '));
-      setSizeChart(parseSizeChart(data.size_chart, sizeList));
+      setSizeChart(
+        isMeshDressProduct(data)
+          ? getMeshDressSizeChart(sizeList)
+          : parseSizeChart(data.size_chart, sizeList)
+      );
       setColorsInput(Array.isArray(data.colors) ? data.colors.join(', ') : (data.colors || ''));
       setTagsInput(Array.isArray(data.tags)
         ? data.tags.filter((tag) => {
@@ -492,7 +501,9 @@ function ProductForm() {
       country_of_manufacture: formData.country_of_manufacture,
       hs_code: formData.hs_code,
       sizes: activeSizes,
-      size_chart: sizeChart,
+      size_chart: isMeshDressProduct(formData.name)
+        ? getMeshDressSizeChart(activeSizes)
+        : sizeChart,
       colors: activeColors,
       tags: (() => {
         const tags = tagsInput.split(/[;,]+/).map(t => t.trim()).filter(Boolean);
@@ -1067,7 +1078,11 @@ function ProductForm() {
                     value={sizesInput} 
                     onChange={(e) => setSizesInput(e.target.value)} 
                   />
-                  <p style={{ fontSize: '12px', color: '#6b7280', margin: '6px 0 0' }}>The KlarElle size guide on the product page is built from the chart below. Shoppers can switch cm / in themselves.</p>
+                  <p style={{ fontSize: '12px', color: '#6b7280', margin: '6px 0 0' }}>
+                    {isMeshDressProduct(formData.name)
+                      ? 'This product uses the automated Mesh Dress Size Guide (body measurements). Shoppers can switch cm / in themselves.'
+                      : 'The KlarElle size guide on the product page is built from the chart below. Shoppers can switch cm / in themselves.'}
+                  </p>
                 </div>
                 {sizeChart.length > 0 && (
                   <div>

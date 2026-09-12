@@ -27,12 +27,29 @@ function toNumber(value) {
 }
 
 function normalizeRow(row = {}) {
+  const bustMin = toNumber(row.bustMin ?? row.bust_min);
+  const bustMax = toNumber(row.bustMax ?? row.bust_max);
+  const waistMin = toNumber(row.waistMin ?? row.waist_min);
+  const waistMax = toNumber(row.waistMax ?? row.waist_max);
+  const hipMin = toNumber(row.hipMin ?? row.hip_min ?? row.hipsMin ?? row.hips_min);
+  const hipMax = toNumber(row.hipMax ?? row.hip_max ?? row.hipsMax ?? row.hips_max);
+  const bust = toNumber(row.bust);
+  const waist = toNumber(row.waist);
+  const hip = toNumber(row.hip ?? row.hips);
+
   return {
     size: formatSizeLabel(row.size),
-    bust: toNumber(row.bust),
-    waist: toNumber(row.waist),
-    hip: toNumber(row.hip ?? row.hips),
-    length: toNumber(row.length)
+    bust: bust != null ? bust : (bustMin != null && bustMax != null ? (bustMin + bustMax) / 2 : null),
+    bustMin,
+    bustMax,
+    waist: waist != null ? waist : (waistMin != null && waistMax != null ? (waistMin + waistMax) / 2 : null),
+    waistMin,
+    waistMax,
+    hip: hip != null ? hip : (hipMin != null && hipMax != null ? (hipMin + hipMax) / 2 : null),
+    hipMin,
+    hipMax,
+    length: toNumber(row.length),
+    guide: row.guide || null
   };
 }
 
@@ -50,7 +67,7 @@ export function parseSizeChart(raw, sizes = []) {
   return source.map((size) => {
     const existing = rows.find((row) => formatSizeLabel(row.size) === size);
     const fallback = SIZE_CHART.find((row) => row.size === size);
-    return existing && (existing.bust != null || existing.waist != null || existing.hip != null)
+    return existing && (existing.bust != null || existing.bustMax != null || existing.waist != null || existing.hip != null)
       ? { ...fallback, ...existing, size }
       : (fallback || { size, bust: null, waist: null, hip: null, length: null });
   });
@@ -67,6 +84,22 @@ export function cmToDisplay(cm, unit) {
   return value.toFixed(1);
 }
 
+export function cmRangeToDisplay(min, max, mid, unit) {
+  if (min != null && max != null) {
+    const left = cmToDisplay(min, unit);
+    const right = cmToDisplay(max, unit);
+    if (left === '—' || right === '—') return '—';
+    // Mesh guide shows whole inches for body ranges.
+    if (unit === 'in') {
+      const a = Math.round(Number(min) / 2.54);
+      const b = Math.round(Number(max) / 2.54);
+      return a === b ? String(a) : `${a}–${b}`;
+    }
+    return `${left}–${right}`;
+  }
+  return cmToDisplay(mid, unit);
+}
+
 export function displayToCm(value, unit) {
   if (value == null || value === '') return null;
   const number = Number(value);
@@ -75,11 +108,56 @@ export function displayToCm(value, unit) {
   return number;
 }
 
+function rowFitsMeasurement(row, key, value) {
+  if (value == null || Number.isNaN(Number(value))) return true;
+  const min = row[`${key}Min`];
+  const max = row[`${key}Max`];
+  const mid = row[key];
+  const n = Number(value);
+  if (min != null && max != null) return n >= min - 0.6 && n <= max + 0.6;
+  if (mid == null) return true;
+  return Math.abs(mid - n) <= 4;
+}
+
+/**
+ * Prefer the smallest size that fits all measurements.
+ * If chart has ranges: size by the largest measurement (size up when between).
+ */
 export function recommendDressSize({ bust, waist, hips, sizes = [], chart } = {}) {
-  const rows = parseSizeChart(chart, sizes).filter((row) => row.bust != null);
+  const rows = parseSizeChart(chart, sizes).filter((row) => row.bust != null || row.bustMax != null);
   if (!rows.length) return formatSizeLabel(sizes[0]) || 'M';
 
-  const scored = rows
+  const available = normalizeSizeList(sizes);
+  const ordered = available.length
+    ? available.map((size) => rows.find((row) => formatSizeLabel(row.size) === size)).filter(Boolean)
+    : rows;
+
+  const hasRanges = ordered.some((row) => row.bustMax != null || row.hipMax != null || row.waistMax != null);
+
+  if (hasRanges) {
+    const fitAll = ordered.find((row) => (
+      rowFitsMeasurement(row, 'bust', bust)
+      && rowFitsMeasurement(row, 'waist', waist)
+      && rowFitsMeasurement(row, 'hip', hips)
+    ));
+    if (fitAll) return fitAll.size;
+
+    // Fall back: for each measurement, find first size whose max covers it, then take the largest of those.
+    const sizeIndex = (size) => ordered.findIndex((row) => row.size === size);
+    const neededIndexes = ['bust', 'waist', 'hip'].map((key, idx) => {
+      const value = [bust, waist, hips][idx];
+      if (value == null || Number.isNaN(Number(value))) return 0;
+      const found = ordered.findIndex((row) => {
+        const max = row[`${key}Max`] ?? row[key];
+        return max != null && Number(value) <= Number(max) + 0.6;
+      });
+      return found === -1 ? ordered.length - 1 : found;
+    });
+    const pick = ordered[Math.max(...neededIndexes)] || ordered[ordered.length - 1];
+    return pick.size;
+  }
+
+  const scored = ordered
     .map((row) => ({
       ...row,
       score: Math.abs(row.bust - Number(bust || 0)) * 1.4
@@ -88,9 +166,7 @@ export function recommendDressSize({ bust, waist, hips, sizes = [], chart } = {}
     }))
     .sort((a, b) => a.score - b.score);
 
-  const available = normalizeSizeList(sizes);
   if (!available.length) return scored[0].size;
-
   const match = scored.find((row) => available.some((size) => formatSizeLabel(size) === row.size));
   if (match) {
     return available.find((size) => formatSizeLabel(size) === match.size) || match.size;

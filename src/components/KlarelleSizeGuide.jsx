@@ -1,5 +1,5 @@
 import React from 'react';
-import { cmToDisplay, formatSizeLabel } from '../utils/size';
+import { cmRangeToDisplay, cmToDisplay, formatSizeLabel } from '../utils/size';
 
 function DressSketch() {
   return (
@@ -17,16 +17,20 @@ function KlarelleSizeGuide({
   unit = 'in',
   onUnitChange,
   recommendedSize,
-  selectedSize
+  selectedSize,
+  title = 'Size Guide',
+  subtitle,
+  note
 }) {
   const hasLength = rows.some((row) => row.length != null);
+  const isMesh = rows.some((row) => row.guide === 'mesh') || Boolean(subtitle);
 
   return (
     <div style={{ background: '#f6f1ea', padding: '28px 20px 24px', textAlign: 'center' }}>
-      <div style={{ fontSize: '11px', letterSpacing: '0.28em', textTransform: 'uppercase', color: '#111', marginBottom: '10px' }}>Size Guide</div>
+      <div style={{ fontSize: '11px', letterSpacing: '0.28em', textTransform: 'uppercase', color: '#111', marginBottom: '10px' }}>{title}</div>
       <div style={{ fontSize: '22px', fontWeight: 800, letterSpacing: '0.18em', marginBottom: '8px' }}>KlarElle</div>
       <div style={{ fontSize: '10px', letterSpacing: '0.16em', textTransform: 'uppercase', color: '#666', marginBottom: '16px' }}>
-        All measurements are in {unit === 'in' ? 'inches' : 'centimeters'}
+        {subtitle || `All measurements are in ${unit === 'in' ? 'inches' : 'centimeters'}`}
       </div>
       {onUnitChange && (
         <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '18px' }}>
@@ -52,7 +56,7 @@ function KlarelleSizeGuide({
           <table style={{ width: '100%', minWidth: '260px', borderCollapse: 'collapse', fontSize: '13px', textAlign: 'center' }}>
             <thead>
               <tr>
-                {['Size', 'Bust', 'Waist', 'Hip', ...(hasLength ? ['Length'] : [])].map((heading) => (
+                {['Size', 'Bust', 'Waist', 'Hips', ...(hasLength ? ['Dress Length'] : [])].map((heading) => (
                   <th key={heading} style={{ padding: '8px 6px', borderBottom: '1px solid #ddd', fontSize: '11px', letterSpacing: '0.08em', textTransform: 'uppercase' }}>{heading}</th>
                 ))}
               </tr>
@@ -66,11 +70,19 @@ function KlarelleSizeGuide({
                 return (
                   <tr key={row.size}>
                     <td style={{ padding: '10px 6px', borderBottom: '1px solid #eee', fontWeight: 700, color }}>{isBest ? '👍 ' : ''}{row.size}</td>
-                    <td style={{ padding: '10px 6px', borderBottom: '1px solid #eee', color, fontWeight: highlight ? 700 : 400 }}>{cmToDisplay(row.bust, unit)}</td>
-                    <td style={{ padding: '10px 6px', borderBottom: '1px solid #eee', color, fontWeight: highlight ? 700 : 400 }}>{cmToDisplay(row.waist, unit)}</td>
-                    <td style={{ padding: '10px 6px', borderBottom: '1px solid #eee', color, fontWeight: highlight ? 700 : 400 }}>{cmToDisplay(row.hip, unit)}</td>
+                    <td style={{ padding: '10px 6px', borderBottom: '1px solid #eee', color, fontWeight: highlight ? 700 : 400 }}>
+                      {cmRangeToDisplay(row.bustMin, row.bustMax, row.bust, unit)}
+                    </td>
+                    <td style={{ padding: '10px 6px', borderBottom: '1px solid #eee', color, fontWeight: highlight ? 700 : 400 }}>
+                      {cmRangeToDisplay(row.waistMin, row.waistMax, row.waist, unit)}
+                    </td>
+                    <td style={{ padding: '10px 6px', borderBottom: '1px solid #eee', color, fontWeight: highlight ? 700 : 400 }}>
+                      {cmRangeToDisplay(row.hipMin, row.hipMax, row.hip, unit)}
+                    </td>
                     {hasLength && (
-                      <td style={{ padding: '10px 6px', borderBottom: '1px solid #eee', color, fontWeight: highlight ? 700 : 400 }}>{cmToDisplay(row.length, unit)}</td>
+                      <td style={{ padding: '10px 6px', borderBottom: '1px solid #eee', color, fontWeight: highlight ? 700 : 400 }}>
+                        {isMesh && unit === 'in' ? Number(row.length / 2.54).toFixed(1) : cmToDisplay(row.length, unit)}
+                      </td>
                     )}
                   </tr>
                 );
@@ -79,6 +91,9 @@ function KlarelleSizeGuide({
           </table>
         </div>
       </div>
+      {note && (
+        <p style={{ margin: '18px 0 0', fontSize: '12px', lineHeight: 1.5, color: '#555', textAlign: 'left' }}>{note}</p>
+      )}
     </div>
   );
 }

@@ -8,6 +8,7 @@ import { useCart } from '../context/CartContext';
 import { useFavorites } from '../context/FavoritesContext';
 import { useCurrency } from '../context/CurrencyContext';
 import { formatSizeLabel, recommendDressSize, getSizeChartRows } from '../utils/size';
+import { isMeshDressProduct, MESH_DRESS_GUIDE_NOTE, resolveProductSizeChart } from '../data/sizeGuides';
 import KlarelleSizeGuide from '../components/KlarelleSizeGuide';
 import { createSizeProfile, loadSizeProfiles, saveSizeProfiles } from '../utils/sizeProfile';
 import { getColorHex, collectImagesForColor, parseProductColors } from '../utils/colors';
@@ -252,7 +253,7 @@ function ProductDetails() {
         waist: profile.waist,
         hips: profile.hips,
         sizes: product.parsedSizes,
-        chart: product.size_chart
+        chart: resolveProductSizeChart(product)
       }));
       setSizeModalStep(4);
     } else {
@@ -268,7 +269,7 @@ function ProductDetails() {
       waist: userWaist,
       hips: userHips,
       sizes: product.parsedSizes,
-      chart: product.size_chart
+      chart: resolveProductSizeChart(product)
     });
     setRecommendedSize(fit);
     const fields = {
@@ -1168,11 +1169,14 @@ function ProductDetails() {
             <div style={{ overflowY: 'auto', flex: 1, paddingBottom: '40px' }}>
               <>
                   <KlarelleSizeGuide
-                    rows={getSizeChartRows(product.parsedSizes, product.size_chart)}
+                    rows={getSizeChartRows(product.parsedSizes, resolveProductSizeChart(product))}
                     unit={guideUnit}
                     onUnitChange={setGuideUnit}
                     recommendedSize={recommendedSize}
                     selectedSize={selectedSize}
+                    title={isMeshDressProduct(product) ? 'Mesh Dress Size Guide' : 'Size Guide'}
+                    subtitle={isMeshDressProduct(product) ? `Slight stretch • Body measurements — ${guideUnit === 'in' ? 'inches' : 'centimeters'}` : undefined}
+                    note={isMeshDressProduct(product) ? MESH_DRESS_GUIDE_NOTE : undefined}
                   />
                   <div style={{ padding: '16px 20px', borderBottom: '8px solid #f5f5f5' }}>
                 {product.measurements && (
@@ -1382,7 +1386,7 @@ function ProductDetails() {
                               waist: profile.waist,
                               hips: profile.hips,
                               sizes: product.parsedSizes,
-                              chart: product.size_chart
+                              chart: resolveProductSizeChart(product)
                             }));
                           }}
                           style={{ padding: '8px 20px', background: activeProfileId === profile.id ? '#000' : '#f5f5f5', color: activeProfileId === profile.id ? '#fff' : '#000', border: 'none', fontWeight: 'bold', fontSize: '14px' }}
@@ -1463,7 +1467,7 @@ function ProductDetails() {
                               waist: next[0].waist,
                               hips: next[0].hips,
                               sizes: product.parsedSizes,
-                              chart: product.size_chart
+                              chart: resolveProductSizeChart(product)
                             }));
                           } else {
                             setSizeModalStep(1);
